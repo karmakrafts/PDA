@@ -1,6 +1,5 @@
 {
-	"credit": "Made with Blockbench",
-	"parent": "block",
+	"parent": "block/block",
 	"textures": {
 		"0": "pda:blocks/dock_1",
 		"1": "pda:blocks/dock_2",
