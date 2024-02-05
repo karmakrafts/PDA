@@ -1,7 +1,7 @@
 package codechicken.lib.util;
 
-import codechicken.lib.model.IVertexConsumer;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -23,31 +23,6 @@ public class VertexUtils {
         if (from.equals(DefaultVertexFormat.BLOCK) && to.equals(DefaultVertexFormat.BLOCK)) return DEFAULT_MAPPING;
 
         return formatMaps.computeIfAbsent(Pair.of(from, to), pair -> generateMapping(pair.getLeft(), pair.getRight()));
-    }
-
-    public static void putQuad(IVertexConsumer consumer, BakedQuad quad) {
-        consumer.setTexture(quad.getSprite());
-        consumer.setQuadOrientation(quad.getDirection());
-        if (quad.isTinted()) {
-            consumer.setQuadTint(quad.getTintIndex());
-        }
-        consumer.setApplyDiffuseLighting(quad.isShade());
-        float[] data = new float[4];
-        VertexFormat formatFrom = consumer.getVertexFormat();
-        VertexFormat formatTo = DefaultVertexFormat.BLOCK;
-        int countFrom = formatFrom.getElements().size();
-        int countTo = formatTo.getElements().size();
-        int[] eMap = mapFormats(formatFrom, formatTo);
-        for (int v = 0; v < 4; v++) {
-            for (int e = 0; e < countFrom; e++) {
-                if (eMap[e] != countTo) {
-                    unpack(quad.getVertices(), data, formatTo, v, eMap[e]);
-                    consumer.put(e, data);
-                } else {
-                    consumer.put(e);
-                }
-            }
-        }
     }
 
     public static void unpack(int[] from, float[] to, VertexFormat formatFrom, int v, int e) {

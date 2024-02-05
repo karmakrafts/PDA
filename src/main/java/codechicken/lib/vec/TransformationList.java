@@ -1,13 +1,13 @@
 package codechicken.lib.vec;
 
 import codechicken.lib.util.Copyable;
-import net.covers1624.quack.collection.StreamableIterable;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TransformationList extends Transformation {
 
@@ -32,9 +32,7 @@ public class TransformationList extends Transformation {
     }
 
     public TransformationList(TransformationList other) {
-        transformations = StreamableIterable.of(other.transformations)
-                .map(Copyable::copy)
-                .toList();
+        transformations = other.transformations.stream().map(Copyable::copy).collect(Collectors.toCollection(ArrayList::new));
         mat = other.mat;
     }
 
