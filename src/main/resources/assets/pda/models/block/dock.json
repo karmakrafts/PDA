@@ -1,11 +1,11 @@
 {
 	"parent": "block/block",
 	"textures": {
-		"0": "pda:blocks/dock_1",
-		"1": "pda:blocks/dock_2",
-		"2": "pda:blocks/dock_3_off",
-		"3": "pda:blocks/dock_4",
-		"particle": "pda:blocks/dock_1"
+		"0": "pda:block/dock_1",
+		"1": "pda:block/dock_2",
+		"2": "pda:block/dock_3",
+		"3": "pda:block/dock_4",
+		"particle": "pda:block/dock_1"
 	},
 	"elements": [
 		{
