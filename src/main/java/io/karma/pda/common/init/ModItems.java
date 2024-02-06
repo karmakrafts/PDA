@@ -1,8 +1,8 @@
-package io.karma.pda.init;
+package io.karma.pda.common.init;
 
-import io.karma.pda.item.DockBlockItem;
-import io.karma.pda.item.MemoryCardItem;
-import io.karma.pda.item.PDAItem;
+import io.karma.pda.common.item.DockBlockItem;
+import io.karma.pda.common.item.MemoryCardItem;
+import io.karma.pda.common.item.PDAItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;

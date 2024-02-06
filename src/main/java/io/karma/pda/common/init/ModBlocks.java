@@ -1,6 +1,6 @@
-package io.karma.pda.init;
+package io.karma.pda.common.init;
 
-import io.karma.pda.block.DockBlock;
+import io.karma.pda.common.block.DockBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;

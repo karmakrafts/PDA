@@ -1,8 +1,10 @@
-package io.karma.pda.item;
+package io.karma.pda.common.item;
 
-import io.karma.pda.PDAMod;
+import io.karma.pda.common.PDAMod;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -17,28 +19,20 @@ import org.jetbrains.annotations.NotNull;
  * @author Alexander Hinze
  * @since 05/02/2024
  */
-public final class PDAItem extends Item {
-    public static final String TAG_IS_ON = "is_on";
-    public static final String TAG_IS_HORIZONTAL = "is_horizontal";
+public final class MemoryCardItem extends Item {
+    public static final String TAG_IS_LOCKED = "is_locked";
 
-    public PDAItem() {
+    public MemoryCardItem() {
         super(new Properties());
         DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> {
-            ItemProperties.register(this, new ResourceLocation(PDAMod.MODID, TAG_IS_ON), (stack, world, entity, i) -> {
-                final var tag = stack.getTag();
-                if (tag == null) {
-                    return 0F;
-                }
-                return tag.contains(TAG_IS_ON) && tag.getBoolean(TAG_IS_ON) ? 1F : 0F;
-            });
             ItemProperties.register(this,
-                new ResourceLocation(PDAMod.MODID, TAG_IS_HORIZONTAL),
+                new ResourceLocation(PDAMod.MODID, TAG_IS_LOCKED),
                 (stack, world, entity, i) -> {
                     final var tag = stack.getTag();
                     if (tag == null) {
                         return 0F;
                     }
-                    return tag.contains(TAG_IS_HORIZONTAL) && tag.getBoolean(TAG_IS_HORIZONTAL) ? 1F : 0F;
+                    return tag.contains(TAG_IS_LOCKED) && tag.getBoolean(TAG_IS_LOCKED) ? 1F : 0F;
                 });
             return null;
         });
@@ -49,14 +43,11 @@ public final class PDAItem extends Item {
                                                            final @NotNull InteractionHand hand) {
         final var stack = player.getItemInHand(hand);
         if (!world.isClientSide) {
-            if (player.isShiftKeyDown()) {
-                final var tag = stack.getOrCreateTag();
-                tag.putBoolean(TAG_IS_HORIZONTAL,
-                    !tag.contains(TAG_IS_HORIZONTAL) || !tag.getBoolean(TAG_IS_HORIZONTAL));
-            }
-            else {
-                // open menu..
-            }
+            final var tag = stack.getOrCreateTag();
+            tag.putBoolean(TAG_IS_LOCKED, !tag.contains(TAG_IS_LOCKED) || !tag.getBoolean(TAG_IS_LOCKED));
+        }
+        else {
+            world.playSound(player, player, SoundEvents.STONE_BUTTON_CLICK_ON, SoundSource.PLAYERS, 0.75F, 2F);
         }
         return InteractionResultHolder.success(stack);
     }

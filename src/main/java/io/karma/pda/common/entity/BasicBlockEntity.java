@@ -1,4 +1,4 @@
-package io.karma.pda.entity;
+package io.karma.pda.common.entity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

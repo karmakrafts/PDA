@@ -1,7 +1,7 @@
-package io.karma.pda.init;
+package io.karma.pda.common.init;
 
 import com.google.common.collect.Sets;
-import io.karma.pda.entity.DockBlockEntity;
+import io.karma.pda.common.entity.DockBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;

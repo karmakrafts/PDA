@@ -1,4 +1,4 @@
-package io.karma.pda.item;
+package io.karma.pda.common.item;
 
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;

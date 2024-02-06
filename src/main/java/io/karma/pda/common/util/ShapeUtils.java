@@ -1,10 +1,9 @@
-package io.karma.pda.util;
+package io.karma.pda.common.util;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Vector3;
-import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -29,7 +28,7 @@ public final class ShapeUtils {
         });
         var result = Shapes.empty();
         for (final var box : boxes) {
-            result = Shapes.join(result, box.shape(), BooleanOp.OR);
+            result = Shapes.or(result, box.shape());
         }
         return result;
     }

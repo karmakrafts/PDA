@@ -1,10 +1,12 @@
-package io.karma.pda;
+package io.karma.pda.common;
 
-import io.karma.pda.init.ModBlockEntities;
-import io.karma.pda.init.ModBlocks;
-import io.karma.pda.init.ModItems;
+import io.karma.pda.common.init.ModBlockEntities;
+import io.karma.pda.common.init.ModBlocks;
+import io.karma.pda.common.init.ModItems;
+import io.karma.pda.common.init.ModMenus;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -26,6 +28,8 @@ public class PDAMod {
     private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES,
         MODID);
+    private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES,
+        MODID);
     // @formatter:off
     private static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
     public static final RegistryObject<CreativeModeTab> TAB = TABS.register("main", () -> CreativeModeTab.builder()
@@ -41,6 +45,7 @@ public class PDAMod {
         ModBlockEntities.register(BLOCK_ENTITIES);
         ModBlocks.register(BLOCKS);
         ModItems.register(ITEMS);
+        ModMenus.register(MENU_TYPES);
     }
 
     public PDAMod() {
@@ -49,5 +54,6 @@ public class PDAMod {
         BLOCKS.register(bus);
         ITEMS.register(bus);
         TABS.register(bus);
+        MENU_TYPES.register(bus);
     }
 }
