@@ -2,5 +2,19 @@
   "parent": "minecraft:item/generated",
   "textures": {
     "layer0": "pda:item/memory_card"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "pda:is_locked": 0
+      },
+      "model": "pda:item/memory_card"
+    },
+    {
+      "predicate": {
+        "pda:is_locked": 1
+      },
+      "model": "pda:item/memory_card_locked"
+    }
+  ]
 }
