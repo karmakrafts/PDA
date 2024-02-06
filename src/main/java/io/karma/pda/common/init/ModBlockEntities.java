@@ -18,7 +18,6 @@ public final class ModBlockEntities {
     // @formatter:on
 
     public static void register(final DeferredRegister<BlockEntityType<?>> register) {
-        dock = register.register("dock",
-            () -> new BlockEntityType<>(new DockBlockEntity.DockBlockEntityFactory(), Sets.newHashSet(), null));
+        dock = register.register("dock", () -> new BlockEntityType<>(DockBlockEntity::new, Sets.newHashSet(), null));
     }
 }

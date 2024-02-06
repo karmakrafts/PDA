@@ -6,7 +6,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
@@ -90,12 +89,5 @@ public final class DockBlockEntity extends BasicBlockEntity implements Container
     @Override
     public void clearContent() {
         stack = ItemStack.EMPTY;
-    }
-
-    public static final class DockBlockEntityFactory implements BlockEntityType.BlockEntitySupplier<DockBlockEntity> {
-        @Override
-        public @NotNull DockBlockEntity create(final @NotNull BlockPos pos, final @NotNull BlockState state) {
-            return new DockBlockEntity(pos, state);
-        }
     }
 }
