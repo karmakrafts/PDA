@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
+    "orientation=north,has_item=false,is_on=false": {
       "model": "pda:block/dock_empty"
+    },
+    "orientation=south,has_item=false,is_on=false": {
+      "model": "pda:block/dock_empty"
+    },
+    "orientation=east,has_item=false,is_on=false": {
+      "model": "pda:block/dock_empty"
+    },
+    "orientation=west,has_item=false,is_on=false": {
+      "model": "pda:block/dock_empty"
+    },
+    "item": {
+      "model": "pda:item/dock"
     }
   }
 }
