@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "pda",
+  "key": {
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "G": {
+      "tag": "forge:dusts/glowstone"
+    },
+    "D": {
+      "tag": "forge:gems/diamond"
+    }
+  },
+  "pattern": [
+    "III",
+    "IGI",
+    "IDI"
+  ],
+  "result": {
+    "item": "pda:pda"
+  },
+  "show_notification": true
+}

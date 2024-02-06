@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "pda",
+  "key": {
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "D": {
+      "tag": "forge:gems/diamond"
+    }
+  },
+  "pattern": [
+    "   ",
+    "I I",
+    "IDI"
+  ],
+  "result": {
+    "item": "pda:dock"
+  },
+  "show_notification": true
+}
