@@ -44,10 +44,10 @@ public final class MemoryCardItem extends Item {
         final var stack = player.getItemInHand(hand);
         if (!world.isClientSide) {
             final var tag = stack.getOrCreateTag();
-            tag.putBoolean(TAG_IS_LOCKED, tag.contains(TAG_IS_LOCKED) && !tag.getBoolean(TAG_IS_LOCKED));
+            tag.putBoolean(TAG_IS_LOCKED, !tag.contains(TAG_IS_LOCKED) || !tag.getBoolean(TAG_IS_LOCKED));
         }
         else {
-            world.playSound(player, player, SoundEvents.STONE_BUTTON_CLICK_ON, SoundSource.PLAYERS, 1F, 2F);
+            world.playSound(player, player, SoundEvents.STONE_BUTTON_CLICK_ON, SoundSource.PLAYERS, 0.75F, 2F);
         }
         return InteractionResultHolder.success(stack);
     }

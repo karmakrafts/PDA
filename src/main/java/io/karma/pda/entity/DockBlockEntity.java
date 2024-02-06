@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
  * @since 06/02/2024
  */
 public final class DockBlockEntity extends BasicBlockEntity {
+    public static final String TAG_ITEM = "item";
     private ItemStack stack = ItemStack.EMPTY.copy();
 
     public DockBlockEntity(final BlockPos pos, final BlockState state) {
@@ -21,15 +22,15 @@ public final class DockBlockEntity extends BasicBlockEntity {
 
     @Override
     public void deserializeNBT(final @NotNull CompoundTag tag) {
-        if (tag.contains("item")) {
-            stack.deserializeNBT(tag.getCompound("item"));
+        if (tag.contains(TAG_ITEM)) {
+            stack.deserializeNBT(tag.getCompound(TAG_ITEM));
         }
     }
 
     @Override
     public CompoundTag serializeNBT() {
         final var tag = super.serializeNBT();
-        tag.put("item", stack.serializeNBT());
+        tag.put(TAG_ITEM, stack.serializeNBT());
         return tag;
     }
 
