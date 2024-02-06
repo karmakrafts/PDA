@@ -1,6 +1,6 @@
 package io.karma.pda.common;
 
-import io.karma.pda.client.screen.PDAItemScreen;
+import io.karma.pda.client.screen.PDAStorageScreen;
 import io.karma.pda.common.init.ModBlockEntities;
 import io.karma.pda.common.init.ModBlocks;
 import io.karma.pda.common.init.ModItems;
@@ -71,7 +71,7 @@ public class PDAMod {
     @OnlyIn(Dist.CLIENT)
     public void onClientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            MenuScreens.register(ModMenus.pdaItemMenu.get(), PDAItemScreen::new);
+            MenuScreens.register(ModMenus.pdaStorageMenu.get(), PDAStorageScreen::new);
         });
     }
 }

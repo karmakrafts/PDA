@@ -1,9 +1,9 @@
 package io.karma.pda.common.menu;
 
 import io.karma.pda.common.init.ModMenus;
+import io.karma.pda.common.util.ItemStorageContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,11 +11,13 @@ import org.jetbrains.annotations.NotNull;
  * @author Alexander Hinze
  * @since 06/02/2024
  */
-public final class PDAItemMenu extends AbstractContainerMenu {
+public final class PDAStorageMenu extends BasicContainerMenu<ItemStorageContainer> {
     private final Inventory playerInventory;
 
-    public PDAItemMenu(final int id, final Inventory playerInventory) {
-        super(ModMenus.pdaItemMenu.get(), id);
+    public PDAStorageMenu(final int id, final Inventory playerInventory) {
+        super(ModMenus.pdaStorageMenu.get(),
+            id,
+            new ItemStorageContainer(playerInventory.getItem(playerInventory.selected), "pda_storage", 1, 1));
         this.playerInventory = playerInventory;
     }
 

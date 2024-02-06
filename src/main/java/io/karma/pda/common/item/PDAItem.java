@@ -46,7 +46,7 @@ public final class PDAItem extends Item {
         if (!world.isClientSide) {
             if (player.isShiftKeyDown()) {
                 NetworkHooks.openScreen((ServerPlayer) player,
-                    new SimpleMenuProvider((id, inventory, p) -> ModMenus.pdaItemMenu.get().create(id, inventory),
+                    new SimpleMenuProvider((id, inventory, p) -> ModMenus.pdaStorageMenu.get().create(id, inventory),
                         Component.empty()));
                 return InteractionResultHolder.success(stack);
             }

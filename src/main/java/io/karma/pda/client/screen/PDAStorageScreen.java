@@ -1,6 +1,6 @@
 package io.karma.pda.client.screen;
 
-import io.karma.pda.common.menu.PDAItemMenu;
+import io.karma.pda.common.menu.PDAStorageMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -14,14 +14,20 @@ import org.jetbrains.annotations.NotNull;
  * @since 06/02/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class PDAItemScreen extends AbstractContainerScreen<PDAItemMenu> {
-    public PDAItemScreen(final PDAItemMenu menu, final Inventory inventory, final Component component) {
+public final class PDAStorageScreen extends AbstractContainerScreen<PDAStorageMenu> {
+    public PDAStorageScreen(final PDAStorageMenu menu, final Inventory inventory, final Component component) {
         super(menu, inventory, component);
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        //addRenderableWidget(new Slot())
     }
 
     @Override
     protected void renderBg(final @NotNull GuiGraphics graphics, float partialTicks, final int mouseX,
                             final int mouseY) {
-
+        renderBackground(graphics);
     }
 }
