@@ -10,7 +10,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 /**
  * @author Alexander Hinze
@@ -36,20 +37,20 @@ public class BasicBlockEntity extends BlockEntity {
         return serializeNBT();
     }
 
-    @Nullable
+    @NotNull
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return new ClientboundBlockEntityDataPacket(worldPosition, getType(), getUpdateTag());
     }
 
     @Override
-    public void handleUpdateTag(final CompoundTag tag) {
+    public void handleUpdateTag(final @NotNull CompoundTag tag) {
         deserializeNBT(tag);
     }
 
     @Override
     public void onDataPacket(final @NotNull Connection conn, final @NotNull ClientboundBlockEntityDataPacket packet) {
-        handleUpdateTag(packet.getTag());
+        handleUpdateTag(Objects.requireNonNull(packet.getTag()));
         if (level != null) {
             level.blockUpdated(worldPosition, getBlockState().getBlock());
         }

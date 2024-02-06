@@ -1,7 +1,9 @@
 {
+	"credit": "Made with Blockbench",
 	"parent": "block/block",
 	"textures": {
 		"0": "pda:block/dock_1",
+		"1": "pda:block/dock_2",
 		"particle": "pda:block/dock_1"
 	},
 	"elements": [
@@ -20,15 +22,15 @@
 		},
 		{
 			"name": "charger1",
-			"from": [6, 0, 2],
+			"from": [2, 0, 2],
 			"to": [14, 4, 5],
 			"faces": {
-				"north": {"uv": [0, 3, 8, 7], "texture": "#1"},
-				"east": {"uv": [0, 10, 3, 14], "texture": "#1"},
-				"south": {"uv": [8, 3, 16, 7], "texture": "#1"},
-				"west": {"uv": [0, 10, 3, 14], "texture": "#1"},
-				"up": {"uv": [0, 0, 8, 3], "texture": "#1"},
-				"down": {"uv": [8, 0, 16, 3], "texture": "#1"}
+				"north": {"uv": [0, 3, 12, 7], "texture": "#1"},
+				"east": {"uv": [0, 7, 3, 11], "texture": "#1"},
+				"south": {"uv": [0, 3, 12, 7], "texture": "#1"},
+				"west": {"uv": [0, 7, 3, 11], "texture": "#1"},
+				"up": {"uv": [0, 0, 12, 3], "texture": "#1"},
+				"down": {"uv": [0, 0, 12, 3], "texture": "#1"}
 			}
 		},
 		{
@@ -81,6 +83,45 @@
 				"west": {"uv": [1, 9, 5, 10], "texture": "#0"},
 				"up": {"uv": [0, 4, 1, 8], "texture": "#0"},
 				"down": {"uv": [0, 3, 1, 7], "texture": "#1"}
+			}
+		},
+		{
+			"name": "contact1",
+			"from": [4.5, 2, 6],
+			"to": [5, 2.5, 7],
+			"faces": {
+				"north": {"uv": [12, 0, 12.5, 0.5], "texture": "#0"},
+				"east": {"uv": [12, 0, 13, 0.5], "texture": "#0"},
+				"south": {"uv": [12, 0, 12.5, 0.5], "texture": "#0"},
+				"west": {"uv": [12, 0, 13, 0.5], "texture": "#0"},
+				"up": {"uv": [12, 0, 12.5, 1], "texture": "#0"},
+				"down": {"uv": [0, 0, 0.5, 1], "texture": "#missing"}
+			}
+		},
+		{
+			"name": "contact2",
+			"from": [5.5, 2, 6],
+			"to": [6, 2.5, 7],
+			"faces": {
+				"north": {"uv": [12, 0, 12.5, 0.5], "texture": "#0"},
+				"east": {"uv": [12, 0, 13, 0.5], "texture": "#0"},
+				"south": {"uv": [12, 0, 12.5, 0.5], "texture": "#0"},
+				"west": {"uv": [12, 0, 13, 0.5], "texture": "#0"},
+				"up": {"uv": [12, 0, 12.5, 1], "texture": "#0"},
+				"down": {"uv": [0, 0, 0.5, 1], "texture": "#missing"}
+			}
+		},
+		{
+			"name": "contact3",
+			"from": [6.5, 2, 6],
+			"to": [7, 2.5, 7],
+			"faces": {
+				"north": {"uv": [12, 0, 12.5, 0.5], "texture": "#0"},
+				"east": {"uv": [12, 0, 13, 0.5], "texture": "#0"},
+				"south": {"uv": [12, 0, 12.5, 0.5], "texture": "#0"},
+				"west": {"uv": [12, 0, 13, 0.5], "texture": "#0"},
+				"up": {"uv": [12, 0, 12.5, 1], "texture": "#0"},
+				"down": {"uv": [0, 0, 0.5, 1], "texture": "#missing"}
 			}
 		}
 	]
