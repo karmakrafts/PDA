@@ -1,6 +1,7 @@
 package io.karma.pda.common.item;
 
 import io.karma.pda.common.PDAMod;
+import io.karma.pda.common.util.NBTUtils;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
@@ -24,17 +25,10 @@ public final class MemoryCardItem extends Item {
 
     public MemoryCardItem() {
         super(new Properties());
-        DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> {
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             ItemProperties.register(this,
                 new ResourceLocation(PDAMod.MODID, TAG_IS_LOCKED),
-                (stack, world, entity, i) -> {
-                    final var tag = stack.getTag();
-                    if (tag == null) {
-                        return 0F;
-                    }
-                    return tag.contains(TAG_IS_LOCKED) && tag.getBoolean(TAG_IS_LOCKED) ? 1F : 0F;
-                });
-            return null;
+                (stack, world, entity, i) -> NBTUtils.getOrDefault(stack.getTag(), TAG_IS_LOCKED, false) ? 1F : 0F);
         });
     }
 

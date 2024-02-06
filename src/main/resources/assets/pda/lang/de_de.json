@@ -2,5 +2,7 @@
   "itemGroup.pda": "PDA",
   "block.pda.dock": "Dock",
   "item.pda.pda": "PDA",
-  "item.pda.memory_card": "Speicherkarte"
+  "item.pda.memory_card": "Speicherkarte",
+  "screen.pda.pda": "PDA",
+  "screen.pda.pda_item": "Speicher"
 }

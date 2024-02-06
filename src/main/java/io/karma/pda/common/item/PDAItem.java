@@ -1,16 +1,22 @@
 package io.karma.pda.common.item;
 
 import io.karma.pda.common.PDAMod;
+import io.karma.pda.common.init.ModMenus;
+import io.karma.pda.common.util.NBTUtils;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -23,24 +29,13 @@ public final class PDAItem extends Item {
 
     public PDAItem() {
         super(new Properties());
-        DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> {
-            ItemProperties.register(this, new ResourceLocation(PDAMod.MODID, TAG_IS_ON), (stack, world, entity, i) -> {
-                final var tag = stack.getTag();
-                if (tag == null) {
-                    return 0F;
-                }
-                return tag.contains(TAG_IS_ON) && tag.getBoolean(TAG_IS_ON) ? 1F : 0F;
-            });
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            ItemProperties.register(this,
+                new ResourceLocation(PDAMod.MODID, TAG_IS_ON),
+                (stack, world, entity, i) -> NBTUtils.getOrDefault(stack.getTag(), TAG_IS_ON, false) ? 1F : 0F);
             ItemProperties.register(this,
                 new ResourceLocation(PDAMod.MODID, TAG_IS_HORIZONTAL),
-                (stack, world, entity, i) -> {
-                    final var tag = stack.getTag();
-                    if (tag == null) {
-                        return 0F;
-                    }
-                    return tag.contains(TAG_IS_HORIZONTAL) && tag.getBoolean(TAG_IS_HORIZONTAL) ? 1F : 0F;
-                });
-            return null;
+                (stack, world, entity, i) -> NBTUtils.getOrDefault(stack.getTag(), TAG_IS_HORIZONTAL, false) ? 1F : 0F);
         });
     }
 
@@ -50,12 +45,12 @@ public final class PDAItem extends Item {
         final var stack = player.getItemInHand(hand);
         if (!world.isClientSide) {
             if (player.isShiftKeyDown()) {
-
-            }
-            else {
-                // open menu..
+                NetworkHooks.openScreen((ServerPlayer) player,
+                    new SimpleMenuProvider((id, inventory, p) -> ModMenus.pdaItemMenu.get().create(id, inventory),
+                        Component.empty()));
+                return InteractionResultHolder.success(stack);
             }
         }
-        return InteractionResultHolder.success(stack);
+        return InteractionResultHolder.fail(stack);
     }
 }

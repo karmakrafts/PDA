@@ -1,9 +1,11 @@
 package io.karma.pda.common;
 
+import io.karma.pda.client.screen.PDAItemScreen;
 import io.karma.pda.common.init.ModBlockEntities;
 import io.karma.pda.common.init.ModBlocks;
 import io.karma.pda.common.init.ModItems;
 import io.karma.pda.common.init.ModMenus;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.MenuType;
@@ -11,7 +13,11 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -50,10 +56,22 @@ public class PDAMod {
 
     public PDAMod() {
         final var bus = FMLJavaModLoadingContext.get().getModEventBus();
+
         BLOCK_ENTITIES.register(bus);
         BLOCKS.register(bus);
         ITEMS.register(bus);
         TABS.register(bus);
         MENU_TYPES.register(bus);
+
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            bus.addListener(this::onClientSetup);
+        });
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void onClientSetup(final FMLClientSetupEvent event) {
+        event.enqueueWork(() -> {
+            MenuScreens.register(ModMenus.pdaItemMenu.get(), PDAItemScreen::new);
+        });
     }
 }

@@ -3,17 +3,25 @@ package io.karma.pda.common.block;
 import codechicken.lib.vec.Vector3;
 import io.karma.pda.common.entity.DockBlockEntity;
 import io.karma.pda.common.init.ModBlockEntities;
+import io.karma.pda.common.init.ModItems;
+import io.karma.pda.common.item.PDAItem;
 import io.karma.pda.common.util.ShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -87,10 +95,17 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
 
     @SuppressWarnings("deprecation")
     @Override
+    public @NotNull InteractionResult use(final @NotNull BlockState state, final @NotNull Level world,
+                                          final @NotNull BlockPos pos, final @NotNull Player player,
+                                          final @NotNull InteractionHand hand, final @NotNull BlockHitResult hit) {
+        return InteractionResult.SUCCESS;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
     public @NotNull VoxelShape getShape(final @NotNull BlockState state, final @NotNull BlockGetter world,
                                         final @NotNull BlockPos pos, final @NotNull CollisionContext context) {
-        final var dir = world.getBlockState(pos).getOptionalValue(ORIENTATION);
-        return SHAPES.get(dir.orElse(Direction.NORTH));
+        return SHAPES.get(world.getBlockState(pos).getOptionalValue(ORIENTATION).orElse(Direction.NORTH));
     }
 
     @SuppressWarnings("deprecation")
@@ -98,5 +113,19 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     public boolean isPathfindable(final @NotNull BlockState state, final @NotNull BlockGetter world,
                                   final @NotNull BlockPos pos, final @NotNull PathComputationType type) {
         return false;
+    }
+
+    private void setItem(final Level world, final BlockPos pos, final ItemStack stack) {
+        final var entity = world.getBlockEntity(pos);
+        if (!(entity instanceof DockBlockEntity dockEntity) || stack.getItem() != ModItems.pda.get()) {
+            return;
+        }
+        dockEntity.setItem(0, stack);
+        final var tag = stack.getTag();
+        // @formatter:off
+        world.setBlockAndUpdate(pos, world.getBlockState(pos)
+            .setValue(HAS_ITEM, !stack.isEmpty())
+            .setValue(IS_ON, tag != null && tag.contains(PDAItem.TAG_IS_ON) && tag.getBoolean(PDAItem.TAG_IS_ON)));
+        // @formatter:on
     }
 }
