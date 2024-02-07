@@ -103,7 +103,7 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
         }
         else {
             final var entity = world.getBlockEntity(pos);
-            if(!(entity instanceof DockBlockEntity dockEntity)) {
+            if (!(entity instanceof DockBlockEntity dockEntity)) {
                 return InteractionResult.FAIL;
             }
 
