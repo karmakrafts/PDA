@@ -73,7 +73,7 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
         // @formatter:off
         return ShapeUtils.rotate(shape, Vector3.Y_POS, Vector3.CENTER, direction.getAxis() == Direction.Axis.Z
             ? direction.toYRot() + 180F
-            : direction.toYRot());
+            : direction.toYRot()).optimize();
         // @formatter:on
     }
 
