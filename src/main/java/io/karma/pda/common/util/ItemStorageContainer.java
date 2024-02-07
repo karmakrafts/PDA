@@ -53,6 +53,12 @@ public final class ItemStorageContainer implements Container {
 
     @Override
     public boolean isEmpty() {
+        for (var i = 0; i < slotCount; i++) {
+            if (!getItem(i).isEmpty()) {
+                continue;
+            }
+            return true;
+        }
         return false;
     }
 
