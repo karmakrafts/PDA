@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
  */
 @OnlyIn(Dist.CLIENT)
 public final class PDAStorageScreen extends BasicContainerScreen<PDAStorageMenu> {
-    public static final ResourceLocation TEXTURE = new ResourceLocation(PDAMod.MODID, "textures/gui/single_slot.png");
+    public static final ResourceLocation TEXTURE = new ResourceLocation(PDAMod.MODID, "textures/gui/pda_storage.png");
 
     public PDAStorageScreen(final PDAStorageMenu menu, final Inventory inventory) {
         super(menu, inventory, Component.translatable(String.format("screen.%s.pda_storage", PDAMod.MODID)));

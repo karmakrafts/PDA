@@ -1,5 +1,6 @@
 package io.karma.pda.common.menu;
 
+import io.karma.pda.common.block.DockBlock;
 import io.karma.pda.common.entity.DockBlockEntity;
 import io.karma.pda.common.init.ModItems;
 import io.karma.pda.common.init.ModMenus;
@@ -13,6 +14,16 @@ public final class DockMenu extends BasicContainerMenu<DockBlockEntity> {
     public DockMenu(final int id, final Inventory playerInventory, final DockBlockEntity container) {
         super(ModMenus.dock.get(), id, container);
         bindPlayerInventory(playerInventory, 8, 84);
-        addSlot(new FilteredSlot(container, 0, 80, 35, ModItems.pda.get()));
+        addSlot(new FilteredSlot(container, 0, 80, 35, ModItems.pda.get()).withSetCallback(stack -> {
+            final var player = playerInventory.player;
+            final var world = player.level();
+            final var pos = container.getBlockPos();
+            // @formatter:off
+            final var state = world.getBlockState(pos).setValue(DockBlock.STATE, stack.isEmpty()
+                ? DockBlock.State.NO_ITEM
+                : DockBlock.State.ITEM_OFF);
+            // @formatter:on
+            world.setBlockAndUpdate(pos, state);
+        }));
     }
 }

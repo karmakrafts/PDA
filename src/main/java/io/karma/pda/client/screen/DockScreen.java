@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
  */
 @OnlyIn(Dist.CLIENT)
 public final class DockScreen extends BasicContainerScreen<DockMenu> {
-    private static final ResourceLocation TEXTURE = new ResourceLocation(PDAMod.MODID, "textures/gui/single_slot.png");
+    private static final ResourceLocation TEXTURE = new ResourceLocation(PDAMod.MODID, "textures/gui/dock.png");
 
     public DockScreen(@NotNull DockMenu menu, @NotNull Inventory playerInventory) {
         super(menu, playerInventory, Component.translatable(String.format("screen.%s.dock", PDAMod.MODID)));

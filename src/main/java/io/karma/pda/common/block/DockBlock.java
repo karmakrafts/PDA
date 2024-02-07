@@ -102,6 +102,10 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
             return InteractionResult.SUCCESS;
         }
         else {
+            final var entity = world.getBlockEntity(pos);
+            if(!(entity instanceof DockBlockEntity dockEntity)) {
+                return InteractionResult.FAIL;
+            }
 
         }
         return InteractionResult.FAIL;
@@ -127,9 +131,6 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
             return;
         }
         dockEntity.setItem(0, stack);
-        final var tag = stack.getOrCreateTag();
-
-        world.setBlockAndUpdate(pos, world.getBlockState(pos));
     }
 
     public enum State implements StringRepresentable {
