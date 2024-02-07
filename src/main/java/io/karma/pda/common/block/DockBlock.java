@@ -4,12 +4,13 @@ import codechicken.lib.vec.Vector3;
 import io.karma.pda.common.entity.DockBlockEntity;
 import io.karma.pda.common.init.ModBlockEntities;
 import io.karma.pda.common.init.ModItems;
-import io.karma.pda.common.item.PDAItem;
 import io.karma.pda.common.menu.DockMenu;
+import io.karma.pda.common.util.HorizontalDirection;
 import io.karma.pda.common.util.PlayerUtils;
 import io.karma.pda.common.util.ShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -20,7 +21,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
@@ -36,9 +36,9 @@ import java.util.EnumMap;
  * @since 05/02/2024
  */
 public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
-    public static final EnumProperty<Direction> ORIENTATION = EnumProperty.create("orientation", Direction.class);
-    public static final BooleanProperty HAS_ITEM = BooleanProperty.create("has_item");
-    public static final BooleanProperty IS_ON = BooleanProperty.create("is_on");
+    public static final EnumProperty<HorizontalDirection> ORIENTATION = EnumProperty.create("orientation",
+        HorizontalDirection.class);
+    public static final EnumProperty<State> STATE = EnumProperty.create("state", State.class);
     private static final EnumMap<Direction, VoxelShape> SHAPES = new EnumMap<>(Direction.class);
 
     static {
@@ -54,9 +54,8 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
         super(ModBlockEntities.dock, Properties.of());
         // @formatter:off
         registerDefaultState(stateDefinition.any()
-            .setValue(ORIENTATION, Direction.NORTH)
-            .setValue(HAS_ITEM, false)
-            .setValue(IS_ON, false));
+            .setValue(ORIENTATION, HorizontalDirection.NORTH)
+            .setValue(STATE, State.NO_ITEM));
         // @formatter:on
     }
 
@@ -81,17 +80,15 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     @Override
     protected void createBlockStateDefinition(final StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(ORIENTATION);
-        builder.add(HAS_ITEM);
-        builder.add(IS_ON);
+        builder.add(STATE);
     }
 
     @Override
     public BlockState getStateForPlacement(final @NotNull BlockPlaceContext context) {
         // @formatter:off
         return defaultBlockState()
-            .setValue(ORIENTATION, context.getHorizontalDirection())
-            .setValue(HAS_ITEM, false)
-            .setValue(IS_ON, false);
+            .setValue(ORIENTATION, HorizontalDirection.of(context.getHorizontalDirection()))
+            .setValue(STATE, State.NO_ITEM);
         // @formatter:on
     }
 
@@ -114,7 +111,7 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     @Override
     public @NotNull VoxelShape getShape(final @NotNull BlockState state, final @NotNull BlockGetter world,
                                         final @NotNull BlockPos pos, final @NotNull CollisionContext context) {
-        return SHAPES.get(world.getBlockState(pos).getOptionalValue(ORIENTATION).orElse(Direction.NORTH));
+        return SHAPES.get(world.getBlockState(pos).getOptionalValue(ORIENTATION).orElse(HorizontalDirection.NORTH).getDirection());
     }
 
     @SuppressWarnings("deprecation")
@@ -130,11 +127,17 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
             return;
         }
         dockEntity.setItem(0, stack);
-        final var tag = stack.getTag();
-        // @formatter:off
-        world.setBlockAndUpdate(pos, world.getBlockState(pos)
-            .setValue(HAS_ITEM, !stack.isEmpty())
-            .setValue(IS_ON, tag != null && tag.contains(PDAItem.TAG_IS_ON) && tag.getBoolean(PDAItem.TAG_IS_ON)));
-        // @formatter:on
+        final var tag = stack.getOrCreateTag();
+
+        world.setBlockAndUpdate(pos, world.getBlockState(pos));
+    }
+
+    public enum State implements StringRepresentable {
+        NO_ITEM, ITEM_OFF, ITEM_ON;
+
+        @Override
+        public @NotNull String getSerializedName() {
+            return name().toLowerCase();
+        }
     }
 }
