@@ -4,5 +4,5 @@
   "item.pda.pda": "PDA",
   "item.pda.memory_card": "Speicherkarte",
   "screen.pda.pda": "PDA",
-  "screen.pda.pda_item": "Speicher"
+  "screen.pda.pda_storage": "Speicher"
 }

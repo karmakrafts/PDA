@@ -19,8 +19,8 @@ public final class PDAStorageMenu extends BasicContainerMenu<ItemStorageContaine
             id,
             new ItemStorageContainer(playerInventory.getItem(playerInventory.selected), "pda_storage", 1, 1));
         this.playerInventory = playerInventory;
-        bindPlayerInventory(playerInventory, 8, 12);
-        addSlot(new Slot(container, 0, 8, 0));
+        bindPlayerInventory(playerInventory, 8, 84);
+        addSlot(new Slot(container, 0, 80, 35));
     }
 
     @Override

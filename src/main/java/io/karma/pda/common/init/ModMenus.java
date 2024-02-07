@@ -18,7 +18,7 @@ public final class ModMenus {
     // @formatter:on
 
     public static void register(final DeferredRegister<MenuType<?>> register) {
-        pdaStorageMenu = register.register("pda_item_menu",
+        pdaStorageMenu = register.register("pda_storage",
             () -> new MenuType<>(PDAStorageMenu::new, FeatureFlagSet.of()));
     }
 }

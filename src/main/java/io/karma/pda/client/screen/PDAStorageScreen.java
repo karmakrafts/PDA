@@ -1,9 +1,11 @@
 package io.karma.pda.client.screen;
 
+import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -15,19 +17,18 @@ import org.jetbrains.annotations.NotNull;
  */
 @OnlyIn(Dist.CLIENT)
 public final class PDAStorageScreen extends AbstractContainerScreen<PDAStorageMenu> {
-    public PDAStorageScreen(final PDAStorageMenu menu, final Inventory inventory, final Component component) {
-        super(menu, inventory, component);
-    }
+    public static final ResourceLocation TEXTURE = new ResourceLocation(PDAMod.MODID, "textures/gui/single_slot.png");
 
-    @Override
-    protected void init() {
-        super.init();
-        //addRenderableWidget(new Slot())
+    public PDAStorageScreen(final PDAStorageMenu menu, final Inventory inventory) {
+        super(menu, inventory, Component.translatable(String.format("screen.%s.pda_storage", PDAMod.MODID)));
     }
 
     @Override
     protected void renderBg(final @NotNull GuiGraphics graphics, float partialTicks, final int mouseX,
                             final int mouseY) {
         renderBackground(graphics);
+        final var x = (width >> 1) - (imageWidth >> 1);
+        final var y = (height >> 1) - (imageHeight >> 1);
+        graphics.blit(TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
     }
 }

@@ -5,9 +5,11 @@ import io.karma.pda.common.init.ModBlockEntities;
 import io.karma.pda.common.init.ModBlocks;
 import io.karma.pda.common.init.ModItems;
 import io.karma.pda.common.init.ModMenus;
+import io.karma.pda.common.menu.PDAStorageMenu;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -71,7 +73,8 @@ public class PDAMod {
     @OnlyIn(Dist.CLIENT)
     public void onClientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            MenuScreens.register(ModMenus.pdaStorageMenu.get(), PDAStorageScreen::new);
+            MenuScreens.register(ModMenus.pdaStorageMenu.get(),
+                (PDAStorageMenu menu, Inventory inventory, Component title) -> new PDAStorageScreen(menu, inventory));
         });
     }
 }
