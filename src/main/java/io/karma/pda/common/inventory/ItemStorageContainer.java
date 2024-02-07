@@ -1,4 +1,4 @@
-package io.karma.pda.common.util;
+package io.karma.pda.common.inventory;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;

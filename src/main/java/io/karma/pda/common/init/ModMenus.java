@@ -1,5 +1,6 @@
 package io.karma.pda.common.init;
 
+import io.karma.pda.common.inventory.ItemContainerFactory;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.MenuType;
@@ -19,6 +20,6 @@ public final class ModMenus {
 
     public static void register(final DeferredRegister<MenuType<?>> register) {
         pdaStorageMenu = register.register("pda_storage",
-            () -> new MenuType<>(PDAStorageMenu::new, FeatureFlagSet.of()));
+            () -> new MenuType<>(new ItemContainerFactory<>(PDAStorageMenu::new), FeatureFlagSet.of()));
     }
 }
