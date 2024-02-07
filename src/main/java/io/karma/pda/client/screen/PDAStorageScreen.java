@@ -3,7 +3,6 @@ package io.karma.pda.client.screen;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -16,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
  * @since 06/02/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class PDAStorageScreen extends AbstractContainerScreen<PDAStorageMenu> {
+public final class PDAStorageScreen extends BasicContainerScreen<PDAStorageMenu> {
     public static final ResourceLocation TEXTURE = new ResourceLocation(PDAMod.MODID, "textures/gui/single_slot.png");
 
     public PDAStorageScreen(final PDAStorageMenu menu, final Inventory inventory) {
@@ -26,7 +25,6 @@ public final class PDAStorageScreen extends AbstractContainerScreen<PDAStorageMe
     @Override
     protected void renderBg(final @NotNull GuiGraphics graphics, float partialTicks, final int mouseX,
                             final int mouseY) {
-        renderBackground(graphics);
         final var x = (width >> 1) - (imageWidth >> 1);
         final var y = (height >> 1) - (imageHeight >> 1);
         graphics.blit(TEXTURE, x, y, 0, 0, imageWidth, imageHeight);

@@ -2,14 +2,13 @@ package io.karma.pda.common.item;
 
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.init.ModMenus;
+import io.karma.pda.common.menu.DefaultMenuProvider;
 import io.karma.pda.common.util.NBTUtils;
 import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -46,8 +45,8 @@ public final class PDAItem extends Item {
         if (!world.isClientSide) {
             if (player.isShiftKeyDown()) {
                 NetworkHooks.openScreen((ServerPlayer) player,
-                    new SimpleMenuProvider((id, inventory, p) -> ModMenus.pdaStorageMenu.get().create(id, inventory),
-                        Component.empty()));
+                    new DefaultMenuProvider<>(ModMenus.pdaStorageMenu),
+                    buffer -> buffer.writeByte(hand.ordinal()));
                 return InteractionResultHolder.success(stack);
             }
         }

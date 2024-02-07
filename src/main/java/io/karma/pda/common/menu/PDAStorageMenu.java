@@ -12,13 +12,10 @@ import org.jetbrains.annotations.NotNull;
  * @since 06/02/2024
  */
 public final class PDAStorageMenu extends BasicContainerMenu<ItemStorageContainer> {
-    private final Inventory playerInventory;
-
     public PDAStorageMenu(final int id, final Inventory playerInventory) {
         super(ModMenus.pdaStorageMenu.get(),
             id,
             new ItemStorageContainer(playerInventory.getItem(playerInventory.selected), "pda_storage", 1, 1));
-        this.playerInventory = playerInventory;
         bindPlayerInventory(playerInventory, 8, 84);
         addSlot(new Slot(container, 0, 80, 35));
     }
