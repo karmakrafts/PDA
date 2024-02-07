@@ -3,10 +3,12 @@ loaderVersion="${loader_version_range}" #mandatory This is typically bumped ever
 license="${mod_license}"
 [[mods]] #mandatory
 modId="${mod_id}" #mandatory
+logoFile="/assets/pda/pda_logo.png"
 version="${mod_version}" #mandatory
 displayName="${mod_name}" #mandatory
 authors="${mod_authors}" #optional
 description='''${mod_description}'''
+credits="covers1624 and chickenbones for CodeChickenLib"
 [[dependencies.${mod_id}]] #optional
     modId="forge" #mandatory
     mandatory=true #mandatory
