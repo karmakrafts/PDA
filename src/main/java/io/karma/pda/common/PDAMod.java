@@ -1,10 +1,12 @@
 package io.karma.pda.common;
 
+import io.karma.pda.client.screen.DockScreen;
 import io.karma.pda.client.screen.PDAStorageScreen;
 import io.karma.pda.common.init.ModBlockEntities;
 import io.karma.pda.common.init.ModBlocks;
 import io.karma.pda.common.init.ModItems;
 import io.karma.pda.common.init.ModMenus;
+import io.karma.pda.common.menu.DockMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.registries.Registries;
@@ -17,6 +19,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -60,24 +65,43 @@ public class PDAMod {
     }
 
     public PDAMod() {
-        final var bus = FMLJavaModLoadingContext.get().getModEventBus();
+        final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        final var forgeBus = MinecraftForge.EVENT_BUS;
+        forgeBus.addListener(this::onRightClickBlock);
 
-        BLOCK_ENTITIES.register(bus);
-        BLOCKS.register(bus);
-        ITEMS.register(bus);
-        TABS.register(bus);
-        MENU_TYPES.register(bus);
+        BLOCK_ENTITIES.register(modBus);
+        BLOCKS.register(modBus);
+        ITEMS.register(modBus);
+        TABS.register(modBus);
+        MENU_TYPES.register(modBus);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            bus.addListener(this::onClientSetup);
+            modBus.addListener(this::onClientSetup);
         });
+    }
+
+    // Allow shift-right-click on dock blocks
+    public void onRightClickBlock(final PlayerInteractEvent.RightClickBlock event) {
+        final var world = event.getLevel();
+        final var player = event.getEntity();
+        if (!player.isShiftKeyDown()) {
+            return;
+        }
+        final var pos = event.getPos();
+        final var state = world.getBlockState(pos);
+        if (state.getBlock() != ModBlocks.dock.get()) {
+            return;
+        }
+        event.setUseBlock(Event.Result.ALLOW);
     }
 
     @OnlyIn(Dist.CLIENT)
     public void onClientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            MenuScreens.register(ModMenus.pdaStorageMenu.get(),
+            MenuScreens.register(ModMenus.pdaStorage.get(),
                 (PDAStorageMenu menu, Inventory inventory, Component title) -> new PDAStorageScreen(menu, inventory));
+            MenuScreens.register(ModMenus.dock.get(),
+                (DockMenu menu, Inventory inventory, Component title) -> new DockScreen(menu, inventory));
         });
     }
 }

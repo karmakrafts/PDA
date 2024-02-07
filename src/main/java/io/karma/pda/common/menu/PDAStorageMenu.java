@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 public final class PDAStorageMenu extends BasicContainerMenu<ItemStorageContainer> {
     public PDAStorageMenu(final int id, final Inventory playerInventory, final ItemStack stack) {
         // @formatter:off
-        super(ModMenus.pdaStorageMenu.get(),
+        super(ModMenus.pdaStorage.get(),
             id,
             new ItemStorageContainer(stack, "pda_storage", 1, 1));
         // @formatter:on

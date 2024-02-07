@@ -17,42 +17,36 @@ import java.util.Objects;
  * @author Alexander Hinze
  * @since 06/02/2024
  */
-public class BasicBlockEntity extends BlockEntity {
+public abstract class BasicBlockEntity extends BlockEntity {
     public BasicBlockEntity(final @NotNull BlockEntityType<?> type, final @NotNull BlockPos pos,
                             final @NotNull BlockState state) {
         super(type, pos, state);
     }
 
+    protected abstract void readFromNBT(final CompoundTag tag);
+
+    protected abstract void writeToNBT(final CompoundTag tag);
+
     @Override
-    public void deserializeNBT(final @NotNull CompoundTag tag) {
+    public void load(final @NotNull CompoundTag tag) {
+        super.load(tag);
+        readFromNBT(tag);
     }
 
     @Override
-    public CompoundTag serializeNBT() {
-        return new CompoundTag();
-    }
-
-    @Override
-    public @NotNull CompoundTag getUpdateTag() {
-        return serializeNBT();
+    protected void saveAdditional(final @NotNull CompoundTag tag) {
+        super.saveAdditional(tag);
+        writeToNBT(tag);
     }
 
     @NotNull
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return new ClientboundBlockEntityDataPacket(worldPosition, getType(), getUpdateTag());
-    }
-
-    @Override
-    public void handleUpdateTag(final @NotNull CompoundTag tag) {
-        deserializeNBT(tag);
+        return ClientboundBlockEntityDataPacket.create(this, BlockEntity::serializeNBT);
     }
 
     @Override
     public void onDataPacket(final @NotNull Connection conn, final @NotNull ClientboundBlockEntityDataPacket packet) {
-        handleUpdateTag(Objects.requireNonNull(packet.getTag()));
-        if (level != null) {
-            level.blockUpdated(worldPosition, getBlockState().getBlock());
-        }
+        deserializeNBT(Objects.requireNonNull(packet.getTag()));
     }
 }

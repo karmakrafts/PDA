@@ -44,11 +44,9 @@ public final class PDAItem extends Item {
     public @NotNull InteractionResultHolder<ItemStack> use(final @NotNull Level world, final @NotNull Player player,
                                                            final @NotNull InteractionHand hand) {
         final var stack = player.getItemInHand(hand);
-        if (!world.isClientSide) {
-            if (player.isShiftKeyDown()) {
-                PlayerUtils.openMenu(player, hand, PDAStorageMenu::new);
-                return InteractionResultHolder.success(stack);
-            }
+        if (player.isShiftKeyDown()) {
+            PlayerUtils.openMenu(player, hand, PDAStorageMenu::new);
+            return InteractionResultHolder.success(stack);
         }
         return InteractionResultHolder.fail(stack);
     }

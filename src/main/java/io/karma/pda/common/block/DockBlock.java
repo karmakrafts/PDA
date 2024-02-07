@@ -5,6 +5,8 @@ import io.karma.pda.common.entity.DockBlockEntity;
 import io.karma.pda.common.init.ModBlockEntities;
 import io.karma.pda.common.init.ModItems;
 import io.karma.pda.common.item.PDAItem;
+import io.karma.pda.common.menu.DockMenu;
+import io.karma.pda.common.util.PlayerUtils;
 import io.karma.pda.common.util.ShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -98,7 +100,14 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     public @NotNull InteractionResult use(final @NotNull BlockState state, final @NotNull Level world,
                                           final @NotNull BlockPos pos, final @NotNull Player player,
                                           final @NotNull InteractionHand hand, final @NotNull BlockHitResult hit) {
-        return InteractionResult.SUCCESS;
+        if (player.isShiftKeyDown()) {
+            PlayerUtils.openMenu(player, pos, DockBlockEntity.class, DockMenu::new);
+            return InteractionResult.SUCCESS;
+        }
+        else {
+
+        }
+        return InteractionResult.FAIL;
     }
 
     @SuppressWarnings("deprecation")

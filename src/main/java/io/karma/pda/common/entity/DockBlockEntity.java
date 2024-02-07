@@ -22,17 +22,20 @@ public final class DockBlockEntity extends BasicBlockEntity implements Container
     }
 
     @Override
-    public void deserializeNBT(final @NotNull CompoundTag tag) {
+    protected void readFromNBT(final CompoundTag tag) {
         if (tag.contains(TAG_ITEM)) {
-            stack.deserializeNBT(tag.getCompound(TAG_ITEM));
+            stack = ItemStack.of(tag.getCompound(TAG_ITEM));
         }
     }
 
     @Override
-    public CompoundTag serializeNBT() {
-        final var tag = super.serializeNBT();
+    protected void writeToNBT(final CompoundTag tag) {
         tag.put(TAG_ITEM, stack.serializeNBT());
-        return tag;
+    }
+
+    @Override
+    public int getMaxStackSize() {
+        return 1;
     }
 
     @Override
