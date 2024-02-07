@@ -12,10 +12,22 @@ public final class NBTUtils {
     private NBTUtils() {}
     // @formatter:on
 
+    public static boolean contains(final @Nullable CompoundTag tag, final String key) {
+        return tag != null && tag.contains(key);
+    }
+
     public static boolean getOrDefault(final @Nullable CompoundTag tag, final String key, final boolean defaultValue) {
         if (tag == null || !tag.contains(key)) {
             return defaultValue;
         }
         return tag.getBoolean(key);
+    }
+
+    public static @Nullable String getOrDefault(final @Nullable CompoundTag tag, final String key,
+                                                final @Nullable String defaultValue) {
+        if (tag == null || !tag.contains(key)) {
+            return defaultValue;
+        }
+        return tag.getString(key);
     }
 }

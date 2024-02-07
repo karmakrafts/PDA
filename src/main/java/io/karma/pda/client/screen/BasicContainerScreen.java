@@ -31,7 +31,7 @@ public abstract class BasicContainerScreen<M extends AbstractContainerMenu> exte
             if (icon.isEmpty()) {
                 return;
             }
-            graphics.setColor(1F, 1F, 1F, 0.2F);
+            graphics.setColor(1F, 1F, 1F, 0.25F);
             graphics.renderItem(icon, slot.x, slot.y);
             graphics.setColor(1F, 1F, 1F, 1F);
         }

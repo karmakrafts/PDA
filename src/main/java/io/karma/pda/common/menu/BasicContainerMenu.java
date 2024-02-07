@@ -51,7 +51,7 @@ public class BasicContainerMenu<C extends Container> extends AbstractContainerMe
     }
 
     // Ported from CCLs ContainerExtended
-    public boolean doMergeStackAreas(int slotIndex, final ItemStack stack) {
+    public boolean doMergeStackAreas(final int slotIndex, final ItemStack stack) {
         return false;
     }
 

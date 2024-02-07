@@ -5,5 +5,6 @@
   "item.pda.memory_card": "Memory Card",
   "screen.pda.pda": "PDA",
   "screen.pda.pda_storage": "Data Storage",
-  "screen.pda.dock": "Dock"
+  "screen.pda.dock": "Dock",
+  "tooltip.pda.owner": "Owner: %s"
 }
