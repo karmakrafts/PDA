@@ -16,7 +16,6 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -70,7 +69,7 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     private static VoxelShape makeHitShape(final HorizontalDirection direction) {
         final var actualDir = direction.getDirection();
         // @formatter:off
-        return ShapeUtils.rotate(Shapes.box(0.1875, 0.1875, 0.375, 0.8125, 0.9375, 0.59375),
+        return ShapeUtils.rotate(Shapes.box(0.1870, 0.1870, 0.370, 0.8130, 0.9380, 0.59380),
             Vector3.Y_POS, Vector3.CENTER, actualDir.getAxis() == Direction.Axis.Z
             ? actualDir.toYRot() + 180F
             : actualDir.toYRot()).optimize();
@@ -141,19 +140,6 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
             return InteractionResult.SUCCESS;
         }
 
-        final var dir = world.getBlockState(pos).getOptionalValue(ORIENTATION).orElse(HorizontalDirection.NORTH);
-        final var actualDir = dir.getDirection();
-        final var shape = HIT_SHAPES.get(dir);
-        final var bounds = shape.bounds();
-        final var hitVector = hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
-        if (hit.getDirection() == actualDir.getOpposite() && bounds.contains(hitVector)) {
-            // We clicked on the screen of the PDA, open the UI
-            if (world.isClientSide) {
-                Minecraft.getInstance().setScreen(new PDAScreen()); // Show screen client-side only
-            }
-            return InteractionResult.SUCCESS;
-        }
-
         final var entity = world.getBlockEntity(pos);
         if (!(entity instanceof DockBlockEntity dockEntity)) {
             return InteractionResult.FAIL;
@@ -166,9 +152,23 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
             }
             if (!world.isClientSide) {
                 dockEntity.setItem(0, heldItem.copy());
+                dockEntity.updateBlockState(world, pos);
                 heldItem.shrink(1);
             }
             return InteractionResult.SUCCESS;
+        }
+
+        if(world.isClientSide) {
+            final var dir = world.getBlockState(pos).getOptionalValue(ORIENTATION).orElse(HorizontalDirection.NORTH);
+            final var actualDir = dir.getDirection();
+            final var shape = HIT_SHAPES.get(dir);
+            final var bounds = shape.bounds();
+            final var hitVector = hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
+            if (hit.getDirection() == actualDir.getOpposite() && bounds.contains(hitVector)) {
+                // We clicked on the front-face of the  screen, open the UI
+                Minecraft.getInstance().setScreen(new PDAScreen()); // Show screen client-side only
+                return InteractionResult.SUCCESS;
+            }
         }
 
         return InteractionResult.FAIL;
@@ -189,7 +189,7 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     @Override
     public @NotNull VoxelShape getShape(final @NotNull BlockState state, final @NotNull BlockGetter world,
                                         final @NotNull BlockPos pos, final @NotNull CollisionContext context) {
-        final var dir = world.getBlockState(pos).getOptionalValue(ORIENTATION).orElse(HorizontalDirection.NORTH);
+        final var dir = state.getOptionalValue(ORIENTATION).orElse(HorizontalDirection.NORTH);
         if (state.getValue(STATE) != State.NO_ITEM) {
             return SHAPES.get(dir);
         }
@@ -201,14 +201,6 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     public boolean isPathfindable(final @NotNull BlockState state, final @NotNull BlockGetter world,
                                   final @NotNull BlockPos pos, final @NotNull PathComputationType type) {
         return false;
-    }
-
-    private void setItem(final Level world, final BlockPos pos, final ItemStack stack) {
-        final var entity = world.getBlockEntity(pos);
-        if (!(entity instanceof DockBlockEntity dockEntity) || stack.getItem() != ModItems.pda.get()) {
-            return;
-        }
-        dockEntity.setItem(0, stack);
     }
 
     public enum State implements StringRepresentable {

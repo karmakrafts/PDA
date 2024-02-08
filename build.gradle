@@ -4,6 +4,7 @@ plugins {
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 version = mod_version
@@ -19,7 +20,6 @@ minecraft {
     mappings channel: mapping_channel, version: "${mapping_version}-${minecraft_version}"
     accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
     copyIdeResources = true
-
     runs {
         configureEach {
             workingDirectory project.file('run')
@@ -31,20 +31,16 @@ minecraft {
                 }
             }
         }
-
         client {
             property 'forge.enabledGameTestNamespaces', mod_id
         }
-
         server {
             property 'forge.enabledGameTestNamespaces', mod_id
             args '--nogui'
         }
-
         gameTestServer {
             property 'forge.enabledGameTestNamespaces', mod_id
         }
-
         data {
             workingDirectory project.file('run-data')
             args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
@@ -55,42 +51,68 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
+    mavenCentral()
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    minecraft group: 'net.minecraftforge', name: 'forge', version: "${minecraft_version}-${forge_version}"
+    // Same LWJGL version as vanilla
+    implementation group: 'org.lwjgl', name: 'lwjgl-yoga', version: '3.3.1'
+    implementation group: 'org.lwjgl', name: 'lwjgl-yoga', version: '3.3.1', classifier: 'natives-linux-arm32'
+    implementation group: 'org.lwjgl', name: 'lwjgl-yoga', version: '3.3.1', classifier: 'natives-linux-arm64'
+    implementation group: 'org.lwjgl', name: 'lwjgl-yoga', version: '3.3.1', classifier: 'natives-linux'
+    implementation group: 'org.lwjgl', name: 'lwjgl-yoga', version: '3.3.1', classifier: 'natives-macos-arm64'
+    implementation group: 'org.lwjgl', name: 'lwjgl-yoga', version: '3.3.1', classifier: 'natives-macos'
+    implementation group: 'org.lwjgl', name: 'lwjgl-yoga', version: '3.3.1', classifier: 'natives-windows-arm64'
+    implementation group: 'org.lwjgl', name: 'lwjgl-yoga', version: '3.3.1', classifier: 'natives-windows-x86'
+    implementation group: 'org.lwjgl', name: 'lwjgl-yoga', version: '3.3.1', classifier: 'natives-windows'
 }
 
-tasks.named('processResources', ProcessResources).configure {
+def commonManifest = {
+    attributes([
+            'Specification-Title'     : mod_id,
+            'Specification-Vendor'    : mod_authors,
+            'Specification-Version'   : '1', // We are version 1 of ourselves
+            'Implementation-Title'    : project.name,
+            'Implementation-Version'  : project.jar.archiveVersion,
+            'Implementation-Vendor'   : mod_authors,
+            'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+    ])
+}
+
+reobf {
+    shadowJar {}
+}
+
+shadowJar {
+    archiveClassifier = ''
+    manifest commonManifest
+    finalizedBy 'reobfShadowJar'
+    dependencies {
+        include dependency(group: 'org.lwjgl', name: 'lwjgl-yoga')
+    }
+}
+
+jar {
+    archiveClassifier = 'slim'
+    manifest commonManifest
+    finalizedBy 'reobfJar'
+}
+
+processResources {
     var replaceProperties = [
-            minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
-            forge_version: forge_version, forge_version_range: forge_version_range,
+            minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
+            forge_version       : forge_version, forge_version_range: forge_version_range,
             loader_version_range: loader_version_range,
-            mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-            mod_authors: mod_authors, mod_description: mod_description,
+            mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+            mod_authors         : mod_authors, mod_description: mod_description,
     ]
     inputs.properties replaceProperties
-
     filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
         expand replaceProperties + [project: project]
     }
 }
 
-tasks.named('jar', Jar).configure {
-    manifest {
-        attributes([
-                'Specification-Title'     : mod_id,
-                'Specification-Vendor'    : mod_authors,
-                'Specification-Version'   : '1', // We are version 1 of ourselves
-                'Implementation-Title'    : project.name,
-                'Implementation-Version'  : project.jar.archiveVersion,
-                'Implementation-Vendor'   : mod_authors,
-                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-    }
-    finalizedBy 'reobfJar'
-}
-
-tasks.withType(JavaCompile).configureEach {
+tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }

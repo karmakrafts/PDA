@@ -28,6 +28,18 @@ public abstract class BasicBlockEntity extends BlockEntity {
     protected abstract void writeToNBT(final CompoundTag tag);
 
     @Override
+    public @NotNull CompoundTag getUpdateTag() {
+        final var tag = new CompoundTag();
+        writeToNBT(tag);
+        return tag;
+    }
+
+    @Override
+    public void handleUpdateTag(final @NotNull CompoundTag tag) {
+        readFromNBT(tag);
+    }
+
+    @Override
     public void load(final @NotNull CompoundTag tag) {
         super.load(tag);
         readFromNBT(tag);

@@ -1,11 +1,15 @@
 package io.karma.pda.common.entity;
 
+import io.karma.pda.common.block.DockBlock;
 import io.karma.pda.common.init.ModBlockEntities;
+import io.karma.pda.common.inventory.ItemStorageView;
+import io.karma.pda.common.menu.PDAStorageMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
@@ -92,5 +96,20 @@ public final class DockBlockEntity extends BasicBlockEntity implements Container
     @Override
     public void clearContent() {
         stack = ItemStack.EMPTY;
+    }
+
+    public void updateBlockState(final Level world, final BlockPos pos) {
+        if (world.isClientSide) {
+            return;
+        }
+        final var blockState = world.getBlockState(pos);
+        if (stack.isEmpty()) {
+            world.setBlock(pos, blockState.setValue(DockBlock.STATE, DockBlock.State.NO_ITEM), 3);
+            return;
+        }
+        final var itemStorageView = new ItemStorageView(stack, PDAStorageMenu.CONTAINER_NAME);
+        final var memoryCardStack = itemStorageView.getItem(0);
+        final var state = memoryCardStack.isEmpty() ? DockBlock.State.ITEM_OFF : DockBlock.State.ITEM_ON;
+        world.setBlock(pos, blockState.setValue(DockBlock.STATE, state), 3);
     }
 }

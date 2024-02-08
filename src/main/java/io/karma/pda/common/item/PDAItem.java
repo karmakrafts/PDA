@@ -1,9 +1,11 @@
 package io.karma.pda.common.item;
 
+import io.karma.pda.client.screen.PDAScreen;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import io.karma.pda.common.util.NBTUtils;
 import io.karma.pda.common.util.PlayerUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
@@ -46,8 +48,10 @@ public final class PDAItem extends Item {
         final var stack = player.getItemInHand(hand);
         if (player.isShiftKeyDown()) {
             PlayerUtils.openMenu(player, hand, PDAStorageMenu::new);
-            return InteractionResultHolder.success(stack);
         }
-        return InteractionResultHolder.fail(stack);
+        else if (world.isClientSide) {
+            Minecraft.getInstance().setScreen(new PDAScreen()); // Open client-side only PDA screen
+        }
+        return InteractionResultHolder.success(stack);
     }
 }
