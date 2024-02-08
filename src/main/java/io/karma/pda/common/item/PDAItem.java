@@ -25,7 +25,7 @@ public final class PDAItem extends Item {
     public static final String TAG_IS_HORIZONTAL = "is_horizontal";
 
     public PDAItem() {
-        super(new Properties());
+        super(new Properties().stacksTo(1));
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             ItemProperties.register(this,
                 new ResourceLocation(PDAMod.MODID, TAG_IS_ON),

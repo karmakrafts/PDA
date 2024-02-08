@@ -1,6 +1,7 @@
 package io.karma.pda.common.block;
 
 import codechicken.lib.vec.Vector3;
+import io.karma.pda.client.screen.PDAScreen;
 import io.karma.pda.common.entity.DockBlockEntity;
 import io.karma.pda.common.init.ModBlockEntities;
 import io.karma.pda.common.init.ModItems;
@@ -8,6 +9,7 @@ import io.karma.pda.common.menu.DockMenu;
 import io.karma.pda.common.util.HorizontalDirection;
 import io.karma.pda.common.util.PlayerUtils;
 import io.karma.pda.common.util.ShapeUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
@@ -42,11 +44,13 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     public static final EnumProperty<State> STATE = EnumProperty.create("state", State.class);
     private static final EnumMap<HorizontalDirection, VoxelShape> EMPTY_SHAPES = new EnumMap<>(HorizontalDirection.class);
     private static final EnumMap<HorizontalDirection, VoxelShape> SHAPES = new EnumMap<>(HorizontalDirection.class);
+    private static final EnumMap<HorizontalDirection, VoxelShape> HIT_SHAPES = new EnumMap<>(HorizontalDirection.class);
 
     static {
         for (final var dir : HorizontalDirection.values()) {
             EMPTY_SHAPES.put(dir, makeEmptyShape(dir));
             SHAPES.put(dir, makeShape(dir));
+            HIT_SHAPES.put(dir, makeHitShape(dir));
         }
     }
 
@@ -56,11 +60,20 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
             .dynamicShape()
             .mapColor(MapColor.COLOR_GRAY)
             .forceSolidOn()
-            .destroyTime(0.75F)
-            .emissiveRendering((state, world, pos) -> state.getValue(STATE) == State.ITEM_ON));
+            .destroyTime(0.75F));
         registerDefaultState(stateDefinition.any()
             .setValue(ORIENTATION, HorizontalDirection.NORTH)
             .setValue(STATE, State.NO_ITEM));
+        // @formatter:on
+    }
+
+    private static VoxelShape makeHitShape(final HorizontalDirection direction) {
+        final var actualDir = direction.getDirection();
+        // @formatter:off
+        return ShapeUtils.rotate(Shapes.box(0.1875, 0.1875, 0.375, 0.8125, 0.9375, 0.59375),
+            Vector3.Y_POS, Vector3.CENTER, actualDir.getAxis() == Direction.Axis.Z
+            ? actualDir.toYRot() + 180F
+            : actualDir.toYRot()).optimize();
         // @formatter:on
     }
 
@@ -127,13 +140,44 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
             PlayerUtils.openMenu(player, pos, DockBlockEntity.class, DockMenu::new);
             return InteractionResult.SUCCESS;
         }
-        else {
-            final var entity = world.getBlockEntity(pos);
-            if (!(entity instanceof DockBlockEntity dockEntity)) {
+
+        final var dir = world.getBlockState(pos).getOptionalValue(ORIENTATION).orElse(HorizontalDirection.NORTH);
+        final var actualDir = dir.getDirection();
+        final var shape = HIT_SHAPES.get(dir);
+        final var bounds = shape.bounds();
+        final var hitVector = hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
+        if (hit.getDirection() == actualDir.getOpposite() && bounds.contains(hitVector)) {
+            // We clicked on the screen of the PDA, open the UI
+            if (world.isClientSide) {
+                Minecraft.getInstance().setScreen(new PDAScreen()); // Show screen client-side only
+            }
+            return InteractionResult.SUCCESS;
+        }
+
+        final var entity = world.getBlockEntity(pos);
+        if (!(entity instanceof DockBlockEntity dockEntity)) {
+            return InteractionResult.FAIL;
+        }
+        final var stack = dockEntity.getItem(0);
+        if (stack.isEmpty()) {
+            final var heldItem = player.getItemInHand(hand);
+            if (heldItem.isEmpty() || heldItem.getItem() != ModItems.pda.get()) {
                 return InteractionResult.FAIL;
             }
+            if (!world.isClientSide) {
+                dockEntity.setItem(0, heldItem.copy());
+                heldItem.shrink(1);
+            }
+            return InteractionResult.SUCCESS;
         }
+
         return InteractionResult.FAIL;
+    }
+
+    @Override
+    public int getLightEmission(final @NotNull BlockState state, final @NotNull BlockGetter world,
+                                final @NotNull BlockPos pos) {
+        return state.getValue(STATE) == State.ITEM_ON ? 10 : 0;
     }
 
     @Override

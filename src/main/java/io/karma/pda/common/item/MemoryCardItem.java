@@ -31,7 +31,7 @@ public final class MemoryCardItem extends Item {
     public static final String TAG_OWNER_NAME = "owner_name";
 
     public MemoryCardItem() {
-        super(new Properties());
+        super(new Properties().stacksTo(16));
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
             () -> () -> ItemProperties.register(this,
                 new ResourceLocation(PDAMod.MODID, "is_locked"),
