@@ -112,6 +112,12 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
         // @formatter:on
     }
 
+    @Override
+    public int getLightEmission(final @NotNull BlockState state, final @NotNull BlockGetter world,
+                                final @NotNull BlockPos pos) {
+        return state.getValue(STATE) == State.ITEM_ON ? 8 : 0;
+    }
+
     @SuppressWarnings("deprecation")
     @Override
     public @NotNull InteractionResult use(final @NotNull BlockState state, final @NotNull Level world,
@@ -126,7 +132,6 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
             if (!(entity instanceof DockBlockEntity dockEntity)) {
                 return InteractionResult.FAIL;
             }
-
         }
         return InteractionResult.FAIL;
     }

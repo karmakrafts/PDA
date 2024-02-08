@@ -11,6 +11,9 @@ import org.jetbrains.annotations.NotNull;
  * @since 06/02/2024
  */
 public final class ItemStorageContainer implements Container {
+    public static final String TAG_SLOT_COUNT = "slot_count";
+    public static final String TAG_STACK_SIZE = "stack_size";
+
     private final int slotCount;
     private final int maxStackSize;
     private final ItemStack stack;
@@ -23,7 +26,7 @@ public final class ItemStorageContainer implements Container {
         this.name = name;
     }
 
-    private static String getItemKey(final int index) {
+    public static String getItemKey(final int index) {
         return String.format("item_%d", index);
     }
 
@@ -33,12 +36,14 @@ public final class ItemStorageContainer implements Container {
             return tag.getCompound(name);
         }
         final var containerTag = new CompoundTag();
-        tag.put(name, containerTag);
+        containerTag.putInt(TAG_SLOT_COUNT, slotCount);
+        containerTag.putInt(TAG_STACK_SIZE, maxStackSize);
         final var emptyTag = ItemStack.EMPTY.serializeNBT();
         for (var i = 0; i < slotCount; i++) {
             containerTag.put(getItemKey(i), emptyTag);
         }
-        return containerTag;
+        tag.put(name, containerTag);
+        return tag;
     }
 
     @Override

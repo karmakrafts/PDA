@@ -23,6 +23,13 @@ public final class NBTUtils {
         return tag.getBoolean(key);
     }
 
+    public static int getOrDefault(final @Nullable CompoundTag tag, final String key, final int defaultValue) {
+        if (tag == null || !tag.contains(key)) {
+            return defaultValue;
+        }
+        return tag.getInt(key);
+    }
+
     public static @Nullable String getOrDefault(final @Nullable CompoundTag tag, final String key,
                                                 final @Nullable String defaultValue) {
         if (tag == null || !tag.contains(key)) {

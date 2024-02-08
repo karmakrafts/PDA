@@ -14,11 +14,13 @@ import org.jetbrains.annotations.NotNull;
  * @since 06/02/2024
  */
 public final class PDAStorageMenu extends BasicContainerMenu<ItemStorageContainer> {
+    public static final String CONTAINER_NAME = "pda_storage";
+
     public PDAStorageMenu(final int id, final Inventory playerInventory, final ItemStack stack) {
         // @formatter:off
         super(ModMenus.pdaStorage.get(),
             id,
-            new ItemStorageContainer(stack, "pda_storage", 1, 1));
+            new ItemStorageContainer(stack, CONTAINER_NAME, 1, 1));
         // @formatter:on
         bindPlayerInventory(playerInventory, 8, 84);
         addSlot(new FilteredSlot(container, 0, 80, 35, ModItems.memoryCard.get()).withSetCallback(newStack -> {

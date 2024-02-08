@@ -22,7 +22,7 @@ public abstract class BasicContainerScreen<M extends AbstractContainerMenu> exte
         super(menu, playerInventory, title);
     }
 
-    // AT
+    // AT: Allow rendering of ghost items using a subtype of the regular Slot class
     @Override
     public void renderSlot(final @NotNull GuiGraphics graphics, final @NotNull Slot slot) {
         super.renderSlot(graphics, slot);
@@ -31,10 +31,18 @@ public abstract class BasicContainerScreen<M extends AbstractContainerMenu> exte
             if (icon.isEmpty()) {
                 return;
             }
-            graphics.setColor(1F, 1F, 1F, 0.25F);
+            graphics.setColor(1F, 1F, 1F, 0.33F);
             graphics.renderItem(icon, slot.x, slot.y);
             graphics.setColor(1F, 1F, 1F, 1F);
         }
+    }
+
+    // AT: Allow changing the color of the default container labels
+    @Override
+    public void renderLabels(final @NotNull GuiGraphics graphics, int mouseX, int mouseY) {
+        final var color = getLabelColor();
+        graphics.drawString(font, title, titleLabelX, titleLabelY, color, false);
+        graphics.drawString(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, color, false);
     }
 
     @Override
@@ -43,5 +51,9 @@ public abstract class BasicContainerScreen<M extends AbstractContainerMenu> exte
         renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
         renderTooltip(graphics, mouseX, mouseY);
+    }
+
+    public int getLabelColor() {
+        return 0xFF101010;
     }
 }
