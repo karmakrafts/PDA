@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -50,8 +51,13 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     }
 
     public DockBlock() {
-        super(ModBlockEntities.dock, Properties.of());
         // @formatter:off
+        super(ModBlockEntities.dock, Properties.of()
+            .dynamicShape()
+            .mapColor(MapColor.COLOR_GRAY)
+            .forceSolidOn()
+            .destroyTime(0.75F)
+            .emissiveRendering((state, world, pos) -> state.getValue(STATE) == State.ITEM_ON));
         registerDefaultState(stateDefinition.any()
             .setValue(ORIENTATION, HorizontalDirection.NORTH)
             .setValue(STATE, State.NO_ITEM));
@@ -112,12 +118,6 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
         // @formatter:on
     }
 
-    @Override
-    public int getLightEmission(final @NotNull BlockState state, final @NotNull BlockGetter world,
-                                final @NotNull BlockPos pos) {
-        return state.getValue(STATE) == State.ITEM_ON ? 8 : 0;
-    }
-
     @SuppressWarnings("deprecation")
     @Override
     public @NotNull InteractionResult use(final @NotNull BlockState state, final @NotNull Level world,
@@ -134,6 +134,11 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
             }
         }
         return InteractionResult.FAIL;
+    }
+
+    @Override
+    public boolean isPossibleToRespawnInThis(final @NotNull BlockState state) {
+        return false;
     }
 
     @SuppressWarnings("deprecation")

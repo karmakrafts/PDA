@@ -53,8 +53,8 @@ public final class MemoryCardItem extends Item {
             didInteract = true;
         }
         else {
-            if (!tag.getUUID(TAG_OWNER_ID).equals(player.getUUID())) {
-                // If the owner ID doesn't match, cancel the interaction on both sides
+            if (!player.hasPermissions(2) && !tag.getUUID(TAG_OWNER_ID).equals(player.getUUID())) {
+                // If the owner ID doesn't match and the player is no operator, cancel the interaction on both sides
                 return InteractionResultHolder.fail(stack);
             }
             if (!world.isClientSide) {
