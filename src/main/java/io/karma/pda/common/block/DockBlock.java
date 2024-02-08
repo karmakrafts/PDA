@@ -158,7 +158,7 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
             return InteractionResult.SUCCESS;
         }
 
-        if(world.isClientSide) {
+        if (world.isClientSide) {
             final var dir = world.getBlockState(pos).getOptionalValue(ORIENTATION).orElse(HorizontalDirection.NORTH);
             final var actualDir = dir.getDirection();
             final var shape = HIT_SHAPES.get(dir);
