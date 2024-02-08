@@ -39,13 +39,12 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     public static final EnumProperty<HorizontalDirection> ORIENTATION = EnumProperty.create("orientation",
         HorizontalDirection.class);
     public static final EnumProperty<State> STATE = EnumProperty.create("state", State.class);
-    private static final EnumMap<Direction, VoxelShape> SHAPES = new EnumMap<>(Direction.class);
+    private static final EnumMap<HorizontalDirection, VoxelShape> EMPTY_SHAPES = new EnumMap<>(HorizontalDirection.class);
+    private static final EnumMap<HorizontalDirection, VoxelShape> SHAPES = new EnumMap<>(HorizontalDirection.class);
 
     static {
-        for (final var dir : Direction.values()) {
-            if (dir.ordinal() < 2) {
-                continue;
-            }
+        for (final var dir : HorizontalDirection.values()) {
+            EMPTY_SHAPES.put(dir, makeEmptyShape(dir));
             SHAPES.put(dir, makeShape(dir));
         }
     }
@@ -59,21 +58,42 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
         // @formatter:on
     }
 
-    private static VoxelShape makeShape(final Direction direction) {
-        VoxelShape shape = Shapes.empty();
+    private static VoxelShape makeBaseShape() {
+        var shape = Shapes.empty();
         shape = Shapes.or(shape, Shapes.box(0.125, 0, 0.3125, 0.875, 0.125, 0.6875));
         shape = Shapes.or(shape, Shapes.box(0.125, 0, 0.125, 0.875, 0.25, 0.3125));
         shape = Shapes.or(shape, Shapes.box(0.125, 0.125, 0.3125, 0.875, 0.1875, 0.375));
         shape = Shapes.or(shape, Shapes.box(0.125, 0.125, 0.625, 0.875, 0.1875, 0.6875));
         shape = Shapes.or(shape, Shapes.box(0.125, 0.125, 0.375, 0.1875, 0.1875, 0.625));
         shape = Shapes.or(shape, Shapes.box(0.8125, 0.125, 0.375, 0.875, 0.1875, 0.625));
+        return shape;
+    }
+
+    private static VoxelShape makeEmptyShape(final HorizontalDirection direction) {
+        var shape = makeBaseShape();
         shape = Shapes.or(shape, Shapes.box(0.28125, 0.125, 0.375, 0.3125, 0.15625, 0.4375));
         shape = Shapes.or(shape, Shapes.box(0.34375, 0.125, 0.375, 0.375, 0.15625, 0.4375));
         shape = Shapes.or(shape, Shapes.box(0.40625, 0.125, 0.375, 0.4375, 0.15625, 0.4375));
+        final var actualDir = direction.getDirection();
         // @formatter:off
-        return ShapeUtils.rotate(shape, Vector3.Y_POS, Vector3.CENTER, direction.getAxis() == Direction.Axis.Z
-            ? direction.toYRot() + 180F
-            : direction.toYRot()).optimize();
+        return ShapeUtils.rotate(shape, Vector3.Y_POS, Vector3.CENTER, actualDir.getAxis() == Direction.Axis.Z
+            ? actualDir.toYRot() + 180F
+            : actualDir.toYRot()).optimize();
+        // @formatter:on
+    }
+
+    private static VoxelShape makeShape(final HorizontalDirection direction) {
+        var shape = makeBaseShape();
+        shape = Shapes.or(shape, Shapes.box(0.1875, 0.1875, 0.375, 0.8125, 0.9375, 0.59375));
+        shape = Shapes.or(shape, Shapes.box(0.25, 0.875, 0.59375, 0.75, 0.9375, 0.625));
+        shape = Shapes.or(shape, Shapes.box(0.25, 0.1875, 0.59375, 0.75, 0.3125, 0.625));
+        shape = Shapes.or(shape, Shapes.box(0.75, 0.1875, 0.59375, 0.8125, 0.9375, 0.625));
+        shape = Shapes.or(shape, Shapes.box(0.1875, 0.1875, 0.59375, 0.25, 0.9375, 0.625));
+        final var actualDir = direction.getDirection();
+        // @formatter:off
+        return ShapeUtils.rotate(shape, Vector3.Y_POS, Vector3.CENTER, actualDir.getAxis() == Direction.Axis.Z
+            ? actualDir.toYRot() + 180F
+            : actualDir.toYRot()).optimize();
         // @formatter:on
     }
 
@@ -115,7 +135,11 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     @Override
     public @NotNull VoxelShape getShape(final @NotNull BlockState state, final @NotNull BlockGetter world,
                                         final @NotNull BlockPos pos, final @NotNull CollisionContext context) {
-        return SHAPES.get(world.getBlockState(pos).getOptionalValue(ORIENTATION).orElse(HorizontalDirection.NORTH).getDirection());
+        final var dir = world.getBlockState(pos).getOptionalValue(ORIENTATION).orElse(HorizontalDirection.NORTH);
+        if (state.getValue(STATE) != State.NO_ITEM) {
+            return SHAPES.get(dir);
+        }
+        return EMPTY_SHAPES.get(dir);
     }
 
     @SuppressWarnings("deprecation")

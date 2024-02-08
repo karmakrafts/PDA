@@ -3,6 +3,7 @@ package io.karma.pda.common.menu;
 import io.karma.pda.common.init.ModItems;
 import io.karma.pda.common.init.ModMenus;
 import io.karma.pda.common.inventory.ItemStorageContainer;
+import io.karma.pda.common.item.PDAItem;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -20,7 +21,15 @@ public final class PDAStorageMenu extends BasicContainerMenu<ItemStorageContaine
             new ItemStorageContainer(stack, "pda_storage", 1, 1));
         // @formatter:on
         bindPlayerInventory(playerInventory, 8, 84);
-        addSlot(new FilteredSlot(container, 0, 80, 35, ModItems.memoryCard.get()));
+        addSlot(new FilteredSlot(container, 0, 80, 35, ModItems.memoryCard.get()).withSetCallback(newStack -> {
+            final var tag = stack.getOrCreateTag();
+            if (tag.contains(PDAItem.TAG_IS_ON)) {
+                tag.remove(PDAItem.TAG_IS_ON);
+            }
+            else {
+                tag.putBoolean(PDAItem.TAG_IS_ON, true);
+            }
+        }));
     }
 
     @Override
