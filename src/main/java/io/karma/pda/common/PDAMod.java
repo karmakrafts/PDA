@@ -1,5 +1,6 @@
 package io.karma.pda.common;
 
+import io.karma.pda.client.render.dom.NodeRenderers;
 import io.karma.pda.client.screen.DockScreen;
 import io.karma.pda.client.screen.PDAStorageScreen;
 import io.karma.pda.common.init.ModBlockEntities;
@@ -98,6 +99,7 @@ public class PDAMod {
     @OnlyIn(Dist.CLIENT)
     public void onClientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
+            NodeRenderers.setup();
             MenuScreens.register(ModMenus.pdaStorage.get(),
                 (PDAStorageMenu menu, Inventory inventory, Component title) -> new PDAStorageScreen(menu, inventory));
             MenuScreens.register(ModMenus.dock.get(),

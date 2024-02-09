@@ -1,5 +1,6 @@
 package io.karma.pda.client.screen;
 
+import io.karma.pda.client.util.ScreenUtils;
 import io.karma.pda.common.menu.BasicSlot;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -27,6 +28,7 @@ public abstract class BasicContainerScreen<M extends AbstractContainerMenu> exte
     public void renderSlot(final @NotNull GuiGraphics graphics, final @NotNull Slot slot) {
         super.renderSlot(graphics, slot);
         if (slot instanceof BasicSlot basicSlot) {
+            ScreenUtils.drawSlot(graphics, basicSlot.x - 1, basicSlot.y - 1);
             final var icon = basicSlot.getIcon();
             if (icon.isEmpty()) {
                 return;

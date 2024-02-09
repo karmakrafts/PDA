@@ -1,28 +1,36 @@
 package io.karma.pda.common.dom;
 
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.util.yoga.YGNode;
+import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.util.yoga.Yoga;
 
 /**
  * @author Alexander Hinze
  * @since 08/02/2024
  */
 public abstract class AbstractNode implements Node {
-    protected final YGNode layout = YGNode.malloc();
+    protected long layout = Yoga.YGNodeNew();
     protected Node parent;
     private boolean isDisposed;
+
+    public AbstractNode() {
+        if (layout == MemoryUtil.NULL) {
+            throw new IllegalStateException("Could not allocate layout");
+        }
+    }
 
     @Override
     public void dispose() {
         if (isDisposed) {
             return;
         }
-        layout.free();
+        Yoga.YGNodeFree(layout);
+        layout = MemoryUtil.NULL;
         isDisposed = true;
     }
 
     @Override
-    public YGNode getLayout() {
+    public long getLayout() {
         return layout;
     }
 

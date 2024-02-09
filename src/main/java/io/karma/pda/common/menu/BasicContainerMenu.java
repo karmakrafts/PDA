@@ -5,7 +5,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,11 +59,11 @@ public class BasicContainerMenu<C extends Container> extends AbstractContainerMe
     protected void bindPlayerInventory(final Inventory inventoryPlayer, final int x, final int y) {
         for (var row = 0; row < 3; row++) {
             for (var col = 0; col < 9; col++) {
-                addSlot(new Slot(inventoryPlayer, col + row * 9 + 9, x + col * 18, y + row * 18));
+                addSlot(new BasicSlot(inventoryPlayer, col + row * 9 + 9, x + col * 18, y + row * 18));
             }
         }
         for (var slot = 0; slot < 9; slot++) {
-            addSlot(new Slot(inventoryPlayer, slot, x + slot * 18, y + 58));
+            addSlot(new BasicSlot(inventoryPlayer, slot, x + slot * 18, y + 58));
         }
     }
 }

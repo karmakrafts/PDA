@@ -1,10 +1,10 @@
 package io.karma.pda.client.screen;
 
+import io.karma.pda.client.util.ScreenUtils;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -16,8 +16,6 @@ import org.jetbrains.annotations.NotNull;
  */
 @OnlyIn(Dist.CLIENT)
 public final class PDAStorageScreen extends BasicContainerScreen<PDAStorageMenu> {
-    public static final ResourceLocation TEXTURE = new ResourceLocation(PDAMod.MODID, "textures/gui/pda_storage.png");
-
     public PDAStorageScreen(final PDAStorageMenu menu, final Inventory inventory) {
         super(menu, inventory, Component.translatable(String.format("screen.%s.pda_storage", PDAMod.MODID)));
     }
@@ -27,6 +25,6 @@ public final class PDAStorageScreen extends BasicContainerScreen<PDAStorageMenu>
                             final int mouseY) {
         final var x = (width >> 1) - (imageWidth >> 1);
         final var y = (height >> 1) - (imageHeight >> 1);
-        graphics.blit(TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
+        ScreenUtils.drawBackground(graphics, x, y, imageWidth, imageHeight);
     }
 }
