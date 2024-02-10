@@ -2,7 +2,7 @@
 	"credit": "Made with Blockbench",
 	"parent": "block/block",
 	"textures": {
-		"2": "pda:block/dock_3",
+		"2": "pda:block/dock_3_off",
 		"3": "pda:block/dock_4",
 		"particle": "pda:block/dock_1"
 	},

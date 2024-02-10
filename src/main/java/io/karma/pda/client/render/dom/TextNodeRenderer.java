@@ -1,5 +1,6 @@
 package io.karma.pda.client.render.dom;
 
+import io.karma.pda.client.render.display.DisplayRenderContext;
 import io.karma.pda.common.dom.TextNode;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -17,7 +18,7 @@ public final class TextNodeRenderer implements NodeRenderer<TextNode> {
     // @formatter:on
 
     @Override
-    public void render(final TextNode node, final NodeRenderContext context) {
+    public void render(final TextNode node, final DisplayRenderContext context) {
 
     }
 }

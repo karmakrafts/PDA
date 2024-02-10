@@ -1,5 +1,6 @@
 package io.karma.pda.client.render.dom;
 
+import io.karma.pda.client.render.display.DisplayRenderContext;
 import io.karma.pda.common.dom.ContainerNode;
 import io.karma.pda.common.dom.Node;
 import io.karma.pda.common.dom.TextNode;
@@ -26,7 +27,7 @@ public final class NodeRenderers {
     }
 
     @SuppressWarnings("unchecked")
-    public static void render(final Node node, final NodeRenderContext context) {
+    public static void render(final Node node, final DisplayRenderContext context) {
         ((NodeRenderer<Node>) get(node.getClass())).render(node, context);
     }
 

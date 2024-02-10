@@ -44,13 +44,11 @@ public final class MemoryCardItem extends Item {
         final var stack = player.getItemInHand(hand);
         final var tag = stack.getOrCreateTag();
         final var isLocked = !tag.contains(TAG_OWNER_ID);
-        var didInteract = false;
         if (isLocked) {
             if (!world.isClientSide) {
                 tag.putUUID(TAG_OWNER_ID, player.getUUID());
                 tag.putString(TAG_OWNER_NAME, player.getName().getString());
             }
-            didInteract = true;
         }
         else {
             if (!player.hasPermissions(2) && !tag.getUUID(TAG_OWNER_ID).equals(player.getUUID())) {
@@ -61,16 +59,11 @@ public final class MemoryCardItem extends Item {
                 tag.remove(TAG_OWNER_ID);
                 tag.remove(TAG_OWNER_NAME);
             }
-            didInteract = true;
         }
-        if (world.isClientSide && didInteract) {
+        if (world.isClientSide) {
             world.playSound(player, player, SoundEvents.STONE_BUTTON_CLICK_ON, SoundSource.PLAYERS, 0.75F, 2F);
         }
-        // @formatter:off
-        return didInteract
-            ? InteractionResultHolder.success(stack)
-            : InteractionResultHolder.fail(stack);
-        // @formatter:on
+        return InteractionResultHolder.success(stack);
     }
 
     @Override

@@ -19,13 +19,6 @@ public class ContainerNode extends AbstractNode {
     }
 
     @Override
-    public void dispose() {
-        for (final var child : getChildren()) {
-            child.dispose();
-        }
-    }
-
-    @Override
     public List<Node> getChildren() {
         return children;
     }

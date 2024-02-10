@@ -1,7 +1,6 @@
 package io.karma.pda.common.block;
 
 import codechicken.lib.vec.Vector3;
-import io.karma.pda.client.screen.PDAScreen;
 import io.karma.pda.common.entity.DockBlockEntity;
 import io.karma.pda.common.init.ModBlockEntities;
 import io.karma.pda.common.init.ModItems;
@@ -9,7 +8,6 @@ import io.karma.pda.common.menu.DockMenu;
 import io.karma.pda.common.util.HorizontalDirection;
 import io.karma.pda.common.util.PlayerUtils;
 import io.karma.pda.common.util.ShapeUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
@@ -156,19 +154,6 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
                 heldItem.shrink(1);
             }
             return InteractionResult.SUCCESS;
-        }
-
-        if (world.isClientSide) {
-            final var dir = world.getBlockState(pos).getOptionalValue(ORIENTATION).orElse(HorizontalDirection.NORTH);
-            final var actualDir = dir.getDirection();
-            final var shape = HIT_SHAPES.get(dir);
-            final var bounds = shape.bounds();
-            final var hitVector = hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
-            if (hit.getDirection() == actualDir.getOpposite() && bounds.contains(hitVector)) {
-                // We clicked on the front-face of the  screen, open the UI
-                Minecraft.getInstance().setScreen(new PDAScreen()); // Show screen client-side only
-                return InteractionResult.SUCCESS;
-            }
         }
 
         return InteractionResult.FAIL;

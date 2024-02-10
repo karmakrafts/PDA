@@ -1,5 +1,6 @@
 package io.karma.pda.client.render.dom;
 
+import io.karma.pda.client.render.display.DisplayRenderContext;
 import io.karma.pda.common.dom.Node;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -10,5 +11,5 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  */
 @OnlyIn(Dist.CLIENT)
 public interface NodeRenderer<N extends Node> {
-    void render(final N node, final NodeRenderContext context);
+    void render(final N node, final DisplayRenderContext context);
 }

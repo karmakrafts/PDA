@@ -1,7 +1,7 @@
-package io.karma.pda.client.render.dom;
+package io.karma.pda.client.render.display;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -10,8 +10,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  * @since 08/02/2024
  */
 @OnlyIn(Dist.CLIENT)
-public interface NodeRenderContext {
-    GuiGraphics getGraphics();
+public interface DisplayRenderContext {
+    PoseStack getPoseStack();
 
     Font getDefaultFont();
 

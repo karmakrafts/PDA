@@ -35,17 +35,10 @@ public final class ScreenUtils {
         if (h < MIN_SIZE) {
             h = MIN_SIZE;
         }
-        graphics.blitNineSliced(TEXTURE,
-            x,
-            y,
-            w,
-            h,
-            SLICE_SIZE,
-            SLICE_SIZE,
-            TEXTURE_SIZE,
-            TEXTURE_SIZE,
-            TEXTURE_SIZE << 1,
-            0);
+        // @formatter:off
+        graphics.blitNineSliced(TEXTURE, x, y, w, h, SLICE_SIZE, SLICE_SIZE,
+            TEXTURE_SIZE, TEXTURE_SIZE, TEXTURE_SIZE << 1, 0);
+        // @formatter:on
     }
 
     public static void drawSlot(final GuiGraphics graphics, final int x, final int y, int w, int h) {

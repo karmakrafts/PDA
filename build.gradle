@@ -3,6 +3,7 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
@@ -25,6 +26,10 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
+            property 'mixin.debug', 'true'
+            property 'mixin.debug.dumpTargetOnFailure', 'true'
+            property 'mixin.debug.hotSwap', 'true'
+            property 'mixin.debug.verbose', 'true'
             mods {
                 "${mod_id}" {
                     source sourceSets.main
@@ -49,6 +54,14 @@ minecraft {
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+configurations {
+    annotationProcessor.extendsFrom minecraft
+}
+
+mixin {
+    add sourceSets.main, "mixins.${mod_id}.refmap.json"
+}
 
 repositories {
     mavenCentral()

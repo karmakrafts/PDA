@@ -21,3 +21,5 @@ credits="MikMikTG, BlackDragonCZ, covers1624, chickenbones"
     versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
+[features.${mod_id}]
+openGLVersion="[3.0,)"
