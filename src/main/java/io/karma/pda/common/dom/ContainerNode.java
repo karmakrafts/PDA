@@ -19,6 +19,11 @@ public class ContainerNode extends AbstractNode {
     }
 
     @Override
+    public NodeType getType() {
+        return NodeType.CONTAINER;
+    }
+
+    @Override
     public List<Node> getChildren() {
         return children;
     }

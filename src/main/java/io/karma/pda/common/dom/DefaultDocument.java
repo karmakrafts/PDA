@@ -5,5 +5,8 @@ package io.karma.pda.common.dom;
  * @since 08/02/2024
  */
 public final class DefaultDocument extends ContainerNode implements Document {
-
+    @Override
+    public NodeType getType() {
+        return NodeType.DOCUMENT;
+    }
 }

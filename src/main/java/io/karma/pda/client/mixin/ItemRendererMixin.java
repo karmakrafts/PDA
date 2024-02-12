@@ -1,6 +1,7 @@
 package io.karma.pda.client.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.client.event.ItemRenderEvent;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -26,7 +27,7 @@ public final class ItemRendererMixin {
                                    final BakedModel model, final CallbackInfo cbi) {
         // @formatter:off
         final var event = new ItemRenderEvent.Pre(stack, displayContext, isLeftHand, poseStack, bufferSource,
-            packedLight, packedOverlay);
+            packedLight, packedOverlay, ClientEventHandler.INSTANCE.getPartialTick());
         // @formatter:on
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
@@ -41,7 +42,7 @@ public final class ItemRendererMixin {
                                     final int packedOverlay, final BakedModel model, final CallbackInfo cbi) {
         // @formatter:off
         MinecraftForge.EVENT_BUS.post(new ItemRenderEvent.Post(stack, displayContext, isLeftHand, poseStack,
-            bufferSource, packedLight, packedOverlay));
+            bufferSource, packedLight, packedOverlay, ClientEventHandler.INSTANCE.getPartialTick()));
         // @formatter:on
     }
 }

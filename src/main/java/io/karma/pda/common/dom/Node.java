@@ -10,6 +10,8 @@ import java.util.List;
  * @since 08/02/2024
  */
 public interface Node {
+    NodeType getType();
+
     @Nullable Node getParent();
 
     void setParent(final @Nullable Node parent);

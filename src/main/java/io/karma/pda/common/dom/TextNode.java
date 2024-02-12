@@ -17,6 +17,11 @@ public final class TextNode extends AbstractNode {
         this(text, 0xFF101010);
     }
 
+    @Override
+    public NodeType getType() {
+        return NodeType.TEXT;
+    }
+
     public String getText() {
         return text;
     }

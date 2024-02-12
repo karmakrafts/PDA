@@ -23,10 +23,11 @@ public class ItemRenderEvent extends Event {
     private final MultiBufferSource bufferSource;
     private final int packedLight;
     private final int packedOverlay;
+    private final float partialTick;
 
     protected ItemRenderEvent(final ItemStack stack, final ItemDisplayContext displayContext, final boolean isLeftHand,
                               final PoseStack poseStack, final MultiBufferSource bufferSource, final int packedLight,
-                              final int packedOverlay) {
+                              final int packedOverlay, final float partialTick) {
         this.stack = stack;
         this.displayContext = displayContext;
         this.isLeftHand = isLeftHand;
@@ -34,6 +35,11 @@ public class ItemRenderEvent extends Event {
         this.bufferSource = bufferSource;
         this.packedLight = packedLight;
         this.packedOverlay = packedOverlay;
+        this.partialTick = partialTick;
+    }
+
+    public float getPartialTick() {
+        return partialTick;
     }
 
     public InteractionHand getHand() {
@@ -72,16 +78,16 @@ public class ItemRenderEvent extends Event {
     public static final class Pre extends ItemRenderEvent {
         public Pre(final ItemStack stack, final ItemDisplayContext displayContext, final boolean isLeftHand,
                    final PoseStack poseStack, final MultiBufferSource bufferSource, final int packedLight,
-                   final int packedOverlay) {
-            super(stack, displayContext, isLeftHand, poseStack, bufferSource, packedLight, packedOverlay);
+                   final int packedOverlay, final float partialTick) {
+            super(stack, displayContext, isLeftHand, poseStack, bufferSource, packedLight, packedOverlay, partialTick);
         }
     }
 
     public static final class Post extends ItemRenderEvent {
         public Post(final ItemStack stack, final ItemDisplayContext displayContext, final boolean isLeftHand,
                     final PoseStack poseStack, final MultiBufferSource bufferSource, final int packedLight,
-                    final int packedOverlay) {
-            super(stack, displayContext, isLeftHand, poseStack, bufferSource, packedLight, packedOverlay);
+                    final int packedOverlay, final float partialTick) {
+            super(stack, displayContext, isLeftHand, poseStack, bufferSource, packedLight, packedOverlay, partialTick);
         }
     }
 }
