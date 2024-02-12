@@ -2,6 +2,7 @@ package io.karma.pda.client.event;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -33,6 +34,10 @@ public class ItemRenderEvent extends Event {
         this.bufferSource = bufferSource;
         this.packedLight = packedLight;
         this.packedOverlay = packedOverlay;
+    }
+
+    public InteractionHand getHand() {
+        return isLeftHand ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
     }
 
     public boolean isLeftHand() {

@@ -26,32 +26,9 @@ public class BasicContainerMenu<C extends Container> extends AbstractContainerMe
         return true;
     }
 
-    // Ported from CCLs ContainerExtended
-    // https://github.com/TheCBProject/CodeChickenLib/blob/master/src/main/java/codechicken/lib/inventory/container/ContainerExtended.java#L78-L100
     @Override
     public @NotNull ItemStack quickMoveStack(final @NotNull Player player, final int index) {
-        var transferredStack = ItemStack.EMPTY;
-        final var slot = slots.get(index);
-        if (slot.hasItem()) {
-            final var stack = slot.getItem();
-            transferredStack = stack.copy();
-            if (!doMergeStackAreas(index, stack)) {
-                return ItemStack.EMPTY;
-            }
-            if (stack.getCount() == 0) {
-                slot.set(ItemStack.EMPTY);
-            }
-            else {
-                slot.setChanged();
-            }
-        }
-
-        return transferredStack;
-    }
-
-    // Ported from CCLs ContainerExtended
-    public boolean doMergeStackAreas(final int slotIndex, final ItemStack stack) {
-        return false;
+        return ItemStack.EMPTY;
     }
 
     // Ported from CCLs ContainerExtended

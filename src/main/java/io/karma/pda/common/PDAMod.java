@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.client.render.display.DisplayRenderer;
 import io.karma.pda.client.render.entity.DockBlockEntityRenderer;
 import io.karma.pda.client.render.item.PDAItemRenderer;
@@ -16,6 +17,7 @@ import io.karma.pda.common.init.ModMenus;
 import io.karma.pda.common.item.MemoryCardItem;
 import io.karma.pda.common.menu.DockMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
+import io.karma.pda.common.network.CommonPacketHandler;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.registries.Registries;
@@ -33,8 +35,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -92,36 +92,23 @@ public class PDAMod {
     public PDAMod() {
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         final var forgeBus = MinecraftForge.EVENT_BUS;
-        forgeBus.addListener(this::onRightClickBlock);
         forgeBus.addListener(this::onRegisterCommands);
+        CommonEventHandler.INSTANCE.setup();
 
         BLOCK_ENTITIES.register(modBus);
         BLOCKS.register(modBus);
         ITEMS.register(modBus);
         TABS.register(modBus);
         MENU_TYPES.register(modBus);
+        CommonPacketHandler.setup();
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            ClientEventHandler.INSTANCE.setup();
+            PDAItemRenderer.INSTANCE.setup();
             modBus.addListener(this::onClientSetup);
             modBus.addListener(this::onRegisterEntityRenderers);
-            PDAItemRenderer.INSTANCE.setupEarly();
             DisplayRenderer.INSTANCE.setupEarly();
         });
-    }
-
-    // Allow shift-right-click on dock blocks
-    private void onRightClickBlock(final PlayerInteractEvent.RightClickBlock event) {
-        final var world = event.getLevel();
-        final var player = event.getEntity();
-        if (!player.isShiftKeyDown()) {
-            return;
-        }
-        final var pos = event.getPos();
-        final var state = world.getBlockState(pos);
-        if (state.getBlock() != ModBlocks.dock.get()) {
-            return;
-        }
-        event.setUseBlock(Event.Result.ALLOW);
     }
 
     private void onRegisterCommands(final RegisterCommandsEvent event) {
