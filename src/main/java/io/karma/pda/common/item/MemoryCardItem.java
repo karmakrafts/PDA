@@ -28,7 +28,7 @@ import java.util.List;
  */
 public final class MemoryCardItem extends Item {
     public static final String TAG_OWNER_ID = "owner_id";
-    public static final String TAG_OWNER_NAME = "owner_name";
+    public static final String TAG_OWNER_DISPLAY_NAME = "owner_display_name";
 
     public MemoryCardItem() {
         super(new Properties().stacksTo(16));
@@ -47,7 +47,7 @@ public final class MemoryCardItem extends Item {
         if (isLocked) {
             if (!world.isClientSide) {
                 tag.putUUID(TAG_OWNER_ID, player.getUUID());
-                tag.putString(TAG_OWNER_NAME, player.getName().getString());
+                tag.putString(TAG_OWNER_DISPLAY_NAME, player.getName().getString());
             }
         }
         else {
@@ -57,7 +57,7 @@ public final class MemoryCardItem extends Item {
             }
             if (!world.isClientSide) {
                 tag.remove(TAG_OWNER_ID);
-                tag.remove(TAG_OWNER_NAME);
+                tag.remove(TAG_OWNER_DISPLAY_NAME);
             }
         }
         if (world.isClientSide) {
@@ -74,7 +74,7 @@ public final class MemoryCardItem extends Item {
             super.appendHoverText(stack, world, components, isAdvanced);
             return;
         }
-        final var ownerName = tag.getString(TAG_OWNER_NAME);
+        final var ownerName = tag.getString(TAG_OWNER_DISPLAY_NAME);
         if (ownerName.isBlank()) {
             super.appendHoverText(stack, world, components, isAdvanced);
             return;

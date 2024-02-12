@@ -1,7 +1,11 @@
 package io.karma.pda.common;
 
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import io.karma.pda.client.render.display.DisplayRenderer;
-import io.karma.pda.client.render.dom.NodeRenderers;
+import io.karma.pda.client.render.entity.DockBlockEntityRenderer;
 import io.karma.pda.client.render.item.PDAItemRenderer;
 import io.karma.pda.client.screen.DockScreen;
 import io.karma.pda.client.screen.PDAStorageScreen;
@@ -9,12 +13,15 @@ import io.karma.pda.common.init.ModBlockEntities;
 import io.karma.pda.common.init.ModBlocks;
 import io.karma.pda.common.init.ModItems;
 import io.karma.pda.common.init.ModMenus;
+import io.karma.pda.common.item.MemoryCardItem;
 import io.karma.pda.common.menu.DockMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
@@ -23,7 +30,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.DistExecutor;
@@ -84,6 +93,7 @@ public class PDAMod {
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         final var forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addListener(this::onRightClickBlock);
+        forgeBus.addListener(this::onRegisterCommands);
 
         BLOCK_ENTITIES.register(modBus);
         BLOCKS.register(modBus);
@@ -93,7 +103,9 @@ public class PDAMod {
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             modBus.addListener(this::onClientSetup);
-            PDAItemRenderer.INSTANCE.setup();
+            modBus.addListener(this::onRegisterEntityRenderers);
+            PDAItemRenderer.INSTANCE.setupEarly();
+            DisplayRenderer.INSTANCE.setupEarly();
         });
     }
 
@@ -112,11 +124,83 @@ public class PDAMod {
         event.setUseBlock(Event.Result.ALLOW);
     }
 
+    private void onRegisterCommands(final RegisterCommandsEvent event) {
+        // @formatter:off
+        event.getDispatcher().register(LiteralArgumentBuilder.<CommandSourceStack>literal(MODID)
+            .then(LiteralArgumentBuilder.<CommandSourceStack>literal("card")
+                .then(LiteralArgumentBuilder.<CommandSourceStack>literal("lock")
+                    .executes(stack -> {
+                        final var entity = stack.getSource().getEntity();
+                        if (!(entity instanceof ServerPlayer serverPlayer)) {
+                            return Command.SINGLE_SUCCESS;
+                        }
+                        final var inventory = serverPlayer.getInventory();
+                        final var heldStack = inventory.getItem(inventory.selected);
+                        if (heldStack.isEmpty() || heldStack.getItem() != ModItems.memoryCard.get()) {
+                            serverPlayer.sendSystemMessage(Component.literal("No memory card in main hand"));
+                            return Command.SINGLE_SUCCESS;
+                        }
+                        final var tag = heldStack.getOrCreateTag();
+                        tag.putUUID(MemoryCardItem.TAG_OWNER_ID, serverPlayer.getUUID());
+                        tag.putString(MemoryCardItem.TAG_OWNER_DISPLAY_NAME, serverPlayer.getName().getString());
+                        return Command.SINGLE_SUCCESS;
+                    })
+                )
+                .then(LiteralArgumentBuilder.<CommandSourceStack>literal("lockWithName")
+                    .then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("ownerName", StringArgumentType.string())
+                        .executes(stack -> {
+                            final var entity = stack.getSource().getEntity();
+                            if (!(entity instanceof ServerPlayer serverPlayer)) {
+                                return Command.SINGLE_SUCCESS;
+                            }
+                            final var inventory = serverPlayer.getInventory();
+                            final var heldStack = inventory.getItem(inventory.selected);
+                            if (heldStack.isEmpty() || heldStack.getItem() != ModItems.memoryCard.get()) {
+                                serverPlayer.sendSystemMessage(Component.literal("No memory card in main hand"));
+                                return Command.SINGLE_SUCCESS;
+                            }
+                            final var tag = heldStack.getOrCreateTag();
+                            tag.putUUID(MemoryCardItem.TAG_OWNER_ID, serverPlayer.getUUID());
+                            tag.putString(MemoryCardItem.TAG_OWNER_DISPLAY_NAME, stack.getArgument("ownerName", String.class));
+                            return Command.SINGLE_SUCCESS;
+                        })
+                    )
+                )
+                .then(LiteralArgumentBuilder.<CommandSourceStack>literal("unlock")
+                    .executes(stack -> {
+                        final var entity = stack.getSource().getEntity();
+                        if (!(entity instanceof ServerPlayer serverPlayer)) {
+                            return Command.SINGLE_SUCCESS;
+                        }
+                        final var inventory = serverPlayer.getInventory();
+                        final var heldStack = inventory.getItem(inventory.selected);
+                        if (heldStack.isEmpty() || heldStack.getItem() != ModItems.memoryCard.get()) {
+                            serverPlayer.sendSystemMessage(Component.literal("No memory card in main hand"));
+                            return Command.SINGLE_SUCCESS;
+                        }
+                        final var tag = heldStack.getTag();
+                        if(tag == null) {
+                            return Command.SINGLE_SUCCESS; // Just return and ignore
+                        }
+                        tag.remove(MemoryCardItem.TAG_OWNER_ID);
+                        tag.remove(MemoryCardItem.TAG_OWNER_DISPLAY_NAME);
+                        return Command.SINGLE_SUCCESS;
+                    })
+                )
+            )
+        );
+        // @formatter:on
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void onRegisterEntityRenderers(final EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(ModBlockEntities.dock.get(), DockBlockEntityRenderer::new);
+    }
+
     @OnlyIn(Dist.CLIENT)
     private void onClientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             DisplayRenderer.INSTANCE.setup();
-            NodeRenderers.setup();
             MenuScreens.register(ModMenus.pdaStorage.get(),
                 (PDAStorageMenu menu, Inventory inventory, Component title) -> new PDAStorageScreen(menu, inventory));
             MenuScreens.register(ModMenus.dock.get(),

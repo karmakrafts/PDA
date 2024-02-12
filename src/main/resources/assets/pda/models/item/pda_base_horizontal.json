@@ -2,7 +2,7 @@
 	"credit": "Made with Blockbench",
 	"parent": "block/block",
 	"textures": {
-		"2": "pda:block/dock_3_off",
+		"2": "pda:block/dock_3",
 		"3": "pda:block/dock_4",
 		"particle": "pda:block/dock_1"
 	},
@@ -75,18 +75,22 @@
 	],
 	"display": {
 		"thirdperson_righthand": {
-			"translation": [0, 4.75, 0],
+			"rotation": [0, 1, 90],
+			"translation": [-2.75, 3, 0],
 			"scale": [0.6, 0.6, 0.6]
 		},
 		"thirdperson_lefthand": {
-			"translation": [0, 4.75, 0],
+			"rotation": [0, 0, 90],
+			"translation": [-2.75, 3, 0],
 			"scale": [0.6, 0.6, 0.6]
 		},
 		"firstperson_righthand": {
-			"translation": [-1, 9, -0.25]
+			"rotation": [0, 0, 90],
+			"translation": [-4, 6, -0.25]
 		},
 		"firstperson_lefthand": {
-			"translation": [-1.25, 9, 0]
+			"rotation": [0, 0, 90],
+			"translation": [-4.25, 6, 0]
 		},
 		"ground": {
 			"translation": [0, 3, 0],

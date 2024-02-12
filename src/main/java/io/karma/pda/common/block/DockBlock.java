@@ -10,7 +10,6 @@ import io.karma.pda.common.util.PlayerUtils;
 import io.karma.pda.common.util.ShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -20,6 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -38,16 +38,14 @@ import java.util.EnumMap;
 public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     public static final EnumProperty<HorizontalDirection> ORIENTATION = EnumProperty.create("orientation",
         HorizontalDirection.class);
-    public static final EnumProperty<State> STATE = EnumProperty.create("state", State.class);
+    public static final BooleanProperty HAS_ITEM = BooleanProperty.create("has_item");
     private static final EnumMap<HorizontalDirection, VoxelShape> EMPTY_SHAPES = new EnumMap<>(HorizontalDirection.class);
     private static final EnumMap<HorizontalDirection, VoxelShape> SHAPES = new EnumMap<>(HorizontalDirection.class);
-    private static final EnumMap<HorizontalDirection, VoxelShape> HIT_SHAPES = new EnumMap<>(HorizontalDirection.class);
 
     static {
         for (final var dir : HorizontalDirection.values()) {
             EMPTY_SHAPES.put(dir, makeEmptyShape(dir));
             SHAPES.put(dir, makeShape(dir));
-            HIT_SHAPES.put(dir, makeHitShape(dir));
         }
     }
 
@@ -60,17 +58,7 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
             .destroyTime(0.75F));
         registerDefaultState(stateDefinition.any()
             .setValue(ORIENTATION, HorizontalDirection.NORTH)
-            .setValue(STATE, State.NO_ITEM));
-        // @formatter:on
-    }
-
-    private static VoxelShape makeHitShape(final HorizontalDirection direction) {
-        final var actualDir = direction.getDirection();
-        // @formatter:off
-        return ShapeUtils.rotate(Shapes.box(0.1870, 0.1870, 0.370, 0.8130, 0.9380, 0.59380),
-            Vector3.Y_POS, Vector3.CENTER, actualDir.getAxis() == Direction.Axis.Z
-            ? actualDir.toYRot() + 180F
-            : actualDir.toYRot()).optimize();
+            .setValue(HAS_ITEM, false));
         // @formatter:on
     }
 
@@ -116,7 +104,7 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     @Override
     protected void createBlockStateDefinition(final StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(ORIENTATION);
-        builder.add(STATE);
+        builder.add(HAS_ITEM);
     }
 
     @Override
@@ -124,7 +112,7 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
         // @formatter:off
         return defaultBlockState()
             .setValue(ORIENTATION, HorizontalDirection.of(context.getHorizontalDirection()))
-            .setValue(STATE, State.NO_ITEM);
+            .setValue(HAS_ITEM, false);
         // @formatter:on
     }
 
@@ -150,7 +138,6 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
             }
             if (!world.isClientSide) {
                 dockEntity.setItem(0, heldItem.copy());
-                dockEntity.updateBlockState(world, pos);
                 heldItem.shrink(1);
             }
             return InteractionResult.SUCCESS;
@@ -162,7 +149,8 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     @Override
     public int getLightEmission(final @NotNull BlockState state, final @NotNull BlockGetter world,
                                 final @NotNull BlockPos pos) {
-        return state.getValue(STATE) == State.ITEM_ON ? 10 : 0;
+        //return state.getValue(STATE) == State.ITEM_ON ? 10 : 0;
+        return 0; // FIXME
     }
 
     @Override
@@ -175,7 +163,7 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     public @NotNull VoxelShape getShape(final @NotNull BlockState state, final @NotNull BlockGetter world,
                                         final @NotNull BlockPos pos, final @NotNull CollisionContext context) {
         final var dir = state.getOptionalValue(ORIENTATION).orElse(HorizontalDirection.NORTH);
-        if (state.getValue(STATE) != State.NO_ITEM) {
+        if (state.getValue(HAS_ITEM)) {
             return SHAPES.get(dir);
         }
         return EMPTY_SHAPES.get(dir);
@@ -186,14 +174,5 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     public boolean isPathfindable(final @NotNull BlockState state, final @NotNull BlockGetter world,
                                   final @NotNull BlockPos pos, final @NotNull PathComputationType type) {
         return false;
-    }
-
-    public enum State implements StringRepresentable {
-        NO_ITEM, ITEM_OFF, ITEM_ON;
-
-        @Override
-        public @NotNull String getSerializedName() {
-            return name().toLowerCase();
-        }
     }
 }

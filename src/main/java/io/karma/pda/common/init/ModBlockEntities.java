@@ -2,6 +2,7 @@ package io.karma.pda.common.init;
 
 import com.google.common.collect.Sets;
 import io.karma.pda.common.entity.DockBlockEntity;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
@@ -18,6 +19,7 @@ public final class ModBlockEntities {
     // @formatter:on
 
     public static void register(final DeferredRegister<BlockEntityType<?>> register) {
-        dock = register.register("dock", () -> new BlockEntityType<>(DockBlockEntity::new, Sets.newHashSet(), null));
+        dock = register.register("dock",
+            () -> new BlockEntityType<>(DockBlockEntity::new, Sets.newHashSet(ModBlocks.dock.get()), null));
     }
 }

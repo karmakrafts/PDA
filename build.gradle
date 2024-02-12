@@ -28,8 +28,8 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             property 'mixin.debug', 'true'
             property 'mixin.debug.dumpTargetOnFailure', 'true'
-            property 'mixin.debug.hotSwap', 'true'
             property 'mixin.debug.verbose', 'true'
+            property 'mixin.debug.hotSwap', 'true'
             mods {
                 "${mod_id}" {
                     source sourceSets.main
