@@ -1,7 +1,7 @@
 package io.karma.pda.common.init;
 
 import io.karma.pda.api.app.App;
-import io.karma.pda.common.PDAMod;
+import io.karma.pda.api.util.Constants;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -28,6 +28,6 @@ public final class ModRegistries {
     }
 
     private static void onNewRegistry(final NewRegistryEvent event) {
-        apps = event.create(RegistryBuilder.of(new ResourceLocation(PDAMod.MODID, "apps")));
+        apps = event.create(RegistryBuilder.of(new ResourceLocation(Constants.MODID, "apps")));
     }
 }

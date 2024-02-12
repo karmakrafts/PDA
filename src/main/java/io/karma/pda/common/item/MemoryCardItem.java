@@ -1,6 +1,6 @@
 package io.karma.pda.common.item;
 
-import io.karma.pda.common.PDAMod;
+import io.karma.pda.api.util.Constants;
 import io.karma.pda.common.util.NBTUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -34,7 +34,7 @@ public final class MemoryCardItem extends Item {
         super(new Properties().stacksTo(16));
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
             () -> () -> ItemProperties.register(this,
-                new ResourceLocation(PDAMod.MODID, "is_locked"),
+                new ResourceLocation(Constants.MODID, "is_locked"),
                 (stack, world, entity, i) -> NBTUtils.contains(stack.getTag(), TAG_OWNER_ID) ? 1F : 0F));
     }
 
@@ -79,7 +79,7 @@ public final class MemoryCardItem extends Item {
             super.appendHoverText(stack, world, components, isAdvanced);
             return;
         }
-        components.add(Component.translatable(String.format("tooltip.%s.owner", PDAMod.MODID), ownerName).withStyle(
+        components.add(Component.translatable(String.format("tooltip.%s.owner", Constants.MODID), ownerName).withStyle(
             ChatFormatting.RED));
         super.appendHoverText(stack, world, components, isAdvanced);
     }

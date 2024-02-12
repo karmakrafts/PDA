@@ -1,6 +1,6 @@
 package io.karma.pda.client.util;
 
-import io.karma.pda.common.PDAMod;
+import io.karma.pda.api.util.Constants;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -12,7 +12,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  */
 @OnlyIn(Dist.CLIENT)
 public final class ScreenUtils {
-    private static final ResourceLocation TEXTURE = new ResourceLocation(PDAMod.MODID, "textures/gui/default.png");
+    private static final ResourceLocation TEXTURE = new ResourceLocation(Constants.MODID, "textures/gui/default.png");
     private static final int SLICE_SIZE = 4;
     private static final int MIN_SIZE = SLICE_SIZE << 1;
     private static final int TEXTURE_SIZE = SLICE_SIZE * 3;

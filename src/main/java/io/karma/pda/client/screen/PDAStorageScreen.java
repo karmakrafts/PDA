@@ -1,7 +1,7 @@
 package io.karma.pda.client.screen;
 
+import io.karma.pda.api.util.Constants;
 import io.karma.pda.client.util.ScreenUtils;
-import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 @OnlyIn(Dist.CLIENT)
 public final class PDAStorageScreen extends BasicContainerScreen<PDAStorageMenu> {
     public PDAStorageScreen(final PDAStorageMenu menu, final Inventory inventory) {
-        super(menu, inventory, Component.translatable(String.format("screen.%s.pda_storage", PDAMod.MODID)));
+        super(menu, inventory, Component.translatable(String.format("screen.%s.pda_storage", Constants.MODID)));
     }
 
     @Override

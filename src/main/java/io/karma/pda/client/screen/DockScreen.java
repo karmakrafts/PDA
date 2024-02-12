@@ -1,7 +1,7 @@
 package io.karma.pda.client.screen;
 
+import io.karma.pda.api.util.Constants;
 import io.karma.pda.client.util.ScreenUtils;
-import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.menu.DockMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 @OnlyIn(Dist.CLIENT)
 public final class DockScreen extends BasicContainerScreen<DockMenu> {
     public DockScreen(@NotNull DockMenu menu, @NotNull Inventory playerInventory) {
-        super(menu, playerInventory, Component.translatable(String.format("screen.%s.dock", PDAMod.MODID)));
+        super(menu, playerInventory, Component.translatable(String.format("screen.%s.dock", Constants.MODID)));
     }
 
     @Override

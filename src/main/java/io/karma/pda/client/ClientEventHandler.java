@@ -1,6 +1,6 @@
 package io.karma.pda.client;
 
-import io.karma.pda.common.PDAMod;
+import io.karma.pda.api.util.Constants;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -17,9 +17,9 @@ import org.jetbrains.annotations.ApiStatus;
 @OnlyIn(Dist.CLIENT)
 public final class ClientEventHandler {
     public static final ClientEventHandler INSTANCE = new ClientEventHandler();
-    public static final ResourceLocation PDA_MODEL_DISENGAGED = new ResourceLocation(PDAMod.MODID,
+    public static final ResourceLocation PDA_MODEL_DISENGAGED = new ResourceLocation(Constants.MODID,
         "item/pda_disengaged");
-    public static final ResourceLocation PDA_MODEL_DISENGAGED_H = new ResourceLocation(PDAMod.MODID,
+    public static final ResourceLocation PDA_MODEL_DISENGAGED_H = new ResourceLocation(Constants.MODID,
         "item/pda_disengaged_horizontal");
     private float partialTick;
 

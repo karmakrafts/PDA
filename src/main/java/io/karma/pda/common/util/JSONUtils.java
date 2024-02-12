@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import io.karma.pda.api.dom.Node;
 import io.karma.pda.api.dom.NodeType;
-import io.karma.pda.common.PDAMod;
+import io.karma.pda.api.util.Constants;
 
 import java.io.IOException;
 
@@ -30,7 +30,7 @@ public final class JSONUtils {
     // @formatter:on
 
     static { // @formatter:off
-        MODULE = new SimpleModule(PDAMod.MODID, new Version(1, 0, 0, "", null, null));
+        MODULE = new SimpleModule(Constants.MODID, new Version(1, 0, 0, "", null, null));
         MODULE.addSerializer(Node.class, new NodeSerializer());
         MODULE.addDeserializer(Node.class, new NodeDeserializer());
         MAPPER = new ObjectMapper();

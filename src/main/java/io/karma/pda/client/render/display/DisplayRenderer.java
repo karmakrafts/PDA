@@ -2,6 +2,7 @@ package io.karma.pda.client.render.display;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import io.karma.pda.api.util.Constants;
 import io.karma.pda.client.event.RunTickEvent;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.client.Minecraft;
@@ -77,7 +78,7 @@ public final class DisplayRenderer {
         try {
             final var resourceManager = Minecraft.getInstance().getResourceManager();
             // @formatter:off
-            shader = new ShaderInstance(resourceManager, new ResourceLocation(PDAMod.MODID, "display"),
+            shader = new ShaderInstance(resourceManager, new ResourceLocation(Constants.MODID, "display"),
                 DefaultVertexFormat.POSITION_TEX_COLOR);
             // @formatter:on
         }
