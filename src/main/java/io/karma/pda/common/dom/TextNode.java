@@ -5,8 +5,9 @@ package io.karma.pda.common.dom;
  * @since 08/02/2024
  */
 public final class TextNode extends AbstractNode {
-    private final String text;
-    private final int color;
+    private static final int DEFAULT_TEXT_COLOR = 0xFF101010;
+    private String text;
+    private int color;
 
     public TextNode(final String text, final int color) {
         this.text = text;
@@ -14,7 +15,11 @@ public final class TextNode extends AbstractNode {
     }
 
     public TextNode(final String text) {
-        this(text, 0xFF101010);
+        this(text, DEFAULT_TEXT_COLOR);
+    }
+
+    public TextNode() {
+        this("", DEFAULT_TEXT_COLOR);
     }
 
     @Override
@@ -26,7 +31,15 @@ public final class TextNode extends AbstractNode {
         return text;
     }
 
+    public void setText(final String text) {
+        this.text = text;
+    }
+
     public int getColor() {
         return color;
+    }
+
+    public void setColor(final int color) {
+        this.color = color;
     }
 }

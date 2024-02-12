@@ -1,5 +1,6 @@
 package io.karma.pda.common.dom;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -11,6 +12,10 @@ import java.util.List;
  */
 public interface Node {
     NodeType getType();
+
+    void serialize(final ObjectNode node);
+
+    void deserialize(final ObjectNode node);
 
     @Nullable Node getParent();
 

@@ -1,5 +1,7 @@
 package io.karma.pda.common.dom;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,6 +11,8 @@ import java.util.List;
  * @since 08/02/2024
  */
 public class ContainerNode extends AbstractNode {
+    public static final String KEY_CHILDREN = "children";
+    
     protected final ArrayList<Node> children = new ArrayList<>();
 
     public ContainerNode() {
@@ -21,6 +25,16 @@ public class ContainerNode extends AbstractNode {
     @Override
     public NodeType getType() {
         return NodeType.CONTAINER;
+    }
+
+    @Override
+    public void serialize(final ObjectNode node) {
+
+    }
+
+    @Override
+    public void deserialize(final ObjectNode node) {
+
     }
 
     @Override
