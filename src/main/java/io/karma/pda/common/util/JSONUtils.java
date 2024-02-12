@@ -10,9 +10,9 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import io.karma.pda.api.dom.Node;
+import io.karma.pda.api.dom.NodeType;
 import io.karma.pda.common.PDAMod;
-import io.karma.pda.common.dom.Node;
-import io.karma.pda.common.dom.NodeType;
 
 import java.io.IOException;
 

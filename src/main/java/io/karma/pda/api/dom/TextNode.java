@@ -1,4 +1,6 @@
-package io.karma.pda.common.dom;
+package io.karma.pda.api.dom;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * @author Alexander Hinze
@@ -25,6 +27,16 @@ public final class TextNode extends AbstractNode {
     @Override
     public NodeType getType() {
         return NodeType.TEXT;
+    }
+
+    @Override
+    public void serialize(ObjectNode node) {
+
+    }
+
+    @Override
+    public void deserialize(ObjectNode node) {
+
     }
 
     public String getText() {

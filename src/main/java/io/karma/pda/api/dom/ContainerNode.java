@@ -1,4 +1,4 @@
-package io.karma.pda.common.dom;
+package io.karma.pda.api.dom;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class ContainerNode extends AbstractNode {
     public static final String KEY_CHILDREN = "children";
-    
+
     protected final ArrayList<Node> children = new ArrayList<>();
 
     public ContainerNode() {

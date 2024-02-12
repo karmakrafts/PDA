@@ -4,16 +4,16 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import io.karma.pda.api.API;
+import io.karma.pda.api.app.App;
+import io.karma.pda.api.util.Constants;
 import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.client.render.display.DisplayRenderer;
 import io.karma.pda.client.render.entity.DockBlockEntityRenderer;
 import io.karma.pda.client.render.item.PDAItemRenderer;
 import io.karma.pda.client.screen.DockScreen;
 import io.karma.pda.client.screen.PDAStorageScreen;
-import io.karma.pda.common.init.ModBlockEntities;
-import io.karma.pda.common.init.ModBlocks;
-import io.karma.pda.common.init.ModItems;
-import io.karma.pda.common.init.ModMenus;
+import io.karma.pda.common.init.*;
 import io.karma.pda.common.item.MemoryCardItem;
 import io.karma.pda.common.menu.DockMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
@@ -51,32 +51,31 @@ import org.apache.logging.log4j.Logger;
  * @author Alexander Hinze
  * @since 05/02/2024
  */
-@Mod(PDAMod.MODID)
+@Mod(Constants.MODID)
 public class PDAMod {
-    public static final String MODID = "pda";
     public static final Logger LOGGER = LogManager.getLogger();
 
-    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
-    private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
+    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Constants.MODID);
+    private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS,
+        Constants.MODID);
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES,
-        MODID);
+        Constants.MODID);
     private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES,
-        MODID);
+        Constants.MODID);
     // @formatter:off
-    private static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
-
+    private static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Constants.MODID);
     public static final RegistryObject<CreativeModeTab> TAB = TABS.register("main", () -> CreativeModeTab.builder()
-        .title(Component.translatable(String.format("itemGroup.%s", MODID)))
+        .title(Component.translatable(String.format("itemGroup.%s", Constants.MODID)))
         .icon(ModItems.pda.get()::getDefaultInstance)
         .displayItems((params, output) -> {
             ITEMS.getEntries().stream().map(RegistryObject::get).forEach(output::accept);
         })
         .build());
+    private static final DeferredRegister<App> APPS = DeferredRegister.create(API.getAppRegistry(), Constants.MODID);
     // @formatter:on
-
     private static final String PROTOCOL_VERSION = "1";
     // @formatter:off
-    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(MODID, "play"),
+    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(Constants.MODID, "play"),
         () -> PROTOCOL_VERSION,
         PROTOCOL_VERSION::equals,
         PROTOCOL_VERSION::equals);
@@ -87,20 +86,23 @@ public class PDAMod {
         ModBlocks.register(BLOCKS);
         ModItems.register(ITEMS);
         ModMenus.register(MENU_TYPES);
+        ModApps.register(APPS);
     }
 
     public PDAMod() {
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         final var forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addListener(this::onRegisterCommands);
+
+        ModRegistries.setup(); // Initialize all custom registries
         CommonEventHandler.INSTANCE.setup();
+        CommonPacketHandler.setup();
 
         BLOCK_ENTITIES.register(modBus);
         BLOCKS.register(modBus);
         ITEMS.register(modBus);
         TABS.register(modBus);
         MENU_TYPES.register(modBus);
-        CommonPacketHandler.setup();
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             ClientEventHandler.INSTANCE.setup();
@@ -112,8 +114,9 @@ public class PDAMod {
     }
 
     private void onRegisterCommands(final RegisterCommandsEvent event) {
+        LOGGER.info("Registering commands");
         // @formatter:off
-        event.getDispatcher().register(LiteralArgumentBuilder.<CommandSourceStack>literal(MODID)
+        event.getDispatcher().register(LiteralArgumentBuilder.<CommandSourceStack>literal(Constants.MODID)
             .then(LiteralArgumentBuilder.<CommandSourceStack>literal("card")
                 .then(LiteralArgumentBuilder.<CommandSourceStack>literal("lock")
                     .executes(stack -> {
@@ -181,12 +184,14 @@ public class PDAMod {
 
     @OnlyIn(Dist.CLIENT)
     private void onRegisterEntityRenderers(final EntityRenderersEvent.RegisterRenderers event) {
+        LOGGER.info("Registering block entity renderers");
         event.registerBlockEntityRenderer(ModBlockEntities.dock.get(), DockBlockEntityRenderer::new);
     }
 
     @OnlyIn(Dist.CLIENT)
     private void onClientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
+            LOGGER.info("Registering screens");
             DisplayRenderer.INSTANCE.setup();
             MenuScreens.register(ModMenus.pdaStorage.get(),
                 (PDAStorageMenu menu, Inventory inventory, Component title) -> new PDAStorageScreen(menu, inventory));

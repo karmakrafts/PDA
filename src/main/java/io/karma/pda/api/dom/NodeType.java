@@ -1,4 +1,4 @@
-package io.karma.pda.common.dom;
+package io.karma.pda.api.dom;
 
 import java.util.Arrays;
 import java.util.Optional;
