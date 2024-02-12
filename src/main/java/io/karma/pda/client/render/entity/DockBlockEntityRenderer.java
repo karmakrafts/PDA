@@ -26,6 +26,9 @@ public final class DockBlockEntityRenderer implements BlockEntityRenderer<DockBl
     public void render(final @NotNull DockBlockEntity entity, final float partialTick,
                        final @NotNull PoseStack poseStack, final @NotNull MultiBufferSource bufferSource,
                        final int packedLight, final int packedOverlay) {
+        if (entity.getItem(0).isEmpty()) {
+            return;
+        }
         final var world = entity.getLevel();
         if (world == null) {
             return;
