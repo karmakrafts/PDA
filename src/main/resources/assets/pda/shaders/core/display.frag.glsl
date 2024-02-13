@@ -11,6 +11,7 @@ in vec4 vertexColor;
 out vec4 fragColor;
 
 void main() {
-    vec4 color = texture(Sampler0, texCoord0) * vertexColor;
+    vec4 color = vec4(1.0);
+    color = color * texture(Sampler0, texCoord0) * vertexColor;
     fragColor = color * ColorModulator;
 }

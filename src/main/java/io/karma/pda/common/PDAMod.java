@@ -13,7 +13,10 @@ import io.karma.pda.client.render.entity.DockBlockEntityRenderer;
 import io.karma.pda.client.render.item.PDAItemRenderer;
 import io.karma.pda.client.screen.DockScreen;
 import io.karma.pda.client.screen.PDAStorageScreen;
-import io.karma.pda.common.init.*;
+import io.karma.pda.common.init.ModBlockEntities;
+import io.karma.pda.common.init.ModBlocks;
+import io.karma.pda.common.init.ModItems;
+import io.karma.pda.common.init.ModMenus;
 import io.karma.pda.common.item.MemoryCardItem;
 import io.karma.pda.common.menu.DockMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
@@ -41,9 +44,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.registries.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -54,7 +55,11 @@ import org.apache.logging.log4j.Logger;
 @Mod(Constants.MODID)
 public class PDAMod {
     public static final Logger LOGGER = LogManager.getLogger();
-
+    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(Constants.MODID,
+            "play"),
+        () -> Constants.PROTOCOL_VERSION,
+        Constants.PROTOCOL_VERSION::equals,
+        Constants.PROTOCOL_VERSION::equals);
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Constants.MODID);
     private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS,
         Constants.MODID);
@@ -64,6 +69,7 @@ public class PDAMod {
         Constants.MODID);
     // @formatter:off
     private static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Constants.MODID);
+    private static final DeferredRegister<App> APPS = API.makeDeferredAppRegister(Constants.MODID);
     public static final RegistryObject<CreativeModeTab> TAB = TABS.register("main", () -> CreativeModeTab.builder()
         .title(Component.translatable(String.format("itemGroup.%s", Constants.MODID)))
         .icon(ModItems.pda.get()::getDefaultInstance)
@@ -71,14 +77,6 @@ public class PDAMod {
             ITEMS.getEntries().stream().map(RegistryObject::get).forEach(output::accept);
         })
         .build());
-    private static final DeferredRegister<App> APPS = DeferredRegister.create(API.getAppRegistry(), Constants.MODID);
-    // @formatter:on
-    private static final String PROTOCOL_VERSION = "1";
-    // @formatter:off
-    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(Constants.MODID, "play"),
-        () -> PROTOCOL_VERSION,
-        PROTOCOL_VERSION::equals,
-        PROTOCOL_VERSION::equals);
     // @formatter:on
 
     static {
@@ -86,15 +84,14 @@ public class PDAMod {
         ModBlocks.register(BLOCKS);
         ModItems.register(ITEMS);
         ModMenus.register(MENU_TYPES);
-        ModApps.register(APPS);
     }
 
     public PDAMod() {
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        modBus.addListener(this::onNewRegistry);
         final var forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addListener(this::onRegisterCommands);
 
-        ModRegistries.setup(); // Initialize all custom registries
         CommonEventHandler.INSTANCE.setup();
         CommonPacketHandler.setup();
 
@@ -111,6 +108,10 @@ public class PDAMod {
             modBus.addListener(this::onRegisterEntityRenderers);
             DisplayRenderer.INSTANCE.setupEarly();
         });
+    }
+
+    private void onNewRegistry(final NewRegistryEvent event) {
+        event.create(RegistryBuilder.of(new ResourceLocation(Constants.MODID, "apps")));
     }
 
     private void onRegisterCommands(final RegisterCommandsEvent event) {
