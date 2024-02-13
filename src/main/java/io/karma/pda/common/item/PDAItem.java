@@ -48,6 +48,6 @@ public final class PDAItem extends Item {
             }
             game.setScreen(new PDAScreen(hands));
         }
-        return InteractionResultHolder.sidedSuccess(stack, false);
+        return InteractionResultHolder.sidedSuccess(stack, false); // Prevent builtin animation
     }
 }

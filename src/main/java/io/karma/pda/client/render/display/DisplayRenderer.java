@@ -4,8 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.client.event.RunTickEvent;
-import io.karma.pda.common.PDAMod;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
@@ -13,7 +11,9 @@ import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.RegisterShadersEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.jetbrains.annotations.ApiStatus;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
@@ -29,6 +29,7 @@ public final class DisplayRenderer {
     public static final DisplayRenderer INSTANCE = new DisplayRenderer();
 
     // Manullay calculated constants for offsets and sizes of the display
+    // @formatter:off
     private static final float MIN_X = 0.25F;
     private static final float MIN_Y = 0.125F;
     private static final float OFFSET_Z = 0.609375F;
@@ -39,14 +40,21 @@ public final class DisplayRenderer {
     private static final Matrix4f DISPLAY_PROJECTION_MATRIX = new Matrix4f().ortho2D(0F, RES_X, RES_Y, 0F);
     private static final float MAX_X = MIN_X + SIZE_X;
     private static final float MAX_Y = MIN_Y + SIZE_Y;
-    // @formatter:off
+    private static final ResourceLocation PIXEL_TEXTURE = new ResourceLocation(Constants.MODID, "textures/pixel.png");
+
     private static final RenderType RENDER_TYPE = RenderType.create("pda_display",
         DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 4, false, false,
         RenderType.CompositeState.builder()
             .setCullState(RenderStateShard.NO_CULL)
             .setTextureState(new RenderStateShard.EmptyTextureStateShard(
-                () -> RenderSystem.setShaderTexture(0, INSTANCE.framebuffer.getTextureId()),
-                () -> RenderSystem.setShaderTexture(0, 0)
+                () -> {
+                    RenderSystem.setShaderTexture(0, INSTANCE.framebuffer.getTextureId());
+                    RenderSystem.setShaderTexture(1, PIXEL_TEXTURE);
+                },
+                () -> {
+                    RenderSystem.setShaderTexture(0, 0);
+                    RenderSystem.setShaderTexture(1, 0);
+                }
             ))
             .setShaderState(new RenderStateShard.ShaderStateShard(() -> INSTANCE.shader))
             .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
@@ -70,20 +78,25 @@ public final class DisplayRenderer {
     @ApiStatus.Internal
     public void setupEarly() {
         MinecraftForge.EVENT_BUS.addListener(this::onRunTickPre);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onRegisterShaders);
     }
 
     @ApiStatus.Internal
     public void setup() {
-        framebuffer = new DisplayFramebuffer(RES_X, RES_Y); // Adjust size
+        framebuffer = new DisplayFramebuffer(RES_X, RES_Y); // Adjust framebuffer size
+    }
+
+    private void onRegisterShaders(final RegisterShadersEvent event) {
         try {
-            final var resourceManager = Minecraft.getInstance().getResourceManager();
-            // @formatter:off
-            shader = new ShaderInstance(resourceManager, new ResourceLocation(Constants.MODID, "display"),
-                DefaultVertexFormat.POSITION_TEX_COLOR);
-            // @formatter:on
+            event.registerShader(new ShaderInstance(event.getResourceProvider(),
+                new ResourceLocation("display"),
+                DefaultVertexFormat.POSITION_TEX_COLOR), shader -> {
+                shader.safeGetUniform("DisplayResolution").set((float) RES_X, (float) RES_Y);
+                this.shader = shader;
+            });
         }
         catch (Throwable error) {
-            PDAMod.LOGGER.error("Could not create display renderer shader instance: {}", error.toString());
+            error.fillInStackTrace().printStackTrace();
         }
     }
 

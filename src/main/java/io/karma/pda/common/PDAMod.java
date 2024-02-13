@@ -69,7 +69,6 @@ public class PDAMod {
         Constants.MODID);
     // @formatter:off
     private static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Constants.MODID);
-    private static final DeferredRegister<App> APPS = API.makeDeferredAppRegister(Constants.MODID);
     public static final RegistryObject<CreativeModeTab> TAB = TABS.register("main", () -> CreativeModeTab.builder()
         .title(Component.translatable(String.format("itemGroup.%s", Constants.MODID)))
         .icon(ModItems.pda.get()::getDefaultInstance)
@@ -77,6 +76,7 @@ public class PDAMod {
             ITEMS.getEntries().stream().map(RegistryObject::get).forEach(output::accept);
         })
         .build());
+    private static final DeferredRegister<App> APPS = API.makeDeferredAppRegister(Constants.MODID);
     // @formatter:on
 
     static {

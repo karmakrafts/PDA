@@ -24,8 +24,6 @@ public final class PDAItemRenderer {
 
     private final boolean[] isEngaged = new boolean[2];
     private final float[] firstPersonOffset = new float[2];
-    private final float[] previousFirstPersonOffset = new float[2];
-    private final float[] renderOffset = new float[2];
 
     // @formatter:off
     private PDAItemRenderer() {}
@@ -42,7 +40,6 @@ public final class PDAItemRenderer {
 
     private void updateFirstPersonAnimation(final InteractionHand hand) {
         final var index = hand.ordinal();
-        previousFirstPersonOffset[index] = firstPersonOffset[index];
         if (isEngaged[index]) {
             if (firstPersonOffset[index] < 1F) {
                 firstPersonOffset[index] += ANIMATION_STEP;
@@ -71,25 +68,21 @@ public final class PDAItemRenderer {
         final var packedLight = event.getPackedLight();
         final var packedOverlay = event.getPackedOverlay();
         final var hand = event.getHand();
-        final var handIndex = hand.ordinal();
-
-        if (displayContext.firstPerson()) {
-            updateFirstPersonAnimation(hand);
-            final var previousOffset = ANIMATION_OFFSET * previousFirstPersonOffset[handIndex];
-            final var offset = ANIMATION_OFFSET * firstPersonOffset[handIndex];
-            renderOffset[handIndex] = previousOffset + (offset - previousOffset) * event.getPartialTick();
-        }
-        else {
-            renderOffset[handIndex] = 0F; // For other display contexts don't
-        }
 
         poseStack.pushPose();
         // @formatter:off
         final var model = game.getModelManager().getModel(ClientEventHandler.PDA_MODEL_DISENGAGED)
             .applyTransform(displayContext, poseStack, hand == InteractionHand.OFF_HAND);
-        poseStack.translate(-0.5, -0.5 + renderOffset[handIndex], -0.5);
-        itemRenderer.renderModelLists(model, stack, packedLight, packedOverlay, poseStack, buffer);
         // @formatter:on
+        updateFirstPersonAnimation(hand);
+        if (displayContext.firstPerson()) {
+            final var offset = ANIMATION_OFFSET * firstPersonOffset[hand.ordinal()];
+            poseStack.translate(-0.5, -0.5 + offset, -0.5);
+        }
+        else {
+            poseStack.translate(-0.5, -0.5, -0.5);
+        }
+        itemRenderer.renderModelLists(model, stack, packedLight, packedOverlay, poseStack, buffer);
         //Render out display on top of the baked model dynamically
         DisplayRenderer.INSTANCE.renderDisplay(bufferSource, poseStack);
         poseStack.popPose();
