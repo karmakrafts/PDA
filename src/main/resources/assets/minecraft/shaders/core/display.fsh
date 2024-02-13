@@ -22,6 +22,6 @@ void main() {
     vec4 spriteColor = convertSrgb(texture(Sampler0, texCoord0) * vertexColor);
     vec4 color = texture(Sampler1, texCoord0 * DisplayResolution);
     vec4 multipliedColor = color * spriteColor;
-    color = mix(spriteColor, multipliedColor, 0.1);
+    color = mix(spriteColor, multipliedColor, 0.075);
     fragColor = color * ColorModulator;
 }

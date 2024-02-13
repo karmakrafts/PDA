@@ -1,9 +1,13 @@
 package io.karma.pda.client;
 
 import io.karma.pda.api.util.Constants;
+import io.karma.pda.client.render.entity.DockBlockEntityRenderer;
+import io.karma.pda.common.PDAMod;
+import io.karma.pda.common.init.ModBlockEntities;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -29,12 +33,20 @@ public final class ClientEventHandler {
 
     @ApiStatus.Internal
     public void setup() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onRegisterAdditionalModels);
+        final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        modBus.addListener(this::onRegisterEntityRenderers);
+        modBus.addListener(this::onRegisterAdditionalModels);
         MinecraftForge.EVENT_BUS.addListener(this::onRenderTick);
+    }
+
+    private void onRegisterEntityRenderers(final EntityRenderersEvent.RegisterRenderers event) {
+        PDAMod.LOGGER.info("Registering block entity renderers");
+        event.registerBlockEntityRenderer(ModBlockEntities.dock.get(), DockBlockEntityRenderer::new);
     }
 
     // Make sure our actual baked models get loaded by the game
     private void onRegisterAdditionalModels(final ModelEvent.RegisterAdditional event) {
+        PDAMod.LOGGER.info("Registering models");
         event.register(PDA_MODEL_DISENGAGED);
         event.register(PDA_MODEL_DISENGAGED_H);
     }
