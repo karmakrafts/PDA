@@ -1,4 +1,4 @@
-package io.karma.pda.api.dom;
+package io.karma.pda.api.app.component;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -8,20 +8,19 @@ import java.util.function.Supplier;
  * @author Alexander Hinze
  * @since 12/02/2024
  */
-public enum NodeType {
+public enum ComponentType {
     // @formatter:off
-    DOCUMENT    (DefaultDocument::new),
-    CONTAINER   (ContainerNode::new),
-    TEXT        (TextNode::new);
+    CONTAINER   (ContainerComponent::new),
+    TEXT        (TextComponent::new);
     // @formatter:on
 
-    private final Supplier<Node> factory;
+    private final Supplier<Component> factory;
 
-    NodeType(final Supplier<Node> factory) {
+    ComponentType(final Supplier<Component> factory) {
         this.factory = factory;
     }
 
-    public static Optional<NodeType> byName(final String name) {
+    public static Optional<ComponentType> byName(final String name) {
         return Arrays.stream(values()).filter(type -> type.name().toLowerCase().equals(name)).findFirst();
     }
 
@@ -30,7 +29,7 @@ public enum NodeType {
         return name().toLowerCase();
     }
 
-    public Node create() {
+    public Component create() {
         return factory.get();
     }
 }

@@ -9,7 +9,6 @@
     "maxShiftBy": 100
   },
   "client": [
-    "ItemRendererMixin",
-    "MinecraftMixin"
+    "ItemRendererMixin"
   ]
 }

@@ -10,8 +10,8 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import io.karma.pda.api.dom.Node;
-import io.karma.pda.api.dom.NodeType;
+import io.karma.pda.api.app.component.Component;
+import io.karma.pda.api.app.component.ComponentType;
 import io.karma.pda.api.util.Constants;
 
 import java.io.IOException;
@@ -31,8 +31,8 @@ public final class JSONUtils {
 
     static { // @formatter:off
         MODULE = new SimpleModule(Constants.MODID, new Version(1, 0, 0, "", null, null));
-        MODULE.addSerializer(Node.class, new NodeSerializer());
-        MODULE.addDeserializer(Node.class, new NodeDeserializer());
+        MODULE.addSerializer(Component.class, new NodeSerializer());
+        MODULE.addDeserializer(Component.class, new NodeDeserializer());
         MAPPER = new ObjectMapper();
         MAPPER.registerModule(MODULE);
         READER = MAPPER.reader();
@@ -44,29 +44,30 @@ public final class JSONUtils {
     private JSONUtils() {}
     // @formatter:on
 
-    private static final class NodeSerializer extends StdSerializer<Node> {
+    private static final class NodeSerializer extends StdSerializer<Component> {
         public NodeSerializer() {
-            super(Node.class);
+            super(Component.class);
         }
 
         @Override
-        public void serialize(final Node node, final JsonGenerator generator, final SerializerProvider provider) {
+        public void serialize(final Component component, final JsonGenerator generator,
+                              final SerializerProvider provider) {
             final var object = MAPPER.createObjectNode();
-            object.put(KEY_NODE_TYPE, node.getType().toString());
-            node.serialize(object);
+            object.put(KEY_NODE_TYPE, component.getType().toString());
+            component.serialize(object);
         }
     }
 
-    private static final class NodeDeserializer extends StdDeserializer<Node> {
+    private static final class NodeDeserializer extends StdDeserializer<Component> {
         public NodeDeserializer() {
-            super(Node.class);
+            super(Component.class);
         }
 
         @Override
-        public Node deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
+        public Component deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
             final var object = (ObjectNode) parser.getCodec().readTree(parser);
             final var typeName = object.get(KEY_NODE_TYPE).asText();
-            final var type = NodeType.byName(typeName).orElseThrow();
+            final var type = ComponentType.byName(typeName).orElseThrow();
             final var node = type.create();
             node.deserialize(object);
             return node;

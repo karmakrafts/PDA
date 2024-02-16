@@ -2,6 +2,8 @@ package io.karma.pda.common;
 
 import io.karma.pda.api.API;
 import io.karma.pda.api.app.App;
+import io.karma.pda.api.app.AppRenderer;
+import io.karma.pda.api.app.AppType;
 import io.karma.pda.api.event.RegisterAppRenderersEvent;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.client.ClientEventHandler;
@@ -68,7 +70,7 @@ public class PDAMod {
             ITEMS.getEntries().stream().map(RegistryObject::get).forEach(output::accept);
         })
         .build());
-    private static final DeferredRegister<App> APPS = API.makeDeferredAppRegister(Constants.MODID);
+    private static final DeferredRegister<AppType<?>> APPS = API.makeDeferredAppTypeRegister(Constants.MODID);
     // @formatter:on
 
     static {
@@ -83,7 +85,7 @@ public class PDAMod {
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         CommonEventHandler.INSTANCE.setup();
-        CommonPacketHandler.setup();
+        CommonPacketHandler.setup(CHANNEL);
 
         BLOCK_ENTITIES.register(modBus);
         BLOCKS.register(modBus);
@@ -100,6 +102,7 @@ public class PDAMod {
         });
     }
 
+    @SuppressWarnings("unchecked")
     @OnlyIn(Dist.CLIENT)
     private void onClientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
@@ -111,8 +114,11 @@ public class PDAMod {
                 (DockMenu menu, Inventory inventory, Component title) -> new DockScreen(menu, inventory));
 
             LOGGER.info("Registering app renderers");
-            AppRenderers.register(ModApps.launcher.getId(), LauncherAppRenderer::new);
-            MinecraftForge.EVENT_BUS.post(new RegisterAppRenderersEvent(AppRenderers::register));
+            AppRenderers.register(ModApps.launcher.get(), new LauncherAppRenderer());
+            // @formatter:off
+            MinecraftForge.EVENT_BUS.post(new RegisterAppRenderersEvent(
+                (type, renderer) -> AppRenderers.register((AppType<App>) type, (AppRenderer<App>) renderer)));
+            // @formatter:on
         });
     }
 }

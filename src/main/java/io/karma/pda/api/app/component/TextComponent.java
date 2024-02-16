@@ -1,4 +1,4 @@
-package io.karma.pda.api.dom;
+package io.karma.pda.api.app.component;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -6,36 +6,36 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author Alexander Hinze
  * @since 08/02/2024
  */
-public final class TextNode extends AbstractNode {
+public final class TextComponent extends AbstractComponent {
     private static final int DEFAULT_TEXT_COLOR = 0xFF101010;
     private String text;
     private int color;
 
-    public TextNode(final String text, final int color) {
+    public TextComponent(final String text, final int color) {
         this.text = text;
         this.color = color;
     }
 
-    public TextNode(final String text) {
+    public TextComponent(final String text) {
         this(text, DEFAULT_TEXT_COLOR);
     }
 
-    public TextNode() {
+    public TextComponent() {
         this("", DEFAULT_TEXT_COLOR);
     }
 
     @Override
-    public NodeType getType() {
-        return NodeType.TEXT;
+    public ComponentType getType() {
+        return ComponentType.TEXT;
     }
 
     @Override
-    public void serialize(ObjectNode node) {
+    public void serialize(final ObjectNode node) {
 
     }
 
     @Override
-    public void deserialize(ObjectNode node) {
+    public void deserialize(final ObjectNode node) {
 
     }
 

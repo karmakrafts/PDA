@@ -1,5 +1,6 @@
 package io.karma.pda.common.network;
 
+import net.minecraftforge.network.simple.SimpleChannel;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -12,7 +13,8 @@ public final class CommonPacketHandler {
     // @formatter:on
 
     @ApiStatus.Internal
-    public static void setup() {
-
+    public static void setup(final SimpleChannel channel) {
+        // @formatter:off
+        // @formatter:on
     }
 }

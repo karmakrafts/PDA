@@ -1,14 +1,12 @@
 package io.karma.pda.client.render.app;
 
-import io.karma.pda.api.API;
 import io.karma.pda.api.app.App;
 import io.karma.pda.api.app.AppRenderer;
-import net.minecraft.resources.ResourceLocation;
+import io.karma.pda.api.app.AppType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.HashMap;
-import java.util.function.Function;
 
 /**
  * @author Alexander Hinze
@@ -16,28 +14,25 @@ import java.util.function.Function;
  */
 @OnlyIn(Dist.CLIENT)
 public final class AppRenderers {
-    private static final HashMap<ResourceLocation, Function<App, AppRenderer>> RENDERERS = new HashMap<>();
+    private static final HashMap<AppType<?>, AppRenderer<?>> RENDERERS = new HashMap<>();
 
     // @formatter:off
     private AppRenderers() {}
     // @formatter:on
 
-    public static void register(final ResourceLocation appName, final Function<App, AppRenderer> factory) {
-        if (RENDERERS.containsKey(appName)) {
-            throw new IllegalArgumentException(String.format("App renderer '%s' is already registered", appName));
+    public static <A extends App> void register(final AppType<A> type, final AppRenderer<A> renderer) {
+        if (RENDERERS.containsKey(type)) {
+            throw new IllegalArgumentException(String.format("App renderer '%s' is already registered", type));
         }
-        RENDERERS.put(appName, factory);
+        RENDERERS.put(type, renderer);
     }
 
-    public static AppRenderer create(final App app) {
-        final var appName = API.getAppRegistry().getKey(app);
-        if (appName == null) {
-            throw new IllegalArgumentException("App type is not registered");
+    @SuppressWarnings("unchecked")
+    public static <A extends App> AppRenderer<A> get(final AppType<A> type) {
+        final var renderer = RENDERERS.get(type);
+        if (renderer == null) {
+            throw new IllegalArgumentException(String.format("No renderer registered for app '%s'", type));
         }
-        final var factory = RENDERERS.get(appName);
-        if (factory == null) {
-            throw new IllegalArgumentException(String.format("No renderer registered for app '%s'", appName));
-        }
-        return factory.apply(app);
+        return (AppRenderer<A>) renderer;
     }
 }

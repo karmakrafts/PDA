@@ -1,6 +1,6 @@
 package io.karma.pda.api;
 
-import io.karma.pda.api.app.App;
+import io.karma.pda.api.app.AppType;
 import io.karma.pda.api.util.Constants;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -17,13 +17,13 @@ public final class API {
     private API() {}
     // @formatter:on
 
-    public static DeferredRegister<App> makeDeferredAppRegister(final String modId) {
+    public static DeferredRegister<AppType<?>> makeDeferredAppTypeRegister(final String modId) {
         return DeferredRegister.create(Constants.APP_REGISTRY_NAME, modId);
     }
 
     @SuppressWarnings("all")
-    public static IForgeRegistry<App> getAppRegistry() {
-        final var registry = RegistryManager.ACTIVE.<App>getRegistry(Constants.APP_REGISTRY_NAME);
+    public static IForgeRegistry<AppType<?>> getAppTypeRegistry() {
+        final var registry = RegistryManager.ACTIVE.<AppType<?>>getRegistry(Constants.APP_REGISTRY_NAME);
         if (registry != null) {
             return registry;
         }
@@ -31,7 +31,7 @@ public final class API {
     }
 
     @SuppressWarnings("all")
-    public static Collection<App> getApps() {
-        return getAppRegistry().getValues();
+    public static Collection<AppType<?>> getAppTypes() {
+        return getAppTypeRegistry().getValues();
     }
 }
