@@ -9,7 +9,7 @@ import io.karma.pda.api.app.component.ContainerComponent;
 public class DefaultApp implements App {
     protected final AppType<?> type;
 
-    protected DefaultApp(final AppType<?> type) {
+    public DefaultApp(final AppType<?> type) {
         this.type = type;
     }
 
@@ -20,6 +20,6 @@ public class DefaultApp implements App {
 
     @Override
     public void populate(final ContainerComponent container) {
-
+        
     }
 }

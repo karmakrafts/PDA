@@ -36,6 +36,27 @@ public final class DisplayRenderer {
     private static final float SIZE_Y = 0.5625F;
     public static final int RES_Y = (int) (SIZE_Y * 16F) * 16;
     private static final Matrix4f DISPLAY_PROJECTION_MATRIX = new Matrix4f().ortho2D(0F, RES_X, RES_Y, 0F);
+    private static final RenderType BLIT_RENDER_TYPE = RenderType.create("pda_blit_display",
+        DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 4, false, false,
+        RenderType.CompositeState.builder()
+            .setCullState(RenderStateShard.CULL)
+            .setTextureState(new RenderStateShard.EmptyTextureStateShard(
+                () -> {
+                    RenderSystem.setShaderTexture(0, INSTANCE.framebuffer.getTextureId());
+                    RenderSystem.setShaderTexture(1, PIXEL_TEXTURE);
+                },
+                () -> {
+                    RenderSystem.setShaderTexture(0, 0);
+                    RenderSystem.setShaderTexture(1, 0);
+                }
+            ))
+            .setShaderState(new RenderStateShard.ShaderStateShard(INSTANCE::getBlitShader))
+            .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+            .createCompositeState(false));
+    private static final ResourceLocation PIXEL_TEXTURE = new ResourceLocation(Constants.MODID, "textures/pixel.png");
+    private static final float MAX_X = MIN_X + SIZE_X;
+    private static final float MAX_Y = MIN_Y + SIZE_Y;
+    private static final Matrix4f IDENTITY_MATRIX = new Matrix4f().identity();
     private static final RenderStateShard.OutputStateShard DISPLAY_OUTPUT = new RenderStateShard.OutputStateShard("display_output",
         INSTANCE::setupDisplayOutput,
         INSTANCE::resetDisplayOutput);
@@ -55,27 +76,6 @@ public final class DisplayRenderer {
             .setOutputState(DISPLAY_OUTPUT)
             .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
             .createCompositeState(false));
-    private static final ResourceLocation PIXEL_TEXTURE = new ResourceLocation(Constants.MODID, "textures/pixel.png");
-    private static final RenderType BLIT_RENDER_TYPE = RenderType.create("pda_blit_display",
-        DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 4, false, false,
-        RenderType.CompositeState.builder()
-            .setCullState(RenderStateShard.CULL)
-            .setTextureState(new RenderStateShard.EmptyTextureStateShard(
-                () -> {
-                    RenderSystem.setShaderTexture(0, INSTANCE.framebuffer.getTextureId());
-                    RenderSystem.setShaderTexture(1, PIXEL_TEXTURE);
-                },
-                () -> {
-                    RenderSystem.setShaderTexture(0, 0);
-                    RenderSystem.setShaderTexture(1, 0);
-                }
-            ))
-            .setShaderState(new RenderStateShard.ShaderStateShard(INSTANCE::getBlitShader))
-            .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-            .createCompositeState(false));
-    private static final float MAX_X = MIN_X + SIZE_X;
-    private static final float MAX_Y = MIN_Y + SIZE_Y;
-    private static final Matrix4f IDENTITY_MATRIX = new Matrix4f().identity();
     // @formatter:on
     private final BufferBuilder blitBuilder = new BufferBuilder(48);
     private final MultiBufferSource.BufferSource blitBufferSource = MultiBufferSource.immediate(blitBuilder);
