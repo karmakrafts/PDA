@@ -17,6 +17,9 @@ import io.karma.pda.common.init.*;
 import io.karma.pda.common.menu.DockMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import io.karma.pda.common.network.CommonPacketHandler;
+import io.karma.pda.common.util.Disposable;
+import io.karma.pda.common.util.DispositionHandler;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -30,6 +33,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.GameShuttingDownEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -49,6 +53,7 @@ import org.apache.logging.log4j.Logger;
 @Mod(Constants.MODID)
 public class PDAMod {
     public static final Logger LOGGER = LogManager.getLogger();
+    public static final DispositionHandler DISPOSITION_HANDLER = new DispositionHandler(PDAMod::handleDisposition);
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(Constants.MODID,
             "play"),
         () -> Constants.PROTOCOL_VERSION,
@@ -82,11 +87,10 @@ public class PDAMod {
     }
 
     public PDAMod() {
-        final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
-
         CommonEventHandler.INSTANCE.setup();
         CommonPacketHandler.setup(CHANNEL);
 
+        final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         BLOCK_ENTITIES.register(modBus);
         BLOCKS.register(modBus);
         ITEMS.register(modBus);
@@ -94,12 +98,28 @@ public class PDAMod {
         MENU_TYPES.register(modBus);
         APPS.register(modBus);
 
+        MinecraftForge.EVENT_BUS.addListener(this::onGameShutdown);
+
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             ClientEventHandler.INSTANCE.setup();
             PDAItemRenderer.INSTANCE.setup();
             modBus.addListener(this::onClientSetup);
             DisplayRenderer.INSTANCE.setupEarly();
         });
+    }
+
+    private static void handleDisposition(final Disposable object) {
+        DistExecutor.unsafeRunForDist(() -> () -> {
+            Minecraft.getInstance().tell(object::dispose);
+            return null;
+        }, () -> () -> {
+            object.dispose();
+            return null;
+        });
+    }
+
+    private void onGameShutdown(final GameShuttingDownEvent event) {
+        DISPOSITION_HANDLER.disposeAll();
     }
 
     @SuppressWarnings("unchecked")

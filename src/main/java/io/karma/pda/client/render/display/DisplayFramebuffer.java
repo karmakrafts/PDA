@@ -1,5 +1,6 @@
 package io.karma.pda.client.render.display;
 
+import io.karma.pda.common.util.Disposable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;
@@ -10,7 +11,7 @@ import org.lwjgl.opengl.GL30;
  * @since 09/02/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class DisplayFramebuffer implements AutoCloseable {
+public final class DisplayFramebuffer implements Disposable {
     private final int id;
     private final int textureId;
     private final int depthTextureId;
@@ -43,7 +44,7 @@ public final class DisplayFramebuffer implements AutoCloseable {
     }
 
     @Override
-    public void close() {
+    public void dispose() {
         if (isDisposed) {
             return;
         }

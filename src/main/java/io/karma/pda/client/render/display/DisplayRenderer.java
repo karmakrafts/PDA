@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.client.ClientEventHandler;
+import io.karma.pda.common.PDAMod;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
@@ -112,19 +113,23 @@ public final class DisplayRenderer {
     @ApiStatus.Internal
     public void setup() {
         framebuffer = new DisplayFramebuffer(RES_X, RES_Y); // Adjust framebuffer size
+        PDAMod.DISPOSITION_HANDLER.addObject(framebuffer);
     }
 
     private void onRegisterShaders(final RegisterShadersEvent event) {
         try {
             event.registerShader(new ShaderInstance(event.getResourceProvider(),
-                new ResourceLocation("display_blit"),
-                DefaultVertexFormat.POSITION_TEX_COLOR), shader -> blitShader = shader);
+                    new ResourceLocation("display_blit"),
+                    DefaultVertexFormat.POSITION_TEX_COLOR),
+                shader -> PDAMod.DISPOSITION_HANDLER.addObject(blitShader = shader));
             event.registerShader(new ShaderInstance(event.getResourceProvider(),
-                new ResourceLocation("display_color"),
-                DefaultVertexFormat.POSITION_COLOR), shader -> colorShader = shader);
+                    new ResourceLocation("display_color"),
+                    DefaultVertexFormat.POSITION_COLOR),
+                shader -> PDAMod.DISPOSITION_HANDLER.addObject(colorShader = shader));
             event.registerShader(new ShaderInstance(event.getResourceProvider(),
-                new ResourceLocation("display_color_tex"),
-                DefaultVertexFormat.POSITION_TEX_COLOR), shader -> textureShader = shader);
+                    new ResourceLocation("display_color_tex"),
+                    DefaultVertexFormat.POSITION_TEX_COLOR),
+                shader -> PDAMod.DISPOSITION_HANDLER.addObject(textureShader = shader));
         }
         catch (Throwable error) {
             error.fillInStackTrace().printStackTrace();
@@ -153,13 +158,14 @@ public final class DisplayRenderer {
         framebuffer.unbind();
     }
 
+    @SuppressWarnings("all")
     private ShaderInstance getBlitShader() {
-        blitShader.safeGetUniform("DisplayResolution").set((float) RES_X, (float) RES_Y);
-        blitShader.safeGetUniform("GlitchRate").set(0.05F); // TODO: make configurable
-        blitShader.safeGetUniform("GlitchFactor").set(0.8F); // TODO: make configurable
-        blitShader.safeGetUniform("GlitchBlocks").set(16); // TODO: make configurable
-        blitShader.safeGetUniform("PixelFactor").set(0.075F); // TODO: make configurable
-        blitShader.safeGetUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
+        blitShader.getUniform("DisplayResolution").set((float) RES_X, (float) RES_Y);
+        blitShader.getUniform("GlitchRate").set(0.05F); // TODO: make configurable
+        blitShader.getUniform("GlitchFactor").set(0.8F); // TODO: make configurable
+        blitShader.getUniform("GlitchBlocks").set(16); // TODO: make configurable
+        blitShader.getUniform("PixelFactor").set(0.075F); // TODO: make configurable
+        blitShader.getUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
         return blitShader;
     }
 
