@@ -4,6 +4,7 @@ import io.karma.pda.api.util.Constants;
 import io.karma.pda.client.render.entity.DockBlockEntityRenderer;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.init.ModBlockEntities;
+import io.karma.pda.common.util.Easings;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -27,6 +28,14 @@ public final class ClientEventHandler {
         "item/pda_disengaged_horizontal");
     private float partialTick;
 
+    private static final float ANIMATION_STEP = 0.1F;
+    private static final float ANIMATION_OFFSET = 3F;
+    private boolean isEngaged;
+    private float animationTick;
+    private float prevCameraOffset;
+    private float cameraOffset;
+    private boolean isAnimating;
+
     // @formatter:off
     private ClientEventHandler() {}
     // @formatter:on
@@ -34,9 +43,50 @@ public final class ClientEventHandler {
     @ApiStatus.Internal
     public void setup() {
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        final var forgeBus = MinecraftForge.EVENT_BUS;
         modBus.addListener(this::onRegisterEntityRenderers);
         modBus.addListener(this::onRegisterAdditionalModels);
-        MinecraftForge.EVENT_BUS.addListener(this::onRenderTick);
+        forgeBus.addListener(this::onRenderTick);
+        forgeBus.addListener(this::onClientTick);
+    }
+
+    public void setEngaged(final boolean isEngaged) {
+        this.isEngaged = isEngaged;
+    }
+
+    private void onClientTick(final TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.START) {
+            if (isEngaged) {
+                if (animationTick < 1F) {
+                    prevCameraOffset = cameraOffset;
+                    final var currentTick = animationTick = Math.min(1F, animationTick + ANIMATION_STEP);
+                    cameraOffset = Easings.easeInQuart(currentTick);
+                    isAnimating = true;
+                }
+                else {
+                    isAnimating = false;
+                }
+            }
+            else {
+                if (animationTick > 0F) {
+                    prevCameraOffset = cameraOffset;
+                    final var currentTick = animationTick = Math.max(0F, animationTick - ANIMATION_STEP);
+                    cameraOffset = Easings.easeOutQuart(currentTick);
+                    isAnimating = true;
+                }
+                else {
+                    isAnimating = false;
+                }
+            }
+        }
+    }
+
+    private float getAnimationOffset(final float partialTick) {
+        var offset = cameraOffset;
+        if (isAnimating) {
+            offset = prevCameraOffset + partialTick * (offset - prevCameraOffset);
+        }
+        return offset * ANIMATION_OFFSET;
     }
 
     private void onRegisterEntityRenderers(final EntityRenderersEvent.RegisterRenderers event) {

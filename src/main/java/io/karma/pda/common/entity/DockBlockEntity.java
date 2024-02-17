@@ -2,13 +2,19 @@ package io.karma.pda.common.entity;
 
 import io.karma.pda.common.block.DockBlock;
 import io.karma.pda.common.init.ModBlockEntities;
+import io.karma.pda.common.inventory.ContainerItemHandler;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Alexander Hinze
@@ -17,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 public final class DockBlockEntity extends BasicBlockEntity implements Container {
     public static final String TAG_ITEM = "item";
     private ItemStack stack = ItemStack.EMPTY.copy();
+    private final LazyOptional<ContainerItemHandler> itemHandler = LazyOptional.of(() -> new ContainerItemHandler(this));
 
     public DockBlockEntity(final BlockPos pos, final BlockState state) {
         super(ModBlockEntities.dock.get(), pos, state);
@@ -98,5 +105,22 @@ public final class DockBlockEntity extends BasicBlockEntity implements Container
     @Override
     public void clearContent() {
         stack = ItemStack.EMPTY;
+    }
+
+    // Capabilities
+
+    @Override
+    public @NotNull <T> LazyOptional<T> getCapability(final @NotNull Capability<T> cap,
+                                                      final @Nullable Direction side) {
+        if(cap == ForgeCapabilities.ITEM_HANDLER) {
+            return itemHandler.cast();
+        }
+        return super.getCapability(cap, side);
+    }
+
+    @Override
+    public void invalidateCaps() {
+        super.invalidateCaps();
+        itemHandler.invalidate();
     }
 }

@@ -58,7 +58,8 @@ public final class PDAItemRenderer {
         if (isEngaged[index]) {
             if (animationTick[index] < 1F) {
                 prevFirstPersonOffset[index] = firstPersonOffset[index];
-                firstPersonOffset[index] = Easings.easeOutQuart(animationTick[index] += ANIMATION_STEP);
+                final var currentTick = animationTick[index] = Math.min(1F, animationTick[index] += ANIMATION_STEP);
+                firstPersonOffset[index] = Easings.easeOutQuart(currentTick);
                 isAnimating[index] = true;
             }
             else {
@@ -68,13 +69,24 @@ public final class PDAItemRenderer {
         else {
             if (animationTick[index] > 0F) {
                 prevFirstPersonOffset[index] = firstPersonOffset[index];
-                firstPersonOffset[index] = Easings.easeInQuart(animationTick[index] -= ANIMATION_STEP);
+                final var currentTick = animationTick[index] = Math.max(0F, animationTick[index] -= ANIMATION_STEP);
+                firstPersonOffset[index] = Easings.easeInQuart(currentTick);
                 isAnimating[index] = true;
             }
             else {
                 isAnimating[index] = false;
             }
         }
+    }
+
+    private float getAnimationOffset(final InteractionHand hand, final float partialTick) {
+        final var index = hand.ordinal();
+        var offset = firstPersonOffset[index];
+        if (isAnimating[index]) {
+            final var prevOffset = prevFirstPersonOffset[hand.ordinal()];
+            offset = prevOffset + partialTick * (offset - prevOffset);
+        }
+        return offset * ANIMATION_OFFSET;
     }
 
     private void onRenderItem(final ItemRenderEvent.Pre event) {
@@ -100,13 +112,7 @@ public final class PDAItemRenderer {
             .applyTransform(displayContext, poseStack, hand == InteractionHand.OFF_HAND);
         // @formatter:on
         if (displayContext.firstPerson()) {
-            final var index = hand.ordinal();
-            var offset = firstPersonOffset[index];
-            if (isAnimating[index]) {
-                final var prevOffset = prevFirstPersonOffset[hand.ordinal()];
-                offset = prevOffset + event.getPartialTick() * (offset - prevOffset);
-            }
-            poseStack.translate(-0.5, -0.5 + offset * ANIMATION_OFFSET, -0.5);
+            poseStack.translate(-0.5, -0.5 + getAnimationOffset(hand, event.getPartialTick()), -0.5);
         }
         else {
             poseStack.translate(-0.5, -0.5, -0.5);
