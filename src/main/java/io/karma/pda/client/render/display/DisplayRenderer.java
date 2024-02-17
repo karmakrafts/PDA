@@ -119,17 +119,14 @@ public final class DisplayRenderer {
     private void onRegisterShaders(final RegisterShadersEvent event) {
         try {
             event.registerShader(new ShaderInstance(event.getResourceProvider(),
-                    new ResourceLocation("display_blit"),
-                    DefaultVertexFormat.POSITION_TEX_COLOR),
-                shader -> PDAMod.DISPOSITION_HANDLER.addObject(blitShader = shader));
+                new ResourceLocation("display_blit"),
+                DefaultVertexFormat.POSITION_TEX_COLOR), shader -> blitShader = shader);
             event.registerShader(new ShaderInstance(event.getResourceProvider(),
-                    new ResourceLocation("display_color"),
-                    DefaultVertexFormat.POSITION_COLOR),
-                shader -> PDAMod.DISPOSITION_HANDLER.addObject(colorShader = shader));
+                new ResourceLocation("display_color"),
+                DefaultVertexFormat.POSITION_COLOR), shader -> colorShader = shader);
             event.registerShader(new ShaderInstance(event.getResourceProvider(),
-                    new ResourceLocation("display_color_tex"),
-                    DefaultVertexFormat.POSITION_TEX_COLOR),
-                shader -> PDAMod.DISPOSITION_HANDLER.addObject(textureShader = shader));
+                new ResourceLocation("display_color_tex"),
+                DefaultVertexFormat.POSITION_TEX_COLOR), shader -> textureShader = shader);
         }
         catch (Throwable error) {
             error.fillInStackTrace().printStackTrace();

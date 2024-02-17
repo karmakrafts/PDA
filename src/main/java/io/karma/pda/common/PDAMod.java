@@ -1,5 +1,6 @@
 package io.karma.pda.common;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.karma.pda.api.API;
 import io.karma.pda.api.app.App;
 import io.karma.pda.api.app.AppRenderer;
@@ -19,7 +20,6 @@ import io.karma.pda.common.menu.PDAStorageMenu;
 import io.karma.pda.common.network.CommonPacketHandler;
 import io.karma.pda.common.util.Disposable;
 import io.karma.pda.common.util.DispositionHandler;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -110,9 +110,14 @@ public class PDAMod {
 
     private static void handleDisposition(final Disposable object) {
         DistExecutor.unsafeRunForDist(() -> () -> {
-            Minecraft.getInstance().tell(object::dispose);
+            // Make sure client-side resources always get disposed on the main thread to allow GL calls
+            RenderSystem.recordRenderCall(() -> {
+                LOGGER.info("Disposing resource {}", object);
+                object.dispose();
+            });
             return null;
         }, () -> () -> {
+            LOGGER.info("Disposing resource {}", object);
             object.dispose();
             return null;
         });

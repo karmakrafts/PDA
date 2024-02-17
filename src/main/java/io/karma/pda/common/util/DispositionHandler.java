@@ -1,7 +1,5 @@
 package io.karma.pda.common.util;
 
-import io.karma.pda.common.PDAMod;
-
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,9 +40,7 @@ public final class DispositionHandler {
 
     public void disposeAll() {
         while (!objects.isEmpty()) {
-            final var object = objects.remove();
-            PDAMod.LOGGER.info("Scheduling disposition of resource {}", object);
-            callback.accept(object);
+            callback.accept(objects.remove());
         }
         delegatedObjects.clear();
     }
