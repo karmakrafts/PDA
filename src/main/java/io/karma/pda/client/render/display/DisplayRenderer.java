@@ -3,6 +3,7 @@ package io.karma.pda.client.render.display;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import io.karma.pda.api.util.Constants;
+import io.karma.pda.client.ClientEventHandler;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
@@ -26,7 +27,6 @@ import java.util.HashMap;
 public final class DisplayRenderer {
     public static final DisplayRenderer INSTANCE = new DisplayRenderer();
 
-    // Manullay calculated constants for offsets and sizes of the display
     // @formatter:off
     private static final float MIN_X = 0.25F;
     private static final float MIN_Y = 0.125F;
@@ -35,10 +35,16 @@ public final class DisplayRenderer {
     public static final int RES_X = (int) (SIZE_X * 16F) * 16;
     private static final float SIZE_Y = 0.5625F;
     public static final int RES_Y = (int) (SIZE_Y * 16F) * 16;
+    private static final float MAX_X = MIN_X + SIZE_X;
+    private static final float MAX_Y = MIN_Y + SIZE_Y;
+    private static final Matrix4f IDENTITY_MATRIX = new Matrix4f().identity();
     private static final Matrix4f DISPLAY_PROJECTION_MATRIX = new Matrix4f().ortho2D(0F, RES_X, RES_Y, 0F);
+    private static final ResourceLocation PIXEL_TEXTURE = new ResourceLocation(Constants.MODID, "textures/pixel.png");
+
     private static final RenderStateShard.OutputStateShard DISPLAY_OUTPUT = new RenderStateShard.OutputStateShard("display_output",
         INSTANCE::setupDisplayOutput,
         INSTANCE::resetDisplayOutput);
+
     private static final RenderType COLOR_RENDER_TYPE = RenderType.create("pda_display_color",
         DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 4, false, false,
         RenderType.CompositeState.builder()
@@ -47,6 +53,7 @@ public final class DisplayRenderer {
             .setOutputState(DISPLAY_OUTPUT)
             .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
             .createCompositeState(false));
+
     private static final RenderType COLOR_TEX_RENDER_TYPE = RenderType.create("pda_display_color_tex",
         DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 4, false, false,
         RenderType.CompositeState.builder()
@@ -55,6 +62,7 @@ public final class DisplayRenderer {
             .setOutputState(DISPLAY_OUTPUT)
             .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
             .createCompositeState(false));
+
     private static final RenderType BLIT_RENDER_TYPE = RenderType.create("pda_blit_display",
         DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 4, false, false,
         RenderType.CompositeState.builder()
@@ -72,11 +80,8 @@ public final class DisplayRenderer {
             .setShaderState(new RenderStateShard.ShaderStateShard(INSTANCE::getBlitShader))
             .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
             .createCompositeState(false));
-    private static final ResourceLocation PIXEL_TEXTURE = new ResourceLocation(Constants.MODID, "textures/pixel.png");
-    private static final float MAX_X = MIN_X + SIZE_X;
-    private static final float MAX_Y = MIN_Y + SIZE_Y;
-    private static final Matrix4f IDENTITY_MATRIX = new Matrix4f().identity();
     // @formatter:on
+
     private final BufferBuilder blitBuilder = new BufferBuilder(48);
     private final MultiBufferSource.BufferSource blitBufferSource = MultiBufferSource.immediate(blitBuilder);
     private final HashMap<RenderType, BufferBuilder> displayBuilders = new HashMap<>();
@@ -150,6 +155,11 @@ public final class DisplayRenderer {
 
     private ShaderInstance getBlitShader() {
         blitShader.safeGetUniform("DisplayResolution").set((float) RES_X, (float) RES_Y);
+        blitShader.safeGetUniform("GlitchRate").set(0.05F); // TODO: make configurable
+        blitShader.safeGetUniform("GlitchFactor").set(0.75F); // TODO: make configurable
+        blitShader.safeGetUniform("GlitchBlocks").set(16); // TODO: make configurable
+        blitShader.safeGetUniform("PixelFactor").set(0.075F); // TODO: make configurable
+        blitShader.safeGetUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
         return blitShader;
     }
 

@@ -29,6 +29,7 @@ public final class ClientEventHandler {
     private static final float ANIMATION_STEP = 0.1F;
     private static final float ANIMATION_OFFSET = 3F;
     private float partialTick;
+    private int clientTick;
     private boolean isEngaged;
     private float animationTick;
     private float prevCameraOffset;
@@ -78,6 +79,13 @@ public final class ClientEventHandler {
                 }
             }
         }
+        else {
+            clientTick++;
+        }
+    }
+
+    public float getShaderTime() {
+        return clientTick + partialTick;
     }
 
     private float getAnimationOffset(final float partialTick) {

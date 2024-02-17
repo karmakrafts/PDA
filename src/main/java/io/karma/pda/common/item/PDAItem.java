@@ -6,6 +6,7 @@ import io.karma.pda.common.menu.PDAStorageMenu;
 import io.karma.pda.common.util.PlayerUtils;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -47,6 +48,8 @@ public final class PDAItem extends Item {
                 }
             }
             game.setScreen(new PDAScreen(hands));
+            // Play sound when engaging
+            player.playSound(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, 0.3F, 1.75F);
         }
         return InteractionResultHolder.sidedSuccess(stack, false); // Prevent builtin animation
     }
