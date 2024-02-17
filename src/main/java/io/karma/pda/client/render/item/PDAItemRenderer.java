@@ -4,12 +4,14 @@ import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.client.event.ItemRenderEvent;
 import io.karma.pda.client.render.display.DisplayRenderer;
 import io.karma.pda.common.init.ModItems;
+import io.karma.pda.common.util.Easings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.InteractionHand;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -19,10 +21,13 @@ import org.jetbrains.annotations.ApiStatus;
 @OnlyIn(Dist.CLIENT)
 public final class PDAItemRenderer {
     public static final PDAItemRenderer INSTANCE = new PDAItemRenderer();
-    private static final float ANIMATION_STEP = 0.1F;
+    private static final float ANIMATION_STEP = 0.125F;
     private static final float ANIMATION_OFFSET = 6.5F / 16F;
 
     private final boolean[] isEngaged = new boolean[2];
+    private final boolean[] isAnimating = new boolean[2];
+    private final float[] animationTick = new float[2];
+    private final float[] prevFirstPersonOffset = new float[2];
     private final float[] firstPersonOffset = new float[2];
 
     // @formatter:off
@@ -31,7 +36,17 @@ public final class PDAItemRenderer {
 
     @ApiStatus.Internal
     public void setup() {
-        MinecraftForge.EVENT_BUS.addListener(this::onRenderItem);
+        final var forgeBus = MinecraftForge.EVENT_BUS;
+        forgeBus.addListener(this::onRenderItem);
+        forgeBus.addListener(this::onClientTick);
+    }
+
+    private void onClientTick(final TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.START) {
+            for (final var hand : InteractionHand.values()) {
+                updateFirstPersonAnimation(hand);
+            }
+        }
     }
 
     public void setEngaged(final InteractionHand hand, final boolean isEngaged) {
@@ -41,13 +56,23 @@ public final class PDAItemRenderer {
     private void updateFirstPersonAnimation(final InteractionHand hand) {
         final var index = hand.ordinal();
         if (isEngaged[index]) {
-            if (firstPersonOffset[index] < 1F) {
-                firstPersonOffset[index] += ANIMATION_STEP;
+            if (animationTick[index] < 1F) {
+                prevFirstPersonOffset[index] = firstPersonOffset[index];
+                firstPersonOffset[index] = Easings.easeOutQuart(animationTick[index] += ANIMATION_STEP);
+                isAnimating[index] = true;
+            }
+            else {
+                isAnimating[index] = false;
             }
         }
         else {
-            if (firstPersonOffset[index] > 0F) {
-                firstPersonOffset[index] -= ANIMATION_STEP;
+            if (animationTick[index] > 0F) {
+                prevFirstPersonOffset[index] = firstPersonOffset[index];
+                firstPersonOffset[index] = Easings.easeInQuart(animationTick[index] -= ANIMATION_STEP);
+                isAnimating[index] = true;
+            }
+            else {
+                isAnimating[index] = false;
             }
         }
     }
@@ -74,10 +99,14 @@ public final class PDAItemRenderer {
         final var model = game.getModelManager().getModel(ClientEventHandler.PDA_MODEL_DISENGAGED)
             .applyTransform(displayContext, poseStack, hand == InteractionHand.OFF_HAND);
         // @formatter:on
-        updateFirstPersonAnimation(hand);
         if (displayContext.firstPerson()) {
-            final var offset = ANIMATION_OFFSET * firstPersonOffset[hand.ordinal()];
-            poseStack.translate(-0.5, -0.5 + offset, -0.5);
+            final var index = hand.ordinal();
+            var offset = firstPersonOffset[index];
+            if (isAnimating[index]) {
+                final var prevOffset = prevFirstPersonOffset[hand.ordinal()];
+                offset = prevOffset + event.getPartialTick() * (offset - prevOffset);
+            }
+            poseStack.translate(-0.5, -0.5 + offset * ANIMATION_OFFSET, -0.5);
         }
         else {
             poseStack.translate(-0.5, -0.5, -0.5);

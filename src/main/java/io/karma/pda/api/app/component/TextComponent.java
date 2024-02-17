@@ -6,12 +6,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @author Alexander Hinze
  * @since 08/02/2024
  */
-public final class TextComponent extends AbstractComponent {
+public class TextComponent extends AbstractComponent {
     private static final int DEFAULT_TEXT_COLOR = 0xFF101010;
     private String text;
     private int color;
 
     public TextComponent(final String text, final int color) {
+        super(DefaultComponentType.TEXT);
         this.text = text;
         this.color = color;
     }
@@ -22,11 +23,6 @@ public final class TextComponent extends AbstractComponent {
 
     public TextComponent() {
         this("", DEFAULT_TEXT_COLOR);
-    }
-
-    @Override
-    public ComponentType getType() {
-        return ComponentType.TEXT;
     }
 
     @Override

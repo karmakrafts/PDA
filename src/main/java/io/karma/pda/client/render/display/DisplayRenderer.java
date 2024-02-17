@@ -36,6 +36,7 @@ public final class DisplayRenderer {
     private static final float SIZE_Y = 0.5625F;
     public static final int RES_Y = (int) (SIZE_Y * 16F) * 16;
     private static final Matrix4f DISPLAY_PROJECTION_MATRIX = new Matrix4f().ortho2D(0F, RES_X, RES_Y, 0F);
+    private static final ResourceLocation PIXEL_TEXTURE = new ResourceLocation(Constants.MODID, "textures/pixel.png");
     private static final RenderType BLIT_RENDER_TYPE = RenderType.create("pda_blit_display",
         DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 4, false, false,
         RenderType.CompositeState.builder()
@@ -53,7 +54,6 @@ public final class DisplayRenderer {
             .setShaderState(new RenderStateShard.ShaderStateShard(INSTANCE::getBlitShader))
             .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
             .createCompositeState(false));
-    private static final ResourceLocation PIXEL_TEXTURE = new ResourceLocation(Constants.MODID, "textures/pixel.png");
     private static final float MAX_X = MIN_X + SIZE_X;
     private static final float MAX_Y = MIN_Y + SIZE_Y;
     private static final Matrix4f IDENTITY_MATRIX = new Matrix4f().identity();

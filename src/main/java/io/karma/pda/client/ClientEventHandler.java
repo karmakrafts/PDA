@@ -52,7 +52,7 @@ public final class ClientEventHandler {
     }
 
     private void onRenderTick(final TickEvent.RenderTickEvent event) {
-        if (event.type == TickEvent.Type.PLAYER && event.phase == TickEvent.Phase.START) {
+        if (event.phase == TickEvent.Phase.START) {
             partialTick = event.renderTickTime;
         }
     }

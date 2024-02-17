@@ -14,15 +14,12 @@ public class ContainerComponent extends AbstractComponent {
     protected final ArrayList<Component> children = new ArrayList<>();
 
     public ContainerComponent() {
+        super(DefaultComponentType.CONTAINER);
     }
 
     public ContainerComponent(final Component... components) {
+        super(DefaultComponentType.CONTAINER);
         children.addAll(Arrays.asList(components));
-    }
-
-    @Override
-    public ComponentType getType() {
-        return ComponentType.CONTAINER;
     }
 
     @Override

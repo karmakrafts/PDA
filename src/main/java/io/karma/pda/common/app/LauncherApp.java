@@ -1,6 +1,7 @@
 package io.karma.pda.common.app;
 
 import io.karma.pda.api.app.DefaultApp;
+import io.karma.pda.api.app.component.ContainerComponent;
 import io.karma.pda.common.init.ModApps;
 
 /**
@@ -10,5 +11,10 @@ import io.karma.pda.common.init.ModApps;
 public final class LauncherApp extends DefaultApp {
     public LauncherApp() {
         super(ModApps.launcher.get());
+    }
+
+    @Override
+    public void populate(final ContainerComponent container) {
+
     }
 }

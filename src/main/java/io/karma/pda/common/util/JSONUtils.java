@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import io.karma.pda.api.app.component.Component;
-import io.karma.pda.api.app.component.ComponentType;
+import io.karma.pda.api.app.component.DefaultComponentType;
 import io.karma.pda.api.util.Constants;
 
 import java.io.IOException;
@@ -67,7 +67,7 @@ public final class JSONUtils {
         public Component deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
             final var object = (ObjectNode) parser.getCodec().readTree(parser);
             final var typeName = object.get(KEY_NODE_TYPE).asText();
-            final var type = ComponentType.byName(typeName).orElseThrow();
+            final var type = DefaultComponentType.byName(typeName).orElseThrow();
             final var node = type.create();
             node.deserialize(object);
             return node;

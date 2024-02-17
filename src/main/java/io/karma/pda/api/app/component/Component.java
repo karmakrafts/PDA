@@ -11,7 +11,7 @@ import java.util.List;
  * @since 08/02/2024
  */
 public interface Component {
-    ComponentType getType();
+    DefaultComponentType getType();
 
     @Nullable Component getParent();
 

@@ -7,11 +7,21 @@ import org.jetbrains.annotations.Nullable;
  * @since 08/02/2024
  */
 public abstract class AbstractComponent implements Component {
+    protected final DefaultComponentType type;
     protected Component parent;
+
+    protected AbstractComponent(final DefaultComponentType type) {
+        this.type = type;
+    }
 
     @Override
     public @Nullable Component getParent() {
         return parent;
+    }
+
+    @Override
+    public DefaultComponentType getType() {
+        return type;
     }
 
     @Override
