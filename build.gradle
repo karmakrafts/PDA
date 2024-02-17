@@ -88,6 +88,7 @@ dependencies {
 
 def commonManifest = {
     attributes([
+            'MixinConfigs'            : "mixins.${mod_id}.client.json",
             'Specification-Title'     : mod_id,
             'Specification-Vendor'    : mod_authors,
             'Specification-Version'   : '1', // We are version 1 of ourselves

@@ -156,7 +156,7 @@ public final class DisplayRenderer {
     private ShaderInstance getBlitShader() {
         blitShader.safeGetUniform("DisplayResolution").set((float) RES_X, (float) RES_Y);
         blitShader.safeGetUniform("GlitchRate").set(0.05F); // TODO: make configurable
-        blitShader.safeGetUniform("GlitchFactor").set(0.75F); // TODO: make configurable
+        blitShader.safeGetUniform("GlitchFactor").set(0.8F); // TODO: make configurable
         blitShader.safeGetUniform("GlitchBlocks").set(16); // TODO: make configurable
         blitShader.safeGetUniform("PixelFactor").set(0.075F); // TODO: make configurable
         blitShader.safeGetUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
