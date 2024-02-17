@@ -22,8 +22,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class DockBlockEntity extends BasicBlockEntity implements Container {
     public static final String TAG_ITEM = "item";
-    private ItemStack stack = ItemStack.EMPTY.copy();
     private final LazyOptional<ContainerItemHandler> itemHandler = LazyOptional.of(() -> new ContainerItemHandler(this));
+    private ItemStack stack = ItemStack.EMPTY.copy();
 
     public DockBlockEntity(final BlockPos pos, final BlockState state) {
         super(ModBlockEntities.dock.get(), pos, state);
@@ -112,7 +112,7 @@ public final class DockBlockEntity extends BasicBlockEntity implements Container
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(final @NotNull Capability<T> cap,
                                                       final @Nullable Direction side) {
-        if(cap == ForgeCapabilities.ITEM_HANDLER) {
+        if (cap == ForgeCapabilities.ITEM_HANDLER) {
             return itemHandler.cast();
         }
         return super.getCapability(cap, side);

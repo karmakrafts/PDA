@@ -26,10 +26,9 @@ public final class ClientEventHandler {
         "item/pda_disengaged");
     public static final ResourceLocation PDA_MODEL_DISENGAGED_H = new ResourceLocation(Constants.MODID,
         "item/pda_disengaged_horizontal");
-    private float partialTick;
-
     private static final float ANIMATION_STEP = 0.1F;
     private static final float ANIMATION_OFFSET = 3F;
+    private float partialTick;
     private boolean isEngaged;
     private float animationTick;
     private float prevCameraOffset;

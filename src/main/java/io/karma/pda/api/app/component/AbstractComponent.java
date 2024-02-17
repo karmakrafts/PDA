@@ -20,12 +20,12 @@ public abstract class AbstractComponent implements Component {
     }
 
     @Override
-    public DefaultComponentType getType() {
-        return type;
+    public void setParent(final @Nullable Component parent) {
+        this.parent = parent;
     }
 
     @Override
-    public void setParent(final @Nullable Component parent) {
-        this.parent = parent;
+    public DefaultComponentType getType() {
+        return type;
     }
 }
