@@ -1,4 +1,4 @@
-package io.karma.pda.api.util;
+package io.karma.pda.api.common.util;
 
 import net.minecraft.resources.ResourceLocation;
 
@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 public final class Constants {
     public static final String MODID = "pda";
     public static final String PROTOCOL_VERSION = "1";
+    public static final ResourceLocation COMPONENT_REGISTRY_NAME = new ResourceLocation(MODID, "components");
     public static final ResourceLocation APP_REGISTRY_NAME = new ResourceLocation(MODID, "apps");
 
     // @formatter:off

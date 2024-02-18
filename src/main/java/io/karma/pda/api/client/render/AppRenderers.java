@@ -1,10 +1,10 @@
-package io.karma.pda.client.render.app;
+package io.karma.pda.api.client.render;
 
-import io.karma.pda.api.app.App;
-import io.karma.pda.api.app.AppRenderer;
-import io.karma.pda.api.app.AppType;
+import io.karma.pda.api.common.app.App;
+import io.karma.pda.api.common.app.AppType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
 
@@ -20,6 +20,7 @@ public final class AppRenderers {
     private AppRenderers() {}
     // @formatter:on
 
+    @ApiStatus.Internal
     public static <A extends App> void register(final AppType<A> type, final AppRenderer<A> renderer) {
         if (RENDERERS.containsKey(type)) {
             throw new IllegalArgumentException(String.format("App renderer '%s' is already registered", type));

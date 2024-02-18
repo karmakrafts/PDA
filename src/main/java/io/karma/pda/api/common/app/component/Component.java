@@ -1,4 +1,4 @@
-package io.karma.pda.api.app.component;
+package io.karma.pda.api.common.app.component;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jetbrains.annotations.Nullable;
@@ -11,11 +11,19 @@ import java.util.List;
  * @since 08/02/2024
  */
 public interface Component {
-    DefaultComponentType getType();
+    ComponentType<?> getType();
 
     @Nullable Component getParent();
 
     void setParent(final @Nullable Component parent);
+
+    default void addChild(final Component child) {
+        throw new UnsupportedOperationException();
+    }
+
+    default void removeChild(final Component child) {
+        throw new UnsupportedOperationException();
+    }
 
     default List<Component> getChildren() {
         return Collections.emptyList();

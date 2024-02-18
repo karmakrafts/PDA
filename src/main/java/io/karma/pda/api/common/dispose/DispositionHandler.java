@@ -1,4 +1,4 @@
-package io.karma.pda.common.util;
+package io.karma.pda.api.common.dispose;
 
 import java.util.Collections;
 import java.util.Set;

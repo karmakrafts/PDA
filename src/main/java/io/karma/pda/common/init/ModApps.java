@@ -1,7 +1,7 @@
 package io.karma.pda.common.init;
 
-import io.karma.pda.api.app.AppType;
-import io.karma.pda.api.util.Constants;
+import io.karma.pda.api.common.app.AppType;
+import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.common.app.LauncherApp;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.DeferredRegister;

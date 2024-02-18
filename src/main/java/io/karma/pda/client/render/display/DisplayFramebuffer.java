@@ -1,6 +1,6 @@
 package io.karma.pda.client.render.display;
 
-import io.karma.pda.common.util.Disposable;
+import io.karma.pda.api.common.dispose.Disposable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;

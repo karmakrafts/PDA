@@ -1,6 +1,6 @@
-package io.karma.pda.api.app;
+package io.karma.pda.api.common.app;
 
-import io.karma.pda.api.app.component.ContainerComponent;
+import io.karma.pda.common.app.component.ContainerComponent;
 
 /**
  * @author Alexander Hinze

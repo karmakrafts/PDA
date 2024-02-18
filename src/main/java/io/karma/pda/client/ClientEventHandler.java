@@ -1,6 +1,6 @@
 package io.karma.pda.client;
 
-import io.karma.pda.api.util.Constants;
+import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.client.render.entity.DockBlockEntityRenderer;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.init.ModBlockEntities;

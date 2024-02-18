@@ -1,6 +1,7 @@
-package io.karma.pda.api.app;
+package io.karma.pda.api.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.karma.pda.api.common.app.App;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

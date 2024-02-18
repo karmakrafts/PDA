@@ -1,11 +1,12 @@
-package io.karma.pda.api.event;
+package io.karma.pda.api.client.event;
 
-import io.karma.pda.api.app.App;
-import io.karma.pda.api.app.AppRenderer;
-import io.karma.pda.api.app.AppType;
+import io.karma.pda.api.client.render.AppRenderer;
+import io.karma.pda.api.common.app.App;
+import io.karma.pda.api.common.app.AppType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.Event;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.BiConsumer;
 
@@ -17,6 +18,7 @@ import java.util.function.BiConsumer;
 public final class RegisterAppRenderersEvent extends Event {
     private final BiConsumer<AppType<?>, AppRenderer<?>> register;
 
+    @ApiStatus.Internal
     public RegisterAppRenderersEvent(final BiConsumer<AppType<?>, AppRenderer<?>> register) {
         this.register = register;
     }

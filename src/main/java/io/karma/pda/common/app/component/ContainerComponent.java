@@ -1,4 +1,8 @@
-package io.karma.pda.api.app.component;
+package io.karma.pda.common.app.component;
+
+import io.karma.pda.api.common.app.component.AbstractComponent;
+import io.karma.pda.api.common.app.component.Component;
+import io.karma.pda.common.init.ModComponents;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,11 +18,11 @@ public class ContainerComponent extends AbstractComponent {
     protected final ArrayList<Component> children = new ArrayList<>();
 
     public ContainerComponent() {
-        super(DefaultComponentType.CONTAINER);
+        super(ModComponents.container.get());
     }
 
     public ContainerComponent(final Component... components) {
-        super(DefaultComponentType.CONTAINER);
+        super(ModComponents.container.get());
         children.addAll(Arrays.asList(components));
     }
 

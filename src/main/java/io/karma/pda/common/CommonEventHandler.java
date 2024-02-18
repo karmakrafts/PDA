@@ -4,13 +4,12 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
-import io.karma.pda.api.util.Constants;
+import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.common.init.ModBlocks;
 import io.karma.pda.common.init.ModItems;
 import io.karma.pda.common.item.MemoryCardItem;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -42,7 +41,8 @@ public final class CommonEventHandler {
 
     private void onNewRegistry(final NewRegistryEvent event) {
         PDAMod.LOGGER.info("Creating registries");
-        event.create(RegistryBuilder.of(new ResourceLocation(Constants.MODID, "apps")));
+        event.create(RegistryBuilder.of(Constants.COMPONENT_REGISTRY_NAME));
+        event.create(RegistryBuilder.of(Constants.APP_REGISTRY_NAME));
     }
 
     private void onRegisterCommands(final RegisterCommandsEvent event) {

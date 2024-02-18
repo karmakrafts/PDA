@@ -39,10 +39,11 @@ float getSampleOffset(vec2 coord, float offset) {
 }
 
 void main() {
-    vec4 inputColor = convertSrgb(texture(Sampler0, texCoord0) * vertexColor);
-    inputColor.r = convertSrgb(texture(Sampler0, texCoord0 + vec2(getSampleOffset(texCoord0, 0.0) * 0.03, 0.0) * GlitchFactor) * vertexColor).r;
-    inputColor.g = convertSrgb(texture(Sampler0, texCoord0 + vec2(getSampleOffset(texCoord0, 0.1) * 0.03 * 0.16666666, 0.0) * GlitchFactor) * vertexColor).g;
-    inputColor.b = convertSrgb(texture(Sampler0, texCoord0 + vec2(getSampleOffset(texCoord0, 0.2) * 0.03, 0.0) * GlitchFactor) * vertexColor).b;
+    vec4 inputColor = texture(Sampler0, texCoord0) * vertexColor;
+    inputColor.r = (texture(Sampler0, texCoord0 + vec2(getSampleOffset(texCoord0, 0.0) * 0.03, 0.0) * GlitchFactor) * vertexColor).r;
+    inputColor.g = (texture(Sampler0, texCoord0 + vec2(getSampleOffset(texCoord0, 0.1) * 0.03 * 0.16666666, 0.0) * GlitchFactor) * vertexColor).g;
+    inputColor.b = (texture(Sampler0, texCoord0 + vec2(getSampleOffset(texCoord0, 0.2) * 0.03, 0.0) * GlitchFactor) * vertexColor).b;
+    inputColor = convertSrgb(inputColor);
     vec4 color = texture(Sampler1, texCoord0 * DisplayResolution);
     color = mix(inputColor, color * inputColor, PixelFactor);
     fragColor = color * ColorModulator;

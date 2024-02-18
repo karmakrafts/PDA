@@ -149,8 +149,7 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     @Override
     public int getLightEmission(final @NotNull BlockState state, final @NotNull BlockGetter world,
                                 final @NotNull BlockPos pos) {
-        //return state.getValue(STATE) == State.ITEM_ON ? 10 : 0;
-        return 0; // FIXME
+        return state.getValue(HAS_ITEM) ? 5 : 0;
     }
 
     @Override

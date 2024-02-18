@@ -1,4 +1,4 @@
-package io.karma.pda.common.util;
+package io.karma.pda.api.common.dispose;
 
 /**
  * @author Alexander Hinze

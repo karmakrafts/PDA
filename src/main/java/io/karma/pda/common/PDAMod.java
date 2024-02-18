@@ -1,14 +1,17 @@
 package io.karma.pda.common;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.karma.pda.api.API;
-import io.karma.pda.api.app.App;
-import io.karma.pda.api.app.AppRenderer;
-import io.karma.pda.api.app.AppType;
-import io.karma.pda.api.event.RegisterAppRenderersEvent;
-import io.karma.pda.api.util.Constants;
+import io.karma.pda.api.client.event.RegisterAppRenderersEvent;
+import io.karma.pda.api.client.render.AppRenderer;
+import io.karma.pda.api.client.render.AppRenderers;
+import io.karma.pda.api.common.API;
+import io.karma.pda.api.common.app.App;
+import io.karma.pda.api.common.app.AppType;
+import io.karma.pda.api.common.app.component.ComponentType;
+import io.karma.pda.api.common.dispose.Disposable;
+import io.karma.pda.api.common.dispose.DispositionHandler;
+import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.client.ClientEventHandler;
-import io.karma.pda.client.render.app.AppRenderers;
 import io.karma.pda.client.render.app.LauncherAppRenderer;
 import io.karma.pda.client.render.display.DisplayRenderer;
 import io.karma.pda.client.render.item.PDAItemRenderer;
@@ -18,8 +21,6 @@ import io.karma.pda.common.init.*;
 import io.karma.pda.common.menu.DockMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import io.karma.pda.common.network.CommonPacketHandler;
-import io.karma.pda.common.util.Disposable;
-import io.karma.pda.common.util.DispositionHandler;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -76,6 +77,7 @@ public class PDAMod {
         })
         .build());
     private static final DeferredRegister<AppType<?>> APPS = API.makeDeferredAppTypeRegister(Constants.MODID);
+    private static final DeferredRegister<ComponentType<?>> COMPONENTS = API.makeDeferredComponentTypeRegister(Constants.MODID);
     // @formatter:on
 
     static {
@@ -83,6 +85,7 @@ public class PDAMod {
         ModBlocks.register(BLOCKS);
         ModItems.register(ITEMS);
         ModMenus.register(MENU_TYPES);
+        ModComponents.register(COMPONENTS);
         ModApps.register(APPS);
     }
 
@@ -96,6 +99,7 @@ public class PDAMod {
         ITEMS.register(modBus);
         TABS.register(modBus);
         MENU_TYPES.register(modBus);
+        COMPONENTS.register(modBus);
         APPS.register(modBus);
 
         MinecraftForge.EVENT_BUS.addListener(this::onGameShutdown);

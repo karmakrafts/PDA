@@ -2,7 +2,7 @@ package io.karma.pda.client.render.display;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import io.karma.pda.api.util.Constants;
+import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -33,9 +33,9 @@ public final class DisplayRenderer {
     private static final float MIN_Y = 0.125F;
     private static final float OFFSET_Z = 0.609375F;
     private static final float SIZE_X = 0.5F;
-    public static final int RES_X = (int) (SIZE_X * 16F) * 16;
+    public static final int RES_X = ((int) (SIZE_X * 16F) * 16) << 1;
     private static final float SIZE_Y = 0.5625F;
-    public static final int RES_Y = (int) (SIZE_Y * 16F) * 16;
+    public static final int RES_Y = ((int) (SIZE_Y * 16F) * 16) << 1;
     private static final float MAX_X = MIN_X + SIZE_X;
     private static final float MAX_Y = MIN_Y + SIZE_Y;
     private static final Matrix4f IDENTITY_MATRIX = new Matrix4f().identity();
@@ -161,7 +161,7 @@ public final class DisplayRenderer {
         blitShader.getUniform("GlitchRate").set(0.05F); // TODO: make configurable
         blitShader.getUniform("GlitchFactor").set(0.8F); // TODO: make configurable
         blitShader.getUniform("GlitchBlocks").set(16); // TODO: make configurable
-        blitShader.getUniform("PixelFactor").set(0.075F); // TODO: make configurable
+        blitShader.getUniform("PixelFactor").set(0.06F); // TODO: make configurable
         blitShader.getUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
         return blitShader;
     }

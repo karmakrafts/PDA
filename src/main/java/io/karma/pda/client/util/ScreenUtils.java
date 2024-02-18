@@ -1,6 +1,6 @@
 package io.karma.pda.client.util;
 
-import io.karma.pda.api.util.Constants;
+import io.karma.pda.api.common.util.Constants;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;

@@ -1,4 +1,4 @@
-package io.karma.pda.api.app.component;
+package io.karma.pda.api.common.app.component;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -7,10 +7,10 @@ import org.jetbrains.annotations.Nullable;
  * @since 08/02/2024
  */
 public abstract class AbstractComponent implements Component {
-    protected final DefaultComponentType type;
+    protected final ComponentType<?> type;
     protected Component parent;
 
-    protected AbstractComponent(final DefaultComponentType type) {
+    protected AbstractComponent(final ComponentType<?> type) {
         this.type = type;
     }
 
@@ -25,7 +25,7 @@ public abstract class AbstractComponent implements Component {
     }
 
     @Override
-    public DefaultComponentType getType() {
+    public ComponentType<?> getType() {
         return type;
     }
 }
