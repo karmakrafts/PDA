@@ -1,18 +1,17 @@
+/*
+ * Copyright (c) 2024 Karma Krafts & associates
+ */
+
 package io.karma.pda.common;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.karma.pda.api.client.event.RegisterAppRenderersEvent;
-import io.karma.pda.api.client.render.AppRenderer;
-import io.karma.pda.api.client.render.AppRenderers;
 import io.karma.pda.api.common.API;
-import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.pda.api.common.dispose.DispositionHandler;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.client.ClientEventHandler;
-import io.karma.pda.client.render.app.LauncherAppRenderer;
 import io.karma.pda.client.render.display.DisplayRenderer;
 import io.karma.pda.client.render.item.PDAItemRenderer;
 import io.karma.pda.client.screen.DockScreen;
@@ -76,8 +75,8 @@ public class PDAMod {
             ITEMS.getEntries().stream().map(RegistryObject::get).forEach(output::accept);
         })
         .build());
-    private static final DeferredRegister<AppType<?>> APPS = API.makeDeferredAppTypeRegister(Constants.MODID);
     private static final DeferredRegister<ComponentType<?>> COMPONENTS = API.makeDeferredComponentTypeRegister(Constants.MODID);
+    private static final DeferredRegister<AppType<?>> APPS = API.makeDeferredAppTypeRegister(Constants.MODID);
     // @formatter:on
 
     static {
@@ -141,13 +140,7 @@ public class PDAMod {
                 (PDAStorageMenu menu, Inventory inventory, Component title) -> new PDAStorageScreen(menu, inventory));
             MenuScreens.register(ModMenus.dock.get(),
                 (DockMenu menu, Inventory inventory, Component title) -> new DockScreen(menu, inventory));
-
-            LOGGER.info("Registering app renderers");
-            AppRenderers.register(ModApps.launcher.get(), new LauncherAppRenderer());
-            // @formatter:off
-            MinecraftForge.EVENT_BUS.post(new RegisterAppRenderersEvent(
-                (type, renderer) -> AppRenderers.register((AppType<App>) type, (AppRenderer<App>) renderer)));
-            // @formatter:on
+            ClientEventHandler.INSTANCE.fireRegisterEvents();
         });
     }
 }

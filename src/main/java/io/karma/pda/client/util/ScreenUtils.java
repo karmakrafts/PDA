@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2024 Karma Krafts & associates
+ */
+
 package io.karma.pda.client.util;
 
 import io.karma.pda.api.common.util.Constants;

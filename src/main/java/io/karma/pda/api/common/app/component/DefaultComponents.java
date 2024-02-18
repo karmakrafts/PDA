@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2024 Karma Krafts & associates
+ */
+
 package io.karma.pda.api.common.app.component;
 
+import io.karma.pda.api.common.util.Constants;
 import net.minecraftforge.registries.ObjectHolder;
 
 /**
@@ -7,10 +12,12 @@ import net.minecraftforge.registries.ObjectHolder;
  * @since 18/02/2024
  */
 public final class DefaultComponents {
-    @ObjectHolder(value = "pda:container", registryName = "pda:components")
-    public static final ComponentType<Component> CONTAINER = null;
-    @ObjectHolder(value = "pda:label", registryName = "pda:components")
-    public static final ComponentType<Component> LABEL = null;
+    private static final String REGISTRY_NAME = Constants.MODID + ":components";
+
+    @ObjectHolder(value = Constants.MODID + ":container", registryName = REGISTRY_NAME)
+    public static final ComponentType<?> CONTAINER = null;
+    @ObjectHolder(value = Constants.MODID + ":label", registryName = REGISTRY_NAME)
+    public static final ComponentType<?> LABEL = null;
 
     // @formatter:off
     private DefaultComponents() {}

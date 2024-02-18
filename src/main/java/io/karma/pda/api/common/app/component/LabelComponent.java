@@ -1,8 +1,10 @@
-package io.karma.pda.common.app.component;
+/*
+ * Copyright (c) 2024 Karma Krafts & associates
+ */
+
+package io.karma.pda.api.common.app.component;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.karma.pda.api.common.app.component.AbstractComponent;
-import io.karma.pda.common.init.ModComponents;
 
 /**
  * @author Alexander Hinze
@@ -14,7 +16,7 @@ public class LabelComponent extends AbstractComponent {
     private int color;
 
     public LabelComponent(final String text, final int color) {
-        super(ModComponents.label.get());
+        super(DefaultComponents.LABEL);
         this.text = text;
         this.color = color;
     }

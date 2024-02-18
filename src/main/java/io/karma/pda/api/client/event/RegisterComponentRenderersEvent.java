@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2024 Karma Krafts & associates
+ */
+
 package io.karma.pda.api.client.event;
 
 import io.karma.pda.api.client.render.ComponentRenderer;
+import io.karma.pda.api.common.app.component.Component;
 import io.karma.pda.api.common.app.component.ComponentType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -20,5 +25,9 @@ public final class RegisterComponentRenderersEvent extends Event {
     @ApiStatus.Internal
     public RegisterComponentRenderersEvent(final BiConsumer<ComponentType<?>, ComponentRenderer<?>> register) {
         this.register = register;
+    }
+
+    public <C extends Component> void register(final ComponentType<C> type, final ComponentRenderer<C> renderer) {
+        register.accept(type, renderer);
     }
 }

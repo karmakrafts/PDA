@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2024 Karma Krafts & associates
+ */
+
 package io.karma.pda.common.util;
 
 import codechicken.lib.math.MathHelper;

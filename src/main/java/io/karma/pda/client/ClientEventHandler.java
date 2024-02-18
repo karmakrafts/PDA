@@ -1,5 +1,19 @@
+/*
+ * Copyright (c) 2024 Karma Krafts & associates
+ */
+
 package io.karma.pda.client;
 
+import io.karma.pda.api.client.event.RegisterAppRenderersEvent;
+import io.karma.pda.api.client.event.RegisterComponentRenderersEvent;
+import io.karma.pda.api.client.render.AppRenderer;
+import io.karma.pda.api.client.render.AppRenderers;
+import io.karma.pda.api.client.render.ComponentRenderer;
+import io.karma.pda.api.client.render.ComponentRenderers;
+import io.karma.pda.api.common.app.App;
+import io.karma.pda.api.common.app.AppType;
+import io.karma.pda.api.common.app.component.Component;
+import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.client.render.entity.DockBlockEntityRenderer;
 import io.karma.pda.common.PDAMod;
@@ -48,6 +62,18 @@ public final class ClientEventHandler {
         modBus.addListener(this::onRegisterAdditionalModels);
         forgeBus.addListener(this::onRenderTick);
         forgeBus.addListener(this::onClientTick);
+    }
+
+    @SuppressWarnings("all")
+    @ApiStatus.Internal
+    public void fireRegisterEvents() {
+        final var forgeBus = MinecraftForge.EVENT_BUS;
+        // @formatter:off
+        forgeBus.post(new RegisterComponentRenderersEvent(
+            (type, renderer) -> ComponentRenderers.register((ComponentType<Component>)type, (ComponentRenderer<Component>) renderer)));
+        forgeBus.post(new RegisterAppRenderersEvent(
+            (type, renderer) -> AppRenderers.register((AppType<App>)type, (AppRenderer<App>) renderer)));
+        // @formatter:on
     }
 
     public void setEngaged(final boolean isEngaged) {

@@ -1,8 +1,8 @@
-package io.karma.pda.common.app.component;
+/*
+ * Copyright (c) 2024 Karma Krafts & associates
+ */
 
-import io.karma.pda.api.common.app.component.AbstractComponent;
-import io.karma.pda.api.common.app.component.Component;
-import io.karma.pda.common.init.ModComponents;
+package io.karma.pda.api.common.app.component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,17 +12,17 @@ import java.util.List;
  * @author Alexander Hinze
  * @since 08/02/2024
  */
-public class ContainerComponent extends AbstractComponent {
+public class DefaultContainer extends AbstractComponent {
     public static final String KEY_CHILDREN = "children";
 
     protected final ArrayList<Component> children = new ArrayList<>();
 
-    public ContainerComponent() {
-        super(ModComponents.container.get());
+    public DefaultContainer() {
+        super(DefaultComponents.CONTAINER);
     }
 
-    public ContainerComponent(final Component... components) {
-        super(ModComponents.container.get());
+    public DefaultContainer(final Component... components) {
+        this();
         children.addAll(Arrays.asList(components));
     }
 

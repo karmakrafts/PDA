@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2024 Karma Krafts & associates
+ */
+
 package io.karma.pda.api.common;
 
 import io.karma.pda.api.common.app.AppType;

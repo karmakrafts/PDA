@@ -10,8 +10,13 @@ import io.karma.pda.api.common.app.component.Container;
  * @author Alexander Hinze
  * @since 13/02/2024
  */
-public interface App {
-    AppType<?> getType();
+public final class LauncherApp extends AbstractApp {
+    public LauncherApp() {
+        super(DefaultApps.LAUNCHER);
+    }
 
-    void populate(final Container container);
+    @Override
+    public void populate(final Container container) {
+
+    }
 }

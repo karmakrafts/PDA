@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2024 Karma Krafts & associates
+ */
+
 package io.karma.pda.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;

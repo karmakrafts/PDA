@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2024 Karma Krafts & associates
+ */
+
 package io.karma.pda.common.network;
 
 import net.minecraftforge.network.simple.SimpleChannel;

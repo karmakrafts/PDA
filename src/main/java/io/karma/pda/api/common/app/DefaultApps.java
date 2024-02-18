@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2024 Karma Krafts & associates
+ */
+
 package io.karma.pda.api.common.app;
 
+import io.karma.pda.api.common.util.Constants;
 import net.minecraftforge.registries.ObjectHolder;
 
 /**
@@ -7,7 +12,9 @@ import net.minecraftforge.registries.ObjectHolder;
  * @since 18/02/2024
  */
 public final class DefaultApps {
-    @ObjectHolder(value = "pda:launcher", registryName = "pda:apps")
+    private static final String REGISTRY_NAME = Constants.MODID + ":apps";
+
+    @ObjectHolder(value = Constants.MODID + ":launcher", registryName = REGISTRY_NAME)
     public static final AppType<App> LAUNCHER = null;
 
     // @formatter:off

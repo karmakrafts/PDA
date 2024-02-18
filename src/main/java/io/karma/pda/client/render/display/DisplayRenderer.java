@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2024 Karma Krafts & associates
+ */
+
 package io.karma.pda.client.render.display;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -19,6 +23,7 @@ import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * @author Alexander Hinze
@@ -120,7 +125,10 @@ public final class DisplayRenderer {
         try {
             event.registerShader(new ShaderInstance(event.getResourceProvider(),
                 new ResourceLocation("display_blit"),
-                DefaultVertexFormat.POSITION_TEX_COLOR), shader -> blitShader = shader);
+                DefaultVertexFormat.POSITION_TEX_COLOR), shader -> {
+                blitShader = shader;
+                Objects.requireNonNull(blitShader.getUniform("DisplayResolution")).set((float) RES_X, (float) RES_Y);
+            });
             event.registerShader(new ShaderInstance(event.getResourceProvider(),
                 new ResourceLocation("display_color"),
                 DefaultVertexFormat.POSITION_COLOR), shader -> colorShader = shader);
@@ -157,7 +165,6 @@ public final class DisplayRenderer {
 
     @SuppressWarnings("all")
     private ShaderInstance getBlitShader() {
-        blitShader.getUniform("DisplayResolution").set((float) RES_X, (float) RES_Y);
         blitShader.getUniform("GlitchRate").set(0.05F); // TODO: make configurable
         blitShader.getUniform("GlitchFactor").set(0.8F); // TODO: make configurable
         blitShader.getUniform("GlitchBlocks").set(16); // TODO: make configurable

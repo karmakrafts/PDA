@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2024 Karma Krafts & associates
+ */
+
 package io.karma.pda.client.render.item;
 
 import io.karma.pda.client.ClientEventHandler;
