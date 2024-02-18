@@ -34,14 +34,8 @@ public interface Component {
     }
 
     default void serialize(final ObjectNode node) {
-        for (final var child : getChildren()) {
-            child.serialize(node);
-        }
     }
 
     default void deserialize(final ObjectNode node) {
-        for (final var child : getChildren()) {
-            child.deserialize(node);
-        }
     }
 }
