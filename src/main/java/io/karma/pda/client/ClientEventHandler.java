@@ -28,6 +28,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.*;
@@ -36,6 +37,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.jetbrains.annotations.ApiStatus;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -60,7 +62,9 @@ public final class ClientEventHandler {
     private boolean isAnimating;
     private int animationTick;
     private final Vector3f srcCameraPos = new Vector3f();
+    private final Quaternionf srcCameraRotation = new Quaternionf();
     private final Vector3f dstCameraPos = new Vector3f();
+    private final Quaternionf dstCameraRotation = new Quaternionf();
     private final BezierCurve cameraCurve = new BezierCurve(ANIMATION_TICKS);
     private boolean usesCameraCurve;
     // For debug lines
@@ -150,6 +154,18 @@ public final class ClientEventHandler {
             cameraCurve.setPoints(points.toArray(Vector3f[]::new));
         }
 
+        // Update the source and destination rotation..
+        srcCameraRotation.identity();
+        srcCameraRotation.rotationYXZ((float) Math.toRadians(camera.yRot), (float) Math.toRadians(camera.xRot), 0F);
+        final var yAngle = switch (direction) {
+            case NORTH -> 180F;
+            case EAST -> 270F;
+            case WEST -> 90F;
+            default -> 0F;
+        };
+        dstCameraRotation.identity();
+        dstCameraRotation.rotationYXZ((float) Math.toRadians(yAngle), 0F, 0F);
+
         isDockEngaged = true;
     }
 
@@ -235,6 +251,19 @@ public final class ClientEventHandler {
         if (isDockEngaged || isAnimating) {
             final var factor = (float) animationTick / ANIMATION_TICKS;
             final var camera = event.getCamera();
+            // If we want to use the bezier, calculate forward vector of each segment to adjust camera along the curve
+            if (usesCameraCurve) {
+
+            }
+            else {
+                // Otherwise we just linearly interpolate our position/rotation
+                final var pos = srcCameraPos.lerp(dstCameraPos, factor, new Vector3f());
+                final var rot = srcCameraRotation.nlerp(dstCameraRotation, factor, new Quaternionf()).getEulerAnglesYXZ(
+                    new Vector3f());
+                camera.setPosition(new Vec3(pos));
+                event.setYaw((float) Math.toDegrees(rot.y));
+                event.setPitch((float) Math.toDegrees(rot.x));
+            }
         }
     }
 
