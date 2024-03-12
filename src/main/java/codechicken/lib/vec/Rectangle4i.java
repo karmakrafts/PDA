@@ -76,13 +76,15 @@ public class Rectangle4i implements Copyable<Rectangle4i> {
     public Rectangle4i expand(int px, int py) {
         if (px > 0) {
             w += px;
-        } else {
+        }
+        else {
             x += px;
             w -= px;
         }
         if (py > 0) {
             h += py;
-        } else {
+        }
+        else {
             y += py;
             h -= py;
         }

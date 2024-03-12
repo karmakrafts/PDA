@@ -60,7 +60,8 @@ public class Scale extends Transformation {
     @Override
     public String toString() {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
-        return "Scale(" + new BigDecimal(factor.x, cont) + ", " + new BigDecimal(factor.y, cont) + ", " + new BigDecimal(factor.z, cont) + ")";
+        return "Scale(" + new BigDecimal(factor.x, cont) + ", " + new BigDecimal(factor.y,
+            cont) + ", " + new BigDecimal(factor.z, cont) + ")";
     }
 
     @Override

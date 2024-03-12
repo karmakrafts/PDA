@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.karma.pda.client.render.display.DisplayRenderer;
 import io.karma.pda.common.block.DockBlock;
 import io.karma.pda.common.entity.DockBlockEntity;
+import io.karma.pda.common.init.ModBlocks;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -38,6 +39,9 @@ public final class DockBlockEntityRenderer implements BlockEntityRenderer<DockBl
             return;
         }
         final var state = world.getBlockState(entity.getBlockPos());
+        if (state.getBlock() != ModBlocks.dock.get()) {
+            return;
+        }
         final var direction = state.getValue(DockBlock.ORIENTATION).getDirection();
         // @formatter:off
         final var angle = direction.getAxis() == Direction.Axis.Z

@@ -27,11 +27,11 @@ public class ItemRenderEvent extends Event {
     private final MultiBufferSource bufferSource;
     private final int packedLight;
     private final int packedOverlay;
-    private final float partialTick;
+    private final float frameTime;
 
     protected ItemRenderEvent(final ItemStack stack, final ItemDisplayContext displayContext, final boolean isLeftHand,
                               final PoseStack poseStack, final MultiBufferSource bufferSource, final int packedLight,
-                              final int packedOverlay, final float partialTick) {
+                              final int packedOverlay, final float frameTime) {
         this.stack = stack;
         this.displayContext = displayContext;
         this.isLeftHand = isLeftHand;
@@ -39,11 +39,11 @@ public class ItemRenderEvent extends Event {
         this.bufferSource = bufferSource;
         this.packedLight = packedLight;
         this.packedOverlay = packedOverlay;
-        this.partialTick = partialTick;
+        this.frameTime = frameTime;
     }
 
-    public float getPartialTick() {
-        return partialTick;
+    public float getFrameTime() {
+        return frameTime;
     }
 
     public InteractionHand getHand() {

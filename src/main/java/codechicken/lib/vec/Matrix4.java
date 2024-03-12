@@ -19,7 +19,8 @@ public class Matrix4 extends Transformation {
         setIdentity();
     }
 
-    public Matrix4(double d00, double d01, double d02, double d03, double d10, double d11, double d12, double d13, double d20, double d21, double d22, double d23, double d30, double d31, double d32, double d33) {
+    public Matrix4(double d00, double d01, double d02, double d03, double d10, double d11, double d12, double d13,
+                   double d20, double d21, double d22, double d23, double d30, double d31, double d32, double d33) {
         m00 = d00;
         m01 = d01;
         m02 = d02;
@@ -552,7 +553,7 @@ public class Matrix4 extends Transformation {
         Vector3 winPos = new Vector3();
         winPos.z = o.z();
 
-        winPos.x = o.x() * viewport.get(viewport.position() + 2) + viewport.get(viewport.position() + 0);
+        winPos.x = o.x() * viewport.get(viewport.position() + 2) + viewport.get(viewport.position());
         winPos.y = o.y() * viewport.get(viewport.position() + 3) + viewport.get(viewport.position() + 1);
         return winPos;
     }

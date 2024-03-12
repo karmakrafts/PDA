@@ -29,11 +29,11 @@ public final class PDAStorageMenu extends BasicContainerMenu<ItemStorageContaine
         bindPlayerInventory(playerInventory, 8, 84);
         addSlot(new FilteredSlot(container, 0, 80, 35, ModItems.memoryCard.get()).withSetCallback(newStack -> {
             final var tag = stack.getOrCreateTag();
-            if (tag.contains(PDAItem.TAG_IS_ON)) {
-                tag.remove(PDAItem.TAG_IS_ON);
+            if (tag.contains(PDAItem.TAG_HAS_CARD)) {
+                tag.remove(PDAItem.TAG_HAS_CARD);
             }
             else {
-                tag.putBoolean(PDAItem.TAG_IS_ON, true);
+                tag.putBoolean(PDAItem.TAG_HAS_CARD, true);
             }
         }));
     }

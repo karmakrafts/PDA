@@ -7,7 +7,7 @@ package io.karma.pda.common.init;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.entity.DockBlockEntity;
 import io.karma.pda.common.menu.BlockMenuFactory;
-import io.karma.pda.common.menu.DockMenu;
+import io.karma.pda.common.menu.DockStorageMenu;
 import io.karma.pda.common.menu.ItemMenuFactory;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -22,7 +22,7 @@ import org.jetbrains.annotations.ApiStatus;
  */
 public final class ModMenus {
     public static RegistryObject<MenuType<PDAStorageMenu>> pdaStorage;
-    public static RegistryObject<MenuType<DockMenu>> dock;
+    public static RegistryObject<MenuType<DockStorageMenu>> dockStorage;
 
     // @formatter:off
     private ModMenus() {}
@@ -33,7 +33,8 @@ public final class ModMenus {
         PDAMod.LOGGER.info("Registering menus");
         pdaStorage = register.register("pda_storage",
             () -> new MenuType<>(new ItemMenuFactory<>(PDAStorageMenu::new), FeatureFlagSet.of()));
-        dock = register.register("dock",
-            () -> new MenuType<>(new BlockMenuFactory<>(DockMenu::new, DockBlockEntity.class), FeatureFlagSet.of()));
+        dockStorage = register.register("dock_sotrage",
+            () -> new MenuType<>(new BlockMenuFactory<>(DockStorageMenu::new, DockBlockEntity.class),
+                FeatureFlagSet.of()));
     }
 }

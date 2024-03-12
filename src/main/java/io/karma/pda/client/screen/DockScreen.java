@@ -1,34 +1,30 @@
-/*
- * Copyright (c) 2024 Karma Krafts & associates
- */
-
 package io.karma.pda.client.screen;
 
-import io.karma.pda.api.common.util.Constants;
-import io.karma.pda.client.util.ScreenUtils;
-import io.karma.pda.common.menu.DockMenu;
-import net.minecraft.client.gui.GuiGraphics;
+import io.karma.pda.client.ClientEventHandler;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Alexander Hinze
- * @since 07/02/2024
+ * @since 10/03/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class DockScreen extends BasicContainerScreen<DockMenu> {
-    public DockScreen(@NotNull DockMenu menu, @NotNull Inventory playerInventory) {
-        super(menu, playerInventory, Component.translatable(String.format("screen.%s.dock", Constants.MODID)));
+public final class DockScreen extends Screen {
+    public DockScreen(final BlockPos pos) {
+        super(Component.empty());
+        ClientEventHandler.INSTANCE.engageDock(pos);
     }
 
     @Override
-    protected void renderBg(final @NotNull GuiGraphics graphics, final float partialTick, final int mouseX,
-                            final int mouseY) {
-        final var x = (width >> 1) - (imageWidth >> 1);
-        final var y = (height >> 1) - (imageHeight >> 1);
-        ScreenUtils.drawBackground(graphics, x, y, imageWidth, imageHeight);
+    public void onClose() {
+        ClientEventHandler.INSTANCE.disengageDock();
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
     }
 }

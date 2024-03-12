@@ -15,16 +15,14 @@ import java.util.concurrent.TimeUnit;
  */
 public class VoxelShapeCache {
 
-    private static final Cache<AABB, VoxelShape> bbToShapeCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(2, TimeUnit.HOURS)
-            .build();
-    private static final Cache<Cuboid6, VoxelShape> cuboidToShapeCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(2, TimeUnit.HOURS)
-            .build();
+    private static final Cache<AABB, VoxelShape> bbToShapeCache = CacheBuilder.newBuilder().expireAfterAccess(2,
+        TimeUnit.HOURS).build();
+    private static final Cache<Cuboid6, VoxelShape> cuboidToShapeCache = CacheBuilder.newBuilder().expireAfterAccess(2,
+        TimeUnit.HOURS).build();
 
-    private static final Cache<ImmutableSet<VoxelShape>, VoxelShape> mergeShapeCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(2, TimeUnit.HOURS)
-            .build();
+    private static final Cache<ImmutableSet<VoxelShape>, VoxelShape> mergeShapeCache = CacheBuilder.newBuilder().expireAfterAccess(
+        2,
+        TimeUnit.HOURS).build();
 
     public static VoxelShape getShape(AABB aabb) {
         VoxelShape shape = bbToShapeCache.getIfPresent(aabb);

@@ -31,7 +31,7 @@ public final class ItemRendererMixin {
                                    final BakedModel model, final CallbackInfo cbi) {
         // @formatter:off
         final var event = new ItemRenderEvent.Pre(stack, displayContext, isLeftHand, poseStack, bufferSource,
-            packedLight, packedOverlay, ClientEventHandler.INSTANCE.getPartialTick());
+            packedLight, packedOverlay, ClientEventHandler.INSTANCE.getFrameTime());
         // @formatter:on
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
@@ -46,7 +46,7 @@ public final class ItemRendererMixin {
                                     final int packedOverlay, final BakedModel model, final CallbackInfo cbi) {
         // @formatter:off
         MinecraftForge.EVENT_BUS.post(new ItemRenderEvent.Post(stack, displayContext, isLeftHand, poseStack,
-            bufferSource, packedLight, packedOverlay, ClientEventHandler.INSTANCE.getPartialTick()));
+            bufferSource, packedLight, packedOverlay, ClientEventHandler.INSTANCE.getFrameTime()));
         // @formatter:on
     }
 }

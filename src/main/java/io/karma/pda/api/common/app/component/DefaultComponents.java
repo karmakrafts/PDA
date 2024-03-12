@@ -15,9 +15,9 @@ public final class DefaultComponents {
     private static final String REGISTRY_NAME = Constants.MODID + ":components";
 
     @ObjectHolder(value = Constants.MODID + ":container", registryName = REGISTRY_NAME)
-    public static final ComponentType<?> CONTAINER = null;
+    public static final ComponentType<DefaultContainer> CONTAINER = null;
     @ObjectHolder(value = Constants.MODID + ":label", registryName = REGISTRY_NAME)
-    public static final ComponentType<?> LABEL = null;
+    public static final ComponentType<Label> LABEL = null;
 
     // @formatter:off
     private DefaultComponents() {}

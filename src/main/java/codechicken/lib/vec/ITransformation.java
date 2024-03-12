@@ -9,7 +9,8 @@ import org.jetbrains.annotations.Nullable;
  * @param <Vector>         The vector type
  * @param <Transformation> The transformation type
  */
-public abstract class ITransformation<Vector, Transformation extends ITransformation<Vector, Transformation>> implements Copyable<Transformation> {
+public abstract class ITransformation<Vector, Transformation extends ITransformation<Vector, Transformation>>
+    implements Copyable<Transformation> {
 
     /**
      * Applies this transformation to vec

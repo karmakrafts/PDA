@@ -8,7 +8,6 @@ import io.karma.pda.client.screen.PDAScreen;
 import io.karma.pda.common.init.ModItems;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import io.karma.pda.common.util.PlayerUtils;
-import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -26,6 +25,7 @@ import java.util.EnumSet;
  * @since 05/02/2024
  */
 public final class PDAItem extends Item {
+    public static final String TAG_HAS_CARD = "has_card";
     public static final String TAG_IS_ON = "is_on";
 
     public PDAItem() {
@@ -39,21 +39,21 @@ public final class PDAItem extends Item {
         if (player.isShiftKeyDown()) {
             PlayerUtils.openMenu(player, hand, PDAStorageMenu::new);
         }
-        else if (world.isClientSide) {
-            final var game = Minecraft.getInstance();
-            if (game.options.getCameraType() != CameraType.FIRST_PERSON) { // Can only interact with it in first-person
-                return InteractionResultHolder.fail(stack);
-            }
+        else {
             final var hands = EnumSet.of(hand);
             if (hand == InteractionHand.MAIN_HAND) {
                 final var offhandStack = player.getItemInHand(InteractionHand.OFF_HAND);
                 if (!offhandStack.isEmpty() && offhandStack.getItem() == ModItems.pda.get()) {
+                    offhandStack.getOrCreateTag().putBoolean(TAG_IS_ON, true);
                     hands.add(InteractionHand.OFF_HAND); // Open off-hand at the same time
                 }
             }
-            game.setScreen(new PDAScreen(hands));
-            // Play sound when engaging
-            player.playSound(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, 0.3F, 1.75F);
+            stack.getOrCreateTag().putBoolean(TAG_IS_ON, true);
+            if (world.isClientSide) {
+                Minecraft.getInstance().setScreen(new PDAScreen(hands));
+                // Play sound when engaging
+                player.playSound(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, 0.3F, 1.75F);
+            }
         }
         return InteractionResultHolder.sidedSuccess(stack, false); // Prevent builtin animation
     }

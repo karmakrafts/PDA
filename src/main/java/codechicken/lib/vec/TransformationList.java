@@ -23,7 +23,8 @@ public class TransformationList extends Transformation {
         for (Transformation t : transforms) {
             if (t instanceof TransformationList) {
                 transformations.addAll(((TransformationList) t).transformations);
-            } else {
+            }
+            else {
                 transformations.add(t);
             }
         }
@@ -63,7 +64,8 @@ public class TransformationList extends Transformation {
     public void apply(Vector3 vec) {
         if (mat != null) {
             mat.apply(vec);
-        } else {
+        }
+        else {
             for (Transformation transformation : transformations) {
                 transformation.apply(vec);
             }
@@ -74,7 +76,8 @@ public class TransformationList extends Transformation {
     public void applyN(Vector3 normal) {
         if (mat != null) {
             mat.applyN(normal);
-        } else {
+        }
+        else {
             for (Transformation transformation : transformations) {
                 transformation.applyN(normal);
             }
@@ -95,7 +98,8 @@ public class TransformationList extends Transformation {
         mat = null;//matrix invalid
         if (t instanceof TransformationList) {
             transformations.addAll(((TransformationList) t).transformations);
-        } else {
+        }
+        else {
             transformations.add(t);
         }
 
@@ -111,7 +115,8 @@ public class TransformationList extends Transformation {
         mat = null;//matrix invalid
         if (t instanceof TransformationList) {
             transformations.addAll(0, ((TransformationList) t).transformations);
-        } else {
+        }
+        else {
             transformations.add(0, t);
         }
 
@@ -133,9 +138,11 @@ public class TransformationList extends Transformation {
                 Transformation m = prev.merge(t);
                 if (m == null) {
                     newList.add(prev);
-                } else if (m.isRedundant()) {
+                }
+                else if (m.isRedundant()) {
                     t = null;
-                } else {
+                }
+                else {
                     t = m;
                 }
             }

@@ -14,156 +14,124 @@ public class Rotation extends Transformation {
     /**
      * Clockwise pi/2 about y looking down
      */
-    public static Transformation[] quarterRotations = new Transformation[] {
-            RedundantTransformation.INSTANCE,
-            new VariableTransformation(new Matrix4(0, 0, -1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1)) {
-                @Override
-                public void apply(Vector3 vec) {
-                    double d1 = vec.x;
-                    double d2 = vec.z;
-                    vec.x = -d2;
-                    vec.z = d1;
-                }
+    public static Transformation[] quarterRotations = new Transformation[]{RedundantTransformation.INSTANCE, new VariableTransformation(
+        new Matrix4(0, 0, -1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1)) {
+        @Override
+        public void apply(Vector3 vec) {
+            double d1 = vec.x;
+            double d2 = vec.z;
+            vec.x = -d2;
+            vec.z = d1;
+        }
 
-                @Override
-                public Transformation inverse() {
-                    return quarterRotations[3];
-                }
-            },
-            new VariableTransformation(new Matrix4(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)) {
-                @Override
-                public void apply(Vector3 vec) {
-                    vec.x = -vec.x;
-                    vec.z = -vec.z;
-                }
+        @Override
+        public Transformation inverse() {
+            return quarterRotations[3];
+        }
+    }, new VariableTransformation(new Matrix4(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)) {
+        @Override
+        public void apply(Vector3 vec) {
+            vec.x = -vec.x;
+            vec.z = -vec.z;
+        }
 
-                @Override
-                public Transformation inverse() {
-                    return this;
-                }
-            },
-            new VariableTransformation(new Matrix4(0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 0, 1)) {
-                @Override
-                public void apply(Vector3 vec) {
-                    double d1 = vec.x;
-                    double d2 = vec.z;
-                    vec.x = d2;
-                    vec.z = -d1;
-                }
+        @Override
+        public Transformation inverse() {
+            return this;
+        }
+    }, new VariableTransformation(new Matrix4(0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 0, 1)) {
+        @Override
+        public void apply(Vector3 vec) {
+            double d1 = vec.x;
+            double d2 = vec.z;
+            vec.x = d2;
+            vec.z = -d1;
+        }
 
-                @Override
-                public Transformation inverse() {
-                    return quarterRotations[1];
-                }
-            }
-    };
+        @Override
+        public Transformation inverse() {
+            return quarterRotations[1];
+        }
+    }};
 
-    public static Transformation[] sideRotations = new Transformation[] {
-            RedundantTransformation.INSTANCE,
-            new VariableTransformation(new Matrix4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)) {
-                @Override
-                public void apply(Vector3 vec) {
-                    vec.y = -vec.y;
-                    vec.z = -vec.z;
-                }
+    public static Transformation[] sideRotations = new Transformation[]{RedundantTransformation.INSTANCE, new VariableTransformation(
+        new Matrix4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)) {
+        @Override
+        public void apply(Vector3 vec) {
+            vec.y = -vec.y;
+            vec.z = -vec.z;
+        }
 
-                @Override
-                public Transformation inverse() {
-                    return this;
-                }
-            },
-            new VariableTransformation(new Matrix4(1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1)) {
-                @Override
-                public void apply(Vector3 vec) {
-                    double d1 = vec.y;
-                    double d2 = vec.z;
-                    vec.y = -d2;
-                    vec.z = d1;
-                }
+        @Override
+        public Transformation inverse() {
+            return this;
+        }
+    }, new VariableTransformation(new Matrix4(1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1)) {
+        @Override
+        public void apply(Vector3 vec) {
+            double d1 = vec.y;
+            double d2 = vec.z;
+            vec.y = -d2;
+            vec.z = d1;
+        }
 
-                @Override
-                public Transformation inverse() {
-                    return sideRotations[3];
-                }
-            },
-            new VariableTransformation(new Matrix4(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1)) {
-                @Override
-                public void apply(Vector3 vec) {
-                    double d1 = vec.y;
-                    double d2 = vec.z;
-                    vec.y = d2;
-                    vec.z = -d1;
-                }
+        @Override
+        public Transformation inverse() {
+            return sideRotations[3];
+        }
+    }, new VariableTransformation(new Matrix4(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1)) {
+        @Override
+        public void apply(Vector3 vec) {
+            double d1 = vec.y;
+            double d2 = vec.z;
+            vec.y = d2;
+            vec.z = -d1;
+        }
 
-                @Override
-                public Transformation inverse() {
-                    return sideRotations[2];
-                }
-            },
-            new VariableTransformation(new Matrix4(0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)) {
-                @Override
-                public void apply(Vector3 vec) {
-                    double d0 = vec.x;
-                    double d1 = vec.y;
-                    vec.x = d1;
-                    vec.y = -d0;
-                }
+        @Override
+        public Transformation inverse() {
+            return sideRotations[2];
+        }
+    }, new VariableTransformation(new Matrix4(0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)) {
+        @Override
+        public void apply(Vector3 vec) {
+            double d0 = vec.x;
+            double d1 = vec.y;
+            vec.x = d1;
+            vec.y = -d0;
+        }
 
-                @Override
-                public Transformation inverse() {
-                    return sideRotations[5];
-                }
-            },
-            new VariableTransformation(new Matrix4(0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)) {
-                @Override
-                public void apply(Vector3 vec) {
-                    double d0 = vec.x;
-                    double d1 = vec.y;
-                    vec.x = -d1;
-                    vec.y = d0;
-                }
+        @Override
+        public Transformation inverse() {
+            return sideRotations[5];
+        }
+    }, new VariableTransformation(new Matrix4(0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)) {
+        @Override
+        public void apply(Vector3 vec) {
+            double d0 = vec.x;
+            double d1 = vec.y;
+            vec.x = -d1;
+            vec.y = d0;
+        }
 
-                @Override
-                public Transformation inverse() {
-                    return sideRotations[4];
-                }
-            }
-    };
+        @Override
+        public Transformation inverse() {
+            return sideRotations[4];
+        }
+    }};
 
-    public static Vector3[] axes = new Vector3[] {
-            new Vector3(0, -1, 0),
-            new Vector3(0, 1, 0),
-            new Vector3(0, 0, -1),
-            new Vector3(0, 0, 1),
-            new Vector3(-1, 0, 0),
-            new Vector3(1, 0, 0)
-    };
+    public static Vector3[] axes = new Vector3[]{new Vector3(0, -1, 0), new Vector3(0, 1, 0), new Vector3(0,
+        0,
+        -1), new Vector3(0, 0, 1), new Vector3(-1, 0, 0), new Vector3(1, 0, 0)};
 
-    public static int[] sideRotMap = new int[] {
-            3, 4, 2, 5,
-            3, 5, 2, 4,
-            1, 5, 0, 4,
-            1, 4, 0, 5,
-            1, 2, 0, 3,
-            1, 3, 0, 2
-    };
+    public static int[] sideRotMap = new int[]{3, 4, 2, 5, 3, 5, 2, 4, 1, 5, 0, 4, 1, 4, 0, 5, 1, 2, 0, 3, 1, 3, 0, 2};
 
-    public static int[] rotSideMap = new int[] {
-            -1, -1, 2, 0,
-            1, 3, -1, -1,
-            2, 0, 3, 1,
-            2, 0, -1, -1,
-            3, 1, 2, 0,
-            -1, -1, 1, 3,
-            2, 0, 1, 3,
-            -1, -1, 2, 0,
-            3, 1, -1, -1
-    };
+    public static int[] rotSideMap = new int[]{-1, -1, 2, 0, 1, 3, -1, -1, 2, 0, 3, 1, 2, 0, -1, -1, 3, 1, 2, 0, -1, -1, 1, 3, 2, 0, 1, 3, -1, -1, 2, 0, 3, 1, -1, -1};
 
     /**
      * Rotate pi/2 * this offset for [side] about y axis before rotating to the side for the rotation indicies to line up
      */
-    public static int[] sideRotOffsets = new int[] { 0, 2, 2, 0, 1, 3 };
+    public static int[] sideRotOffsets = new int[]{0, 2, 2, 0, 1, 3};
 
     public static int rotateSide(int s, int r) {
         return sideRotMap[s << 2 | r];
@@ -245,7 +213,8 @@ public class Rotation extends Transformation {
         angle = Math.acos(quat.s) * 2;
         if (angle == 0) {
             axis = new Vector3(0, 1, 0);
-        } else {
+        }
+        else {
             double sa = Math.sin(angle * 0.5);
             axis = new Vector3(quat.x / sa, quat.y / sa, quat.z / sa);
         }
@@ -311,7 +280,9 @@ public class Rotation extends Transformation {
     @Override
     public String toString() {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
-        return "Rotation(" + new BigDecimal(angle, cont) + ", " + new BigDecimal(axis.x, cont) + ", " + new BigDecimal(axis.y, cont) + ", " + new BigDecimal(axis.z, cont) + ")";
+        return "Rotation(" + new BigDecimal(angle, cont) + ", " + new BigDecimal(axis.x, cont) + ", " + new BigDecimal(
+            axis.y,
+            cont) + ", " + new BigDecimal(axis.z, cont) + ")";
     }
 
     @Override

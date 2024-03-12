@@ -5,15 +5,19 @@
 package io.karma.pda.common.block;
 
 import codechicken.lib.vec.Vector3;
+import io.karma.pda.client.screen.DockScreen;
 import io.karma.pda.common.entity.DockBlockEntity;
 import io.karma.pda.common.init.ModBlockEntities;
 import io.karma.pda.common.init.ModItems;
-import io.karma.pda.common.menu.DockMenu;
+import io.karma.pda.common.menu.DockStorageMenu;
 import io.karma.pda.common.util.HorizontalDirection;
 import io.karma.pda.common.util.PlayerUtils;
 import io.karma.pda.common.util.ShapeUtils;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -120,16 +124,22 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
         // @formatter:on
     }
 
+    @Override
+    public void animateTick(BlockState pState, Level pLevel, BlockPos pPos, RandomSource pRandom) {
+        super.animateTick(pState, pLevel, pPos, pRandom);
+    }
+
     @SuppressWarnings("deprecation")
     @Override
     public @NotNull InteractionResult use(final @NotNull BlockState state, final @NotNull Level world,
                                           final @NotNull BlockPos pos, final @NotNull Player player,
                                           final @NotNull InteractionHand hand, final @NotNull BlockHitResult hit) {
+        // Open the storage menu if the player is sneaking
         if (player.isShiftKeyDown()) {
-            PlayerUtils.openMenu(player, pos, DockBlockEntity.class, DockMenu::new);
+            PlayerUtils.openMenu(player, pos, DockBlockEntity.class, DockStorageMenu::new);
             return InteractionResult.SUCCESS;
         }
-
+        // Handle item in-world interaction when placing a PDA into the dock
         final var entity = world.getBlockEntity(pos);
         if (!(entity instanceof DockBlockEntity dockEntity)) {
             return InteractionResult.FAIL;
@@ -145,6 +155,14 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
                 heldItem.shrink(1);
             }
             return InteractionResult.SUCCESS;
+        }
+        // If we already have an item, open the dock screen on the client only
+        else if (world.isClientSide) {
+            final var game = Minecraft.getInstance();
+            if (game.options.getCameraType() == CameraType.FIRST_PERSON) {
+                game.setScreen(new DockScreen(pos));
+                return InteractionResult.SUCCESS;
+            }
         }
 
         return InteractionResult.FAIL;

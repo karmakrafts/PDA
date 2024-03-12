@@ -135,11 +135,11 @@ public class Vector3 implements Copyable<Vector3> {
     }
 
     public double[] toArrayD() {
-        return new double[] { x, y, z };
+        return new double[]{x, y, z};
     }
 
     public float[] toArrayF() {
-        return new float[] { (float) x, (float) y, (float) z };
+        return new float[]{(float) x, (float) y, (float) z};
     }
 
     public Vector3 set(double x1, double y1, double z1) {
@@ -312,7 +312,8 @@ public class Vector3 implements Copyable<Vector3> {
 
         if (d > 1 && d < 1.00001) {
             d = 1;
-        } else if (d < -1 && d > -1.00001) {
+        }
+        else if (d < -1 && d > -1.00001) {
             d = -1;
         }
         return d;
@@ -516,10 +517,9 @@ public class Vector3 implements Copyable<Vector3> {
         if (super.equals(o)) {
             return true;
         }
-        if (!(o instanceof Vector3)) {
+        if (!(o instanceof Vector3 v)) {
             return false;
         }
-        Vector3 v = (Vector3) o;
         return x == v.x && y == v.y && z == v.z;
     }
 
@@ -529,7 +529,9 @@ public class Vector3 implements Copyable<Vector3> {
      * @return true if this is equal to v within +-1E-5
      */
     public boolean equalsT(Vector3 v) {
-        return MathHelper.between(x - 1E-5, v.x, x + 1E-5) && MathHelper.between(y - 1E-5, v.y, y + 1E-5) && MathHelper.between(z - 1E-5, v.z, z + 1E-5);
+        return MathHelper.between(x - 1E-5, v.x, x + 1E-5) && MathHelper.between(y - 1E-5,
+            v.y,
+            y + 1E-5) && MathHelper.between(z - 1E-5, v.z, z + 1E-5);
     }
 
     @Override
@@ -540,7 +542,8 @@ public class Vector3 implements Copyable<Vector3> {
     @Override
     public String toString() {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
-        return "Vector3(" + new BigDecimal(x, cont) + ", " + new BigDecimal(y, cont) + ", " + new BigDecimal(z, cont) + ")";
+        return "Vector3(" + new BigDecimal(x, cont) + ", " + new BigDecimal(y, cont) + ", " + new BigDecimal(z,
+            cont) + ")";
     }
 
     public Translation translation() {

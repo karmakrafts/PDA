@@ -155,7 +155,8 @@ public class Quat implements Copyable<Quat> {
     @Override
     public String toString() {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
-        return "Quat(" + new BigDecimal(s, cont) + ", " + new BigDecimal(x, cont) + ", " + new BigDecimal(y, cont) + ", " + new BigDecimal(z, cont) + ")";
+        return "Quat(" + new BigDecimal(s, cont) + ", " + new BigDecimal(x, cont) + ", " + new BigDecimal(y,
+            cont) + ", " + new BigDecimal(z, cont) + ")";
     }
 
     public Rotation rotation() {

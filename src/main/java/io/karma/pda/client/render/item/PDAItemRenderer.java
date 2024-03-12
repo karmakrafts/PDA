@@ -25,18 +25,13 @@ import org.jetbrains.annotations.ApiStatus;
 @OnlyIn(Dist.CLIENT)
 public final class PDAItemRenderer {
     public static final PDAItemRenderer INSTANCE = new PDAItemRenderer();
-    private static final float ANIMATION_STEP = 0.125F;
     private static final float ANIMATION_OFFSET = 6.5F / 16F;
+    private static final int ANIMATION_TICKS = 10;
 
-    private final boolean[] isEngaged = new boolean[2];
-    private final boolean[] isAnimating = new boolean[2];
-    private final float[] animationTick = new float[2];
-    private final float[] prevFirstPersonOffset = new float[2];
-    private final float[] firstPersonOffset = new float[2];
-
-    // @formatter:off
-    private PDAItemRenderer() {}
-    // @formatter:on
+    private final int[] animationTick = new int[InteractionHand.values().length];
+    private final float[] previousOffset = new float[InteractionHand.values().length];
+    private final float[] offset = new float[InteractionHand.values().length];
+    private final boolean[] isEngaged = new boolean[InteractionHand.values().length];
 
     @ApiStatus.Internal
     public void setup() {
@@ -45,52 +40,46 @@ public final class PDAItemRenderer {
         forgeBus.addListener(this::onClientTick);
     }
 
-    private void onClientTick(final TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
-            for (final var hand : InteractionHand.values()) {
-                updateFirstPersonAnimation(hand);
-            }
-        }
-    }
-
     public void setEngaged(final InteractionHand hand, final boolean isEngaged) {
         this.isEngaged[hand.ordinal()] = isEngaged;
     }
 
-    private void updateFirstPersonAnimation(final InteractionHand hand) {
-        final var index = hand.ordinal();
-        if (isEngaged[index]) {
-            if (animationTick[index] < 1F) {
-                prevFirstPersonOffset[index] = firstPersonOffset[index];
-                final var currentTick = animationTick[index] = Math.min(1F, animationTick[index] += ANIMATION_STEP);
-                firstPersonOffset[index] = Easings.easeOutQuart(currentTick);
-                isAnimating[index] = true;
-            }
-            else {
-                isAnimating[index] = false;
-            }
-        }
-        else {
-            if (animationTick[index] > 0F) {
-                prevFirstPersonOffset[index] = firstPersonOffset[index];
-                final var currentTick = animationTick[index] = Math.max(0F, animationTick[index] -= ANIMATION_STEP);
-                firstPersonOffset[index] = Easings.easeInQuart(currentTick);
-                isAnimating[index] = true;
-            }
-            else {
-                isAnimating[index] = false;
+    private void onClientTick(final TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.START) {
+            for (final var hand : InteractionHand.values()) {
+                updateAnimation(hand);
             }
         }
     }
 
-    private float getAnimationOffset(final InteractionHand hand, final float partialTick) {
+    private void updateAnimation(final InteractionHand hand) {
         final var index = hand.ordinal();
-        var offset = firstPersonOffset[index];
-        if (isAnimating[index]) {
-            final var prevOffset = prevFirstPersonOffset[hand.ordinal()];
-            offset = prevOffset + partialTick * (offset - prevOffset);
+        final var tick = animationTick[index];
+        if (isEngaged[index]) {
+            if (tick < ANIMATION_TICKS) {
+                previousOffset[index] = offset[index];
+                offset[index] = Easings.easeOutQuart((float) tick / ANIMATION_TICKS);
+                animationTick[index]++;
+            }
         }
-        return offset * ANIMATION_OFFSET;
+        else {
+            if (tick > 0) {
+                previousOffset[index] = offset[index];
+                offset[index] = Easings.easeInQuart((float) tick / ANIMATION_TICKS);
+                animationTick[index]--;
+            }
+        }
+    }
+
+    private float getAnimationOffset(final InteractionHand hand, final float frameTime) {
+        final var index = hand.ordinal();
+        final var tick = animationTick[index];
+        final var current = offset[index];
+        if (tick == 0 || tick == ANIMATION_TICKS) {
+            return current * ANIMATION_OFFSET;
+        }
+        final var previous = previousOffset[index];
+        return Math.fma(frameTime, current - previous, previous) * ANIMATION_OFFSET;
     }
 
     private void onRenderItem(final ItemRenderEvent.Pre event) {
@@ -112,11 +101,11 @@ public final class PDAItemRenderer {
 
         poseStack.pushPose();
         // @formatter:off
-        final var model = game.getModelManager().getModel(ClientEventHandler.PDA_MODEL_DISENGAGED)
+        final var model = game.getModelManager().getModel(ClientEventHandler.PDA_MODEL_V)
             .applyTransform(displayContext, poseStack, hand == InteractionHand.OFF_HAND);
         // @formatter:on
         if (displayContext.firstPerson()) {
-            poseStack.translate(-0.5, -0.5 + getAnimationOffset(hand, event.getPartialTick()), -0.5);
+            poseStack.translate(-0.5, -0.5 + getAnimationOffset(hand, event.getFrameTime()), -0.5);
         }
         else {
             poseStack.translate(-0.5, -0.5, -0.5);

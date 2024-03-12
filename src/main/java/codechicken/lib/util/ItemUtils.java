@@ -3,7 +3,6 @@ package codechicken.lib.util;
 import codechicken.lib.vec.Vector3;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,7 +15,6 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -54,7 +52,9 @@ public class ItemUtils {
      */
     public static void dropItem(ItemStack stack, Level level, Vector3 dropLocation) {
         ItemEntity item = new ItemEntity(level, dropLocation.x, dropLocation.y, dropLocation.z, stack);
-        item.setDeltaMovement(level.random.nextGaussian() * 0.05, level.random.nextGaussian() * 0.05 + 0.2F, level.random.nextGaussian() * 0.05);
+        item.setDeltaMovement(level.random.nextGaussian() * 0.05,
+            level.random.nextGaussian() * 0.05 + 0.2F,
+            level.random.nextGaussian() * 0.05);
         level.addFreshEntity(item);
     }
 
@@ -70,7 +70,11 @@ public class ItemUtils {
         double xVelocity = world.random.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
         double yVelocity = world.random.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
         double zVelocity = world.random.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
-        ItemEntity entityItem = new ItemEntity(world, pos.getX() + xVelocity, pos.getY() + yVelocity, pos.getZ() + zVelocity, stack);
+        ItemEntity entityItem = new ItemEntity(world,
+            pos.getX() + xVelocity,
+            pos.getY() + yVelocity,
+            pos.getZ() + zVelocity,
+            stack);
         entityItem.setPickUpDelay(10);
         world.addFreshEntity(entityItem);
     }
@@ -168,6 +172,8 @@ public class ItemUtils {
      * @return whether the two items are the same in terms of damage and itemID.
      */
     public static boolean areStacksSameType(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
-        return !stack1.isEmpty() && !stack2.isEmpty() && (stack1.getItem() == stack2.getItem() && (stack2.getDamageValue() == stack1.getDamageValue()) && ItemStack.isSameItemSameTags(stack2, stack1));
+        return !stack1.isEmpty() && !stack2.isEmpty() && (stack1.getItem() == stack2.getItem() && (stack2.getDamageValue() == stack1.getDamageValue()) && ItemStack.isSameItemSameTags(
+            stack2,
+            stack1));
     }
 }

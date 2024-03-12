@@ -23,8 +23,8 @@ package codechicken.lib.math;
  */
 public class InterpHelper {
 
-    private float[][] posCache = new float[4][2];
-    private float[] valCache = new float[4];
+    private final float[][] posCache = new float[4][2];
+    private final float[] valCache = new float[4];
 
     private float x0;
     private float x1;
@@ -73,10 +73,12 @@ public class InterpHelper {
             if (this.y0 == y) {
                 this.p10 = i;// Bottom right.
                 this.x1 = x;
-            } else if (this.x0 == x) {
+            }
+            else if (this.x0 == x) {
                 this.p01 = i;// Top left.
                 this.y1 = y;
-            } else {
+            }
+            else {
                 // Top right.
                 this.p11 = i;
             }

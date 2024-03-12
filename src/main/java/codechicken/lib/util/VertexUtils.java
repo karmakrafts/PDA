@@ -1,10 +1,8 @@
 package codechicken.lib.util;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,7 +18,8 @@ public class VertexUtils {
     private static final int[] DEFAULT_MAPPING = generateMapping(DefaultVertexFormat.BLOCK, DefaultVertexFormat.BLOCK);
 
     public static int[] mapFormats(VertexFormat from, VertexFormat to) {
-        if (from.equals(DefaultVertexFormat.BLOCK) && to.equals(DefaultVertexFormat.BLOCK)) return DEFAULT_MAPPING;
+        if (from.equals(DefaultVertexFormat.BLOCK) && to.equals(DefaultVertexFormat.BLOCK))
+            return DEFAULT_MAPPING;
 
         return formatMaps.computeIfAbsent(Pair.of(from, to), pair -> generateMapping(pair.getLeft(), pair.getRight()));
     }
@@ -47,18 +46,24 @@ public class VertexUtils {
                 bits &= mask;
                 if (type == VertexFormatElement.Type.FLOAT) {
                     to[i] = Float.intBitsToFloat(bits);
-                } else if (type == VertexFormatElement.Type.UBYTE || type == VertexFormatElement.Type.USHORT) {
+                }
+                else if (type == VertexFormatElement.Type.UBYTE || type == VertexFormatElement.Type.USHORT) {
                     to[i] = (float) bits / mask;
-                } else if (type == VertexFormatElement.Type.UINT) {
+                }
+                else if (type == VertexFormatElement.Type.UINT) {
                     to[i] = (float) ((double) (bits & 0xFFFFFFFFL) / 0xFFFFFFFFL);
-                } else if (type == VertexFormatElement.Type.BYTE) {
+                }
+                else if (type == VertexFormatElement.Type.BYTE) {
                     to[i] = ((float) (byte) bits) / (mask >> 1);
-                } else if (type == VertexFormatElement.Type.SHORT) {
+                }
+                else if (type == VertexFormatElement.Type.SHORT) {
                     to[i] = ((float) (short) bits) / (mask >> 1);
-                } else if (type == VertexFormatElement.Type.INT) {
+                }
+                else if (type == VertexFormatElement.Type.INT) {
                     to[i] = (float) ((double) (bits & 0xFFFFFFFFL) / (0xFFFFFFFFL >> 1));
                 }
-            } else {
+            }
+            else {
                 to[i] = (i == 3 && usage == VertexFormatElement.Usage.POSITION) ? 1 : 0;
             }
         }
@@ -80,13 +85,11 @@ public class VertexUtils {
                 float f = i < from.length ? from[i] : 0;
                 if (type == VertexFormatElement.Type.FLOAT) {
                     bits = Float.floatToRawIntBits(f);
-                } else if (
-                        type == VertexFormatElement.Type.UBYTE ||
-                                type == VertexFormatElement.Type.USHORT ||
-                                type == VertexFormatElement.Type.UINT
-                ) {
+                }
+                else if (type == VertexFormatElement.Type.UBYTE || type == VertexFormatElement.Type.USHORT || type == VertexFormatElement.Type.UINT) {
                     bits = Math.round(f * mask);
-                } else {
+                }
+                else {
                     bits = Math.round(f * (mask >> 1));
                 }
                 to[index] &= ~(mask << (offset * 8));

@@ -69,7 +69,8 @@ public class Translation extends Transformation {
     @Override
     public String toString() {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
-        return "Translation(" + new BigDecimal(vec.x, cont) + ", " + new BigDecimal(vec.y, cont) + ", " + new BigDecimal(vec.z, cont) + ")";
+        return "Translation(" + new BigDecimal(vec.x, cont) + ", " + new BigDecimal(vec.y,
+            cont) + ", " + new BigDecimal(vec.z, cont) + ")";
     }
 
     @Override

@@ -14,10 +14,10 @@ import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.client.render.display.DisplayRenderer;
 import io.karma.pda.client.render.item.PDAItemRenderer;
-import io.karma.pda.client.screen.DockScreen;
+import io.karma.pda.client.screen.DockStorageScreen;
 import io.karma.pda.client.screen.PDAStorageScreen;
 import io.karma.pda.common.init.*;
-import io.karma.pda.common.menu.DockMenu;
+import io.karma.pda.common.menu.DockStorageMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import io.karma.pda.common.network.CommonPacketHandler;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -79,7 +79,16 @@ public class PDAMod {
     private static final DeferredRegister<AppType<?>> APPS = API.makeDeferredAppTypeRegister(Constants.MODID);
     // @formatter:on
 
+    public static boolean IS_DEV_ENV;
+
     static {
+        try {
+            Class.forName("net.minecraft.world.level.Level");
+            IS_DEV_ENV = true;
+            LOGGER.info("Detected development environment, enabling debug mode");
+        }
+        catch (Throwable error) { /* IGNORE */ }
+
         ModBlockEntities.register(BLOCK_ENTITIES);
         ModBlocks.register(BLOCKS);
         ModItems.register(ITEMS);
@@ -138,8 +147,8 @@ public class PDAMod {
             DisplayRenderer.INSTANCE.setup();
             MenuScreens.register(ModMenus.pdaStorage.get(),
                 (PDAStorageMenu menu, Inventory inventory, Component title) -> new PDAStorageScreen(menu, inventory));
-            MenuScreens.register(ModMenus.dock.get(),
-                (DockMenu menu, Inventory inventory, Component title) -> new DockScreen(menu, inventory));
+            MenuScreens.register(ModMenus.dockStorage.get(),
+                (DockStorageMenu menu, Inventory inventory, Component title) -> new DockStorageScreen(menu, inventory));
             ClientEventHandler.INSTANCE.fireRegisterEvents();
         });
     }
