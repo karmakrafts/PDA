@@ -34,15 +34,15 @@ public final class DisplayRenderer {
     public static final DisplayRenderer INSTANCE = new DisplayRenderer();
 
     // @formatter:off
-    private static final float MIN_X = 0.25F;
-    private static final float MIN_Y = 0.125F;
-    private static final float OFFSET_Z = 0.609375F;
+    public static final float MIN_X = 0.25F;
+    public static final float MIN_Y = 0.125F;
+    public static final float OFFSET_Z = 0.609375F;
     private static final float SIZE_X = 0.5F;
     public static final int RES_X = ((int) (SIZE_X * 16F) * 16) << 1;
     private static final float SIZE_Y = 0.5625F;
     public static final int RES_Y = ((int) (SIZE_Y * 16F) * 16) << 1;
-    private static final float MAX_X = MIN_X + SIZE_X;
-    private static final float MAX_Y = MIN_Y + SIZE_Y;
+    public static final float MAX_X = MIN_X + SIZE_X;
+    public static final float MAX_Y = MIN_Y + SIZE_Y;
     private static final Matrix4f IDENTITY_MATRIX = new Matrix4f().identity();
     private static final Matrix4f DISPLAY_PROJECTION_MATRIX = new Matrix4f().ortho2D(0F, RES_X, RES_Y, 0F);
     private static final ResourceLocation PIXEL_TEXTURE = new ResourceLocation(Constants.MODID, "textures/pixel.png");

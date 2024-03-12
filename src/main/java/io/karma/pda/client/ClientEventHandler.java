@@ -101,46 +101,54 @@ public final class ClientEventHandler {
             return;
         }
 
-        final var points = new ArrayList<Vector3f>();
-
         // Store the current camera transform
         final var camera = game.gameRenderer.getMainCamera();
         srcCameraPos.set(camera.getPosition().toVector3f());
 
         // Calculate the destination position
-        final var direction = world.getBlockState(pos).getValue(DockBlock.ORIENTATION).getDirection();
-        final var normal = direction.getNormal();
+        final var state = world.getBlockState(pos);
+        final var direction = state.getValue(DockBlock.ORIENTATION);
+        final var actualDirection = direction.getDirection();
+        final var normal = actualDirection.getNormal();
+
+        // Find out which camera curve to use
+        final var fNormal = new Vector3f(normal.getX(), normal.getY(), normal.getZ());
+        final var displayToCameraAngle = (float) Math.toDegrees(camera.forwards.angle(fNormal));
+        usesCameraCurve = displayToCameraAngle > 90F || displayToCameraAngle < -90F;
+
+        // Compute the destination point
         final var xOffset = (float) normal.getX() * 0.75F;
         final var zOffset = (float) normal.getZ() * 0.75F;
         final var x = (float) pos.getX() + 0.5F - xOffset;
         final var y = (float) pos.getY() + 0.5F;
         final var z = (float) pos.getZ() + 0.5F - zOffset;
         dstCameraPos.set(x, y, z);
-        points.add(new Vector3f());
 
-        final var sourceOffset = srcCameraPos.sub(dstCameraPos, new Vector3f());
-        final var cpY = sourceOffset.y * 0.5F;
+        // Only recalculate the bezier curve when needed
+        if (usesCameraCurve) {
+            final var points = new ArrayList<Vector3f>();
+            points.add(new Vector3f());
 
-        // First control point
-        var cpX = -(float) normal.getX() * 3F;
-        var cpZ = -(float) normal.getZ() * 3F;
-        points.add(new Vector3f(cpX, cpY, cpZ));
+            // Shared constants
+            final var sourceOffset = srcCameraPos.sub(dstCameraPos, new Vector3f());
+            final var cpY = sourceOffset.y * 0.5F;
 
-        // Second control point
-        final var ccwDir = direction.getCounterClockWise();
-        final var ccwNormal = ccwDir.getNormal();
-        cpX = (float) ccwNormal.getX() * 3F;
-        cpZ = (float) ccwNormal.getZ() * 3F;
-        points.add(new Vector3f(cpX, cpY, cpZ));
+            // First control point
+            var cpX = -(float) normal.getX() * 3F;
+            var cpZ = -(float) normal.getZ() * 3F;
+            points.add(new Vector3f(cpX, cpY, cpZ));
 
-        // Add the source camera pos offset
-        points.add(sourceOffset);
-        cameraCurve.setPoints(points.toArray(Vector3f[]::new));
+            // Second control point
+            final var ccwDir = actualDirection.getCounterClockWise();
+            final var ccwNormal = ccwDir.getNormal();
+            cpX = (float) ccwNormal.getX() * 3F;
+            cpZ = (float) ccwNormal.getZ() * 3F;
+            points.add(new Vector3f(cpX, cpY, cpZ));
 
-        //final var v0 = cameraCurve.getSample(0);
-        //final var v1 = cameraCurve.getSample(1);
-        //final var d = v1.sub(v0).normalize();
-        //final var mat = new Matrix4f().identity().lookAt(v0, v0.add(d, new Vector3f()), new Vector3f(0F, 1F, 0F));
+            // Add the source camera pos offset
+            points.add(sourceOffset);
+            cameraCurve.setPoints(points.toArray(Vector3f[]::new));
+        }
 
         isDockEngaged = true;
     }
@@ -178,33 +186,37 @@ public final class ClientEventHandler {
             var matrix = poseStack.last().pose();
             final var normalMatrix = poseStack.last().normal();
             final var alpha = (int) (Easings.easeOutQuart((float) lineTick / LINE_TICKS) * 255F);
-            buffer.vertex(matrix,
-                srcCameraPos.x,
-                srcCameraPos.y,
-                srcCameraPos.z).color(0xFFFF00 | (alpha << 24)).normal(normalMatrix, 0F, 1F, 0F).endVertex();
-            buffer.vertex(matrix,
-                dstCameraPos.x,
-                dstCameraPos.y,
-                dstCameraPos.z).color(0xFFFF00 | (alpha << 24)).normal(normalMatrix, 0F, 1F, 0F).endVertex();
 
-            poseStack.pushPose();
-            poseStack.translate(dstCameraPos.x, dstCameraPos.y, dstCameraPos.z);
-            matrix = poseStack.last().pose();
-            final var lastPoint = new Vector3f();
-            for (var i = 1; i < cameraCurve.getSampleCount(); i++) {
-                final var point = cameraCurve.getSample(i);
-                buffer.vertex(matrix, lastPoint.x, lastPoint.y, lastPoint.z).color(0x00FF00 | (alpha << 24)).normal(
-                    normalMatrix,
-                    0F,
-                    1F,
-                    0F).endVertex();
-                buffer.vertex(matrix, point.x, point.y, point.z).color(0x00FF00 | (alpha << 24)).normal(normalMatrix,
-                    0F,
-                    1F,
-                    0F).endVertex();
-                lastPoint.set(point);
+            if (usesCameraCurve) {
+                poseStack.pushPose();
+                poseStack.translate(dstCameraPos.x, dstCameraPos.y, dstCameraPos.z);
+                matrix = poseStack.last().pose();
+                final var lastPoint = new Vector3f();
+                for (var i = 1; i < cameraCurve.getSampleCount(); i++) {
+                    final var point = cameraCurve.getSample(i);
+                    buffer.vertex(matrix, lastPoint.x, lastPoint.y, lastPoint.z).color(0x00FF00 | (alpha << 24)).normal(
+                        normalMatrix,
+                        0F,
+                        1F,
+                        0F).endVertex();
+                    buffer.vertex(matrix,
+                        point.x,
+                        point.y,
+                        point.z).color(0x00FF00 | (alpha << 24)).normal(normalMatrix, 0F, 1F, 0F).endVertex();
+                    lastPoint.set(point);
+                }
+                poseStack.popPose();
             }
-            poseStack.popPose();
+            else {
+                buffer.vertex(matrix,
+                    srcCameraPos.x,
+                    srcCameraPos.y,
+                    srcCameraPos.z).color(0xFFFF00 | (alpha << 24)).normal(normalMatrix, 0F, 1F, 0F).endVertex();
+                buffer.vertex(matrix,
+                    dstCameraPos.x,
+                    dstCameraPos.y,
+                    dstCameraPos.z).color(0xFFFF00 | (alpha << 24)).normal(normalMatrix, 0F, 1F, 0F).endVertex();
+            }
 
             source.endLastBatch();
             poseStack.popPose();

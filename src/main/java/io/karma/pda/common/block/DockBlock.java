@@ -48,7 +48,7 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
         HorizontalDirection.class);
     public static final BooleanProperty HAS_ITEM = BooleanProperty.create("has_item");
     private static final EnumMap<HorizontalDirection, VoxelShape> EMPTY_SHAPES = new EnumMap<>(HorizontalDirection.class);
-    private static final EnumMap<HorizontalDirection, VoxelShape> SHAPES = new EnumMap<>(HorizontalDirection.class);
+    public static final EnumMap<HorizontalDirection, VoxelShape> SHAPES = new EnumMap<>(HorizontalDirection.class);
 
     static {
         for (final var dir : HorizontalDirection.values()) {
