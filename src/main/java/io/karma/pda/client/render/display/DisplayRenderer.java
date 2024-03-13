@@ -7,6 +7,7 @@ package io.karma.pda.client.render.display;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import io.karma.pda.api.common.util.Constants;
+import io.karma.pda.api.common.util.DisplayType;
 import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -124,7 +125,7 @@ public final class DisplayRenderer {
     private void onRegisterShaders(final RegisterShadersEvent event) {
         try {
             event.registerShader(new ShaderInstance(event.getResourceProvider(),
-                new ResourceLocation("display_blit"),
+                new ResourceLocation("display_blit_srgb"),
                 DefaultVertexFormat.POSITION_TEX_COLOR), shader -> {
                 blitShader = shader;
                 Objects.requireNonNull(blitShader.getUniform("DisplayResolution")).set((float) RES_X, (float) RES_Y);
@@ -194,7 +195,7 @@ public final class DisplayRenderer {
     }
 
     @SuppressWarnings("all")
-    public void renderDisplay(final MultiBufferSource bufferSource, final PoseStack poseStack) {
+    public void renderDisplay(final MultiBufferSource bufferSource, final PoseStack poseStack, final DisplayType type) {
         renderIntoDisplayBuffer(); // TODO: make this happen for every active PDA
 
         // Use an immediate buffer to blit the FBO onto the baked model

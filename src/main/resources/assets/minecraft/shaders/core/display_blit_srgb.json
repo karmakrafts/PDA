@@ -5,7 +5,7 @@
     "dstrgb": "1-srcalpha"
   },
   "vertex": "display_blit",
-  "fragment": "display_blit",
+  "fragment": "display_blit_srgb",
   "attributes": [
     "Position",
     "UV0",

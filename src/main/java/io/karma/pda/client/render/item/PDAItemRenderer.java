@@ -4,10 +4,12 @@
 
 package io.karma.pda.client.render.item;
 
+import io.karma.pda.api.common.util.DisplayType;
 import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.client.event.ItemRenderEvent;
 import io.karma.pda.client.render.display.DisplayRenderer;
 import io.karma.pda.common.init.ModItems;
+import io.karma.pda.common.item.PDAItem;
 import io.karma.pda.common.util.Easings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
@@ -87,6 +89,7 @@ public final class PDAItemRenderer {
         if (stack.getItem() != ModItems.pda.get()) {
             return;
         }
+        final var displayType = PDAItem.getDisplayType(stack).orElse(DisplayType.BW);
 
         // Determine correct model and render the baked model first like vanilla would do
         final var game = Minecraft.getInstance();
@@ -112,7 +115,7 @@ public final class PDAItemRenderer {
         }
         itemRenderer.renderModelLists(model, stack, packedLight, packedOverlay, poseStack, buffer);
         //Render out display on top of the baked model dynamically
-        DisplayRenderer.INSTANCE.renderDisplay(bufferSource, poseStack);
+        DisplayRenderer.INSTANCE.renderDisplay(bufferSource, poseStack, displayType);
         poseStack.popPose();
 
         event.setCanceled(true); // Cancel event for PDA item

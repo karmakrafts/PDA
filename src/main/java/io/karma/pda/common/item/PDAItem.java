@@ -4,11 +4,14 @@
 
 package io.karma.pda.common.item;
 
+import io.karma.pda.api.common.util.DisplayType;
 import io.karma.pda.client.screen.PDAScreen;
 import io.karma.pda.common.init.ModItems;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import io.karma.pda.common.util.PlayerUtils;
+import io.karma.pda.common.util.TabItemProvider;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.NonNullList;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -19,17 +22,46 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumSet;
+import java.util.Optional;
 
 /**
  * @author Alexander Hinze
  * @since 05/02/2024
  */
-public final class PDAItem extends Item {
+public final class PDAItem extends Item implements TabItemProvider {
     public static final String TAG_HAS_CARD = "has_card";
     public static final String TAG_IS_ON = "is_on";
+    public static final String TAG_DISPLAY_TYPE = "display_type";
 
     public PDAItem() {
         super(new Properties().stacksTo(1));
+    }
+
+    public static Optional<DisplayType> getDisplayType(final ItemStack stack) {
+        if (stack.isEmpty()) {
+            return Optional.empty();
+        }
+        final var tag = stack.getTag();
+        if (tag == null || !tag.contains(TAG_DISPLAY_TYPE)) {
+            return Optional.empty();
+        }
+        return Optional.of(DisplayType.values()[tag.getInt(TAG_DISPLAY_TYPE)]);
+    }
+
+    public static void setDisplayType(final ItemStack stack, final DisplayType type) {
+        if (stack.isEmpty()) {
+            return;
+        }
+        stack.getOrCreateTag().putInt(TAG_DISPLAY_TYPE, type.ordinal());
+    }
+
+    @Override
+    public void addToTab(final NonNullList<ItemStack> items) {
+        for (final var type : DisplayType.values()) {
+            final var stack = new ItemStack(this);
+            setDisplayType(stack, type);
+            items.add(stack);
+        }
     }
 
     @Override

@@ -28,10 +28,10 @@ float goldNoise(vec2 coord){
 }
 
 vec4 convertSrgb(vec4 color){
-    float r = color.r < SRGB_THRESHOLD ? SRGB_FACTOR * color.r : SRGB_CURVE_BASE * pow(color.r, SRGB_EXPONENT) - SRGB_CURVE_REMAINDER;
-    float g = color.g < SRGB_THRESHOLD ? SRGB_FACTOR * color.g : SRGB_CURVE_BASE * pow(color.g, SRGB_EXPONENT) - SRGB_CURVE_REMAINDER;
-    float b = color.b < SRGB_THRESHOLD ? SRGB_FACTOR * color.b : SRGB_CURVE_BASE * pow(color.b, SRGB_EXPONENT) - SRGB_CURVE_REMAINDER;
-    return vec4(r, g, b, color.a);
+    bvec3 mask = lessThan(color.rgb, vec3(SRGB_THRESHOLD));
+    vec3 rgb = color.rgb;
+    rgb = mix(SRGB_CURVE_BASE * pow(rgb, vec3(SRGB_EXPONENT)) - SRGB_CURVE_REMAINDER, SRGB_FACTOR * rgb, mask);
+    return vec4(rgb, color.a);
 }
 
 float getSampleOffset(vec2 coord, float offset) {

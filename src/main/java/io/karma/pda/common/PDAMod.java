@@ -21,7 +21,9 @@ import io.karma.pda.common.init.*;
 import io.karma.pda.common.menu.DockStorageMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import io.karma.pda.common.network.CommonPacketHandler;
+import io.karma.pda.common.util.TabItemProvider;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -29,6 +31,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -73,7 +76,15 @@ public class PDAMod {
         .title(Component.translatable(String.format("itemGroup.%s", Constants.MODID)))
         .icon(ModItems.pda.get()::getDefaultInstance)
         .displayItems((params, output) -> {
-            ITEMS.getEntries().stream().map(RegistryObject::get).forEach(output::accept);
+            ITEMS.getEntries().stream().map(RegistryObject::get).forEach(item -> {
+                if(item instanceof TabItemProvider provider) {
+                    final var items = NonNullList.<ItemStack>create();
+                    provider.addToTab(items);
+                    output.acceptAll(items);
+                    return;
+                }
+                output.accept(item); // Otherwise just add the default item
+            });
         })
         .build());
     private static final DeferredRegister<ComponentType<?>> COMPONENTS = API.makeDeferredComponentTypeRegister(Constants.MODID);
