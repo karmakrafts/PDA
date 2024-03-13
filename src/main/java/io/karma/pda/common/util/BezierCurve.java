@@ -28,10 +28,10 @@ public final class BezierCurve {
     }
 
     private float computeBinomial(final int n, final int k) {
-        float result = 1F;
-        if (n == k) {
+        if (k == 0 || n == k) {
             return 1F;
         }
+        float result = 1F;
         for (var i = 1; i <= k; i++) {
             result = result * (((float) n + 1F - (float) i) / (float) i);
         }
@@ -39,22 +39,18 @@ public final class BezierCurve {
     }
 
     private void compute() {
-        final var numPoints = points.length;
-        final var step = 1F / samples.length;
-        final var n = numPoints - 1;
-        var sampleIndex = 0;
-        for (var t = step; t <= 1F; t += step) {
+        final var numPoints = points.length - 1;
+        final var numSamples = samples.length - 1;
+        for (var sampleIndex = 0; sampleIndex <= numSamples; sampleIndex++) {
             var sample = new Vector3f();
-            for (var i = 0; i <= n; i++) {
+            final var t = (float) sampleIndex / numSamples;
+            for (var i = 0; i <= numPoints; i++) {
                 final var point = points[i];
-                final var binomial = computeBinomial(n, i);
-                final var f1 = Math.pow(1F - t, n - i);
-                final var f2 = Math.pow(t, i);
-                sample.x += (float) (binomial * f1 * f2 * point.x);
-                sample.y += (float) (binomial * f1 * f2 * point.y);
-                sample.z += (float) (binomial * f1 * f2 * point.z);
+                final var coeff = computeBinomial(numPoints, i) * (float) Math.pow(1F - t,
+                    numPoints - i) * (float) Math.pow(t, i);
+                sample.add(point.mul(coeff, new Vector3f()));
             }
-            samples[sampleIndex++] = sample;
+            samples[sampleIndex] = sample;
         }
     }
 

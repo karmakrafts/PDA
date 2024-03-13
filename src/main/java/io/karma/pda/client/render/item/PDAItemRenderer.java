@@ -45,7 +45,7 @@ public final class PDAItemRenderer {
     }
 
     private void onClientTick(final TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
+        if (event.phase == TickEvent.Phase.END) {
             for (final var hand : InteractionHand.values()) {
                 updateAnimation(hand);
             }
@@ -79,7 +79,7 @@ public final class PDAItemRenderer {
             return current * ANIMATION_OFFSET;
         }
         final var previous = previousOffset[index];
-        return Math.fma(frameTime, current - previous, previous) * ANIMATION_OFFSET;
+        return (previous + frameTime * (current - previous)) * ANIMATION_OFFSET;
     }
 
     private void onRenderItem(final ItemRenderEvent.Pre event) {
