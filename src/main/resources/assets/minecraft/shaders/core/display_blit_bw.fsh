@@ -13,7 +13,7 @@ out vec4 fragColor;
 
 const vec2 DisplayResolution = vec2(256.0, 288.0);
 const float GlitchRate = 0.05;
-const float GlitchFactor = 0.6;
+const float GlitchFactor = 0.8;
 const int GlitchBlocks = 16;
 const float PixelFactor = 0.06;
 
@@ -28,11 +28,9 @@ float goldNoise(vec2 coord){
     return fract(sin(dot(coord.xy, vec2(12.9898, 78.233))) * 43758.5453) * 2.0 - 1.0;
 }
 
-vec4 convertSrgb(vec4 color){
-    bvec3 mask = lessThan(color.rgb, vec3(SRGB_THRESHOLD));
-    vec3 rgb = color.rgb;
-    rgb = mix(SRGB_CURVE_BASE * pow(rgb, vec3(SRGB_EXPONENT)) - SRGB_CURVE_REMAINDER, SRGB_FACTOR * rgb, mask);
-    return vec4(rgb, color.a);
+vec4 convertBw(vec4 color){
+    float luminance = color.r * 0.21 + color.g * 0.71 + color.b * 0.07;
+    return vec4(vec3(luminance), color.a);
 }
 
 float getSampleOffset(vec2 coord, float offset) {
@@ -44,7 +42,7 @@ void main() {
     inputColor.r = (texture(Sampler0, texCoord0 + vec2(getSampleOffset(texCoord0, 0.0) * 0.03, 0.0) * GlitchFactor) * vertexColor).r;
     inputColor.g = (texture(Sampler0, texCoord0 + vec2(getSampleOffset(texCoord0, 0.1) * 0.03 * 0.16666666, 0.0) * GlitchFactor) * vertexColor).g;
     inputColor.b = (texture(Sampler0, texCoord0 + vec2(getSampleOffset(texCoord0, 0.2) * 0.03, 0.0) * GlitchFactor) * vertexColor).b;
-    inputColor = convertSrgb(inputColor);
+    inputColor = convertBw(inputColor);
     vec4 color = texture(Sampler1, texCoord0 * DisplayResolution);
     color = mix(inputColor, color * inputColor, PixelFactor);
     fragColor = color * ColorModulator;
