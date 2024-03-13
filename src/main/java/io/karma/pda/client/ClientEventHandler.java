@@ -286,16 +286,13 @@ public final class ClientEventHandler {
     }
 
     private void updateAnimationParameters() {
-        // Update the actual animation parameters
         final var factor = (float) animationTick / (ANIMATION_TICKS - 1);
-        // If we want to use the bezier, calculate forward vector of each segment to adjust camera along the curve
         if (usesCameraCurve) {
             final var pos = cameraCurve.getSample(ANIMATION_TICKS - 1 - animationTick);
             lastCameraPos.set(cameraPos);
             cameraPos.set(pos.add(dstCameraPos, new Vector3f()));
         }
         else {
-            // Otherwise we just linearly interpolate our position
             lastCameraPos.set(cameraPos);
             cameraPos.set(0F, 0F, 0F);
             srcCameraPos.lerp(dstCameraPos, factor, cameraPos);
