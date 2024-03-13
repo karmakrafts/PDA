@@ -12,6 +12,7 @@ import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.pda.api.common.dispose.DispositionHandler;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.client.ClientEventHandler;
+import io.karma.pda.client.DockAnimationHandler;
 import io.karma.pda.client.render.display.DisplayRenderer;
 import io.karma.pda.client.render.item.PDAItemRenderer;
 import io.karma.pda.client.screen.DockStorageScreen;
@@ -114,6 +115,7 @@ public class PDAMod {
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             ClientEventHandler.INSTANCE.setup();
+            DockAnimationHandler.INSTANCE.setup();
             PDAItemRenderer.INSTANCE.setup();
             modBus.addListener(this::onClientSetup);
             DisplayRenderer.INSTANCE.setupEarly();
