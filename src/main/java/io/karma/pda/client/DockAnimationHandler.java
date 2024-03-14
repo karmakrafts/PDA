@@ -21,6 +21,9 @@ import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityTeleportEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import org.jetbrains.annotations.ApiStatus;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -74,6 +77,9 @@ public final class DockAnimationHandler {
         forgeBus.addListener(this::onRenderArm);
         forgeBus.addListener(this::onComputeCameraAngles);
         forgeBus.addListener(this::onClientTick);
+        forgeBus.addListener(this::onEntityTeleport);
+        forgeBus.addListener(this::onLivingDeath);
+        forgeBus.addListener(this::onPlayerChangeDimension);
         if (PDAMod.IS_DEV_ENV) {
             forgeBus.addListener(this::onRenderLevelStage);
         }
@@ -106,10 +112,11 @@ public final class DockAnimationHandler {
         usesCameraCurve = isPositiveCameraAngle || displayToCameraAngle < -90F;
 
         // Compute the destination point
-        final var xOffset = (float) normal.getX() * 0.75F;
-        final var zOffset = (float) normal.getZ() * 0.75F;
+        final var normalFactor = 0.4F + ((80F - ((float)game.options.fov().get() - 30F)) / 80F);
+        final var xOffset = (float) normal.getX() * normalFactor;
+        final var zOffset = (float) normal.getZ() * normalFactor;
         final var x = (float) pos.getX() + 0.5F - xOffset;
-        final var y = (float) pos.getY() + 0.5F;
+        final var y = (float) pos.getY() + 0.55625F;
         final var z = (float) pos.getZ() + 0.5F - zOffset;
         dstCameraPos.set(x, y, z);
 
@@ -219,6 +226,34 @@ public final class DockAnimationHandler {
 
             source.endLastBatch();
             poseStack.popPose();
+        }
+    }
+
+    private void onLivingDeath(final LivingDeathEvent event) {
+        if (event.getEntity() == Minecraft.getInstance().player) {
+            resetAnimation();
+        }
+    }
+
+    private void onPlayerChangeDimension(final PlayerEvent.PlayerChangedDimensionEvent event) {
+        if (event.getEntity() == Minecraft.getInstance().player) {
+            resetAnimation();
+        }
+    }
+
+    private void onEntityTeleport(final EntityTeleportEvent event) {
+        if (event.getEntity() == Minecraft.getInstance().player) {
+            resetAnimation();
+        }
+    }
+
+    private void resetAnimation() {
+        isDockEngaged = false;
+        isAnimating = false;
+        animationTick = 0;
+        final var game = Minecraft.getInstance();
+        if (game.screen instanceof DockScreen) {
+            game.popGuiLayer(); // If we have a dock menu opened up, close it
         }
     }
 

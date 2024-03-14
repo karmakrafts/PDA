@@ -17,12 +17,6 @@ const float GlitchFactor = 0.2;
 const int GlitchBlocks = 16;
 const float PixelFactor = 0.03;
 
-const float SRGB_EXPONENT = 1.0 / 2.4;
-const float SRGB_THRESHOLD = 0.0031308;
-const float SRGB_FACTOR = 12.92;
-const float SRGB_CURVE_BASE = 1.055;
-const float SRGB_CURVE_REMAINDER = 0.055;
-
 // Gold noise taken from https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83
 float goldNoise(vec2 coord){
     return fract(sin(dot(coord.xy, vec2(12.9898, 78.233))) * 43758.5453) * 2.0 - 1.0;
