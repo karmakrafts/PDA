@@ -118,9 +118,9 @@ public final class DisplayRenderer {
     private VertexSorting prevVertexSorting;
     private Matrix4f prevModelViewMatrix;
 
-    // @formatter:off
-    private DisplayRenderer() {}
-    // @formatter:on
+    private DisplayRenderer() {
+        displayPoseStack.setIdentity();
+    }
 
     @ApiStatus.Internal
     public void setupEarly() {
@@ -211,7 +211,7 @@ public final class DisplayRenderer {
     }
 
     private void renderIntoDisplayBuffer() {
-        displayPoseStack.setIdentity();
+        displayPoseStack.pushPose();
 
         final var matrix = displayPoseStack.last().pose();
         final var buffer = displayBufferSource.getBuffer(COLOR_RENDER_TYPE);
@@ -219,7 +219,9 @@ public final class DisplayRenderer {
         buffer.vertex(matrix, 0F, RES_Y, 0F).color(0F, 1F, 0F, 1F).endVertex();
         buffer.vertex(matrix, RES_X, RES_Y, 0F).color(0F, 0F, 1F, 1F).endVertex();
         buffer.vertex(matrix, RES_X, 0F, 0F).color(1F, 1F, 1F, 1F).endVertex();
+
         displayBufferSource.endBatch();
+        displayPoseStack.popPose();
     }
 
     private static RenderType getBlitRenderType(final DisplayType type) {

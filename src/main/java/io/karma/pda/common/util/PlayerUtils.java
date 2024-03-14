@@ -51,4 +51,8 @@ public final class PlayerUtils {
             new SimpleMenuProvider((id, inventory, p) -> supplier.create(id, inventory, (E) entity), Component.empty()),
             buffer -> buffer.writeBlockPos(pos));
     }
+
+    public static boolean isSame(final Player player1, final Player player2) {
+        return player1.getUUID().equals(player2.getUUID());
+    }
 }

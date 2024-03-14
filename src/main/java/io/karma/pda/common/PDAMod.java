@@ -12,7 +12,7 @@ import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.pda.api.common.dispose.DispositionHandler;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.client.ClientEventHandler;
-import io.karma.pda.client.DockAnimationHandler;
+import io.karma.pda.client.DockInteractionHandler;
 import io.karma.pda.client.render.display.DisplayRenderer;
 import io.karma.pda.client.render.item.PDAItemRenderer;
 import io.karma.pda.client.screen.DockStorageScreen;
@@ -33,6 +33,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -77,6 +78,13 @@ public class PDAMod {
         .icon(ModItems.pda.get()::getDefaultInstance)
         .displayItems((params, output) -> {
             ITEMS.getEntries().stream().map(RegistryObject::get).forEach(item -> {
+                final var block = Block.byItem(item);
+                if(block != Blocks.AIR && block instanceof TabItemProvider provider) {
+                    final var items = NonNullList.<ItemStack>create();
+                    provider.addToTab(items);
+                    output.acceptAll(items);
+                    return;
+                }
                 if(item instanceof TabItemProvider provider) {
                     final var items = NonNullList.<ItemStack>create();
                     provider.addToTab(items);
@@ -126,7 +134,7 @@ public class PDAMod {
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             ClientEventHandler.INSTANCE.setup();
-            DockAnimationHandler.INSTANCE.setup();
+            DockInteractionHandler.INSTANCE.setup();
             PDAItemRenderer.INSTANCE.setup();
             modBus.addListener(this::onClientSetup);
             DisplayRenderer.INSTANCE.setupEarly();

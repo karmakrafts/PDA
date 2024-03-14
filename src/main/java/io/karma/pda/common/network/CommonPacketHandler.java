@@ -19,6 +19,7 @@ public final class CommonPacketHandler {
     @ApiStatus.Internal
     public static void setup(final SimpleChannel channel) {
         // @formatter:off
+
         // @formatter:on
     }
 }

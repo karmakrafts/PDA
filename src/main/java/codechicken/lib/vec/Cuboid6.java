@@ -1,6 +1,5 @@
 package codechicken.lib.vec;
 
-import codechicken.lib.raytracer.VoxelShapeCache;
 import codechicken.lib.util.Copyable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -8,6 +7,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.math.BigDecimal;
@@ -59,7 +59,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
     }
 
     public VoxelShape shape() {
-        return VoxelShapeCache.getShape(this);
+        return Shapes.box(min.x, min.y, min.z, max.x, max.y, max.z);
     }
 
     public CompoundTag writeToNBT(CompoundTag tag) {

@@ -12,7 +12,7 @@ import java.util.List;
  * @author Alexander Hinze
  * @since 08/02/2024
  */
-public class DefaultContainer extends AbstractComponent {
+public class DefaultContainer extends AbstractComponent implements Container {
     public static final String KEY_CHILDREN = "children";
 
     protected final ArrayList<Component> children = new ArrayList<>();

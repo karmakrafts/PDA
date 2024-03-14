@@ -1,6 +1,6 @@
 package io.karma.pda.client.screen;
 
-import io.karma.pda.client.DockAnimationHandler;
+import io.karma.pda.client.DockInteractionHandler;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -15,12 +15,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public final class DockScreen extends Screen {
     public DockScreen(final BlockPos pos) {
         super(Component.empty());
-        DockAnimationHandler.INSTANCE.engage(pos);
+        DockInteractionHandler.INSTANCE.engage(pos);
     }
 
     @Override
     public void onClose() {
-        DockAnimationHandler.INSTANCE.disengage();
+        DockInteractionHandler.INSTANCE.disengage();
     }
 
     @Override

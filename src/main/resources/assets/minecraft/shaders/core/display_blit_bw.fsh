@@ -13,7 +13,7 @@ out vec4 fragColor;
 
 const vec2 DISPLAY_RES = vec2(256.0, 288.0);
 const float GLITCH_RATE = 0.05;
-const float GLITCH_FACTOR = 0.8;
+const float GLITCH_FACTOR = 0.2;
 const int GLITCH_BLOCKS = 16;
 const float PIXEL_FACTOR = 0.06;
 
@@ -36,6 +36,7 @@ float goldNoise(vec2 coord){
 
 vec4 convertBw(vec4 color){
     float luminance = color.r * 0.21 + color.g * 0.71 + color.b * 0.07;
+    luminance = clamp(luminance + 0.1, 0.1, 1.0);// Old LCDs never turn off completely
     return vec4(vec3(luminance), color.a);
 }
 

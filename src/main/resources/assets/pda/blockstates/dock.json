@@ -15,7 +15,6 @@
       "model": "pda:block/dock_empty",
       "y": 270
     },
-
     "orientation=north,has_item=true": {
       "model": "pda:block/dock"
     },
@@ -31,7 +30,6 @@
       "model": "pda:block/dock",
       "y": 270
     },
-
     "item": {
       "model": "pda:item/dock"
     }

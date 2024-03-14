@@ -2,15 +2,18 @@ package io.karma.pda.client;
 
 import com.mojang.blaze3d.vertex.Tesselator;
 import io.karma.pda.client.screen.DockScreen;
+import io.karma.pda.client.util.RenderUtils;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.block.DockBlock;
 import io.karma.pda.common.util.BezierCurve;
 import io.karma.pda.common.util.Easings;
+import io.karma.pda.common.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -22,6 +25,7 @@ import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityTeleportEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import org.jetbrains.annotations.ApiStatus;
@@ -30,14 +34,15 @@ import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Objects;
 
 /**
  * @author Alexander Hinze
  * @since 13/03/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class DockAnimationHandler {
-    public static final DockAnimationHandler INSTANCE = new DockAnimationHandler();
+public final class DockInteractionHandler {
+    public static final DockInteractionHandler INSTANCE = new DockInteractionHandler();
     private static final int ANIMATION_TICKS = 12;
     private static final HashSet<ResourceLocation> INVISIBLE_OVERLAYS = new HashSet<>();
 
@@ -64,10 +69,11 @@ public final class DockAnimationHandler {
         INVISIBLE_OVERLAYS.add(VanillaGuiOverlay.PLAYER_HEALTH.id());
         INVISIBLE_OVERLAYS.add(VanillaGuiOverlay.FOOD_LEVEL.id());
         INVISIBLE_OVERLAYS.add(VanillaGuiOverlay.CROSSHAIR.id());
+        INVISIBLE_OVERLAYS.add(VanillaGuiOverlay.EXPERIENCE_BAR.id());
     }
 
     // @formatter:off
-    private DockAnimationHandler() {}
+    private DockInteractionHandler() {}
     // @formatter:on
 
     @ApiStatus.Internal
@@ -79,6 +85,7 @@ public final class DockAnimationHandler {
         forgeBus.addListener(this::onClientTick);
         forgeBus.addListener(this::onEntityTeleport);
         forgeBus.addListener(this::onLivingDeath);
+        forgeBus.addListener(this::onLivingDamage);
         forgeBus.addListener(this::onPlayerChangeDimension);
         if (PDAMod.IS_DEV_ENV) {
             forgeBus.addListener(this::onRenderLevelStage);
@@ -112,11 +119,11 @@ public final class DockAnimationHandler {
         usesCameraCurve = isPositiveCameraAngle || displayToCameraAngle < -90F;
 
         // Compute the destination point
-        final var normalFactor = 0.4F + ((80F - ((float)game.options.fov().get() - 30F)) / 80F);
+        final var normalFactor = 0.4F + ((80F - ((float) game.options.fov().get() - 30F)) / 80F);
         final var xOffset = (float) normal.getX() * normalFactor;
         final var zOffset = (float) normal.getZ() * normalFactor;
         final var x = (float) pos.getX() + 0.5F - xOffset;
-        final var y = (float) pos.getY() + 0.55625F;
+        final var y = (float) pos.getY() + 0.56F;
         final var z = (float) pos.getZ() + 0.5F - zOffset;
         dstCameraPos.set(x, y, z);
 
@@ -184,24 +191,26 @@ public final class DockAnimationHandler {
     }
 
     private void onRenderLevelStage(final RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS || !Minecraft.getInstance().options.renderDebug) {
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
             return;
         }
-        if (lineTick > 0) {
-            final var poseStack = event.getPoseStack();
-            final var cameraPos = event.getCamera().getPosition();
-            final var source = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-            poseStack.pushPose();
-            poseStack.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 
-            var matrix = poseStack.last().pose();
-            final var normalMatrix = poseStack.last().normal();
+        final var poseStack = event.getPoseStack();
+        final var cameraPos = event.getCamera().getPosition();
+        final var source = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+        poseStack.pushPose();
+        poseStack.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+        var matrix = poseStack.last().pose();
+        var normalMatrix = poseStack.last().normal();
+
+        if (Minecraft.getInstance().options.renderDebug && lineTick > 0) {
             final var alpha = (int) (Easings.easeOutQuart((float) lineTick / LINE_TICKS) * 255F);
 
             if (usesCameraCurve) {
                 poseStack.pushPose();
                 poseStack.translate(dstCameraPos.x, dstCameraPos.y, dstCameraPos.z);
                 matrix = poseStack.last().pose();
+                normalMatrix = poseStack.last().normal();
                 final var buffer = source.getBuffer(RenderType.LINE_STRIP);
                 for (var i = 0; i < cameraCurve.getSampleCount(); i++) {
                     final var point = cameraCurve.getSample(i);
@@ -225,48 +234,66 @@ public final class DockAnimationHandler {
             }
 
             source.endLastBatch();
-            poseStack.popPose();
         }
+
+        poseStack.popPose();
     }
 
     private void onLivingDeath(final LivingDeathEvent event) {
-        if (event.getEntity() == Minecraft.getInstance().player) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        if (PlayerUtils.isSame(player, Objects.requireNonNull(Minecraft.getInstance().player))) {
+            resetAnimation();
+        }
+    }
+
+    private void onLivingDamage(final LivingDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        if (PlayerUtils.isSame(player, Objects.requireNonNull(Minecraft.getInstance().player))) {
             resetAnimation();
         }
     }
 
     private void onPlayerChangeDimension(final PlayerEvent.PlayerChangedDimensionEvent event) {
-        if (event.getEntity() == Minecraft.getInstance().player) {
+        if (PlayerUtils.isSame(event.getEntity(), Objects.requireNonNull(Minecraft.getInstance().player))) {
             resetAnimation();
         }
     }
 
     private void onEntityTeleport(final EntityTeleportEvent event) {
-        if (event.getEntity() == Minecraft.getInstance().player) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        if (PlayerUtils.isSame(player, Objects.requireNonNull(Minecraft.getInstance().player))) {
             resetAnimation();
         }
     }
 
     private void resetAnimation() {
-        isDockEngaged = false;
-        isAnimating = false;
-        animationTick = 0;
-        final var game = Minecraft.getInstance();
-        if (game.screen instanceof DockScreen) {
-            game.popGuiLayer(); // If we have a dock menu opened up, close it
-        }
+        RenderUtils.doOnRenderThread(() -> {
+            isDockEngaged = false;
+            isAnimating = false;
+            animationTick = 0;
+            final var game = Minecraft.getInstance();
+            if (game.screen instanceof DockScreen) {
+                game.popGuiLayer(); // If we have a dock menu opened up, close it
+            }
+        });
     }
 
-    private boolean isAnimationActive() {
+    private boolean isSequenceActive() {
         return isDockEngaged || isAnimating;
     }
 
     private void onRenderArm(final RenderArmEvent event) {
-        event.setCanceled(isAnimationActive());
+        event.setCanceled(isSequenceActive());
     }
 
     private void onRenderGuiOverlay(final RenderGuiOverlayEvent.Pre event) {
-        event.setCanceled(isAnimationActive() && INVISIBLE_OVERLAYS.contains(event.getOverlay().id()));
+        event.setCanceled(isSequenceActive() && INVISIBLE_OVERLAYS.contains(event.getOverlay().id()));
     }
 
     private Vector3f getCameraPos(final float frameTime) {
@@ -284,7 +311,7 @@ public final class DockAnimationHandler {
     }
 
     private void onComputeCameraAngles(final ViewportEvent.ComputeCameraAngles event) {
-        if (isAnimationActive()) {
+        if (isSequenceActive()) {
             final var frameTime = (float) event.getPartialTick();
             event.getCamera().setPosition(new Vec3(getCameraPos(frameTime)));
             final var rot = getCameraRotation(frameTime).getEulerAnglesYXZ(new Vector3f());
@@ -310,8 +337,11 @@ public final class DockAnimationHandler {
         srcCameraRotation.nlerp(dstCameraRotation, factor, cameraRotation);
     }
 
+    private void updateHeadTilt() {
+
+    }
+
     private void updateAnimation() {
-        final var game = Minecraft.getInstance();
         if (isDockEngaged) {
             if (animationTick < (ANIMATION_TICKS - 1)) {
                 isAnimating = true;
@@ -319,8 +349,8 @@ public final class DockAnimationHandler {
                 updateAnimationParameters();
             }
             else {
-                game.pauseGame(false); // Unpause game after animation is done playing
                 isAnimating = false;
+                updateHeadTilt();
             }
         }
         else {
@@ -330,10 +360,7 @@ public final class DockAnimationHandler {
                 updateAnimationParameters();
             }
             else {
-                if (game.screen instanceof DockScreen) {
-                    game.popGuiLayer();
-                }
-                isAnimating = false;
+                resetAnimation();
             }
         }
     }

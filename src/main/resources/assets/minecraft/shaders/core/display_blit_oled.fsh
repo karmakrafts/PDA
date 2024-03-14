@@ -12,8 +12,8 @@ in vec4 vertexColor;
 out vec4 fragColor;
 
 const vec2 DISPLAY_RES = vec2(256.0, 288.0);
-const float GLITCH_RATE = 0.05;
-const float GLITCH_FACTOR = 0.2;
+const float GLITCH_RATE = 0.03;
+const float GLITCH_FACTOR = 0.025;
 const int GLITCH_BLOCKS = 16;
 const float PIXEL_FACTOR = 0.03;
 
