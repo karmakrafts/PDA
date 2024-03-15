@@ -5,6 +5,7 @@
 package io.karma.pda.common.block;
 
 import codechicken.lib.vec.Vector3;
+import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.client.screen.DockScreen;
 import io.karma.pda.common.entity.DockBlockEntity;
 import io.karma.pda.common.init.ModBlockEntities;
@@ -17,10 +18,11 @@ import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -31,6 +33,8 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -38,6 +42,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
+import java.util.List;
 
 /**
  * @author Alexander Hinze
@@ -124,9 +129,19 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
         // @formatter:on
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public void animateTick(BlockState pState, Level pLevel, BlockPos pPos, RandomSource pRandom) {
-        super.animateTick(pState, pLevel, pPos, pRandom);
+    public @NotNull List<ItemStack> getDrops(final @NotNull BlockState state,
+                                             final @NotNull LootParams.Builder builder) {
+        final var blockEntity = builder.getParameter(LootContextParams.BLOCK_ENTITY);
+        if (!(blockEntity instanceof DockBlockEntity dockEntity)) {
+            return super.getDrops(state, builder);
+        }
+        builder.withDynamicDrop(new ResourceLocation(Constants.MODID, "dock"), consumer -> {
+            consumer.accept(new ItemStack(this));
+            consumer.accept(dockEntity.getItem(0));
+        });
+        return super.getDrops(state, builder);
     }
 
     @SuppressWarnings("deprecation")
