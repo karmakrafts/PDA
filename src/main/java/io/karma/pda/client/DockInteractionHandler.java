@@ -6,6 +6,7 @@ import io.karma.pda.client.screen.DockScreen;
 import io.karma.pda.common.block.DockBlock;
 import io.karma.pda.common.util.BezierCurve;
 import io.karma.pda.common.util.Easings;
+import io.karma.pda.common.util.MathUtils;
 import io.karma.pda.common.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -13,6 +14,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -46,6 +49,7 @@ public final class DockInteractionHandler {
 
     private boolean isDockEngaged;
     private boolean isAnimating;
+    private boolean isLocked;
     private int animationTick;
     private float yAngle;
     private final Vector3f srcCameraPos = new Vector3f();
@@ -59,6 +63,8 @@ public final class DockInteractionHandler {
     private final Vector3f lastCameraPos = new Vector3f();
     private final Quaternionf cameraRotation = new Quaternionf();
     private final Quaternionf lastCameraRotation = new Quaternionf();
+    // Raycasting for the display
+    private BlockHitResult hitResult;
     // For debug lines
     private static final int LINE_TICKS = 10 * 20;
     private int lineTick = 0;
@@ -108,8 +114,7 @@ public final class DockInteractionHandler {
 
         // Find out which camera curve to use
         final var fNormal = new Vector3f(normal.getX(), normal.getY(), normal.getZ());
-        final var displayToCameraAngle = (float) Math.toDegrees(camera.forwards.angleSigned(fNormal,
-            new Vector3f(0F, 1F, 0F)));
+        final var displayToCameraAngle = (float) Math.toDegrees(camera.forwards.angleSigned(fNormal, camera.up));
         final var isPositiveCameraAngle = displayToCameraAngle > 90F;
         usesCameraCurve = isPositiveCameraAngle || displayToCameraAngle < -90F;
 
@@ -296,16 +301,10 @@ public final class DockInteractionHandler {
     }
 
     private Vector3f getCameraPos(final float frameTime) {
-        if (!isAnimating) {
-            return cameraPos;
-        }
         return lastCameraPos.lerp(cameraPos, frameTime, new Vector3f());
     }
 
     private Quaternionf getCameraRotation(final float frameTime) {
-        if (!isAnimating) {
-            return cameraRotation;
-        }
         return lastCameraRotation.nlerp(cameraRotation, frameTime, new Quaternionf());
     }
 
@@ -336,7 +335,7 @@ public final class DockInteractionHandler {
         srcCameraRotation.nlerp(dstCameraRotation, factor, cameraRotation);
     }
 
-    private void updateHeadTilt() {
+    private void updateInteraction() {
         final var game = Minecraft.getInstance();
         final var player = game.player;
         if (player == null) {
@@ -349,28 +348,51 @@ public final class DockInteractionHandler {
             GLFW.glfwGetCursorPos(window.getWindow(), mouseX, mouseY);
             final var normalizedMouseX = (float) (mouseX.get() / window.getWidth());
             final var normalizedMouseY = (float) (mouseY.get() / window.getHeight());
-            final var ndcMouseX = (normalizedMouseX * 2F - 1F);
-            final var yaw = yAngle + MathHelper.clip(ndcMouseX * 90F, -25F, 25F);
-            final var ndcMouseY = (normalizedMouseY * 2F - 1F);
-            final var pitch = MathHelper.clip(ndcMouseY * 90F, -25F, 25F);
+            final var yaw = yAngle + MathHelper.clip((normalizedMouseX * 2F - 1F) * 90F, -35F, 35F);
+            final var pitch = MathHelper.clip((normalizedMouseY * 2F - 1F) * 90F, -35F, 35F);
             lastCameraRotation.set(cameraRotation);
             cameraRotation.rotationYXZ((float) Math.toRadians(yaw), (float) Math.toRadians(pitch), 0F);
         }
+        final var camera = game.gameRenderer.getMainCamera();
+        final var viewVector = player.calculateViewVector(camera.xRot, camera.yRot);
+        final var cameraPos = MathUtils.toVector3f(camera.getPosition());
+        final var hitDistance = player.getBlockReach();
+        final var rayX = (float) (viewVector.x * hitDistance);
+        final var rayY = (float) (viewVector.y * hitDistance);
+        final var rayZ = (float) (viewVector.z * hitDistance);
+        final var rayTarget = cameraPos.add(rayX, rayY, rayZ, new Vector3f());
+        final var clipContext = new ClipContext(MathUtils.toVec3(cameraPos),
+            MathUtils.toVec3(rayTarget),
+            ClipContext.Block.OUTLINE,
+            ClipContext.Fluid.NONE,
+            player);
+        hitResult = Objects.requireNonNull(player.level()).clip(clipContext);
+    }
+
+    private void stabilizeCamera() {
+        lastCameraPos.set(cameraPos);
+        lastCameraRotation.set(cameraRotation);
     }
 
     private void updateAnimation() {
         if (isDockEngaged) {
             if (animationTick < (ANIMATION_TICKS - 1)) {
                 isAnimating = true;
+                isLocked = false;
                 animationTick++;
                 updateAnimationParameters();
             }
             else {
+                if (!isLocked) {
+                    stabilizeCamera();
+                    isLocked = true;
+                }
                 isAnimating = false;
-                updateHeadTilt();
+                updateInteraction();
             }
         }
         else {
+            isLocked = false;
             if (animationTick > 0) {
                 isAnimating = true;
                 animationTick--;
