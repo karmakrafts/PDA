@@ -27,6 +27,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -65,6 +66,7 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     public DockBlock() {
         // @formatter:off
         super(ModBlockEntities.dock, Properties.of()
+            .sound(SoundType.METAL)
             .dynamicShape()
             .mapColor(MapColor.COLOR_GRAY)
             .forceSolidOn()
