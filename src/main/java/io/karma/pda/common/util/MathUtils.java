@@ -13,7 +13,7 @@ public final class MathUtils {
     // @formatter:on
 
     public static Vector3f toVector3f(final Vec3 value) {
-        return new Vector3f((float)value.x, (float)value.y, (float)value.z);
+        return new Vector3f((float) value.x, (float) value.y, (float) value.z);
     }
 
     public static Vec3 toVec3(final Vector3f value) {
