@@ -192,7 +192,7 @@ public final class DockInteractionHandler {
 
     private void onRenderLevelStage(final RenderLevelStageEvent event) {
         final var stage = event.getStage();
-        if (stage != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
+        if (stage != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS && stage != RenderLevelStageEvent.Stage.AFTER_ENTITIES) {
             return;
         }
 
@@ -203,8 +203,27 @@ public final class DockInteractionHandler {
         poseStack.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
         var matrix = poseStack.last().pose();
         var normalMatrix = poseStack.last().normal();
+        final var game = Minecraft.getInstance();
 
-        if (Minecraft.getInstance().options.renderDebug && lineTick > 0) {
+        if (animationTick > 2 && stage == RenderLevelStageEvent.Stage.AFTER_ENTITIES) {
+            final var player = game.player;
+            if (player == null) {
+                return;
+            }
+            final var frameTime = event.getPartialTick();
+            final var renderer = game.getEntityRenderDispatcher();
+            final var packedLight = renderer.getPackedLightCoords(player, frameTime);
+            renderer.render(player,
+                player.getX(),
+                player.getY(),
+                player.getZ(),
+                player.getYRot(),
+                frameTime,
+                poseStack,
+                source,
+                packedLight);
+        }
+        else if (game.options.renderDebug && lineTick > 0) {
             final var alpha = (int) (Easings.easeOutQuart((float) lineTick / LINE_TICKS) * 255F);
 
             if (usesCameraCurve) {
