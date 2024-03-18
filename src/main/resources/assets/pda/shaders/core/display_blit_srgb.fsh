@@ -37,7 +37,7 @@ vec4 convertSrgb(vec4 color){
 }
 
 float getSampleOffset(vec2 coord, float offset, float glitchMultiplier) {
-    return goldNoise(vec2(Time * (GLITCH_RATE * 0.1 * getGlitchMultiplier()) + offset, floor(coord.y * GLITCH_BLOCKS) - (offset * 0.5)));
+    return goldNoise(vec2(Time * (GLITCH_RATE * 0.1 * glitchMultiplier) + offset, floor(coord.y * GLITCH_BLOCKS) - (offset * 0.5)));
 }
 
 void main() {

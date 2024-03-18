@@ -30,7 +30,7 @@ float getSampleOffset(vec2 coord, float offset, float glitchMultiplier) {
 void main() {
     vec4 inputColor = texture(Sampler0, texCoord0) * vertexColor;
     float glitchMultiplier = 1F + (GlitchFactor * 80.0);
-    float glitchFactor = GLITCH_FACTOR * getGlitchMultiplier();
+    float glitchFactor = GLITCH_FACTOR * glitchMultiplier;
     inputColor.r = (texture(Sampler0, texCoord0 + vec2(getSampleOffset(texCoord0, 0.0, glitchMultiplier) * 0.03, 0.0) * glitchFactor) * vertexColor).r;
     inputColor.g = (texture(Sampler0, texCoord0 + vec2(getSampleOffset(texCoord0, 0.1, glitchMultiplier) * 0.03 * 0.16666666, 0.0) * glitchFactor) * vertexColor).g;
     inputColor.b = (texture(Sampler0, texCoord0 + vec2(getSampleOffset(texCoord0, 0.2, glitchMultiplier) * 0.03, 0.0) * glitchFactor) * vertexColor).b;
