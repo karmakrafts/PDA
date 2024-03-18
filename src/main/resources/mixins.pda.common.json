@@ -1,0 +1,14 @@
+{
+  "package": "io.karma.pda.common.mixin",
+  "required": true,
+  "refmap": "mixins.pda.refmap.json",
+  "target": "@env(DEFAULT)",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_17",
+  "injectors": {
+    "maxShiftBy": 100
+  },
+  "mixins": [
+    "ClipContextMixin"
+  ]
+}

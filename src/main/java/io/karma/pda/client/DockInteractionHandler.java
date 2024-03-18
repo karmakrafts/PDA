@@ -4,9 +4,9 @@ import codechicken.lib.math.MathHelper;
 import com.mojang.blaze3d.vertex.Tesselator;
 import io.karma.pda.client.screen.DockScreen;
 import io.karma.pda.common.block.DockBlock;
+import io.karma.pda.common.hook.MutableClipContext;
 import io.karma.pda.common.util.BezierCurve;
 import io.karma.pda.common.util.Easings;
-import io.karma.pda.common.util.MathUtils;
 import io.karma.pda.common.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -18,6 +18,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.*;
@@ -66,6 +67,11 @@ public final class DockInteractionHandler {
     private final Quaternionf cameraRotation = new Quaternionf();
     private final Quaternionf lastCameraRotation = new Quaternionf();
     // Raycasting for the display
+    private final ClipContext clipContext = new ClipContext(new Vec3(0.0, 0.0, 0.0),
+        new Vec3(0.0, 0.0, 0.0),
+        ClipContext.Block.OUTLINE,
+        ClipContext.Fluid.NONE,
+        null);
     private BlockHitResult hitResult;
     // For debug lines
     private static final int LINE_TICKS = 10 * 20;
@@ -366,6 +372,7 @@ public final class DockInteractionHandler {
         if (player == null) {
             return;
         }
+
         final var window = game.getWindow();
         try (final var stack = MemoryStack.stackPush()) {
             final var mouseX = stack.mallocDouble(1);
@@ -378,19 +385,22 @@ public final class DockInteractionHandler {
             lastCameraRotation.set(cameraRotation);
             cameraRotation.rotationYXZ((float) Math.toRadians(yaw), (float) Math.toRadians(pitch), 0F);
         }
+
         final var camera = game.gameRenderer.getMainCamera();
         final var viewVector = player.calculateViewVector(camera.xRot, camera.yRot);
-        final var cameraPos = MathUtils.toVector3f(camera.getPosition());
+        final var cameraPos = camera.getPosition();
         final var hitDistance = player.getBlockReach();
-        final var rayX = (float) (viewVector.x * hitDistance);
-        final var rayY = (float) (viewVector.y * hitDistance);
-        final var rayZ = (float) (viewVector.z * hitDistance);
-        final var rayTarget = cameraPos.add(rayX, rayY, rayZ, new Vector3f());
-        final var clipContext = new ClipContext(MathUtils.toVec3(cameraPos),
-            MathUtils.toVec3(rayTarget),
-            ClipContext.Block.OUTLINE,
-            ClipContext.Fluid.NONE,
-            player);
+        final var cameraX = (float) cameraPos.x;
+        final var cameraY = (float) cameraPos.y;
+        final var cameraZ = (float) cameraPos.z;
+        final var rayX = cameraX + (float) (viewVector.x * hitDistance);
+        final var rayY = cameraY + (float) (viewVector.y * hitDistance);
+        final var rayZ = cameraZ + (float) (viewVector.z * hitDistance);
+
+        final var mutableClipContext = (MutableClipContext) clipContext;
+        mutableClipContext.setFrom(cameraX, cameraY, cameraZ);
+        mutableClipContext.setTo(rayX, rayY, rayZ);
+        mutableClipContext.setCollisionContext(CollisionContext.of(player));
         hitResult = Objects.requireNonNull(player.level()).clip(clipContext);
     }
 

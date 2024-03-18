@@ -61,6 +61,8 @@ configurations {
 
 mixin {
     add sourceSets.main, "mixins.${mod_id}.refmap.json"
+    config "mixins.${mod_id}.client.json"
+    config "mixins.${mod_id}.common.json"
 }
 
 repositories {
@@ -88,7 +90,7 @@ dependencies {
 
 def commonManifest = {
     attributes([
-            'MixinConfigs'            : "mixins.${mod_id}.client.json",
+            'MixinConfigs'            : "mixins.${mod_id}.client.json,mixins.${mod_id}.common.json",
             'Specification-Title'     : mod_id,
             'Specification-Vendor'    : mod_authors,
             'Specification-Version'   : '1', // We are version 1 of ourselves
