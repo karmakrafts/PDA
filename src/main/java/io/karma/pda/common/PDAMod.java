@@ -137,7 +137,7 @@ public class PDAMod {
             DockInteractionHandler.INSTANCE.setup();
             PDAItemRenderer.INSTANCE.setup();
             modBus.addListener(this::onClientSetup);
-            DisplayRenderer.INSTANCE.setupEarly();
+            DisplayRenderer.getInstance().setupEarly();
         });
     }
 
@@ -165,7 +165,7 @@ public class PDAMod {
     private void onClientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             LOGGER.info("Registering screens");
-            DisplayRenderer.INSTANCE.setup();
+            DisplayRenderer.getInstance().setup();
             MenuScreens.register(ModMenus.pdaStorage.get(),
                 (PDAStorageMenu menu, Inventory inventory, Component title) -> new PDAStorageScreen(menu, inventory));
             MenuScreens.register(ModMenus.dockStorage.get(),

@@ -4,8 +4,8 @@
     "srcrgb": "srcalpha",
     "dstrgb": "1-srcalpha"
   },
-  "vertex": "display_blit",
-  "fragment": "display_blit_oled",
+  "vertex": "pda:display_blit",
+  "fragment": "pda:display_blit_oled",
   "attributes": [
     "Position",
     "UV0",
@@ -79,6 +79,14 @@
     },
     {
       "name": "Time",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.0
+      ]
+    },
+    {
+      "name": "GlitchFactor",
       "type": "float",
       "count": 1,
       "values": [

@@ -14,9 +14,16 @@ import io.karma.pda.common.init.ModItems;
 import io.karma.pda.common.item.MemoryCardItem;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -30,6 +37,9 @@ import org.jetbrains.annotations.ApiStatus;
  */
 public final class CommonEventHandler {
     public static final CommonEventHandler INSTANCE = new CommonEventHandler();
+    public static final EntityDataAccessor<Integer> GLITCH_TICK = SynchedEntityData.defineId(Player.class,
+        EntityDataSerializers.INT);
+    public static final int GLITCH_TICKS = 40;
 
     // @formatter:off
     private CommonEventHandler() {}
@@ -40,7 +50,36 @@ public final class CommonEventHandler {
         final var forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addListener(this::onRegisterCommands);
         forgeBus.addListener(this::onRightClickBlock);
+        forgeBus.addListener(this::onLivingDamage);
+        forgeBus.addListener(this::onLivingTick);
+        forgeBus.addListener(this::onEntityJoinLevel);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onNewRegistry);
+    }
+
+    private void onEntityJoinLevel(final EntityJoinLevelEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        player.getEntityData().define(GLITCH_TICK, 0);
+    }
+
+    private void onLivingDamage(final LivingDamageEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+        player.getEntityData().set(GLITCH_TICK, GLITCH_TICKS, true);
+    }
+
+    private void onLivingTick(final LivingEvent.LivingTickEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+        final var data = player.getEntityData();
+        final int glitchTick = data.get(GLITCH_TICK);
+        if (glitchTick > 0) {
+            data.set(GLITCH_TICK, glitchTick - 1);
+            PDAMod.LOGGER.info("Updated glitch tick: {}", glitchTick - 1);
+        }
     }
 
     private void onNewRegistry(final NewRegistryEvent event) {

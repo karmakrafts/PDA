@@ -57,7 +57,8 @@ public final class DockBlockEntityRenderer implements BlockEntityRenderer<DockBl
         poseStack.mulPose(TransformationHelper.quatFromXYZ(0F, angle, 0F, true));
         poseStack.translate(-0.5F, -0.5F, -0.5F);
         poseStack.translate(0F, 3F / 16F, 0F);
-        DisplayRenderer.INSTANCE.renderDisplay(bufferSource, poseStack, displayType);
+        final var displayRenderer = DisplayRenderer.getInstance();
+        displayRenderer.renderDisplay(bufferSource, poseStack, displayType);
         poseStack.popPose();
     }
 }

@@ -1,10 +1,11 @@
 #version 150
 
-uniform sampler2D Sampler0;// Texture atlas
-uniform sampler2D Sampler1;// Pixel sprite
+uniform sampler2D Sampler0;
+uniform sampler2D Sampler1;
 
 uniform vec4 ColorModulator;
-uniform float Time;// The current render time
+uniform float Time;
+uniform float GlitchFactor;
 
 in vec2 texCoord0;
 in vec4 vertexColor;
@@ -35,15 +36,17 @@ vec4 convertSrgb(vec4 color){
     return vec4(rgb, color.a);
 }
 
-float getSampleOffset(vec2 coord, float offset) {
-    return goldNoise(vec2(Time * (GLITCH_RATE * 0.1) + offset, floor(coord.y * GLITCH_BLOCKS) - (offset * 0.5)));
+float getSampleOffset(vec2 coord, float offset, float glitchMultiplier) {
+    return goldNoise(vec2(Time * (GLITCH_RATE * 0.1 * getGlitchMultiplier()) + offset, floor(coord.y * GLITCH_BLOCKS) - (offset * 0.5)));
 }
 
 void main() {
     vec4 inputColor = texture(Sampler0, texCoord0) * vertexColor;
-    inputColor.r = (texture(Sampler0, texCoord0 + vec2(getSampleOffset(texCoord0, 0.0) * 0.03, 0.0) * GLITCH_FACTOR) * vertexColor).r;
-    inputColor.g = (texture(Sampler0, texCoord0 + vec2(getSampleOffset(texCoord0, 0.1) * 0.03 * 0.16666666, 0.0) * GLITCH_FACTOR) * vertexColor).g;
-    inputColor.b = (texture(Sampler0, texCoord0 + vec2(getSampleOffset(texCoord0, 0.2) * 0.03, 0.0) * GLITCH_FACTOR) * vertexColor).b;
+    float glitchMultiplier = 1F + (GlitchFactor * 100.0);
+    float glitchFactor = GLITCH_FACTOR * glitchMultiplier;
+    inputColor.r = (texture(Sampler0, texCoord0 + vec2(getSampleOffset(texCoord0, 0.0, glitchMultiplier) * 0.03, 0.0) * glitchFactor) * vertexColor).r;
+    inputColor.g = (texture(Sampler0, texCoord0 + vec2(getSampleOffset(texCoord0, 0.1, glitchMultiplier) * 0.03 * 0.16666666, 0.0) * glitchFactor) * vertexColor).g;
+    inputColor.b = (texture(Sampler0, texCoord0 + vec2(getSampleOffset(texCoord0, 0.2, glitchMultiplier) * 0.03, 0.0) * glitchFactor) * vertexColor).b;
     inputColor = convertSrgb(inputColor);
     vec4 color = texture(Sampler1, texCoord0 * DISPLAY_RES);
     color = mix(inputColor, color * inputColor, PIXEL_FACTOR);

@@ -4,16 +4,19 @@
     "srcrgb": "srcalpha",
     "dstrgb": "1-srcalpha"
   },
-  "vertex": "display_color_tex",
-  "fragment": "display_color_tex",
+  "vertex": "pda:display_blit",
+  "fragment": "pda:display_blit_srgb",
   "attributes": [
     "Position",
-    "Color",
-    "UV0"
+    "UV0",
+    "Color"
   ],
   "samplers": [
     {
       "name": "Sampler0"
+    },
+    {
+      "name": "Sampler1"
     }
   ],
   "uniforms": [
@@ -72,6 +75,22 @@
         1.0,
         1.0,
         1.0
+      ]
+    },
+    {
+      "name": "Time",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.0
+      ]
+    },
+    {
+      "name": "GlitchFactor",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.0
       ]
     }
   ]

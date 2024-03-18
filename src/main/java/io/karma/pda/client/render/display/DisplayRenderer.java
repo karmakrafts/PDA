@@ -32,9 +32,8 @@ import java.util.function.Supplier;
  */
 @OnlyIn(Dist.CLIENT)
 public final class DisplayRenderer {
-    public static final DisplayRenderer INSTANCE = new DisplayRenderer();
-
-    // @formatter:off
+    private static final DisplayRenderer INSTANCE = new DisplayRenderer();
+    private static final int GLITCH_TICKS = 10;
     public static final float MIN_X = 0.25F;
     public static final float MIN_Y = 0.125F;
     public static final float OFFSET_Z = 0.609375F;
@@ -47,17 +46,18 @@ public final class DisplayRenderer {
     private static final Matrix4f IDENTITY_MATRIX = new Matrix4f().identity();
     private static final Matrix4f DISPLAY_PROJECTION_MATRIX = new Matrix4f().ortho2D(0F, RES_X, RES_Y, 0F);
     private static final ResourceLocation PIXEL_TEXTURE = new ResourceLocation(Constants.MODID, "textures/pixel.png");
-
     private static ShaderInstance BLIT_BW_SHADER;
     private static ShaderInstance BLIT_SRGB_SHADER;
     private static ShaderInstance BLIT_OLED_SHADER;
     private static ShaderInstance COLOR_SHADER;
     private static ShaderInstance TEXTURE_SHADER;
 
-    private static final RenderStateShard.OutputStateShard DISPLAY_OUTPUT = new RenderStateShard.OutputStateShard("display_output",
+    private static final RenderStateShard.OutputStateShard DISPLAY_OUTPUT = new RenderStateShard.OutputStateShard(
+        "display_output",
         INSTANCE::setupDisplayOutput,
         INSTANCE::resetDisplayOutput);
 
+    // @formatter:off
     private static final RenderType COLOR_RENDER_TYPE = RenderType.create("pda_display_color",
         DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 4, false, false,
         RenderType.CompositeState.builder()
@@ -75,11 +75,13 @@ public final class DisplayRenderer {
             .setOutputState(DISPLAY_OUTPUT)
             .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
             .createCompositeState(false));
+    // @formatter:on
 
     private static final RenderType BLIT_BW_RENDER_TYPE = createBlitRenderType("bw", DisplayRenderer::getBlitBWShader);
-    private static final RenderType BLIT_SRGB_RENDER_TYPE = createBlitRenderType("srgb", DisplayRenderer::getBlitSRGBShader);
-    private static final RenderType BLIT_OLED_RENDER_TYPE = createBlitRenderType("oled", DisplayRenderer::getBlitOLEDShader);
-    // @formatter:on
+    private static final RenderType BLIT_SRGB_RENDER_TYPE = createBlitRenderType("srgb",
+        DisplayRenderer::getBlitSRGBShader);
+    private static final RenderType BLIT_OLED_RENDER_TYPE = createBlitRenderType("oled",
+        DisplayRenderer::getBlitOLEDShader);
 
     private static RenderType createBlitRenderType(final String name, final Supplier<ShaderInstance> shaderSupplier) {
         // @formatter:off
@@ -117,9 +119,23 @@ public final class DisplayRenderer {
     private Matrix4f prevProjectionMatrix;
     private VertexSorting prevVertexSorting;
     private Matrix4f prevModelViewMatrix;
+    private float glitchFactor;
 
     private DisplayRenderer() {
         displayPoseStack.setIdentity();
+    }
+
+    public static DisplayRenderer getInstance() {
+        return INSTANCE.reset();
+    }
+
+    private DisplayRenderer reset() {
+        glitchFactor = 0F;
+        return this;
+    }
+
+    public void setGlitchFactor(final float glitchFactor) {
+        this.glitchFactor = glitchFactor;
     }
 
     @ApiStatus.Internal
@@ -136,25 +152,25 @@ public final class DisplayRenderer {
     private void onRegisterShaders(final RegisterShadersEvent event) {
         try {
             event.registerShader(new ShaderInstance(event.getResourceProvider(),
-                new ResourceLocation("display_blit_bw"),
+                new ResourceLocation(Constants.MODID, "display_blit_bw"),
                 DefaultVertexFormat.POSITION_TEX_COLOR), shader -> {
                 BLIT_BW_SHADER = shader;
             });
             event.registerShader(new ShaderInstance(event.getResourceProvider(),
-                new ResourceLocation("display_blit_srgb"),
+                new ResourceLocation(Constants.MODID, "display_blit_srgb"),
                 DefaultVertexFormat.POSITION_TEX_COLOR), shader -> {
                 BLIT_SRGB_SHADER = shader;
             });
             event.registerShader(new ShaderInstance(event.getResourceProvider(),
-                new ResourceLocation("display_blit_oled"),
+                new ResourceLocation(Constants.MODID, "display_blit_oled"),
                 DefaultVertexFormat.POSITION_TEX_COLOR), shader -> {
                 BLIT_OLED_SHADER = shader;
             });
             event.registerShader(new ShaderInstance(event.getResourceProvider(),
-                new ResourceLocation("display_color"),
+                new ResourceLocation(Constants.MODID, "display_color"),
                 DefaultVertexFormat.POSITION_COLOR), shader -> COLOR_SHADER = shader);
             event.registerShader(new ShaderInstance(event.getResourceProvider(),
-                new ResourceLocation("display_color_tex"),
+                new ResourceLocation(Constants.MODID, "display_color_tex"),
                 DefaultVertexFormat.POSITION_TEX_COLOR), shader -> TEXTURE_SHADER = shader);
         }
         catch (Throwable error) {
@@ -187,18 +203,21 @@ public final class DisplayRenderer {
     @SuppressWarnings("all")
     private static ShaderInstance getBlitBWShader() {
         BLIT_BW_SHADER.getUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
+        BLIT_BW_SHADER.getUniform("GlitchFactor").set(INSTANCE.glitchFactor);
         return BLIT_BW_SHADER;
     }
 
     @SuppressWarnings("all")
     private static ShaderInstance getBlitSRGBShader() {
         BLIT_SRGB_SHADER.getUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
+        BLIT_SRGB_SHADER.getUniform("GlitchFactor").set(INSTANCE.glitchFactor);
         return BLIT_SRGB_SHADER;
     }
 
     @SuppressWarnings("all")
     private static ShaderInstance getBlitOLEDShader() {
         BLIT_OLED_SHADER.getUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
+        BLIT_OLED_SHADER.getUniform("GlitchFactor").set(INSTANCE.glitchFactor);
         return BLIT_OLED_SHADER;
     }
 

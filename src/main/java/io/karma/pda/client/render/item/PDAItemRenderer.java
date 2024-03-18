@@ -8,6 +8,7 @@ import io.karma.pda.api.common.util.DisplayType;
 import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.client.event.ItemRenderEvent;
 import io.karma.pda.client.render.display.DisplayRenderer;
+import io.karma.pda.common.CommonEventHandler;
 import io.karma.pda.common.init.ModItems;
 import io.karma.pda.common.item.PDAItem;
 import io.karma.pda.common.util.Easings;
@@ -115,7 +116,20 @@ public final class PDAItemRenderer {
         }
         itemRenderer.renderModelLists(model, stack, packedLight, packedOverlay, poseStack, buffer);
         //Render out display on top of the baked model dynamically
-        DisplayRenderer.INSTANCE.renderDisplay(bufferSource, poseStack, displayType);
+        var glitchFactor = 0F;
+        if (displayContext.firstPerson()) {
+            final var player = game.player;
+            if (player != null) {
+                final var data = player.getEntityData();
+                if (data.hasItem(CommonEventHandler.GLITCH_TICK)) {
+                    final var glitchTick = data.get(CommonEventHandler.GLITCH_TICK);
+                    glitchFactor = (float) glitchTick / CommonEventHandler.GLITCH_TICKS;
+                }
+            }
+        }
+        final var displayRenderer = DisplayRenderer.getInstance();
+        displayRenderer.setGlitchFactor(glitchFactor);
+        displayRenderer.renderDisplay(bufferSource, poseStack, displayType);
         poseStack.popPose();
 
         event.setCanceled(true); // Cancel event for PDA item

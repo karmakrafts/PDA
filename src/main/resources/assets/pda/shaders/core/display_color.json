@@ -4,20 +4,12 @@
     "srcrgb": "srcalpha",
     "dstrgb": "1-srcalpha"
   },
-  "vertex": "display_blit",
-  "fragment": "display_blit_srgb",
+  "vertex": "pda:display_color",
+  "fragment": "pda:display_color",
   "attributes": [
-    "Position",
-    "UV0",
     "Color"
   ],
   "samplers": [
-    {
-      "name": "Sampler0"
-    },
-    {
-      "name": "Sampler1"
-    }
   ],
   "uniforms": [
     {
@@ -75,14 +67,6 @@
         1.0,
         1.0,
         1.0
-      ]
-    },
-    {
-      "name": "Time",
-      "type": "float",
-      "count": 1,
-      "values": [
-        0.0
       ]
     }
   ]

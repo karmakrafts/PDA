@@ -16,6 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -28,6 +29,7 @@ import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
@@ -173,6 +175,10 @@ public final class DockInteractionHandler {
         dstCameraRotation.rotationYXZ((float) Math.toRadians(yAngle), 0F, 0F);
 
         isDockEngaged = true;
+    }
+
+    public boolean isDockEngaged() {
+        return isDockEngaged;
     }
 
     public void disengage() {
@@ -421,5 +427,9 @@ public final class DockInteractionHandler {
                 resetAnimation();
             }
         }
+    }
+
+    public @Nullable HitResult getHitResult() {
+        return hitResult;
     }
 }
