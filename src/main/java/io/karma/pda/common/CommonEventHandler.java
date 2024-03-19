@@ -39,7 +39,7 @@ public final class CommonEventHandler {
     public static final CommonEventHandler INSTANCE = new CommonEventHandler();
     public static final EntityDataAccessor<Integer> GLITCH_TICK = SynchedEntityData.defineId(Player.class,
         EntityDataSerializers.INT);
-    public static final int GLITCH_TICKS = 40;
+    public static final int GLITCH_TICKS = 10;
 
     // @formatter:off
     private CommonEventHandler() {}
@@ -78,7 +78,6 @@ public final class CommonEventHandler {
         final int glitchTick = data.get(GLITCH_TICK);
         if (glitchTick > 0) {
             data.set(GLITCH_TICK, glitchTick - 1);
-            PDAMod.LOGGER.info("Updated glitch tick: {}", glitchTick - 1);
         }
     }
 

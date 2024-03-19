@@ -4,7 +4,6 @@
 
 package io.karma.pda.common.block;
 
-import codechicken.lib.vec.Vector3;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.client.screen.DockScreen;
 import io.karma.pda.common.entity.DockBlockEntity;
@@ -12,6 +11,7 @@ import io.karma.pda.common.init.ModBlockEntities;
 import io.karma.pda.common.init.ModItems;
 import io.karma.pda.common.menu.DockStorageMenu;
 import io.karma.pda.common.util.HorizontalDirection;
+import io.karma.pda.common.util.MathUtils;
 import io.karma.pda.common.util.PlayerUtils;
 import io.karma.pda.common.util.ShapeUtils;
 import net.minecraft.client.CameraType;
@@ -95,9 +95,9 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
         shape = Shapes.or(shape, Shapes.box(0.40625, 0.125, 0.375, 0.4375, 0.15625, 0.4375));
         final var actualDir = direction.getDirection();
         // @formatter:off
-        return ShapeUtils.rotate(shape, Vector3.Y_POS, Vector3.CENTER, actualDir.getAxis() == Direction.Axis.Z
+        return ShapeUtils.rotate(shape, MathUtils.Y_POS, MathUtils.CENTER, actualDir.getAxis() == Direction.Axis.Z
             ? actualDir.toYRot() + 180F
-            : actualDir.toYRot()).optimize();
+            : actualDir.toYRot());
         // @formatter:on
     }
 
@@ -110,9 +110,9 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
         shape = Shapes.or(shape, Shapes.box(0.1875, 0.1875, 0.59375, 0.25, 0.9375, 0.625));
         final var actualDir = direction.getDirection();
         // @formatter:off
-        return ShapeUtils.rotate(shape, Vector3.Y_POS, Vector3.CENTER, actualDir.getAxis() == Direction.Axis.Z
+        return ShapeUtils.rotate(shape, MathUtils.Y_POS, MathUtils.CENTER, actualDir.getAxis() == Direction.Axis.Z
             ? actualDir.toYRot() + 180F
-            : actualDir.toYRot()).optimize();
+            : actualDir.toYRot());
         // @formatter:on
     }
 

@@ -4,8 +4,6 @@
 
 package io.karma.pda.api.common.app;
 
-import io.karma.pda.api.common.app.component.Container;
-
 /**
  * @author Alexander Hinze
  * @since 13/02/2024
@@ -13,5 +11,5 @@ import io.karma.pda.api.common.app.component.Container;
 public interface App {
     AppType<?> getType();
 
-    void populate(final Container container);
+    void init();
 }

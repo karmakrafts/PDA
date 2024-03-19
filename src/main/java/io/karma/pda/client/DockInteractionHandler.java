@@ -1,6 +1,5 @@
 package io.karma.pda.client;
 
-import codechicken.lib.math.MathHelper;
 import com.mojang.blaze3d.vertex.Tesselator;
 import io.karma.pda.client.screen.DockScreen;
 import io.karma.pda.common.block.DockBlock;
@@ -13,6 +12,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
@@ -380,8 +380,8 @@ public final class DockInteractionHandler {
             GLFW.glfwGetCursorPos(window.getWindow(), mouseX, mouseY);
             final var normalizedMouseX = (float) (mouseX.get() / window.getWidth());
             final var normalizedMouseY = (float) (mouseY.get() / window.getHeight());
-            final var yaw = yAngle + MathHelper.clip((normalizedMouseX * 2F - 1F) * 90F, -35F, 35F);
-            final var pitch = MathHelper.clip((normalizedMouseY * 2F - 1F) * 90F, -35F, 35F);
+            final var yaw = yAngle + Mth.clamp((normalizedMouseX * 2F - 1F) * 90F, -35F, 35F);
+            final var pitch = Mth.clamp((normalizedMouseY * 2F - 1F) * 90F, -35F, 35F);
             lastCameraRotation.set(cameraRotation);
             cameraRotation.rotationYXZ((float) Math.toRadians(yaw), (float) Math.toRadians(pitch), 0F);
         }

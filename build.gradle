@@ -67,6 +67,7 @@ mixin {
 
 repositories {
     mavenCentral()
+    maven { url = 'https://maven.covers1624.net' }
 }
 
 dependencies {
@@ -75,6 +76,7 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jackson_version
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jackson_version
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
+    implementation group: 'io.karma.sliced', name: 'sliced', version: sliced_version
 
     // Same LWJGL version as vanilla
     implementation group: 'org.lwjgl', name: 'lwjgl-yoga', version: lwjgl_version
@@ -113,6 +115,7 @@ shadowJar {
         include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-core')
         include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations')
         include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-databind')
+        include dependency(group: 'io.karma.sliced', name: 'sliced')
         include dependency(group: 'org.lwjgl', name: 'lwjgl-yoga')
     }
 }

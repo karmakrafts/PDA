@@ -144,7 +144,7 @@ public final class PDAItemRenderer {
             return current * ANIMATION_OFFSET;
         }
         final var previous = previousOffset[index];
-        return (previous + frameTime * (current - previous)) * ANIMATION_OFFSET;
+        return Math.fma(frameTime, (current - previous), previous) * ANIMATION_OFFSET;
     }
 
     private void onRenderItem(final ItemRenderEvent.Pre event) {
@@ -178,19 +178,15 @@ public final class PDAItemRenderer {
         }
         itemRenderer.renderModelLists(model, stack, packedLight, packedOverlay, poseStack, buffer);
         //Render out display on top of the baked model dynamically
-        var glitchFactor = 0F;
-        if (displayContext.firstPerson()) {
-            final var player = game.player;
-            if (player != null) {
-                final var data = player.getEntityData();
-                if (data.hasItem(CommonEventHandler.GLITCH_TICK)) {
-                    final var glitchTick = data.get(CommonEventHandler.GLITCH_TICK);
-                    glitchFactor = (float) glitchTick / CommonEventHandler.GLITCH_TICKS;
-                }
+        final var displayRenderer = DisplayRenderer.getInstance();
+        final var player = game.player;
+        if (player != null && stack == player.getItemInHand(hand)) {
+            final var data = player.getEntityData();
+            if (data.hasItem(CommonEventHandler.GLITCH_TICK)) {
+                final var glitchTick = data.get(CommonEventHandler.GLITCH_TICK);
+                displayRenderer.setGlitchFactor((float) glitchTick / CommonEventHandler.GLITCH_TICKS);
             }
         }
-        final var displayRenderer = DisplayRenderer.getInstance();
-        displayRenderer.setGlitchFactor(glitchFactor);
         displayRenderer.renderDisplay(bufferSource, poseStack, displayType);
         poseStack.popPose();
 

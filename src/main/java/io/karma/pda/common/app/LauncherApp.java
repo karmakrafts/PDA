@@ -2,9 +2,10 @@
  * Copyright (c) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.api.common.app;
+package io.karma.pda.common.app;
 
-import io.karma.pda.api.common.app.component.Container;
+import io.karma.pda.api.common.app.AbstractApp;
+import io.karma.pda.api.common.app.DefaultApps;
 
 /**
  * @author Alexander Hinze
@@ -16,7 +17,7 @@ public final class LauncherApp extends AbstractApp {
     }
 
     @Override
-    public void populate(final Container container) {
+    public void init() {
 
     }
 }

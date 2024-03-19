@@ -7,12 +7,16 @@ package io.karma.pda.api.common.app.component;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 /**
  * @author Alexander Hinze
  * @since 08/02/2024
  */
 public interface Component {
     ComponentType<?> getType();
+
+    UUID getUUID();
 
     @Nullable Component getParent();
 

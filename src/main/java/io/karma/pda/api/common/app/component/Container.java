@@ -5,8 +5,7 @@
 package io.karma.pda.api.common.app.component;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import java.util.List;
+import io.karma.sliced.view.View;
 
 /**
  * @author Alexander Hinze
@@ -17,7 +16,7 @@ public interface Container extends Component {
 
     void removeChild(final Component child);
 
-    List<Component> getChildren();
+    View<Component> getChildren();
 
     @Override
     default void serialize(final ObjectNode node) {

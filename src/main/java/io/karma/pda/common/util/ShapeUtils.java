@@ -4,12 +4,11 @@
 
 package io.karma.pda.common.util;
 
-import codechicken.lib.math.MathHelper;
-import codechicken.lib.vec.Cuboid6;
-import codechicken.lib.vec.Rotation;
-import codechicken.lib.vec.Vector3;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 
@@ -22,18 +21,23 @@ public final class ShapeUtils {
     private ShapeUtils() {}
     // @formatter:on
 
-    public static VoxelShape rotate(final VoxelShape shape, final Vector3 axis, final Vector3 origin,
+    public static AABB makeAABB(final Vector3f min, final Vector3f max) {
+        return new AABB(min.x, min.y, min.z, max.x, max.y, max.z);
+    }
+
+    public static VoxelShape rotate(final VoxelShape shape, final Vector3f axis, final Vector3f origin,
                                     final float angle) {
-        final var boxes = new ArrayList<Cuboid6>();
+        final var matrix = new Matrix4f().rotate((float) Math.toRadians(angle), axis);
+        final var boxes = new ArrayList<AABB>();
         shape.forAllBoxes((double minX, double minY, double minZ, double maxX, double maxY, double maxZ) -> {
-            final var cuboid = new Cuboid6(minX, minY, minZ, maxX, maxY, maxZ);
-            cuboid.apply(new Rotation(angle * MathHelper.torad, axis).at(origin));
-            boxes.add(cuboid);
+            final var min = new Vector3f((float) minX, (float) minY, (float) minZ).sub(origin);
+            matrix.transformPosition(min);
+            min.add(origin);
+            final var max = new Vector3f((float) maxX, (float) maxY, (float) maxZ).sub(origin);
+            matrix.transformPosition(max);
+            max.add(origin);
+            boxes.add(makeAABB(min, max));
         });
-        var result = Shapes.empty();
-        for (final var box : boxes) {
-            result = Shapes.or(result, box.shape());
-        }
-        return result;
+        return boxes.stream().map(Shapes::create).reduce(Shapes::or).orElseThrow().optimize();
     }
 }
