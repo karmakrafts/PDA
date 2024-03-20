@@ -24,7 +24,6 @@ public final class DisplayFramebuffer implements Disposable {
     private int previousTexture;
     private int width;
     private int height;
-    private boolean isDisposed;
 
     public DisplayFramebuffer(final int initialWidth, final int initialHeight) {
         textureId = GL11.glGenTextures();
@@ -49,13 +48,9 @@ public final class DisplayFramebuffer implements Disposable {
 
     @Override
     public void dispose() {
-        if (isDisposed) {
-            return;
-        }
         GL11.glDeleteTextures(depthTextureId);
         GL11.glDeleteTextures(textureId);
         GL30.glDeleteFramebuffers(id);
-        isDisposed = true;
     }
 
     public void resize(final int width, final int height) {
