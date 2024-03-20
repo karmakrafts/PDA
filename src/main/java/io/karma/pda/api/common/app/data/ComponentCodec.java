@@ -2,7 +2,7 @@
  * Copyright (c) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.api.common.data;
+package io.karma.pda.api.common.app.data;
 
 import io.karma.pda.api.common.app.component.Component;
 import io.karma.pda.api.common.util.JSONUtils;

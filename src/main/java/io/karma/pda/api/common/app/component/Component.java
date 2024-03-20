@@ -5,8 +5,8 @@
 package io.karma.pda.api.common.app.component;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.karma.pda.api.common.app.flex.FlexNode;
 import io.karma.pda.api.common.dispose.Disposable;
-import io.karma.pda.api.common.flex.FlexNode;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -33,5 +33,6 @@ public interface Component extends Disposable {
     }
 
     @Override
-    default void dispose() {}
+    default void dispose() {
+    }
 }

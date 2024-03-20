@@ -2,7 +2,7 @@
  * Copyright (c) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.api.common.data;
+package io.karma.pda.api.common.app.data;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;

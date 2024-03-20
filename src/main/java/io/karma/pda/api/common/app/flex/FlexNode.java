@@ -1,4 +1,4 @@
-package io.karma.pda.api.common.flex;
+package io.karma.pda.api.common.app.flex;
 
 import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.sliced.slice.Slice;
@@ -58,6 +58,52 @@ public class FlexNode implements Disposable {
             case Yoga.YGFlexDirectionColumnReverse  -> FlexDirection.COLUMN_REVERSE;
             default                                 -> throw new UnsupportedOperationException();
         }; // @formatter:on
+    }
+
+    // Overflow
+
+    public void setOverflow(final FlexOverflow overflow) {
+        Yoga.YGNodeStyleSetOverflow(address, overflow.getValue());
+    }
+
+    public FlexOverflow getOverflow() {
+        return FlexOverflow.fromValue(Yoga.YGNodeStyleGetOverflow(address));
+    }
+
+    // Alignments
+
+    public void setAlignSelf(final FlexAlignment alignment) {
+        Yoga.YGNodeStyleSetAlignSelf(address, alignment.getValue());
+    }
+
+    public FlexAlignment getAlignSelf() {
+        return FlexAlignment.fromValue(Yoga.YGNodeStyleGetAlignSelf(address));
+    }
+
+    public void setAlignItems(final FlexAlignment alignment) {
+        Yoga.YGNodeStyleSetAlignItems(address, alignment.getValue());
+    }
+
+    public FlexAlignment getAlignItems() {
+        return FlexAlignment.fromValue(Yoga.YGNodeStyleGetAlignItems(address));
+    }
+
+    public void setAlignContent(final FlexAlignment alignment) {
+        Yoga.YGNodeStyleSetAlignContent(address, alignment.getValue());
+    }
+
+    public FlexAlignment getAlignContent() {
+        return FlexAlignment.fromValue(Yoga.YGNodeStyleGetAlignContent(address));
+    }
+
+    // Justification
+
+    public void setJustifyContent(final FlexJustify justify) {
+        Yoga.YGNodeStyleSetJustifyContent(address, justify.getValue());
+    }
+
+    public FlexJustify getJustifyContent() {
+        return FlexJustify.fromValue(Yoga.YGNodeStyleGetJustifyContent(address));
     }
 
     // Margin
@@ -128,6 +174,42 @@ public class FlexNode implements Disposable {
         } // @formatter:on
     }
 
+    // Position type
+
+    public void setPositionType(final FlexPositionType type) {
+        Yoga.YGNodeStyleSetPositionType(address, type.getValue());
+    }
+
+    public FlexPositionType getPositionType() {
+        return FlexPositionType.fromValue(Yoga.YGNodeStyleGetPositionType(address));
+    }
+
+    // Position
+
+    public void setX(final FlexValue value) {
+        switch (value.getType()) {
+            case PIXEL -> Yoga.YGNodeStyleSetPosition(address, Yoga.YGEdgeLeft, value.get());
+            case PERCENT -> Yoga.YGNodeStyleSetPositionPercent(address, Yoga.YGEdgeLeft, value.get());
+            default -> throw new UnsupportedOperationException();
+        }
+    }
+
+    public void setY(final FlexValue value) {
+        switch (value.getType()) {
+            case PIXEL -> Yoga.YGNodeStyleSetPosition(address, Yoga.YGEdgeTop, value.get());
+            case PERCENT -> Yoga.YGNodeStyleSetPositionPercent(address, Yoga.YGEdgeTop, value.get());
+            default -> throw new UnsupportedOperationException();
+        }
+    }
+
+    public int getAbsoluteX() {
+        return (int) Yoga.YGNodeLayoutGetLeft(address);
+    }
+
+    public int getAbsoluteY() {
+        return (int) Yoga.YGNodeLayoutGetTop(address);
+    }
+
     // Size
 
     public void setWidth(final FlexValue width) {
@@ -160,16 +242,6 @@ public class FlexNode implements Disposable {
             Yoga.YGNodeStyleGetHeight(address, value);
             return FlexValue.fromStruct(value);
         }
-    }
-
-    // Absolute size
-
-    public int getAbsoluteX() {
-        return (int) Yoga.YGNodeLayoutGetLeft(address);
-    }
-
-    public int getAbsoluteY() {
-        return (int) Yoga.YGNodeLayoutGetTop(address);
     }
 
     public int getAbsoluteWidth() {
