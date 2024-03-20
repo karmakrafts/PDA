@@ -15,6 +15,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -62,6 +63,12 @@ public final class PDAItem extends Item implements TabItemProvider {
             setDisplayType(stack, type);
             items.add(stack);
         }
+    }
+
+    @Override
+    public void inventoryTick(final @NotNull ItemStack stack, final @NotNull Level world, final @NotNull Entity entity,
+                              final int slot, final boolean isSelected) {
+
     }
 
     @Override

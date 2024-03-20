@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     id 'eclipse'
     id 'idea'
@@ -78,7 +80,7 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
     implementation group: 'io.karma.sliced', name: 'sliced', version: sliced_version
 
-    // Same LWJGL version as vanilla
+    // Same LWJGL version as vanilla, but add all platforms
     implementation group: 'org.lwjgl', name: 'lwjgl-yoga', version: lwjgl_version
     implementation group: 'org.lwjgl', name: 'lwjgl-yoga', version: lwjgl_version, classifier: 'natives-linux-arm32'
     implementation group: 'org.lwjgl', name: 'lwjgl-yoga', version: lwjgl_version, classifier: 'natives-linux-arm64'
@@ -103,12 +105,8 @@ def commonManifest = {
     ])
 }
 
-reobf {
-    shadowJar {}
-}
-
 shadowJar {
-    archiveClassifier = ''
+    archiveClassifier = 'client'
     manifest commonManifest
     finalizedBy 'reobfShadowJar'
     dependencies {
@@ -120,10 +118,32 @@ shadowJar {
     }
 }
 
+task serverShadowJar(type: ShadowJar) {
+    from sourceSets.main.output
+    archiveClassifier = 'server'
+    manifest commonManifest
+    finalizedBy 'reobfServerShadowJar'
+    setConfigurations(tasks.shadowJar.configurations)
+    dependencies {
+        include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-core')
+        include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations')
+        include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-databind')
+        include dependency(group: 'io.karma.sliced', name: 'sliced')
+        include dependency(group: 'org.lwjgl', name: 'lwjgl-core')
+        include dependency(group: 'org.lwjgl', name: 'lwjgl-jemalloc')
+        include dependency(group: 'org.lwjgl', name: 'lwjgl-yoga')
+    }
+}
+
 jar {
     archiveClassifier = 'slim'
     manifest commonManifest
     finalizedBy 'reobfJar'
+}
+
+reobf {
+    shadowJar {}
+    serverShadowJar {}
 }
 
 processResources {
@@ -138,6 +158,12 @@ processResources {
     filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
         expand replaceProperties + [project: project]
     }
+}
+
+artifacts {
+    archives jar
+    archives shadowJar
+    archives serverShadowJar
 }
 
 tasks.withType(JavaCompile) {
