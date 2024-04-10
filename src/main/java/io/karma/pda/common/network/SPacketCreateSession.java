@@ -20,26 +20,23 @@ import java.util.UUID;
 public final class SPacketCreateSession {
     private final SessionType type;
     private final UUID uuid;
-    private final UUID playerUuid;
     private final Object context; // InteractionHand or BlockPos
 
-    public SPacketCreateSession(final SessionType type, final UUID uuid, final UUID playerUuid, final Object context) {
+    public SPacketCreateSession(final SessionType type, final UUID uuid, final Object context) {
         this.type = type;
         this.uuid = uuid;
-        this.playerUuid = playerUuid;
         this.context = context;
     }
 
     public static SPacketCreateSession fromContext(final UUID uuid, final SessionContext context) {
         final var type = context.getType();
         final var contextData = type == SessionType.DOCKED ? context.getPos() : context.getHand();
-        return new SPacketCreateSession(type, uuid, context.getPlayer().getUUID(), contextData);
+        return new SPacketCreateSession(type, uuid, contextData);
     }
 
     public static void encode(final SPacketCreateSession packet, final FriendlyByteBuf buffer) {
         buffer.writeEnum(packet.type);
         buffer.writeUUID(packet.uuid);
-        buffer.writeUUID(packet.playerUuid);
         final var context = packet.context;
         if (context instanceof InteractionHand hand) {
             buffer.writeEnum(hand);
@@ -51,11 +48,10 @@ public final class SPacketCreateSession {
     public static SPacketCreateSession decode(final FriendlyByteBuf buffer) {
         final var type = buffer.readEnum(SessionType.class);
         final var uuid = buffer.readUUID();
-        final var playerUuid = buffer.readUUID();
         if (type == SessionType.DOCKED) {
-            return new SPacketCreateSession(type, uuid, playerUuid, buffer.readBlockPos());
+            return new SPacketCreateSession(type, uuid, buffer.readBlockPos());
         }
-        return new SPacketCreateSession(type, uuid, playerUuid, buffer.readEnum(InteractionHand.class));
+        return new SPacketCreateSession(type, uuid, buffer.readEnum(InteractionHand.class));
     }
 
     public SessionType getType() {
@@ -64,10 +60,6 @@ public final class SPacketCreateSession {
 
     public UUID getUUID() {
         return uuid;
-    }
-
-    public UUID getPlayerUUID() {
-        return playerUuid;
     }
 
     public @Nullable InteractionHand getHand() {

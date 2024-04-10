@@ -43,12 +43,12 @@ public final class DisplayRenderer {
     private static final float SIZE_Y = 0.5625F;
     public static final int RES_Y = ((int) (SIZE_Y * 16F) * 16) << 1; // 288
     private static final Matrix4f DISPLAY_PROJECTION_MATRIX = new Matrix4f().ortho2D(0F, RES_X, RES_Y, 0F);
+    public static final float MAX_Y = MIN_Y + SIZE_Y;
+    private static final Matrix4f IDENTITY_MATRIX = new Matrix4f().identity();
     private static final RenderStateShard.OutputStateShard DISPLAY_OUTPUT = new RenderStateShard.OutputStateShard(
         "display_output",
         INSTANCE::setupDisplayOutput,
         INSTANCE::resetDisplayOutput);
-    public static final float MAX_Y = MIN_Y + SIZE_Y;
-    private static final Matrix4f IDENTITY_MATRIX = new Matrix4f().identity();
     private static final ResourceLocation PIXEL_TEXTURE = new ResourceLocation(Constants.MODID, "textures/pixel.png");
     private static ShaderInstance BLIT_BW_SHADER;
     private static final RenderType BLIT_BW_RENDER_TYPE = createBlitRenderType("bw", DisplayRenderer::getBlitBWShader);

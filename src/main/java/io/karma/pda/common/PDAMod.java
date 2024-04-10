@@ -22,6 +22,7 @@ import io.karma.pda.common.init.*;
 import io.karma.pda.common.menu.DockStorageMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import io.karma.pda.common.network.CommonPacketHandler;
+import io.karma.pda.common.session.SessionDataHandler;
 import io.karma.pda.common.util.TabItemProvider;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.NonNullList;
@@ -125,6 +126,7 @@ public class PDAMod {
     public PDAMod() {
         CommonEventHandler.INSTANCE.setup();
         CommonPacketHandler.INSTANCE.setup();
+        SessionDataHandler.INSTANCE.setup();
 
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         BLOCK_ENTITIES.register(modBus);

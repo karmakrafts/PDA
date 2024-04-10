@@ -4,8 +4,6 @@
 
 package io.karma.pda.api.common.session;
 
-import io.karma.pda.api.common.API;
-
 import java.util.UUID;
 
 /**
@@ -29,8 +27,4 @@ public interface Session {
      * with this session on its creation.
      */
     SessionContext getContext();
-
-    default void terminate() {
-        API.getSessionHandler().terminateSession(this);
-    }
 }

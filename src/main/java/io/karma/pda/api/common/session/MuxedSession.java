@@ -4,6 +4,7 @@
 
 package io.karma.pda.api.common.session;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -52,11 +53,8 @@ public final class MuxedSession<S> implements Session {
         this.selector = selector;
     }
 
-    @Override
-    public void terminate() {
-        for (final var entry : sessions.entrySet()) {
-            entry.getValue().terminate(); // Terminate all open target sessions
-        }
+    public Collection<Session> getTargets() {
+        return sessions.values();
     }
 
     @Override

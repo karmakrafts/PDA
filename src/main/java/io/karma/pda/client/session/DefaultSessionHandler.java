@@ -5,6 +5,7 @@
 package io.karma.pda.client.session;
 
 import io.karma.pda.api.client.session.SessionHandler;
+import io.karma.pda.api.common.session.MuxedSession;
 import io.karma.pda.api.common.session.Session;
 import io.karma.pda.api.common.session.SessionContext;
 import io.karma.pda.api.common.session.SessionType;
@@ -28,20 +29,26 @@ public final class DefaultSessionHandler implements SessionHandler {
 
     @Override
     public Session createSession(final SessionContext context) {
-        final var playerUuid = context.getPlayer().getUUID();
         // @formatter:off
         final var contextData = context.getType() == SessionType.DOCKED
             ? context.getPos()
             : context.getHand();
         // @formatter:on
         final var uuid = UUID.randomUUID();
-        PDAMod.CHANNEL.sendToServer(new SPacketCreateSession(context.getType(), uuid, playerUuid, contextData));
+        PDAMod.CHANNEL.sendToServer(new SPacketCreateSession(context.getType(), uuid, contextData));
+        PDAMod.LOGGER.debug("Created new session {} on CLIENT", uuid);
         return new DefaultSession(uuid, context);
     }
 
     @Override
     public void terminateSession(final Session session) {
-        PDAMod.CHANNEL.sendToServer(new SPacketTerminateSession(session.getUUID()));
+        if (session instanceof MuxedSession<?> muxedSession) {
+            muxedSession.getTargets().forEach(this::terminateSession);
+            return;
+        }
+        final var uuid = session.getUUID();
+        PDAMod.CHANNEL.sendToServer(new SPacketTerminateSession(uuid));
+        PDAMod.LOGGER.debug("Terminated session {} on CLIENT", uuid);
     }
 
     @Nullable

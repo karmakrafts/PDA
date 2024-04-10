@@ -45,7 +45,7 @@ public final class DockScreen extends Screen {
 
     @Override
     public void onClose() {
-        session.terminate();
+        API.getSessionHandler().terminateSession(session);
         GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, previousInputMode);
         DockInteractionHandler.INSTANCE.disengage();
     }
