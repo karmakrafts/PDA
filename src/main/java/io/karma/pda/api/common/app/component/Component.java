@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2024 Karma Krafts & associates
+ * Copyright (C) 2024 Karma Krafts & associates
  */
 
 package io.karma.pda.api.common.app.component;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.karma.pda.api.common.app.flex.FlexNode;
 import io.karma.pda.api.common.dispose.Disposable;
+import io.karma.pda.api.common.flex.FlexSpec;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -20,17 +19,12 @@ public interface Component extends Disposable {
 
     UUID getUUID();
 
-    @Nullable Component getParent();
+    @Nullable
+    Component getParent();
 
     void setParent(final @Nullable Component parent);
 
-    FlexNode getFlexboxNode();
-
-    default void serialize(final ObjectNode node) {
-    }
-
-    default void deserialize(final ObjectNode node) {
-    }
+    FlexSpec getLayoutSpec();
 
     @Override
     default void dispose() {

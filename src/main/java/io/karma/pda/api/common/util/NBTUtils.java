@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2024 Karma Krafts & associates
+ * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.common.util;
+package io.karma.pda.api.common.util;
 
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.Nullable;
@@ -18,6 +18,29 @@ public final class NBTUtils {
 
     public static boolean contains(final @Nullable CompoundTag tag, final String key) {
         return tag != null && tag.contains(key);
+    }
+
+    public static void set(final @Nullable CompoundTag tag, final String key, final Enum<?> value) {
+        if (tag == null) {
+            return;
+        }
+        tag.putInt(key, value.ordinal());
+    }
+
+    public static <E extends Enum<E>> @Nullable E get(final @Nullable CompoundTag tag, final String key,
+                                                      final Class<E> type) {
+        if (tag == null || !tag.contains(key)) {
+            return null;
+        }
+        return type.getEnumConstants()[tag.getInt(key)];
+    }
+
+    public static <E extends Enum<E>> E getOrDefault(final @Nullable CompoundTag tag, final String key,
+                                                     final Class<E> type, final E defaultValue) {
+        if (tag == null || !tag.contains(key)) {
+            return defaultValue;
+        }
+        return type.getEnumConstants()[tag.getInt(key)];
     }
 
     public static boolean getOrDefault(final @Nullable CompoundTag tag, final String key, final boolean defaultValue) {

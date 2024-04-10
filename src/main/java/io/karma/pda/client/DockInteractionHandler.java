@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2024 Karma Krafts & associates
+ */
+
 package io.karma.pda.client;
 
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -49,18 +53,19 @@ public final class DockInteractionHandler {
     public static final DockInteractionHandler INSTANCE = new DockInteractionHandler();
     private static final HashSet<ResourceLocation> OVERLAY_WHITELIST = new HashSet<>();
     private static final int ANIMATION_TICKS = 12;
+    // For debug lines
+    private static final int LINE_TICKS = 10 * 20;
 
-    private boolean isDockEngaged;
-    private boolean isAnimating;
-    private boolean isLocked;
-    private int animationTick;
-    private float yAngle;
+    static {
+        OVERLAY_WHITELIST.add(VanillaGuiOverlay.VIGNETTE.id());
+        OVERLAY_WHITELIST.add(VanillaGuiOverlay.CROSSHAIR.id());
+    }
+
     private final Vector3f srcCameraPos = new Vector3f();
     private final Quaternionf srcCameraRotation = new Quaternionf();
     private final Vector3f dstCameraPos = new Vector3f();
     private final Quaternionf dstCameraRotation = new Quaternionf();
     private final BezierCurve cameraCurve = new BezierCurve(ANIMATION_TICKS);
-    private boolean usesCameraCurve;
     // Frame interpolation variables
     private final Vector3f cameraPos = new Vector3f();
     private final Vector3f lastCameraPos = new Vector3f();
@@ -72,15 +77,14 @@ public final class DockInteractionHandler {
         ClipContext.Block.OUTLINE,
         ClipContext.Fluid.NONE,
         null);
+    private boolean isDockEngaged;
+    private boolean isAnimating;
+    private boolean isLocked;
+    private int animationTick;
+    private float yAngle;
+    private boolean usesCameraCurve;
     private BlockHitResult hitResult;
-    // For debug lines
-    private static final int LINE_TICKS = 10 * 20;
     private int lineTick = 0;
-
-    static {
-        OVERLAY_WHITELIST.add(VanillaGuiOverlay.VIGNETTE.id());
-        OVERLAY_WHITELIST.add(VanillaGuiOverlay.CROSSHAIR.id());
-    }
 
     // @formatter:off
     private DockInteractionHandler() {}

@@ -1,21 +1,14 @@
-package io.karma.pda.api.common.app.flex;
+/*
+ * Copyright (C) 2024 Karma Krafts & associates
+ */
 
-import org.lwjgl.util.yoga.YGValue;
-import org.lwjgl.util.yoga.Yoga;
+package io.karma.pda.api.common.flex;
 
 /**
  * @author Alexander Hinze
  * @since 20/03/2024
  */
 public interface FlexValue {
-    static FlexValue fromStruct(final YGValue value) {
-        return switch (value.unit()) { // @formatter:off
-            case Yoga.YGUnitPoint   -> pixel((int) value.value());
-            case Yoga.YGUnitPercent -> percent(value.value());
-            default                 -> auto();
-        }; // @formatter:on
-    }
-
     static FlexValue pixel(final int pixels) {
         return new FlexValue() {
             @Override
@@ -45,20 +38,35 @@ public interface FlexValue {
     }
 
     static FlexValue auto() {
-        return new FlexValue() {
-            @Override
-            public FlexValueType getType() {
-                return FlexValueType.AUTO;
-            }
+        return ZeroFlexValue.AUTO;
+    }
 
-            @Override
-            public float get() {
-                return 0F;
-            }
-        };
+    static FlexValue zero() {
+        return ZeroFlexValue.INSTANCE;
     }
 
     FlexValueType getType();
 
     float get();
+
+    final class ZeroFlexValue implements FlexValue {
+        static final ZeroFlexValue INSTANCE = new ZeroFlexValue(FlexValueType.PIXEL);
+        static final ZeroFlexValue AUTO = new ZeroFlexValue(FlexValueType.AUTO);
+
+        private final FlexValueType type;
+
+        private ZeroFlexValue(final FlexValueType type) {
+            this.type = type;
+        }
+
+        @Override
+        public FlexValueType getType() {
+            return type;
+        }
+
+        @Override
+        public float get() {
+            return 0F;
+        }
+    }
 }

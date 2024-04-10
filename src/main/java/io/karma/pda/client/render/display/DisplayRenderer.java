@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Karma Krafts & associates
+ * Copyright (C) 2024 Karma Krafts & associates
  */
 
 package io.karma.pda.client.render.display;
@@ -32,31 +32,34 @@ import java.util.function.Supplier;
  */
 @OnlyIn(Dist.CLIENT)
 public final class DisplayRenderer {
-    private static final DisplayRenderer INSTANCE = new DisplayRenderer();
-    private static final int GLITCH_TICKS = 10;
     public static final float MIN_X = 0.25F;
     public static final float MIN_Y = 0.125F;
     public static final float OFFSET_Z = 0.609375F;
+    private static final DisplayRenderer INSTANCE = new DisplayRenderer();
+    private static final int GLITCH_TICKS = 10;
     private static final float SIZE_X = 0.5F;
     public static final int RES_X = ((int) (SIZE_X * 16F) * 16) << 1; // 256
+    public static final float MAX_X = MIN_X + SIZE_X;
     private static final float SIZE_Y = 0.5625F;
     public static final int RES_Y = ((int) (SIZE_Y * 16F) * 16) << 1; // 288
-    public static final float MAX_X = MIN_X + SIZE_X;
-    public static final float MAX_Y = MIN_Y + SIZE_Y;
-    private static final Matrix4f IDENTITY_MATRIX = new Matrix4f().identity();
     private static final Matrix4f DISPLAY_PROJECTION_MATRIX = new Matrix4f().ortho2D(0F, RES_X, RES_Y, 0F);
-    private static final ResourceLocation PIXEL_TEXTURE = new ResourceLocation(Constants.MODID, "textures/pixel.png");
-    private static ShaderInstance BLIT_BW_SHADER;
-    private static ShaderInstance BLIT_SRGB_SHADER;
-    private static ShaderInstance BLIT_OLED_SHADER;
-    private static ShaderInstance COLOR_SHADER;
-    private static ShaderInstance TEXTURE_SHADER;
-
     private static final RenderStateShard.OutputStateShard DISPLAY_OUTPUT = new RenderStateShard.OutputStateShard(
         "display_output",
         INSTANCE::setupDisplayOutput,
         INSTANCE::resetDisplayOutput);
-
+    public static final float MAX_Y = MIN_Y + SIZE_Y;
+    private static final Matrix4f IDENTITY_MATRIX = new Matrix4f().identity();
+    private static final ResourceLocation PIXEL_TEXTURE = new ResourceLocation(Constants.MODID, "textures/pixel.png");
+    private static ShaderInstance BLIT_BW_SHADER;
+    private static final RenderType BLIT_BW_RENDER_TYPE = createBlitRenderType("bw", DisplayRenderer::getBlitBWShader);
+    private static ShaderInstance BLIT_SRGB_SHADER;
+    private static final RenderType BLIT_SRGB_RENDER_TYPE = createBlitRenderType("srgb",
+        DisplayRenderer::getBlitSRGBShader);
+    private static ShaderInstance BLIT_OLED_SHADER;
+    private static final RenderType BLIT_OLED_RENDER_TYPE = createBlitRenderType("oled",
+        DisplayRenderer::getBlitOLEDShader);
+    private static ShaderInstance COLOR_SHADER;
+    // @formatter:on
     // @formatter:off
     private static final RenderType COLOR_RENDER_TYPE = RenderType.create("pda_display_color",
         DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 4, false, false,
@@ -66,7 +69,7 @@ public final class DisplayRenderer {
             .setOutputState(DISPLAY_OUTPUT)
             .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
             .createCompositeState(false));
-
+    private static ShaderInstance TEXTURE_SHADER;
     private static final RenderType COLOR_TEX_RENDER_TYPE = RenderType.create("pda_display_color_tex",
         DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 4, false, false,
         RenderType.CompositeState.builder()
@@ -75,13 +78,23 @@ public final class DisplayRenderer {
             .setOutputState(DISPLAY_OUTPUT)
             .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
             .createCompositeState(false));
-    // @formatter:on
-
-    private static final RenderType BLIT_BW_RENDER_TYPE = createBlitRenderType("bw", DisplayRenderer::getBlitBWShader);
-    private static final RenderType BLIT_SRGB_RENDER_TYPE = createBlitRenderType("srgb",
-        DisplayRenderer::getBlitSRGBShader);
-    private static final RenderType BLIT_OLED_RENDER_TYPE = createBlitRenderType("oled",
-        DisplayRenderer::getBlitOLEDShader);
+    private final BufferBuilder blitBuilder = new BufferBuilder(48);
+    private final MultiBufferSource.BufferSource blitBufferSource = MultiBufferSource.immediate(blitBuilder);
+    private final HashMap<RenderType, BufferBuilder> displayBuilders = new HashMap<>();
+    private final BufferBuilder displayBuilder = new BufferBuilder(1000);
+    private final MultiBufferSource.BufferSource displayBufferSource = MultiBufferSource.immediateWithBuffers(
+        displayBuilders,
+        displayBuilder);
+    private final int[] prevViewport = new int[4]; // Viewport position/size from last frame
+    private final PoseStack displayPoseStack = new PoseStack();
+    private DisplayFramebuffer framebuffer;
+    private Matrix4f prevProjectionMatrix;
+    private VertexSorting prevVertexSorting;
+    private Matrix4f prevModelViewMatrix;
+    private float glitchFactor;
+    private DisplayRenderer() {
+        displayPoseStack.setIdentity();
+    }
 
     private static RenderType createBlitRenderType(final String name, final Supplier<ShaderInstance> shaderSupplier) {
         // @formatter:off
@@ -105,28 +118,45 @@ public final class DisplayRenderer {
         // @formatter:on
     }
 
-    private final BufferBuilder blitBuilder = new BufferBuilder(48);
-    private final MultiBufferSource.BufferSource blitBufferSource = MultiBufferSource.immediate(blitBuilder);
-    private final HashMap<RenderType, BufferBuilder> displayBuilders = new HashMap<>();
-    private final BufferBuilder displayBuilder = new BufferBuilder(1000);
-    private final MultiBufferSource.BufferSource displayBufferSource = MultiBufferSource.immediateWithBuffers(
-        displayBuilders,
-        displayBuilder);
-
-    private final int[] prevViewport = new int[4]; // Viewport position/size from last frame
-    private final PoseStack displayPoseStack = new PoseStack();
-    private DisplayFramebuffer framebuffer;
-    private Matrix4f prevProjectionMatrix;
-    private VertexSorting prevVertexSorting;
-    private Matrix4f prevModelViewMatrix;
-    private float glitchFactor;
-
-    private DisplayRenderer() {
-        displayPoseStack.setIdentity();
-    }
-
     public static DisplayRenderer getInstance() {
         return INSTANCE.reset();
+    }
+
+    @SuppressWarnings("all")
+    private static ShaderInstance getBlitBWShader() {
+        BLIT_BW_SHADER.getUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
+        BLIT_BW_SHADER.getUniform("GlitchFactor").set(INSTANCE.glitchFactor);
+        return BLIT_BW_SHADER;
+    }
+
+    @SuppressWarnings("all")
+    private static ShaderInstance getBlitSRGBShader() {
+        BLIT_SRGB_SHADER.getUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
+        BLIT_SRGB_SHADER.getUniform("GlitchFactor").set(INSTANCE.glitchFactor);
+        return BLIT_SRGB_SHADER;
+    }
+
+    @SuppressWarnings("all")
+    private static ShaderInstance getBlitOLEDShader() {
+        BLIT_OLED_SHADER.getUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
+        BLIT_OLED_SHADER.getUniform("GlitchFactor").set(INSTANCE.glitchFactor);
+        return BLIT_OLED_SHADER;
+    }
+
+    private static ShaderInstance getColorShader() {
+        return COLOR_SHADER;
+    }
+
+    private static ShaderInstance getColorTexShader() {
+        return TEXTURE_SHADER;
+    }
+
+    private static RenderType getBlitRenderType(final DisplayType type) {
+        return switch (type) {
+            case SRGB -> BLIT_SRGB_RENDER_TYPE;
+            case OLED -> BLIT_OLED_RENDER_TYPE;
+            default -> BLIT_BW_RENDER_TYPE;
+        };
     }
 
     private DisplayRenderer reset() {
@@ -200,35 +230,6 @@ public final class DisplayRenderer {
         framebuffer.unbind();
     }
 
-    @SuppressWarnings("all")
-    private static ShaderInstance getBlitBWShader() {
-        BLIT_BW_SHADER.getUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
-        BLIT_BW_SHADER.getUniform("GlitchFactor").set(INSTANCE.glitchFactor);
-        return BLIT_BW_SHADER;
-    }
-
-    @SuppressWarnings("all")
-    private static ShaderInstance getBlitSRGBShader() {
-        BLIT_SRGB_SHADER.getUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
-        BLIT_SRGB_SHADER.getUniform("GlitchFactor").set(INSTANCE.glitchFactor);
-        return BLIT_SRGB_SHADER;
-    }
-
-    @SuppressWarnings("all")
-    private static ShaderInstance getBlitOLEDShader() {
-        BLIT_OLED_SHADER.getUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
-        BLIT_OLED_SHADER.getUniform("GlitchFactor").set(INSTANCE.glitchFactor);
-        return BLIT_OLED_SHADER;
-    }
-
-    private static ShaderInstance getColorShader() {
-        return COLOR_SHADER;
-    }
-
-    private static ShaderInstance getColorTexShader() {
-        return TEXTURE_SHADER;
-    }
-
     private void renderIntoDisplayBuffer() {
         displayPoseStack.pushPose();
 
@@ -241,14 +242,6 @@ public final class DisplayRenderer {
 
         displayBufferSource.endBatch();
         displayPoseStack.popPose();
-    }
-
-    private static RenderType getBlitRenderType(final DisplayType type) {
-        return switch (type) {
-            case SRGB -> BLIT_SRGB_RENDER_TYPE;
-            case OLED -> BLIT_OLED_RENDER_TYPE;
-            default -> BLIT_BW_RENDER_TYPE;
-        };
     }
 
     @SuppressWarnings("all")

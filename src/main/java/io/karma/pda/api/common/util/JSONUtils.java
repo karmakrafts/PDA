@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Karma Krafts & associates
+ * Copyright (C) 2024 Karma Krafts & associates
  */
 
 package io.karma.pda.api.common.util;
@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.util.Separators;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import io.karma.pda.api.common.app.data.ComponentModule;
 
 /**
  * @author Alexander Hinze
@@ -22,7 +21,6 @@ public final class JSONUtils {
 
     static { // @formatter:off
         MAPPER = new ObjectMapper();
-        MAPPER.registerModule(ComponentModule.INSTANCE);
         READER = MAPPER.reader();
         WRITER = MAPPER.writer(new DefaultPrettyPrinter()
             .withSeparators(Separators.createDefaultInstance().withRootSeparator("\n")));

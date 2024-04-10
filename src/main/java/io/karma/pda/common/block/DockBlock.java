@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Karma Krafts & associates
+ * Copyright (C) 2024 Karma Krafts & associates
  */
 
 package io.karma.pda.common.block;
@@ -53,8 +53,8 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     public static final EnumProperty<HorizontalDirection> ORIENTATION = EnumProperty.create("orientation",
         HorizontalDirection.class);
     public static final BooleanProperty HAS_ITEM = BooleanProperty.create("has_item");
-    private static final EnumMap<HorizontalDirection, VoxelShape> EMPTY_SHAPES = new EnumMap<>(HorizontalDirection.class);
     public static final EnumMap<HorizontalDirection, VoxelShape> SHAPES = new EnumMap<>(HorizontalDirection.class);
+    private static final EnumMap<HorizontalDirection, VoxelShape> EMPTY_SHAPES = new EnumMap<>(HorizontalDirection.class);
 
     static {
         for (final var dir : HorizontalDirection.values()) {
@@ -177,7 +177,7 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
         else if (world.isClientSide) {
             final var game = Minecraft.getInstance();
             if (game.options.getCameraType() == CameraType.FIRST_PERSON) {
-                game.setScreen(new DockScreen(pos));
+                game.setScreen(new DockScreen(player, pos));
                 return InteractionResult.SUCCESS;
             }
         }

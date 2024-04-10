@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2024 Karma Krafts & associates
+ * Copyright (C) 2024 Karma Krafts & associates
  */
 
 package io.karma.pda.common.inventory;
 
-import io.karma.pda.common.util.NBTUtils;
+import io.karma.pda.api.common.util.NBTUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;

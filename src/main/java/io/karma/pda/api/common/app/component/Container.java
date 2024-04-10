@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2024 Karma Krafts & associates
+ * Copyright (C) 2024 Karma Krafts & associates
  */
 
 package io.karma.pda.api.common.app.component;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.karma.sliced.view.View;
+import io.karma.sliced.slice.Slice;
+
+import javax.annotation.Nullable;
+import java.util.UUID;
 
 /**
  * @author Alexander Hinze
@@ -16,19 +18,8 @@ public interface Container extends Component {
 
     void removeChild(final Component child);
 
-    View<Component> getChildren();
+    @Nullable
+    Component findChild(final UUID uuid);
 
-    @Override
-    default void serialize(final ObjectNode node) {
-        for (final var child : getChildren()) {
-            child.serialize(node);
-        }
-    }
-
-    @Override
-    default void deserialize(final ObjectNode node) {
-        for (final var child : getChildren()) {
-            child.deserialize(node);
-        }
-    }
+    Slice<Component> getChildren();
 }

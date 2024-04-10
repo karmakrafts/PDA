@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Karma Krafts & associates
+ * Copyright (C) 2024 Karma Krafts & associates
  */
 
 package io.karma.pda.common;
@@ -17,6 +17,7 @@ import io.karma.pda.client.render.display.DisplayRenderer;
 import io.karma.pda.client.render.item.PDAItemRenderer;
 import io.karma.pda.client.screen.DockStorageScreen;
 import io.karma.pda.client.screen.PDAStorageScreen;
+import io.karma.pda.client.session.DefaultSessionHandler;
 import io.karma.pda.common.init.*;
 import io.karma.pda.common.menu.DockStorageMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
@@ -59,11 +60,15 @@ import org.apache.logging.log4j.Logger;
 public class PDAMod {
     public static final Logger LOGGER = LogManager.getLogger();
     public static final DispositionHandler DISPOSITION_HANDLER = new DispositionHandler(PDAMod::handleDisposition);
+
+    // @formatter:off
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(Constants.MODID,
             "play"),
         () -> Constants.PROTOCOL_VERSION,
         Constants.PROTOCOL_VERSION::equals,
         Constants.PROTOCOL_VERSION::equals);
+    // @formatter:on
+
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Constants.MODID);
     private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS,
         Constants.MODID);
@@ -119,7 +124,7 @@ public class PDAMod {
 
     public PDAMod() {
         CommonEventHandler.INSTANCE.setup();
-        CommonPacketHandler.setup(CHANNEL);
+        CommonPacketHandler.INSTANCE.setup();
 
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         BLOCK_ENTITIES.register(modBus);
@@ -138,6 +143,7 @@ public class PDAMod {
             PDAItemRenderer.INSTANCE.setup();
             modBus.addListener(this::onClientSetup);
             DisplayRenderer.getInstance().setupEarly();
+            API.setSessionHandler(new DefaultSessionHandler());
         });
     }
 

@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2024 Karma Krafts & associates
+ * Copyright (C) 2024 Karma Krafts & associates
  */
 
 package io.karma.pda.api.common.app.component;
 
-import io.karma.pda.api.common.app.flex.FlexNode;
+import io.karma.pda.api.common.flex.FlexSpec;
+import io.karma.pda.client.flex.FlexNode;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -22,11 +23,6 @@ public abstract class AbstractComponent implements Component {
     protected AbstractComponent(final ComponentType<?> type, final UUID uuid) {
         this.type = type;
         this.uuid = uuid;
-    }
-
-    @Override
-    public void dispose() {
-        flexNode.dispose();
     }
 
     @Override
@@ -50,7 +46,7 @@ public abstract class AbstractComponent implements Component {
     }
 
     @Override
-    public FlexNode getFlexboxNode() {
+    public FlexSpec getLayoutSpec() {
         return flexNode;
     }
 }

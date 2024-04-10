@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2024 Karma Krafts & associates
+ */
+
 package io.karma.pda.common.util;
 
 import net.minecraft.core.NonNullList;

@@ -1,10 +1,8 @@
 /*
- * Copyright (c) 2024 Karma Krafts & associates
+ * Copyright (C) 2024 Karma Krafts & associates
  */
 
 package io.karma.pda.api.common.app.component;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.UUID;
 
@@ -23,31 +21,19 @@ public class Label extends AbstractComponent {
         super(DefaultComponents.LABEL, uuid);
     }
 
-    @Override
-    public void serialize(final ObjectNode node) {
-        node.put(TAG_TEXT, text);
-        node.put(TAG_COLOR, color);
-    }
-
-    @Override
-    public void deserialize(final ObjectNode node) {
-        text = node.get(TAG_TEXT).asText();
-        color = node.get(TAG_COLOR).asInt();
+    public String getText() {
+        return text;
     }
 
     public void setText(final String text) {
         this.text = text;
     }
 
-    public void setColor(final int color) {
-        this.color = color;
-    }
-
-    public String getText() {
-        return text;
-    }
-
     public int getColor() {
         return color;
+    }
+
+    public void setColor(final int color) {
+        this.color = color;
     }
 }

@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2024 Karma Krafts & associates
+ */
+
 package io.karma.pda.common.util;
 
 import org.joml.Vector3f;
@@ -19,11 +23,6 @@ public final class BezierCurve {
         this.samples = new Vector3f[sampleCount];
         Arrays.fill(samples, new Vector3f());
         // Pre-compute the curve when its constructed
-        compute();
-    }
-
-    public void setPoints(final Vector3f... points) {
-        this.points = points;
         compute();
     }
 
@@ -64,5 +63,10 @@ public final class BezierCurve {
 
     public Vector3f[] getPoints() {
         return points;
+    }
+
+    public void setPoints(final Vector3f... points) {
+        this.points = points;
+        compute();
     }
 }

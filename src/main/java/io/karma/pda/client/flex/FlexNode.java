@@ -1,0 +1,304 @@
+/*
+ * Copyright (C) 2024 Karma Krafts & associates
+ */
+
+package io.karma.pda.client.flex;
+
+import io.karma.pda.api.common.dispose.Disposable;
+import io.karma.pda.api.common.flex.*;
+import io.karma.sliced.slice.Slice;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.util.yoga.YGValue;
+import org.lwjgl.util.yoga.Yoga;
+
+import java.util.ArrayList;
+
+/**
+ * @author Alexander Hinze
+ * @since 20/03/2024
+ */
+public class FlexNode implements FlexSpec, Disposable {
+    private final long address;
+    private final ArrayList<FlexNode> children = new ArrayList<>();
+
+    public FlexNode() {
+        address = Yoga.YGNodeNew();
+        if (address == MemoryUtil.NULL) {
+            throw new IllegalStateException("Could not allocate layout node");
+        }
+    }
+
+    public static FlexNode fromSpec(final FlexSpec spec) {
+        final var node = new FlexNode();
+        node.setDirection(spec.getDirection());
+        node.setOverflow(spec.getOverflow());
+        node.setSelfAlignment(spec.getSelfAlignment());
+        node.setItemAlignment(spec.getItemAlignment());
+        node.setContentAlignment(spec.getContentAlignment());
+        node.setContentJustification(spec.getContentJustification());
+        node.setMargin(spec.getMargin());
+        node.setPadding(spec.getPadding());
+        node.setPositionType(spec.getPositionType());
+        node.setWidth(spec.getWidth());
+        node.setHeight(spec.getHeight());
+        node.setX(spec.getX());
+        node.setY(spec.getY());
+        return node;
+    }
+
+    public void addChild(final FlexNode node) {
+        if (children.contains(node)) {
+            return;
+        }
+        Yoga.YGNodeInsertChild(address, node.address, children.size());
+        children.add(node);
+    }
+
+    public void removeChild(final FlexNode node) {
+        if (!children.contains(node)) {
+            return;
+        }
+        Yoga.YGNodeRemoveChild(address, node.address);
+        children.remove(node);
+    }
+
+    public Slice<FlexNode> getChildren() {
+        return Slice.of(children);
+    }
+
+    // Direction
+
+    @Override
+    public FlexDirection getDirection() {
+        return FlexUtils.getDirection(Yoga.YGNodeStyleGetDirection(address));
+    }
+
+    public void setDirection(final FlexDirection direction) {
+        Yoga.YGNodeStyleSetDirection(address, FlexUtils.getDirection(direction));
+    }
+
+    // Overflow
+
+    @Override
+    public FlexOverflow getOverflow() {
+        return FlexUtils.getOverflow(Yoga.YGNodeStyleGetOverflow(address));
+    }
+
+    public void setOverflow(final FlexOverflow overflow) {
+        Yoga.YGNodeStyleSetOverflow(address, FlexUtils.getOverflow(overflow));
+    }
+
+    // Alignments
+
+    @Override
+    public FlexAlignment getSelfAlignment() {
+        return FlexUtils.getAlignment(Yoga.YGNodeStyleGetAlignSelf(address));
+    }
+
+    public void setSelfAlignment(final FlexAlignment alignment) {
+        Yoga.YGNodeStyleSetAlignSelf(address, FlexUtils.getAlignment(alignment));
+    }
+
+    @Override
+    public FlexAlignment getItemAlignment() {
+        return FlexUtils.getAlignment(Yoga.YGNodeStyleGetAlignItems(address));
+    }
+
+    public void setItemAlignment(final FlexAlignment alignment) {
+        Yoga.YGNodeStyleSetAlignItems(address, FlexUtils.getAlignment(alignment));
+    }
+
+    @Override
+    public FlexAlignment getContentAlignment() {
+        return FlexUtils.getAlignment(Yoga.YGNodeStyleGetAlignContent(address));
+    }
+
+    public void setContentAlignment(final FlexAlignment alignment) {
+        Yoga.YGNodeStyleSetAlignContent(address, FlexUtils.getAlignment(alignment));
+    }
+
+    // Justification
+
+    @Override
+    public FlexJustify getContentJustification() {
+        return FlexUtils.getJustify(Yoga.YGNodeStyleGetJustifyContent(address));
+    }
+
+    public void setContentJustification(final FlexJustify justify) {
+        Yoga.YGNodeStyleSetJustifyContent(address, FlexUtils.getJustify(justify));
+    }
+
+    // Margin
+
+    public void setEdgeMargin(final FlexEdge edge, final FlexValue value) {
+        switch(value.getType()) { // @formatter:off
+            case PIXEL   -> Yoga.YGNodeStyleSetMargin(address, edge.getValue(), value.get());
+            case PERCENT -> Yoga.YGNodeStyleSetMarginPercent(address, edge.getValue(), value.get());
+            default      -> throw new UnsupportedOperationException();
+        } // @formatter:on
+    }
+
+    public FlexValue getEdgeMargin(final FlexEdge edge) {
+        try (final var stack = MemoryStack.stackPush()) {
+            final var value = YGValue.malloc(stack);
+            Yoga.YGNodeStyleGetMargin(address, edge.getValue(), value);
+            return FlexUtils.getValue(value);
+        }
+    }
+
+    @Override
+    public FlexBorder getMargin() {
+        return FlexBorder.of(getEdgeMargin(FlexEdge.LEFT),
+            getEdgeMargin(FlexEdge.RIGHT),
+            getEdgeMargin(FlexEdge.TOP),
+            getEdgeMargin(FlexEdge.BOTTOM));
+    }
+
+    public void setMargin(final FlexBorder margin) {
+        setEdgeMargin(FlexEdge.LEFT, margin.getLeft());
+        setEdgeMargin(FlexEdge.RIGHT, margin.getRight());
+        setEdgeMargin(FlexEdge.TOP, margin.getTop());
+        setEdgeMargin(FlexEdge.BOTTOM, margin.getBottom());
+    }
+
+    // Padding
+
+    public void setEdgePadding(final FlexEdge edge, final FlexValue value) {
+        switch(value.getType()) { // @formatter:off
+            case PIXEL   -> Yoga.YGNodeStyleSetPadding(address, edge.getValue(), value.get());
+            case PERCENT -> Yoga.YGNodeStyleSetPaddingPercent(address, edge.getValue(), value.get());
+            default      -> throw new UnsupportedOperationException();
+        } // @formatter:on
+    }
+
+    public FlexValue getEdgePadding(final FlexEdge edge) {
+        try (final var stack = MemoryStack.stackPush()) {
+            final var value = YGValue.malloc(stack);
+            Yoga.YGNodeStyleGetPadding(address, edge.getValue(), value);
+            return FlexUtils.getValue(value);
+        }
+    }
+
+    @Override
+    public FlexBorder getPadding() {
+        return FlexBorder.of(getEdgePadding(FlexEdge.LEFT),
+            getEdgePadding(FlexEdge.RIGHT),
+            getEdgePadding(FlexEdge.TOP),
+            getEdgePadding(FlexEdge.BOTTOM));
+    }
+
+    public void setPadding(final FlexBorder padding) {
+        setEdgePadding(FlexEdge.LEFT, padding.getLeft());
+        setEdgePadding(FlexEdge.RIGHT, padding.getRight());
+        setEdgePadding(FlexEdge.TOP, padding.getTop());
+        setEdgePadding(FlexEdge.BOTTOM, padding.getBottom());
+    }
+
+    // Position type
+
+    @Override
+    public FlexPositionType getPositionType() {
+        return FlexUtils.getPositionType(Yoga.YGNodeStyleGetPositionType(address));
+    }
+
+    public void setPositionType(final FlexPositionType type) {
+        Yoga.YGNodeStyleSetPositionType(address, FlexUtils.getPositionType(type));
+    }
+
+    // Position
+
+    @Override
+    public FlexValue getX() {
+        try (final var stack = MemoryStack.stackPush()) {
+            final var value = YGValue.malloc(stack);
+            Yoga.YGNodeStyleGetPosition(address, Yoga.YGEdgeLeft, value);
+            return FlexUtils.getValue(value);
+        }
+    }
+
+    public void setX(final FlexValue value) {
+        switch (value.getType()) {
+            case PIXEL -> Yoga.YGNodeStyleSetPosition(address, Yoga.YGEdgeLeft, value.get());
+            case PERCENT -> Yoga.YGNodeStyleSetPositionPercent(address, Yoga.YGEdgeLeft, value.get());
+            default -> throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public FlexValue getY() {
+        try (final var stack = MemoryStack.stackPush()) {
+            final var value = YGValue.malloc(stack);
+            Yoga.YGNodeStyleGetPosition(address, Yoga.YGEdgeTop, value);
+            return FlexUtils.getValue(value);
+        }
+    }
+
+    public void setY(final FlexValue value) {
+        switch (value.getType()) {
+            case PIXEL -> Yoga.YGNodeStyleSetPosition(address, Yoga.YGEdgeTop, value.get());
+            case PERCENT -> Yoga.YGNodeStyleSetPositionPercent(address, Yoga.YGEdgeTop, value.get());
+            default -> throw new UnsupportedOperationException();
+        }
+    }
+
+    public int getAbsoluteX() {
+        return (int) Yoga.YGNodeLayoutGetLeft(address);
+    }
+
+    public int getAbsoluteY() {
+        return (int) Yoga.YGNodeLayoutGetTop(address);
+    }
+
+    // Size
+
+    @Override
+    public FlexValue getWidth() {
+        try (final var stack = MemoryStack.stackPush()) {
+            final var value = YGValue.malloc(stack);
+            Yoga.YGNodeStyleGetWidth(address, value);
+            return FlexUtils.getValue(value);
+        }
+    }
+
+    public void setWidth(final FlexValue width) {
+        switch (width.getType()) { // @formatter:off
+            case PIXEL   -> Yoga.YGNodeStyleSetWidth(address, width.get());
+            case PERCENT -> Yoga.YGNodeStyleSetWidthPercent(address, width.get());
+            default      -> Yoga.YGNodeStyleSetWidthAuto(address);
+        } // @formatter:on
+    }
+
+    @Override
+    public FlexValue getHeight() {
+        try (final var stack = MemoryStack.stackPush()) {
+            final var value = YGValue.malloc(stack);
+            Yoga.YGNodeStyleGetHeight(address, value);
+            return FlexUtils.getValue(value);
+        }
+    }
+
+    public void setHeight(final FlexValue height) {
+        switch (height.getType()) { // @formatter:off
+            case PIXEL   -> Yoga.YGNodeStyleSetHeight(address, height.get());
+            case PERCENT -> Yoga.YGNodeStyleSetHeightPercent(address, height.get());
+            default      -> Yoga.YGNodeStyleSetHeightAuto(address);
+        } // @formatter:on
+    }
+
+    public int getAbsoluteWidth() {
+        return (int) Yoga.YGNodeLayoutGetWidth(address);
+    }
+
+    public int getAbsoluteHeight() {
+        return (int) Yoga.YGNodeLayoutGetHeight(address);
+    }
+
+    @Override
+    public void dispose() {
+        Yoga.YGNodeFree(address);
+        for (final var child : children) {
+            child.dispose();
+        }
+    }
+}

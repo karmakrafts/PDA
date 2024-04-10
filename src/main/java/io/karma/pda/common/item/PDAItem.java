@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Karma Krafts & associates
+ * Copyright (C) 2024 Karma Krafts & associates
  */
 
 package io.karma.pda.common.item;
@@ -89,7 +89,7 @@ public final class PDAItem extends Item implements TabItemProvider {
             }
             stack.getOrCreateTag().putBoolean(TAG_IS_ON, true);
             if (world.isClientSide) {
-                Minecraft.getInstance().setScreen(new PDAScreen(hands));
+                Minecraft.getInstance().setScreen(new PDAScreen(player, hands));
                 // Play sound when engaging
                 player.playSound(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, 0.3F, 1.75F);
             }
