@@ -17,12 +17,13 @@ import io.karma.pda.client.render.display.DisplayRenderer;
 import io.karma.pda.client.render.item.PDAItemRenderer;
 import io.karma.pda.client.screen.DockStorageScreen;
 import io.karma.pda.client.screen.PDAStorageScreen;
-import io.karma.pda.client.session.DefaultSessionHandler;
+import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.init.*;
 import io.karma.pda.common.menu.DockStorageMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
+import io.karma.pda.common.network.ClientPacketHandler;
 import io.karma.pda.common.network.CommonPacketHandler;
-import io.karma.pda.common.session.SessionDataHandler;
+import io.karma.pda.common.session.ServerSessionHandler;
 import io.karma.pda.common.util.TabItemProvider;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.NonNullList;
@@ -53,6 +54,9 @@ import net.minecraftforge.registries.RegistryObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  * @author Alexander Hinze
  * @since 05/02/2024
@@ -60,6 +64,7 @@ import org.apache.logging.log4j.Logger;
 @Mod(Constants.MODID)
 public class PDAMod {
     public static final Logger LOGGER = LogManager.getLogger();
+    public static final ExecutorService EXECUTOR_SERVICE = Executors.newWorkStealingPool();
     public static final DispositionHandler DISPOSITION_HANDLER = new DispositionHandler(PDAMod::handleDisposition);
 
     // @formatter:off
@@ -121,12 +126,15 @@ public class PDAMod {
         ModMenus.register(MENU_TYPES);
         ModComponents.register(COMPONENTS);
         ModApps.register(APPS);
+
+        API.setExecutorService(EXECUTOR_SERVICE);
     }
 
     public PDAMod() {
         CommonEventHandler.INSTANCE.setup();
         CommonPacketHandler.INSTANCE.setup();
-        SessionDataHandler.INSTANCE.setup();
+        ClientPacketHandler.INSTANCE.setup();
+        ServerSessionHandler.INSTANCE.setup();
 
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         BLOCK_ENTITIES.register(modBus);
@@ -145,7 +153,7 @@ public class PDAMod {
             PDAItemRenderer.INSTANCE.setup();
             modBus.addListener(this::onClientSetup);
             DisplayRenderer.getInstance().setupEarly();
-            API.setSessionHandler(new DefaultSessionHandler());
+            API.setSessionHandler(ClientSessionHandler.INSTANCE);
         });
     }
 
@@ -166,6 +174,7 @@ public class PDAMod {
 
     private void onGameShutdown(final GameShuttingDownEvent event) {
         DISPOSITION_HANDLER.disposeAll();
+
     }
 
     @SuppressWarnings("unchecked")

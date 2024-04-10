@@ -7,13 +7,13 @@ package io.karma.pda.common.network;
 import io.karma.pda.api.common.session.DockedSessionContext;
 import io.karma.pda.api.common.session.HandheldSessionContext;
 import io.karma.pda.common.PDAMod;
-import io.karma.pda.common.session.SessionDataHandler;
-import net.minecraft.client.Minecraft;
+import io.karma.pda.common.network.cb.CPacketCreateSession;
+import io.karma.pda.common.network.sb.SPacketCreateSession;
+import io.karma.pda.common.network.sb.SPacketTerminateSession;
+import io.karma.pda.common.session.ServerSessionHandler;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.network.NetworkEvent;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -23,28 +23,23 @@ import java.util.function.Supplier;
  * @author Alexander Hinze
  * @since 10/04/2024
  */
-public final class CommonPacketHandler {
+public class CommonPacketHandler {
     public static final CommonPacketHandler INSTANCE = new CommonPacketHandler();
 
     // @formatter:off
-    private CommonPacketHandler() {}
+    protected CommonPacketHandler() {}
     // @formatter:on
 
     private static <MSG> BiConsumer<MSG, Supplier<NetworkEvent.Context>> makeMessageHandler(
-        final BiConsumer<MSG, Player> handler) {
+        final BiConsumer<MSG, NetworkEvent.Context> handler) {
         return (packet, contextSupplier) -> {
             final var context = contextSupplier.get();
-            context.enqueueWork(() -> {
-                Player player = context.getSender();
-                if (player == null && FMLEnvironment.dist == Dist.CLIENT) {
-                    player = Minecraft.getInstance().player;
-                }
-                handler.accept(packet, player);
-            });
+            context.enqueueWork(() -> handler.accept(packet, context));
             context.setPacketHandled(true);
         };
     }
 
+    @ApiStatus.Internal
     public void setup() {
         registerPacket(PacketIDs.SB_CREATE_SESSION,
             SPacketCreateSession.class,
@@ -58,20 +53,23 @@ public final class CommonPacketHandler {
             this::handleSPacketTerminateSession);
     }
 
-    private <MSG> void registerPacket(final int id, final Class<MSG> type,
-                                      final BiConsumer<MSG, FriendlyByteBuf> encoder,
-                                      final Function<FriendlyByteBuf, MSG> decoder,
-                                      final BiConsumer<MSG, Player> handler) {
+    protected <MSG> void registerPacket(final int id, final Class<MSG> type,
+                                        final BiConsumer<MSG, FriendlyByteBuf> encoder,
+                                        final Function<FriendlyByteBuf, MSG> decoder,
+                                        final BiConsumer<MSG, NetworkEvent.Context> handler) {
         PDAMod.CHANNEL.registerMessage(id, type, encoder, decoder, makeMessageHandler(handler));
     }
 
-    private void handleSPacketCreateSession(final SPacketCreateSession packet, final Player player) {
-        SessionDataHandler.INSTANCE.createSession(packet.getUUID(),
-            packet.getType().isHandheld() ? new HandheldSessionContext(player,
-                packet.getHand()) : new DockedSessionContext(player, packet.getPos()));
+    private void handleSPacketCreateSession(final SPacketCreateSession packet, final NetworkEvent.Context context) {
+        final var player = context.getSender();
+        final var session = ServerSessionHandler.INSTANCE.createSession(packet.getType().isHandheld() ? new HandheldSessionContext(
+            player,
+            packet.getHand()) : new DockedSessionContext(player, packet.getPos()));
+        PDAMod.CHANNEL.reply(new CPacketCreateSession(packet.getRequestId(), session.getUUID()), context);
     }
 
-    private void handleSPacketTerminateSession(final SPacketTerminateSession packet, final Player player) {
-        SessionDataHandler.INSTANCE.terminateSession(packet.getUUID());
+    private void handleSPacketTerminateSession(final SPacketTerminateSession packet,
+                                               final NetworkEvent.Context context) {
+        ServerSessionHandler.INSTANCE.terminateSession(packet.getUUID());
     }
 }

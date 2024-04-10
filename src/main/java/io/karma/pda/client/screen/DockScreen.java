@@ -24,16 +24,21 @@ import org.lwjgl.glfw.GLFW;
 @OnlyIn(Dist.CLIENT)
 public final class DockScreen extends Screen {
     private final long window;
-    private final Session session;
+    private Session session;
     private int previousInputMode;
 
     public DockScreen(final Player player, final BlockPos pos) {
         super(Component.empty());
         window = Minecraft.getInstance().getWindow().getWindow();
         DockInteractionHandler.INSTANCE.engage(pos);
+        // Set up the session
         final var sessionHandler = API.getSessionHandler();
-        session = sessionHandler.createSession(new DockedSessionContext(player, pos));
-        sessionHandler.setSession(session); // Make this the current session
+        sessionHandler.createSession(new DockedSessionContext(player, pos)).thenAccept(session -> {
+            Minecraft.getInstance().execute(() -> {
+                this.session = session;
+                sessionHandler.setSession(session); // Make this the current session
+            });
+        });
     }
 
     @Override

@@ -2,7 +2,7 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.common.network;
+package io.karma.pda.common.network.sb;
 
 import net.minecraft.network.FriendlyByteBuf;
 

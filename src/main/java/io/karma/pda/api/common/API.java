@@ -16,6 +16,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Collection;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author Alexander Hinze
@@ -24,6 +25,7 @@ import java.util.Collection;
 public final class API {
     @OnlyIn(Dist.CLIENT)
     private static SessionHandler sessionHandler;
+    private static ExecutorService executorService;
 
     // @formatter:off
     private API() {}
@@ -38,6 +40,14 @@ public final class API {
     @ApiStatus.Internal
     public static void setSessionHandler(final SessionHandler handler) {
         sessionHandler = handler;
+    }
+
+    public static void setExecutorService(final ExecutorService service) {
+        executorService = service;
+    }
+
+    public static ExecutorService getExecutorService() {
+        return executorService;
     }
 
     public static DeferredRegister<ComponentType<?>> makeDeferredComponentTypeRegister(final String modId) {

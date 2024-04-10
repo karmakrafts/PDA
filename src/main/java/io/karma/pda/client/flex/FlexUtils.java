@@ -5,6 +5,8 @@
 package io.karma.pda.client.flex;
 
 import io.karma.pda.api.common.flex.*;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.util.yoga.YGValue;
 import org.lwjgl.util.yoga.Yoga;
 
@@ -12,6 +14,7 @@ import org.lwjgl.util.yoga.Yoga;
  * @author Alexander Hinze
  * @since 10/04/2024
  */
+@OnlyIn(Dist.CLIENT)
 public final class FlexUtils {
     // @formatter:off
     private FlexUtils() {}

@@ -7,6 +7,8 @@ package io.karma.pda.client.flex;
 import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.pda.api.common.flex.*;
 import io.karma.sliced.slice.Slice;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.yoga.YGValue;
@@ -18,6 +20,7 @@ import java.util.ArrayList;
  * @author Alexander Hinze
  * @since 20/03/2024
  */
+@OnlyIn(Dist.CLIENT)
 public class FlexNode implements FlexSpec, Disposable {
     private final long address;
     private final ArrayList<FlexNode> children = new ArrayList<>();

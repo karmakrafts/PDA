@@ -27,19 +27,21 @@ import java.util.Objects;
 @OnlyIn(Dist.CLIENT)
 public final class PDAScreen extends Screen {
     private final EnumSet<InteractionHand> hands;
-    private final Session session;
+    private Session session;
 
     public PDAScreen(final Player player, final EnumSet<InteractionHand> hands) {
         super(Component.empty());
         this.hands = hands;
         hands.forEach(hand -> PDAItemRenderer.INSTANCE.setEngaged(hand, true));
+        // Set up session
         final var sessionHandler = API.getSessionHandler();
-        // @formatter:off
-        session = sessionHandler.createSession(hands.stream()
-            .map(hand -> new HandheldSessionContext(player, hand))
-            .toList(), InteractionHand.MAIN_HAND);
-        // @formatter:on
-        sessionHandler.setSession(session); // Make this the current session
+        sessionHandler.createSession(hands.stream().map(hand -> new HandheldSessionContext(player, hand)).toList(),
+            InteractionHand.MAIN_HAND).thenAccept(session -> {
+            Minecraft.getInstance().execute(() -> {
+                this.session = session;
+                sessionHandler.setSession(session); // Make this the current session
+            });
+        });
     }
 
     @Override

@@ -16,20 +16,20 @@ import java.util.UUID;
  * @author Alexander Hinze
  * @since 10/04/2024
  */
-public final class SessionDataHandler {
-    public static final SessionDataHandler INSTANCE = new SessionDataHandler();
+public final class ServerSessionHandler {
+    public static final ServerSessionHandler INSTANCE = new ServerSessionHandler();
     private final HashMap<UUID, Session> activeSessions = new HashMap<>();
 
     // @formatter:off
-    private SessionDataHandler() {}
+    private ServerSessionHandler() {}
     // @formatter:on
 
-    public void createSession(final UUID uuid, final SessionContext context) {
-        if (activeSessions.containsKey(uuid)) {
-            return;
-        }
-        activeSessions.put(uuid, new DefaultSession(uuid, context));
+    public Session createSession(final SessionContext context) {
+        final var uuid = UUID.randomUUID();
+        final var session = new DefaultSession(uuid, context);
+        activeSessions.put(uuid, session);
         PDAMod.LOGGER.debug("Created session {} on SERVER", uuid);
+        return session;
     }
 
     public void terminateSession(final UUID uuid) {

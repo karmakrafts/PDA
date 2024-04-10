@@ -4,7 +4,6 @@
 
 package io.karma.pda.api.common.app.component;
 
-import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.pda.api.common.flex.FlexSpec;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +13,7 @@ import java.util.UUID;
  * @author Alexander Hinze
  * @since 08/02/2024
  */
-public interface Component extends Disposable {
+public interface Component {
     ComponentType<?> getType();
 
     UUID getUUID();
@@ -25,8 +24,4 @@ public interface Component extends Disposable {
     void setParent(final @Nullable Component parent);
 
     FlexSpec getLayoutSpec();
-
-    @Override
-    default void dispose() {
-    }
 }
