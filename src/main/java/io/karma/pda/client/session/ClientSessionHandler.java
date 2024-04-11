@@ -11,7 +11,6 @@ import io.karma.pda.api.common.session.SessionContext;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.network.sb.SPacketCreateSession;
 import io.karma.pda.common.network.sb.SPacketTerminateSession;
-import io.karma.pda.common.session.DefaultSession;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -26,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Alexander Hinze
  * @since 10/04/2024
  */
-@OnlyIn(Dist.CLIENT)
+@OnlyIn(value = Dist.CLIENT)
 public final class ClientSessionHandler implements SessionHandler {
     public static final ClientSessionHandler INSTANCE = new ClientSessionHandler();
     private final ConcurrentHashMap<UUID, UUID> newlyCreatedSessions = new ConcurrentHashMap<>();
@@ -73,7 +72,7 @@ public final class ClientSessionHandler implements SessionHandler {
         final var requestId = request.getRequestId();
         Minecraft.getInstance().execute(() -> PDAMod.CHANNEL.sendToServer(request));
         PDAMod.LOGGER.debug("Requesting new session");
-        return getSessionId(requestId).thenApply(sessionId -> new DefaultSession(sessionId, context));
+        return getSessionId(requestId).thenApply(sessionId -> new ClientSession(sessionId, context));
     }
 
     @Override

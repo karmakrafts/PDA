@@ -4,7 +4,7 @@
 
 package io.karma.pda.api.common.session;
 
-import io.karma.pda.api.common.session.sync.Synchronizer;
+import io.karma.pda.api.common.sync.Synchronizer;
 
 import java.util.Collection;
 import java.util.Map;

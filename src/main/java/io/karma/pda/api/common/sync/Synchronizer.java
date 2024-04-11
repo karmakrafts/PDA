@@ -2,7 +2,7 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.api.common.session.sync;
+package io.karma.pda.api.common.sync;
 
 import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.util.Identifiable;
@@ -16,7 +16,9 @@ import java.util.UUID;
  * @since 11/04/2024
  */
 public interface Synchronizer {
-    void register(final UUID owner, final Synced<?> value);
+    void register(final UUID id, final Synced<?> value);
+
+    void flush();
 
     default void registerAll(final Identifiable object) {
         try {

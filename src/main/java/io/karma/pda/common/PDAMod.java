@@ -16,6 +16,8 @@ import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.client.DockInteractionHandler;
 import io.karma.pda.client.flex.ClientFlexNodeHandler;
 import io.karma.pda.client.render.display.DisplayRenderer;
+import io.karma.pda.client.render.gfx.DefaultBrushFactory;
+import io.karma.pda.client.render.gfx.DefaultGFXRenderTypes;
 import io.karma.pda.client.render.item.PDAItemRenderer;
 import io.karma.pda.client.screen.DockStorageScreen;
 import io.karma.pda.client.screen.PDAStorageScreen;
@@ -128,9 +130,6 @@ public class PDAMod {
         ModMenus.register(MENU_TYPES);
         ModComponents.register(COMPONENTS);
         ModApps.register(APPS);
-
-        API.setLogger(LOGGER);
-        API.setExecutorService(EXECUTOR_SERVICE);
     }
 
     public PDAMod() {
@@ -149,15 +148,11 @@ public class PDAMod {
         APPS.register(modBus);
 
         MinecraftForge.EVENT_BUS.addListener(this::onGameShutdown);
+        initAPI();
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            ClientEventHandler.INSTANCE.setup();
-            DockInteractionHandler.INSTANCE.setup();
-            PDAItemRenderer.INSTANCE.setup();
+            onClientEarlySetup();
             modBus.addListener(this::onClientSetup);
-            DisplayRenderer.getInstance().setupEarly();
-            ClientAPI.setSessionHandler(ClientSessionHandler.INSTANCE);
-            ClientAPI.setFlexNodeHandler(ClientFlexNodeHandler.INSTANCE);
         });
     }
 
@@ -178,10 +173,32 @@ public class PDAMod {
 
     private void onGameShutdown(final GameShuttingDownEvent event) {
         DISPOSITION_HANDLER.disposeAll();
-
     }
 
-    @SuppressWarnings("unchecked")
+    private void initAPI() {
+        API.setLogger(LOGGER);
+        API.setExecutorService(EXECUTOR_SERVICE);
+        API.init();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void onClientEarlySetup() {
+        ClientEventHandler.INSTANCE.setup();
+        DockInteractionHandler.INSTANCE.setup();
+        PDAItemRenderer.INSTANCE.setup();
+        DisplayRenderer.getInstance().setupEarly();
+        DefaultGFXRenderTypes.INSTANCE.setupEarly();
+        initClientAPI();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void initClientAPI() {
+        ClientAPI.setSessionHandler(ClientSessionHandler.INSTANCE);
+        ClientAPI.setFlexNodeHandler(ClientFlexNodeHandler.INSTANCE);
+        ClientAPI.setBrushFactory(DefaultBrushFactory.INSTANCE);
+        ClientAPI.init();
+    }
+
     @OnlyIn(Dist.CLIENT)
     private void onClientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {

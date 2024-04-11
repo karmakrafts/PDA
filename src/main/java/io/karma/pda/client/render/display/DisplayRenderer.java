@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.*;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.api.common.util.DisplayType;
 import io.karma.pda.client.ClientEventHandler;
+import io.karma.pda.client.render.gfx.DefaultGFXRenderTypes;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -45,7 +46,7 @@ public final class DisplayRenderer {
     private static final Matrix4f DISPLAY_PROJECTION_MATRIX = new Matrix4f().ortho2D(0F, RES_X, RES_Y, 0F);
     public static final float MAX_Y = MIN_Y + SIZE_Y;
     private static final Matrix4f IDENTITY_MATRIX = new Matrix4f().identity();
-    private static final RenderStateShard.OutputStateShard DISPLAY_OUTPUT = new RenderStateShard.OutputStateShard(
+    public static final RenderStateShard.OutputStateShard DISPLAY_OUTPUT = new RenderStateShard.OutputStateShard(
         "display_output",
         INSTANCE::setupDisplayOutput,
         INSTANCE::resetDisplayOutput);
@@ -58,26 +59,7 @@ public final class DisplayRenderer {
     private static ShaderInstance BLIT_OLED_SHADER;
     private static final RenderType BLIT_OLED_RENDER_TYPE = createBlitRenderType("oled",
         DisplayRenderer::getBlitOLEDShader);
-    private static ShaderInstance COLOR_SHADER;
-    // @formatter:on
-    // @formatter:off
-    private static final RenderType COLOR_RENDER_TYPE = RenderType.create("pda_display_color",
-        DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 4, false, false,
-        RenderType.CompositeState.builder()
-            .setCullState(RenderStateShard.CULL)
-            .setShaderState(new RenderStateShard.ShaderStateShard(DisplayRenderer::getColorShader))
-            .setOutputState(DISPLAY_OUTPUT)
-            .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-            .createCompositeState(false));
-    private static ShaderInstance TEXTURE_SHADER;
-    private static final RenderType COLOR_TEX_RENDER_TYPE = RenderType.create("pda_display_color_tex",
-        DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 4, false, false,
-        RenderType.CompositeState.builder()
-            .setCullState(RenderStateShard.CULL)
-            .setShaderState(new RenderStateShard.ShaderStateShard(DisplayRenderer::getColorTexShader))
-            .setOutputState(DISPLAY_OUTPUT)
-            .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-            .createCompositeState(false));
+
     private final BufferBuilder blitBuilder = new BufferBuilder(48);
     private final MultiBufferSource.BufferSource blitBufferSource = MultiBufferSource.immediate(blitBuilder);
     private final HashMap<RenderType, BufferBuilder> displayBuilders = new HashMap<>();
@@ -92,6 +74,7 @@ public final class DisplayRenderer {
     private VertexSorting prevVertexSorting;
     private Matrix4f prevModelViewMatrix;
     private float glitchFactor;
+
     private DisplayRenderer() {
         displayPoseStack.setIdentity();
     }
@@ -143,14 +126,6 @@ public final class DisplayRenderer {
         return BLIT_OLED_SHADER;
     }
 
-    private static ShaderInstance getColorShader() {
-        return COLOR_SHADER;
-    }
-
-    private static ShaderInstance getColorTexShader() {
-        return TEXTURE_SHADER;
-    }
-
     private static RenderType getBlitRenderType(final DisplayType type) {
         return switch (type) {
             case SRGB -> BLIT_SRGB_RENDER_TYPE;
@@ -196,12 +171,6 @@ public final class DisplayRenderer {
                 DefaultVertexFormat.POSITION_TEX_COLOR), shader -> {
                 BLIT_OLED_SHADER = shader;
             });
-            event.registerShader(new ShaderInstance(event.getResourceProvider(),
-                new ResourceLocation(Constants.MODID, "display_color"),
-                DefaultVertexFormat.POSITION_COLOR), shader -> COLOR_SHADER = shader);
-            event.registerShader(new ShaderInstance(event.getResourceProvider(),
-                new ResourceLocation(Constants.MODID, "display_color_tex"),
-                DefaultVertexFormat.POSITION_TEX_COLOR), shader -> TEXTURE_SHADER = shader);
         }
         catch (Throwable error) {
             error.fillInStackTrace().printStackTrace();
@@ -234,7 +203,7 @@ public final class DisplayRenderer {
         displayPoseStack.pushPose();
 
         final var matrix = displayPoseStack.last().pose();
-        final var buffer = displayBufferSource.getBuffer(COLOR_RENDER_TYPE);
+        final var buffer = displayBufferSource.getBuffer(DefaultGFXRenderTypes.COLOR);
         buffer.vertex(matrix, 0F, 0F, 0F).color(1F, 0F, 0F, 1F).endVertex();
         buffer.vertex(matrix, 0F, RES_Y, 0F).color(0F, 1F, 0F, 1F).endVertex();
         buffer.vertex(matrix, RES_X, RES_Y, 0F).color(0F, 0F, 1F, 1F).endVertex();

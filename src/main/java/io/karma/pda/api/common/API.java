@@ -30,6 +30,11 @@ public class API {
     // @formatter:on
 
     @ApiStatus.Internal
+    public static void init() {
+
+    }
+
+    @ApiStatus.Internal
     public static void setLogger(Logger logger) {
         API.logger = logger;
     }

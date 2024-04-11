@@ -6,6 +6,7 @@ package io.karma.pda.client.render.gfx;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.karma.pda.api.client.render.gfx.GFXContext;
+import io.karma.pda.api.client.render.gfx.GFXRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -27,6 +28,11 @@ public final class DefaultGFXContext implements GFXContext {
         this.bufferSource = bufferSource;
         this.width = width;
         this.height = height;
+    }
+
+    @Override
+    public GFXRenderTypes getRenderTypes() {
+        return DefaultGFXRenderTypes.INSTANCE;
     }
 
     @Override

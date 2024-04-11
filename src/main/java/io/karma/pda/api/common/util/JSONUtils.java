@@ -6,9 +6,17 @@ package io.karma.pda.api.common.util;
 
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Separators;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import io.karma.pda.api.common.API;
+import net.jpountz.lz4.LZ4BlockInputStream;
+import net.jpountz.lz4.LZ4BlockOutputStream;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 
 /**
  * @author Alexander Hinze
@@ -29,4 +37,27 @@ public final class JSONUtils {
     // @formatter:off
     private JSONUtils() {}
     // @formatter:on
+
+    public static byte[] compress(final JsonNode node) {
+        try (final var stream = new ByteArrayOutputStream(); final var compressedStream = new LZ4BlockOutputStream(
+            stream)) {
+            WRITER.writeValue(compressedStream, node);
+            return stream.toByteArray();
+        }
+        catch (Throwable error) {
+            API.getLogger().error("Could not compress JSON node: {}", error.getMessage());
+            return new byte[0];
+        }
+    }
+
+    public static @Nullable JsonNode decompress(final byte[] data) {
+        try (final var stream = new ByteArrayInputStream(data); final var decompressedStream = new LZ4BlockInputStream(
+            stream)) {
+            return READER.readTree(decompressedStream);
+        }
+        catch (Throwable error) {
+            API.getLogger().error("Could not decompress JSON node: {}", error.getMessage());
+            return null;
+        }
+    }
 }

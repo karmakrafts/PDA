@@ -9,6 +9,7 @@ import io.karma.pda.api.common.session.HandheldSessionContext;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.network.cb.CPacketCreateSession;
 import io.karma.pda.common.network.sb.SPacketCreateSession;
+import io.karma.pda.common.network.sb.SPacketSyncValues;
 import io.karma.pda.common.network.sb.SPacketTerminateSession;
 import io.karma.pda.common.session.ServerSessionHandler;
 import net.minecraft.network.FriendlyByteBuf;
@@ -51,6 +52,11 @@ public class CommonPacketHandler {
             SPacketTerminateSession::encode,
             SPacketTerminateSession::decode,
             this::handleSPacketTerminateSession);
+        registerPacket(PacketIDs.SB_SYNC_VALUES,
+            SPacketSyncValues.class,
+            SPacketSyncValues::encode,
+            SPacketSyncValues::decode,
+            this::handleSPacketSyncValues);
     }
 
     protected <MSG> void registerPacket(final int id, final Class<MSG> type,
@@ -71,5 +77,9 @@ public class CommonPacketHandler {
     private void handleSPacketTerminateSession(final SPacketTerminateSession packet,
                                                final NetworkEvent.Context context) {
         ServerSessionHandler.INSTANCE.terminateSession(packet.getUUID());
+    }
+
+    private void handleSPacketSyncValues(final SPacketSyncValues packet, final NetworkEvent.Context context) {
+
     }
 }

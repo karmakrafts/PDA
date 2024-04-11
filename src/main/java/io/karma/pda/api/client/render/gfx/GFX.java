@@ -17,31 +17,43 @@ public interface GFX {
 
     GFX copy();
 
+    void setBrush(final Brush brush);
+
+    Brush getBrush();
+
     void setZIndex(final int index);
 
     int getZIndex();
 
-    void point(final int x, final int y, final int color);
+    void point(final int x, final int y);
 
-    void line(final int startX, final int startY, final int endX, final int endY, final int color);
+    void line(final int startX, final int startY, final int endX, final int endY);
 
-    void drawRect(final int x, final int y, final int width, final int height, final int color);
+    void drawRect(final int x, final int y, final int width, final int height);
 
-    void fillRect(final int x, final int y, final int width, final int height, final int color);
+    void fillRect(final int x, final int y, final int width, final int height);
 
-    void drawCircle(final int x, final int y, final int radius, final int color);
+    void drawCircle(final int x, final int y, final int radius);
 
-    void fillCircle(final int x, final int y, final int radius, final int color);
+    void fillCircle(final int x, final int y, final int radius);
 
-    void drawRoundedRect(final int x, final int y, final int width, final int height, final int color,
-                         final float rounding);
+    void drawRoundedRect(final int x, final int y, final int width, final int height, final float rounding);
 
-    void fillRoundedRect(final int x, final int y, final int width, final int height, final int color,
-                         final float rounding);
+    void fillRoundedRect(final int x, final int y, final int width, final int height, final float rounding);
 
-    void drawTriangle(final int x1, final int y1, final int x2, final int y2, final int x3, final int y3,
-                      final int color);
+    void drawTriangle(final int x1, final int y1, final int x2, final int y2, final int x3, final int y3);
 
-    void fillTriangle(final int x1, final int y1, final int x2, final int y2, final int x3, final int y3,
-                      final int color);
+    void fillTriangle(final int x1, final int y1, final int x2, final int y2, final int x3, final int y3);
+
+    void text(final int x, final int y, final String text, final int maxLength, final String delimiter);
+
+    default void text(final int x, final int y, final String text, final String delimiter) {
+        text(x, y, text, text.length(), delimiter);
+    }
+
+    default void text(final int x, final int y, final String text) {
+        text(x, y, text, text.length(), "...");
+    }
+
+    void wrappedText(final int x, final int y, final String text, final int maxLength);
 }

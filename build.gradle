@@ -57,6 +57,14 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 configurations {
     annotationProcessor.extendsFrom minecraft
+    library
+    compileClasspath.extendsFrom library
+}
+
+minecraft.runs.all {
+    lazyToken('minecraft_classpath') {
+        configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
+    }
 }
 
 mixin {
@@ -73,10 +81,12 @@ repositories {
 dependencies {
     minecraft group: 'net.minecraftforge', name: 'forge', version: "${minecraft_version}-${forge_version}"
 
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jackson_version
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jackson_version
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
-    implementation group: 'io.karma.sliced', name: 'sliced', version: sliced_version
+    library group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jackson_version
+    library group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jackson_version
+    library group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
+    library group: 'io.karma.sliced', name: 'sliced', version: sliced_version
+    library group: 'io.karma.material', name: 'material-color-utils', version: mcu_version
+    library group: 'org.lz4', name: 'lz4-java', version: lz4_version
 
     // Same LWJGL version as vanilla, but add all platforms
     implementation group: 'org.lwjgl', name: 'lwjgl-yoga', version: lwjgl_version
@@ -112,8 +122,8 @@ shadowJar {
         include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations')
         include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-databind')
         include dependency(group: 'io.karma.sliced', name: 'sliced')
-        include dependency(group: 'org.lwjgl', name: 'lwjgl-core')
-        include dependency(group: 'org.lwjgl', name: 'lwjgl-jemalloc')
+        include dependency(group: 'io.karma.material', name: 'material-color-utils')
+        include dependency(group: 'org.lz4', name: 'lz4-java')
         include dependency(group: 'org.lwjgl', name: 'lwjgl-yoga')
     }
 }

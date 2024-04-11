@@ -40,6 +40,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.DistExecutor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
@@ -175,14 +178,19 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
         }
         // If we already have an item, open the dock screen on the client only
         else if (world.isClientSide) {
-            final var game = Minecraft.getInstance();
-            if (game.options.getCameraType() == CameraType.FIRST_PERSON) {
-                game.setScreen(new DockScreen(player, pos));
-                return InteractionResult.SUCCESS;
-            }
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> openScreen(player, pos));
+            return InteractionResult.SUCCESS;
         }
 
         return InteractionResult.FAIL;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void openScreen(final Player player, final BlockPos pos) {
+        final var game = Minecraft.getInstance();
+        if (game.options.getCameraType() == CameraType.FIRST_PERSON) {
+            game.setScreen(new DockScreen(player, pos));
+        }
     }
 
     @Override

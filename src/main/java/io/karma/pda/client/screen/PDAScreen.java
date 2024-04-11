@@ -41,7 +41,7 @@ public final class PDAScreen extends Screen {
 
     @Override
     public void onClose() {
-        ClientAPI.getSessionHandler().terminateSession();
+        ClientAPI.getSessionHandler().terminateSession(getSession());
         hands.forEach(hand -> PDAItemRenderer.INSTANCE.setEngaged(hand, false));
         // Play sound when disengaging
         final var player = Objects.requireNonNull(Minecraft.getInstance().player);

@@ -6,6 +6,7 @@ package io.karma.pda.common.network;
 
 import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.network.cb.CPacketCreateSession;
+import io.karma.pda.common.network.cb.CPacketSyncValues;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
@@ -30,10 +31,19 @@ public final class ClientPacketHandler extends CommonPacketHandler {
             CPacketCreateSession::encode,
             CPacketCreateSession::decode,
             this::handleCPacketCreateSession);
+        registerPacket(PacketIDs.CB_SYNC_VALUES,
+            CPacketSyncValues.class,
+            CPacketSyncValues::encode,
+            CPacketSyncValues::decode,
+            this::handleCPacketSyncValues);
     }
 
     private void handleCPacketCreateSession(final CPacketCreateSession packet, final NetworkEvent.Context context) {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
             () -> () -> ClientSessionHandler.INSTANCE.addNewSessionId(packet.getRequestId(), packet.getSessionId()));
+    }
+
+    private void handleCPacketSyncValues(final CPacketSyncValues packet, final NetworkEvent.Context context) {
+
     }
 }
