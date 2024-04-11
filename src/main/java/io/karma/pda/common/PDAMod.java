@@ -127,6 +127,7 @@ public class PDAMod {
         ModComponents.register(COMPONENTS);
         ModApps.register(APPS);
 
+        API.setLogger(LOGGER);
         API.setExecutorService(EXECUTOR_SERVICE);
     }
 

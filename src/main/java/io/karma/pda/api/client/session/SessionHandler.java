@@ -9,7 +9,6 @@ import io.karma.pda.api.common.session.MuxedSession;
 import io.karma.pda.api.common.session.SelectiveSessionContext;
 import io.karma.pda.api.common.session.Session;
 import io.karma.pda.api.common.session.SessionContext;
-import io.karma.pda.common.PDAMod;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -39,16 +38,16 @@ public interface SessionHandler {
                                                                  final Collection<? extends SelectiveSessionContext<S>> contexts,
                                                                  final S initial) {
         return CompletableFuture.supplyAsync(() -> {
-            PDAMod.LOGGER.debug("Creating multiplexed session asynchronously..");
+            API.getLogger().debug("Creating multiplexed session asynchronously..");
             final var mux = new MuxedSession<>(initial, mapFactory);
             for (final var context : contexts) {
                 try {
                     final var session = createSession(context).get();
                     mux.addTarget(context.getSelector(), session);
-                    PDAMod.LOGGER.debug("Added MUX target {}", session.getUUID());
+                    API.getLogger().debug("Added MUX target {}", session.getUUID());
                 }
                 catch (Throwable error) {
-                    PDAMod.LOGGER.error("Could not create MUX sub session");
+                    API.getLogger().error("Could not create MUX sub session");
                 }
             }
             return mux;

@@ -13,6 +13,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistry;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Collection;
@@ -23,6 +24,7 @@ import java.util.concurrent.ExecutorService;
  * @since 13/02/2024
  */
 public final class API {
+    private static Logger logger;
     @OnlyIn(Dist.CLIENT)
     private static SessionHandler sessionHandler;
     private static ExecutorService executorService;
@@ -31,9 +33,14 @@ public final class API {
     private API() {}
     // @formatter:on
 
-    @OnlyIn(Dist.CLIENT)
-    public static SessionHandler getSessionHandler() {
-        return sessionHandler;
+    @ApiStatus.Internal
+    public static void setLogger(Logger logger) {
+        API.logger = logger;
+    }
+
+    @ApiStatus.Internal
+    public static void setExecutorService(final ExecutorService executorService) {
+        API.executorService = executorService;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -42,12 +49,17 @@ public final class API {
         API.sessionHandler = sessionHandler;
     }
 
-    public static void setExecutorService(final ExecutorService executorService) {
-        API.executorService = executorService;
+    public static Logger getLogger() {
+        return logger;
     }
 
     public static ExecutorService getExecutorService() {
         return executorService;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static SessionHandler getSessionHandler() {
+        return sessionHandler;
     }
 
     public static DeferredRegister<ComponentType<?>> makeDeferredComponentTypeRegister(final String modId) {
