@@ -35,13 +35,22 @@ public final class ClientSessionHandler implements SessionHandler {
     private ClientSessionHandler() {}
     // @formatter:on
 
-    private UUID waitForSessionId(final UUID requestId) {
+    private @Nullable UUID waitForSessionId(final UUID requestId) {
+        int attempts = 0;
         while (true) {
-            final var sessionId = newlyCreatedSessions.get(requestId);
+            final var sessionId = newlyCreatedSessions.remove(requestId);
             if (sessionId != null) {
                 return sessionId;
             }
-            Thread.yield();
+            try {
+                Thread.sleep(10);
+            }
+            catch (Throwable error) {
+                PDAMod.LOGGER.warn("Could not suspend thread while waiting for session response");
+            }
+            if (attempts++ == 20) { // After 200ms at max we time out
+                return null;
+            }
         }
     }
 
@@ -58,10 +67,15 @@ public final class ClientSessionHandler implements SessionHandler {
         final var request = SPacketCreateSession.fromContext(context);
         final var requestId = request.getRequestId();
         PDAMod.CHANNEL.sendToServer(request);
-        PDAMod.LOGGER.debug("Requested new session on CLIENT");
+        PDAMod.LOGGER.debug("Requesting new session");
         return CompletableFuture.supplyAsync(() -> {
-            PDAMod.LOGGER.debug("Waiting for response asynchronously..");
+            PDAMod.LOGGER.debug("Waiting for session ID for request {} asynchronously..", requestId);
             final var sessionId = waitForSessionId(requestId);
+            if (sessionId == null) {
+                PDAMod.LOGGER.warn("Could not create session for request {}, using fallback, this shouldn't happen",
+                    requestId);
+                return new DefaultSession(UUID.randomUUID(), context);
+            }
             PDAMod.LOGGER.debug("Received session ID {} for request {}", sessionId, requestId);
             return new DefaultSession(sessionId, context);
         }, PDAMod.EXECUTOR_SERVICE);
@@ -75,7 +89,7 @@ public final class ClientSessionHandler implements SessionHandler {
         }
         final var uuid = session.getUUID();
         PDAMod.CHANNEL.sendToServer(new SPacketTerminateSession(uuid));
-        PDAMod.LOGGER.debug("Terminated session {} on CLIENT", uuid);
+        PDAMod.LOGGER.debug("Terminated session {}", uuid);
     }
 
     @Nullable

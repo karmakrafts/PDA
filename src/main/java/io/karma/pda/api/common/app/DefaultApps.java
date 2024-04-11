@@ -16,6 +16,8 @@ public final class DefaultApps {
 
     @ObjectHolder(value = Constants.MODID + ":launcher", registryName = REGISTRY_NAME)
     public static final AppType<?> LAUNCHER = null;
+    @ObjectHolder(value = Constants.MODID + ":settings", registryName = REGISTRY_NAME)
+    public static final AppType<?> SETTINGS = null;
 
     // @formatter:off
     private DefaultApps() {}

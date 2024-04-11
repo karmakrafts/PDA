@@ -28,13 +28,13 @@ public final class ServerSessionHandler {
         final var uuid = UUID.randomUUID();
         final var session = new DefaultSession(uuid, context);
         activeSessions.put(uuid, session);
-        PDAMod.LOGGER.debug("Created session {} on SERVER", uuid);
+        PDAMod.LOGGER.debug("Created session {}", uuid);
         return session;
     }
 
     public void terminateSession(final UUID uuid) {
         activeSessions.remove(uuid);
-        PDAMod.LOGGER.debug("Terminated session {} on SERVER", uuid);
+        PDAMod.LOGGER.debug("Terminated session {}", uuid);
     }
 
     @ApiStatus.Internal

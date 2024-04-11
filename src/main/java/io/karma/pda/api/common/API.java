@@ -38,12 +38,12 @@ public final class API {
 
     @OnlyIn(Dist.CLIENT)
     @ApiStatus.Internal
-    public static void setSessionHandler(final SessionHandler handler) {
-        sessionHandler = handler;
+    public static void setSessionHandler(final SessionHandler sessionHandler) {
+        API.sessionHandler = sessionHandler;
     }
 
-    public static void setExecutorService(final ExecutorService service) {
-        executorService = service;
+    public static void setExecutorService(final ExecutorService executorService) {
+        API.executorService = executorService;
     }
 
     public static ExecutorService getExecutorService() {

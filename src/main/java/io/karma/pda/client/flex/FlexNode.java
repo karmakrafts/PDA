@@ -21,7 +21,7 @@ import java.util.ArrayList;
  * @since 20/03/2024
  */
 @OnlyIn(Dist.CLIENT)
-public class FlexNode implements FlexSpec, Disposable {
+public final class FlexNode implements FlexSpec, Disposable {
     private final long address;
     private final ArrayList<FlexNode> children = new ArrayList<>();
 
@@ -134,7 +134,7 @@ public class FlexNode implements FlexSpec, Disposable {
 
     // Margin
 
-    public void setEdgeMargin(final FlexEdge edge, final FlexValue value) {
+    public void setMargin(final FlexEdge edge, final FlexValue value) {
         switch(value.getType()) { // @formatter:off
             case PIXEL   -> Yoga.YGNodeStyleSetMargin(address, edge.getValue(), value.get());
             case PERCENT -> Yoga.YGNodeStyleSetMarginPercent(address, edge.getValue(), value.get());
@@ -142,7 +142,7 @@ public class FlexNode implements FlexSpec, Disposable {
         } // @formatter:on
     }
 
-    public FlexValue getEdgeMargin(final FlexEdge edge) {
+    public FlexValue getMargin(final FlexEdge edge) {
         try (final var stack = MemoryStack.stackPush()) {
             final var value = YGValue.malloc(stack);
             Yoga.YGNodeStyleGetMargin(address, edge.getValue(), value);
@@ -152,22 +152,22 @@ public class FlexNode implements FlexSpec, Disposable {
 
     @Override
     public FlexBorder getMargin() {
-        return FlexBorder.of(getEdgeMargin(FlexEdge.LEFT),
-            getEdgeMargin(FlexEdge.RIGHT),
-            getEdgeMargin(FlexEdge.TOP),
-            getEdgeMargin(FlexEdge.BOTTOM));
+        return FlexBorder.of(getMargin(FlexEdge.LEFT),
+            getMargin(FlexEdge.RIGHT),
+            getMargin(FlexEdge.TOP),
+            getMargin(FlexEdge.BOTTOM));
     }
 
     public void setMargin(final FlexBorder margin) {
-        setEdgeMargin(FlexEdge.LEFT, margin.getLeft());
-        setEdgeMargin(FlexEdge.RIGHT, margin.getRight());
-        setEdgeMargin(FlexEdge.TOP, margin.getTop());
-        setEdgeMargin(FlexEdge.BOTTOM, margin.getBottom());
+        setMargin(FlexEdge.LEFT, margin.getLeft());
+        setMargin(FlexEdge.RIGHT, margin.getRight());
+        setMargin(FlexEdge.TOP, margin.getTop());
+        setMargin(FlexEdge.BOTTOM, margin.getBottom());
     }
 
     // Padding
 
-    public void setEdgePadding(final FlexEdge edge, final FlexValue value) {
+    public void setPadding(final FlexEdge edge, final FlexValue value) {
         switch(value.getType()) { // @formatter:off
             case PIXEL   -> Yoga.YGNodeStyleSetPadding(address, edge.getValue(), value.get());
             case PERCENT -> Yoga.YGNodeStyleSetPaddingPercent(address, edge.getValue(), value.get());
@@ -175,7 +175,7 @@ public class FlexNode implements FlexSpec, Disposable {
         } // @formatter:on
     }
 
-    public FlexValue getEdgePadding(final FlexEdge edge) {
+    public FlexValue getPadding(final FlexEdge edge) {
         try (final var stack = MemoryStack.stackPush()) {
             final var value = YGValue.malloc(stack);
             Yoga.YGNodeStyleGetPadding(address, edge.getValue(), value);
@@ -185,17 +185,17 @@ public class FlexNode implements FlexSpec, Disposable {
 
     @Override
     public FlexBorder getPadding() {
-        return FlexBorder.of(getEdgePadding(FlexEdge.LEFT),
-            getEdgePadding(FlexEdge.RIGHT),
-            getEdgePadding(FlexEdge.TOP),
-            getEdgePadding(FlexEdge.BOTTOM));
+        return FlexBorder.of(getPadding(FlexEdge.LEFT),
+            getPadding(FlexEdge.RIGHT),
+            getPadding(FlexEdge.TOP),
+            getPadding(FlexEdge.BOTTOM));
     }
 
     public void setPadding(final FlexBorder padding) {
-        setEdgePadding(FlexEdge.LEFT, padding.getLeft());
-        setEdgePadding(FlexEdge.RIGHT, padding.getRight());
-        setEdgePadding(FlexEdge.TOP, padding.getTop());
-        setEdgePadding(FlexEdge.BOTTOM, padding.getBottom());
+        setPadding(FlexEdge.LEFT, padding.getLeft());
+        setPadding(FlexEdge.RIGHT, padding.getRight());
+        setPadding(FlexEdge.TOP, padding.getTop());
+        setPadding(FlexEdge.BOTTOM, padding.getBottom());
     }
 
     // Position type
@@ -221,11 +221,11 @@ public class FlexNode implements FlexSpec, Disposable {
     }
 
     public void setX(final FlexValue value) {
-        switch (value.getType()) {
-            case PIXEL -> Yoga.YGNodeStyleSetPosition(address, Yoga.YGEdgeLeft, value.get());
+        switch (value.getType()) { // @formatter:off
+            case PIXEL   -> Yoga.YGNodeStyleSetPosition(address, Yoga.YGEdgeLeft, value.get());
             case PERCENT -> Yoga.YGNodeStyleSetPositionPercent(address, Yoga.YGEdgeLeft, value.get());
-            default -> throw new UnsupportedOperationException();
-        }
+            default      -> throw new UnsupportedOperationException();
+        } // @formatter:on
     }
 
     @Override
@@ -238,11 +238,11 @@ public class FlexNode implements FlexSpec, Disposable {
     }
 
     public void setY(final FlexValue value) {
-        switch (value.getType()) {
-            case PIXEL -> Yoga.YGNodeStyleSetPosition(address, Yoga.YGEdgeTop, value.get());
+        switch (value.getType()) { // @formatter:off
+            case PIXEL   -> Yoga.YGNodeStyleSetPosition(address, Yoga.YGEdgeTop, value.get());
             case PERCENT -> Yoga.YGNodeStyleSetPositionPercent(address, Yoga.YGEdgeTop, value.get());
-            default -> throw new UnsupportedOperationException();
-        }
+            default      -> throw new UnsupportedOperationException();
+        } // @formatter:on
     }
 
     public int getAbsoluteX() {

@@ -12,9 +12,14 @@ import io.karma.pda.api.client.render.ComponentRenderer;
 import io.karma.pda.api.client.render.ComponentRenderers;
 import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.AppType;
+import io.karma.pda.api.common.app.DefaultApps;
 import io.karma.pda.api.common.app.component.Component;
 import io.karma.pda.api.common.app.component.ComponentType;
+import io.karma.pda.api.common.app.component.DefaultComponents;
 import io.karma.pda.api.common.util.Constants;
+import io.karma.pda.client.render.app.DefaultAppRenderer;
+import io.karma.pda.client.render.component.ContainerRenderer;
+import io.karma.pda.client.render.component.LabelRenderer;
 import io.karma.pda.client.render.entity.DockBlockEntityRenderer;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.init.ModBlockEntities;
@@ -65,6 +70,13 @@ public final class ClientEventHandler {
         forgeBus.post(new RegisterAppRenderersEvent(
             (type, renderer) -> AppRenderers.register((AppType<App>)type, (AppRenderer<App>) renderer)));
         // @formatter:on
+
+        // Components
+        ComponentRenderers.register(DefaultComponents.CONTAINER, new ContainerRenderer());
+        ComponentRenderers.register(DefaultComponents.LABEL, new LabelRenderer());
+        // Apps
+        AppRenderers.register(DefaultApps.LAUNCHER, new DefaultAppRenderer<>());
+        AppRenderers.register(DefaultApps.SETTINGS, new DefaultAppRenderer<>());
     }
 
     private void onClientTick(final TickEvent.ClientTickEvent event) {
