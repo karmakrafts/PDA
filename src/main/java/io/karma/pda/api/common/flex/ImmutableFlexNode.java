@@ -8,7 +8,7 @@ package io.karma.pda.api.common.flex;
  * @author Alexander Hinze
  * @since 10/04/2024
  */
-public final class DefaultFlexSpec implements FlexSpec {
+public final class ImmutableFlexNode implements FlexNode {
     private final FlexDirection direction;
     private final FlexOverflow overflow;
     private final FlexPositionType positionType;
@@ -23,12 +23,12 @@ public final class DefaultFlexSpec implements FlexSpec {
     private final FlexBorder margin;
     private final FlexBorder padding;
 
-    private DefaultFlexSpec(final FlexDirection direction, final FlexOverflow overflow,
-                            final FlexPositionType positionType, final FlexAlignment selfAlignment,
-                            final FlexAlignment itemAlignment, final FlexAlignment contentAlignment,
-                            final FlexJustify contentJustification, final FlexValue x, final FlexValue y,
-                            final FlexValue width, final FlexValue height, final FlexBorder margin,
-                            final FlexBorder padding) {
+    private ImmutableFlexNode(final FlexDirection direction, final FlexOverflow overflow,
+                              final FlexPositionType positionType, final FlexAlignment selfAlignment,
+                              final FlexAlignment itemAlignment, final FlexAlignment contentAlignment,
+                              final FlexJustify contentJustification, final FlexValue x, final FlexValue y,
+                              final FlexValue width, final FlexValue height, final FlexBorder margin,
+                              final FlexBorder padding) {
         this.direction = direction;
         this.overflow = overflow;
         this.positionType = positionType;
@@ -197,8 +197,8 @@ public final class DefaultFlexSpec implements FlexSpec {
             return this;
         }
 
-        public DefaultFlexSpec build() {
-            return new DefaultFlexSpec(direction,
+        public ImmutableFlexNode build() {
+            return new ImmutableFlexNode(direction,
                 overflow,
                 positionType,
                 selfAlignment,

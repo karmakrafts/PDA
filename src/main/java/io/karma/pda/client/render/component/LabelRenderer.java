@@ -4,10 +4,10 @@
 
 package io.karma.pda.client.render.component;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import io.karma.pda.api.client.render.ComponentRenderer;
+import io.karma.pda.api.client.render.component.ComponentRenderer;
+import io.karma.pda.api.client.render.gfx.GFX;
 import io.karma.pda.api.common.app.component.Label;
-import net.minecraft.client.renderer.MultiBufferSource;
+import io.karma.pda.api.common.flex.FlexNode;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -18,7 +18,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public final class LabelRenderer implements ComponentRenderer<Label> {
     @Override
-    public void render(final Label component, final MultiBufferSource bufferSource, final PoseStack poseStack) {
+    public void render(final Label component, final FlexNode flexNode, final GFX graphics) {
 
     }
 }

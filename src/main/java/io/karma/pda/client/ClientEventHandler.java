@@ -6,10 +6,10 @@ package io.karma.pda.client;
 
 import io.karma.pda.api.client.event.RegisterAppRenderersEvent;
 import io.karma.pda.api.client.event.RegisterComponentRenderersEvent;
-import io.karma.pda.api.client.render.AppRenderer;
-import io.karma.pda.api.client.render.AppRenderers;
-import io.karma.pda.api.client.render.ComponentRenderer;
-import io.karma.pda.api.client.render.ComponentRenderers;
+import io.karma.pda.api.client.render.app.AppRenderer;
+import io.karma.pda.api.client.render.app.AppRenderers;
+import io.karma.pda.api.client.render.component.ComponentRenderer;
+import io.karma.pda.api.client.render.component.ComponentRenderers;
 import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.DefaultApps;

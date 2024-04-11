@@ -4,7 +4,7 @@
 
 package io.karma.pda.api.common.app.component;
 
-import io.karma.pda.api.common.flex.FlexSpec;
+import io.karma.pda.api.common.flex.FlexNode;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -23,5 +23,5 @@ public interface Component {
 
     void setParent(final @Nullable Component parent);
 
-    FlexSpec getLayoutSpec();
+    FlexNode getLayoutSpec();
 }

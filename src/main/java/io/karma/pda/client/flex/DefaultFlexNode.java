@@ -21,19 +21,19 @@ import java.util.ArrayList;
  * @since 20/03/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class FlexNode implements FlexSpec, Disposable {
+public final class DefaultFlexNode implements FlexNode, Disposable {
     private final long address;
-    private final ArrayList<FlexNode> children = new ArrayList<>();
+    private final ArrayList<DefaultFlexNode> children = new ArrayList<>();
 
-    public FlexNode() {
+    public DefaultFlexNode() {
         address = Yoga.YGNodeNew();
         if (address == MemoryUtil.NULL) {
             throw new IllegalStateException("Could not allocate layout node");
         }
     }
 
-    public static FlexNode fromSpec(final FlexSpec spec) {
-        final var node = new FlexNode();
+    public static DefaultFlexNode copyOf(final FlexNode spec) {
+        final var node = new DefaultFlexNode();
         node.setDirection(spec.getDirection());
         node.setOverflow(spec.getOverflow());
         node.setSelfAlignment(spec.getSelfAlignment());
@@ -50,7 +50,7 @@ public final class FlexNode implements FlexSpec, Disposable {
         return node;
     }
 
-    public void addChild(final FlexNode node) {
+    public void addChild(final DefaultFlexNode node) {
         if (children.contains(node)) {
             return;
         }
@@ -58,7 +58,7 @@ public final class FlexNode implements FlexSpec, Disposable {
         children.add(node);
     }
 
-    public void removeChild(final FlexNode node) {
+    public void removeChild(final DefaultFlexNode node) {
         if (!children.contains(node)) {
             return;
         }
@@ -66,7 +66,7 @@ public final class FlexNode implements FlexSpec, Disposable {
         children.remove(node);
     }
 
-    public Slice<FlexNode> getChildren() {
+    public Slice<DefaultFlexNode> getChildren() {
         return Slice.of(children);
     }
 

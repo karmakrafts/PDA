@@ -4,13 +4,14 @@
 
 package io.karma.pda.client.render.component;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import io.karma.pda.api.client.render.ComponentRenderer;
-import io.karma.pda.api.client.render.ComponentRenderers;
+import io.karma.pda.api.client.render.component.ComponentRenderer;
+import io.karma.pda.api.client.render.component.ComponentRenderers;
+import io.karma.pda.api.client.render.gfx.GFX;
 import io.karma.pda.api.common.app.component.Component;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.component.DefaultContainer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import io.karma.pda.api.common.flex.FlexNode;
+import io.karma.pda.client.flex.ClientFlexNodeHandler;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -22,12 +23,20 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public final class ContainerRenderer implements ComponentRenderer<DefaultContainer> {
     @SuppressWarnings("unchecked")
     @Override
-    public void render(final DefaultContainer component, final MultiBufferSource bufferSource,
-                       final PoseStack poseStack) {
+    public void render(final DefaultContainer component, final FlexNode flexNode, final GFX graphics) {
         final var children = component.getChildren();
         for (final var child : children) {
-            final var renderer = ComponentRenderers.get((ComponentType<Component>) child.getType());
-            renderer.render(child, bufferSource, poseStack);
+            final var childFlexNode = ClientFlexNodeHandler.INSTANCE.getOrCreateNode(child);
+            ComponentRenderers.get((ComponentType<Component>) child.getType()).render(child, childFlexNode, graphics);
         }
+    }
+
+    @Override
+    public void cleanup(final DefaultContainer component, final FlexNode flexNode, final GFX graphics) {
+        final var children = component.getChildren();
+        for (final var child : children) {
+            ClientFlexNodeHandler.INSTANCE.removeNode(child);
+        }
+        ComponentRenderer.super.cleanup(component, flexNode, graphics);
     }
 }

@@ -4,13 +4,10 @@
 
 package io.karma.pda.api.common;
 
-import io.karma.pda.api.client.session.SessionHandler;
 import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.api.common.util.RegistryUtils;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.Logger;
@@ -23,14 +20,13 @@ import java.util.concurrent.ExecutorService;
  * @author Alexander Hinze
  * @since 13/02/2024
  */
-public final class API {
+public class API {
     private static Logger logger;
-    @OnlyIn(Dist.CLIENT)
-    private static SessionHandler sessionHandler;
     private static ExecutorService executorService;
 
     // @formatter:off
-    private API() {}
+    @ApiStatus.Internal
+    protected API() {}
     // @formatter:on
 
     @ApiStatus.Internal
@@ -43,12 +39,6 @@ public final class API {
         API.executorService = executorService;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @ApiStatus.Internal
-    public static void setSessionHandler(final SessionHandler sessionHandler) {
-        API.sessionHandler = sessionHandler;
-    }
-
     @ApiStatus.Internal
     public static Logger getLogger() {
         return logger;
@@ -56,11 +46,6 @@ public final class API {
 
     public static ExecutorService getExecutorService() {
         return executorService;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static SessionHandler getSessionHandler() {
-        return sessionHandler;
     }
 
     public static DeferredRegister<ComponentType<?>> makeDeferredComponentTypeRegister(final String modId) {

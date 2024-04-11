@@ -4,7 +4,7 @@
 
 package io.karma.pda.api.client.event;
 
-import io.karma.pda.api.client.render.AppRenderer;
+import io.karma.pda.api.client.render.app.AppRenderer;
 import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.AppType;
 import net.minecraftforge.api.distmarker.Dist;

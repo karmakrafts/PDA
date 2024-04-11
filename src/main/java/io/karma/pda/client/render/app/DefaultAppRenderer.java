@@ -4,13 +4,13 @@
 
 package io.karma.pda.client.render.app;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import io.karma.pda.api.client.render.AppRenderer;
-import io.karma.pda.api.client.render.ComponentRenderers;
+import io.karma.pda.api.client.render.app.AppRenderer;
+import io.karma.pda.api.client.render.component.ComponentRenderers;
+import io.karma.pda.api.client.render.gfx.GFX;
 import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.component.Container;
-import net.minecraft.client.renderer.MultiBufferSource;
+import io.karma.pda.client.flex.ClientFlexNodeHandler;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -22,9 +22,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public final class DefaultAppRenderer<A extends App> implements AppRenderer<A> {
     @SuppressWarnings("unchecked")
     @Override
-    public void render(final A app, final MultiBufferSource bufferSource, final PoseStack poseStack) {
+    public void render(final A app, final GFX graphics) {
         final var container = app.getContainer();
-        final var renderer = ComponentRenderers.get((ComponentType<Container>) container.getType());
-        renderer.render(container, bufferSource, poseStack);
+        final var flexNode = ClientFlexNodeHandler.INSTANCE.getOrCreateNode(container);
+        ComponentRenderers.get((ComponentType<Container>) container.getType()).render(container, flexNode, graphics);
+    }
+
+    @Override
+    public void cleanup(final A app, final GFX graphics) {
+        ClientFlexNodeHandler.INSTANCE.removeNode(app.getContainer());
     }
 }

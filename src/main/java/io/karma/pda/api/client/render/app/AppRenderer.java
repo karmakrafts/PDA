@@ -2,11 +2,10 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.api.client.render;
+package io.karma.pda.api.client.render.app;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import io.karma.pda.api.client.render.gfx.GFX;
 import io.karma.pda.api.common.app.App;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -16,5 +15,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  */
 @OnlyIn(Dist.CLIENT)
 public interface AppRenderer<A extends App> {
-    void render(final A app, final MultiBufferSource bufferSource, final PoseStack poseStack);
+    void render(final A app, final GFX graphics);
+
+    default void cleanup(final A app, final GFX graphics) {
+    }
 }

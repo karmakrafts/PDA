@@ -4,7 +4,7 @@
 
 package io.karma.pda.client.screen;
 
-import io.karma.pda.api.common.API;
+import io.karma.pda.api.client.ClientAPI;
 import io.karma.pda.api.common.session.HandheldSessionContext;
 import io.karma.pda.client.render.item.PDAItemRenderer;
 import net.minecraft.client.Minecraft;
@@ -32,14 +32,14 @@ public final class PDAScreen extends Screen {
         this.hands = hands;
         hands.forEach(hand -> PDAItemRenderer.INSTANCE.setEngaged(hand, true));
         // Set up session
-        final var sessionHandler = API.getSessionHandler();
+        final var sessionHandler = ClientAPI.getSessionHandler();
         sessionHandler.createSession(hands.stream().map(hand -> new HandheldSessionContext(player, hand)).toList(),
             InteractionHand.MAIN_HAND).thenAccept(sessionHandler::setSession);
     }
 
     @Override
     public void onClose() {
-        API.getSessionHandler().terminateSession();
+        ClientAPI.getSessionHandler().terminateSession();
         hands.forEach(hand -> PDAItemRenderer.INSTANCE.setEngaged(hand, false));
         // Play sound when disengaging
         final var player = Objects.requireNonNull(Minecraft.getInstance().player);

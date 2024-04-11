@@ -4,8 +4,8 @@
 
 package io.karma.pda.api.common.app.component;
 
-import io.karma.pda.api.common.flex.FlexSpec;
-import io.karma.pda.client.flex.FlexNode;
+import io.karma.pda.api.common.flex.FlexNode;
+import io.karma.pda.client.flex.DefaultFlexNode;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -17,7 +17,7 @@ import java.util.UUID;
 public abstract class AbstractComponent implements Component {
     protected final ComponentType<?> type;
     protected final UUID uuid;
-    protected final FlexNode flexNode = new FlexNode();
+    protected final DefaultFlexNode flexNode = new DefaultFlexNode();
     protected Component parent;
 
     protected AbstractComponent(final ComponentType<?> type, final UUID uuid) {
@@ -46,7 +46,7 @@ public abstract class AbstractComponent implements Component {
     }
 
     @Override
-    public FlexSpec getLayoutSpec() {
+    public FlexNode getLayoutSpec() {
         return flexNode;
     }
 }

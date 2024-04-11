@@ -8,7 +8,7 @@ package io.karma.pda.api.common.flex;
  * @author Alexander Hinze
  * @since 10/04/2024
  */
-public interface FlexSpec {
+public interface FlexNode {
     default FlexDirection getDirection() {
         return FlexDirection.ROW;
     }

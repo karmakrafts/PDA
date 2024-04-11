@@ -5,6 +5,7 @@
 package io.karma.pda.common;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import io.karma.pda.api.client.ClientAPI;
 import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.component.ComponentType;
@@ -13,6 +14,7 @@ import io.karma.pda.api.common.dispose.DispositionHandler;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.client.DockInteractionHandler;
+import io.karma.pda.client.flex.ClientFlexNodeHandler;
 import io.karma.pda.client.render.display.DisplayRenderer;
 import io.karma.pda.client.render.item.PDAItemRenderer;
 import io.karma.pda.client.screen.DockStorageScreen;
@@ -154,7 +156,8 @@ public class PDAMod {
             PDAItemRenderer.INSTANCE.setup();
             modBus.addListener(this::onClientSetup);
             DisplayRenderer.getInstance().setupEarly();
-            API.setSessionHandler(ClientSessionHandler.INSTANCE);
+            ClientAPI.setSessionHandler(ClientSessionHandler.INSTANCE);
+            ClientAPI.setFlexNodeHandler(ClientFlexNodeHandler.INSTANCE);
         });
     }
 
