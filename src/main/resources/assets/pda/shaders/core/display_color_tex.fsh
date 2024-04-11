@@ -1,5 +1,9 @@
 #version 150
 
+/*
+ * Copyright (C) 2024 Karma Krafts & associates
+ */
+
 uniform sampler2D Sampler0;
 
 uniform vec4 ColorModulator;

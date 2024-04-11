@@ -19,8 +19,8 @@ public class DefaultContainer extends AbstractComponent implements Container {
     protected final ArrayList<Component> children = new ArrayList<>();
     protected final HashMap<UUID, Component> idToChildren = new HashMap<>();
 
-    public DefaultContainer(final UUID uuid) {
-        super(DefaultComponents.CONTAINER, uuid);
+    public DefaultContainer(final ComponentType<?> type, final UUID uuid) {
+        super(type, uuid);
     }
 
     @Override

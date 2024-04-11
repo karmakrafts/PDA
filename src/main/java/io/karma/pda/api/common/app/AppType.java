@@ -6,17 +6,19 @@ package io.karma.pda.api.common.app;
 
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 /**
  * @author Alexander Hinze
  * @since 13/02/2024
  */
 public final class AppType<A extends App> {
-    private final ResourceLocation name;
-    private final Supplier<A> factory;
+    private static final AppType<?> NULL = new AppType<>(null, null);
 
-    public AppType(final ResourceLocation name, final Supplier<A> factory) {
+    private final ResourceLocation name;
+    private final Function<AppType<A>, A> factory;
+
+    public AppType(final ResourceLocation name, final Function<AppType<A>, A> factory) {
         this.name = name;
         this.factory = factory;
     }
@@ -26,6 +28,11 @@ public final class AppType<A extends App> {
     }
 
     public A create() {
-        return factory.get();
+        return factory.apply(this);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <A extends App> AppType<A> nullType() {
+        return (AppType<A>) NULL;
     }
 }

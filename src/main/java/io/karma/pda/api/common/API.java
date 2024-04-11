@@ -8,8 +8,12 @@ import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.api.common.util.RegistryUtils;
+import net.minecraft.client.Minecraft;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -47,6 +51,11 @@ public class API {
     @ApiStatus.Internal
     public static Logger getLogger() {
         return logger;
+    }
+
+    public static ResourceManager getResourceManager() {
+        return DistExecutor.unsafeRunForDist(() -> () -> Minecraft.getInstance().getResourceManager(),
+            () -> () -> ServerLifecycleHooks.getCurrentServer().getResourceManager());
     }
 
     public static ExecutorService getExecutorService() {

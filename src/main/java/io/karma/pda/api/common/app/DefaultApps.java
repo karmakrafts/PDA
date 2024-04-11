@@ -15,9 +15,9 @@ public final class DefaultApps {
     private static final String REGISTRY_NAME = Constants.MODID + ":apps";
 
     @ObjectHolder(value = Constants.MODID + ":launcher", registryName = REGISTRY_NAME)
-    public static final AppType<?> LAUNCHER = null;
+    public static final AppType<?> LAUNCHER = AppType.nullType();
     @ObjectHolder(value = Constants.MODID + ":settings", registryName = REGISTRY_NAME)
-    public static final AppType<?> SETTINGS = null;
+    public static final AppType<?> SETTINGS = AppType.nullType();
 
     // @formatter:off
     private DefaultApps() {}

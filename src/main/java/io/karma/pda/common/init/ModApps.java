@@ -5,9 +5,8 @@
 package io.karma.pda.common.init;
 
 import io.karma.pda.api.common.app.AppType;
+import io.karma.pda.api.common.app.ScriptableApp;
 import io.karma.pda.api.common.util.Constants;
-import io.karma.pda.common.app.LauncherApp;
-import io.karma.pda.common.app.SettingsApp;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.DeferredRegister;
 
@@ -22,8 +21,8 @@ public final class ModApps {
 
     public static void register(final DeferredRegister<AppType<?>> register) {
         register.register("launcher",
-            () -> new AppType<>(new ResourceLocation(Constants.MODID, "launcher"), LauncherApp::new));
+            () -> new AppType<>(new ResourceLocation(Constants.MODID, "launcher"), ScriptableApp::new));
         register.register("settings",
-            () -> new AppType<>(new ResourceLocation(Constants.MODID, "settings"), SettingsApp::new));
+            () -> new AppType<>(new ResourceLocation(Constants.MODID, "settings"), ScriptableApp::new));
     }
 }

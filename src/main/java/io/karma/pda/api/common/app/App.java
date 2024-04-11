@@ -13,6 +13,9 @@ import io.karma.pda.api.common.app.component.Container;
 public interface App {
     void init(final AppContext context);
 
+    default void reload(final AppContext context) {
+    }
+
     AppType<?> getType();
 
     Container getContainer();

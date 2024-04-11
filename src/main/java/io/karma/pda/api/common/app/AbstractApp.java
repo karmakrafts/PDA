@@ -5,9 +5,8 @@
 package io.karma.pda.api.common.app;
 
 import io.karma.pda.api.common.app.component.Container;
+import io.karma.pda.api.common.app.component.DefaultComponents;
 import io.karma.pda.api.common.app.component.DefaultContainer;
-
-import java.util.UUID;
 
 /**
  * @author Alexander Hinze
@@ -15,7 +14,7 @@ import java.util.UUID;
  */
 public abstract class AbstractApp implements App {
     protected final AppType<?> type;
-    protected final DefaultContainer container = new DefaultContainer(UUID.randomUUID());
+    protected final DefaultContainer container = DefaultComponents.CONTAINER.create();
 
     public AbstractApp(final AppType<?> type) {
         this.type = type;

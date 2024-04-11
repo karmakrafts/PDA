@@ -1,5 +1,9 @@
 #version 150
 
+/*
+ * Copyright (C) 2024 Karma Krafts & associates
+ */
+
 in vec4 vertexColor;
 
 uniform vec4 ColorModulator;

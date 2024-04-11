@@ -1,5 +1,9 @@
 #version 150
 
+/*
+ * Copyright (C) 2024 Karma Krafts & associates
+ */
+
 in vec3 Position;
 in vec2 UV0;
 in vec4 Color;

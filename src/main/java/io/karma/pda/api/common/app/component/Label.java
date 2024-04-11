@@ -20,8 +20,8 @@ public class Label extends AbstractComponent {
     private final Synced<String> text = Synced.withInitial("");
     private final Synced<Color> color = Synced.withInitial(Color.WHITE);
 
-    public Label(final UUID uuid) {
-        super(DefaultComponents.LABEL, uuid);
+    public Label(final ComponentType<?> type, final UUID uuid) {
+        super(type, uuid);
     }
 
     public Synced<String> getText() {
