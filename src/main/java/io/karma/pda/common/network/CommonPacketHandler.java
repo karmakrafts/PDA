@@ -65,7 +65,7 @@ public class CommonPacketHandler {
         final var session = ServerSessionHandler.INSTANCE.createSession(packet.getType().isHandheld() ? new HandheldSessionContext(
             player,
             packet.getHand()) : new DockedSessionContext(player, packet.getPos()));
-        PDAMod.CHANNEL.reply(new CPacketCreateSession(packet.getRequestId(), session.getUUID()), context);
+        PDAMod.CHANNEL.reply(new CPacketCreateSession(packet.getRequestId(), session.getId()), context);
     }
 
     private void handleSPacketTerminateSession(final SPacketTerminateSession packet,

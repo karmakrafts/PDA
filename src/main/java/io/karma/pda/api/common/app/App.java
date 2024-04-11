@@ -11,7 +11,7 @@ import io.karma.pda.api.common.app.component.Container;
  * @since 13/02/2024
  */
 public interface App {
-    void init();
+    void init(final AppContext context);
 
     AppType<?> getType();
 

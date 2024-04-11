@@ -5,6 +5,7 @@
 package io.karma.pda.common.app;
 
 import io.karma.pda.api.common.app.AbstractApp;
+import io.karma.pda.api.common.app.AppContext;
 import io.karma.pda.api.common.app.DefaultApps;
 
 /**
@@ -17,7 +18,7 @@ public final class LauncherApp extends AbstractApp {
     }
 
     @Override
-    public void init() {
+    public void init(final AppContext context) {
 
     }
 }

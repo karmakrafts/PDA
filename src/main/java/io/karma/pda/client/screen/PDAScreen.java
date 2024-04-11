@@ -6,6 +6,7 @@ package io.karma.pda.client.screen;
 
 import io.karma.pda.api.client.ClientAPI;
 import io.karma.pda.api.common.session.HandheldSessionContext;
+import io.karma.pda.api.common.session.MuxedSession;
 import io.karma.pda.client.render.item.PDAItemRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -26,6 +27,7 @@ import java.util.Objects;
 @OnlyIn(Dist.CLIENT)
 public final class PDAScreen extends Screen {
     private final EnumSet<InteractionHand> hands;
+    private MuxedSession<InteractionHand> session;
 
     public PDAScreen(final Player player, final EnumSet<InteractionHand> hands) {
         super(Component.empty());
@@ -34,7 +36,7 @@ public final class PDAScreen extends Screen {
         // Set up session
         final var sessionHandler = ClientAPI.getSessionHandler();
         sessionHandler.createSession(hands.stream().map(hand -> new HandheldSessionContext(player, hand)).toList(),
-            InteractionHand.MAIN_HAND).thenAccept(sessionHandler::setSession);
+            InteractionHand.MAIN_HAND).thenAccept(this::setSession);
     }
 
     @Override
@@ -50,5 +52,13 @@ public final class PDAScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    private synchronized void setSession(final MuxedSession<InteractionHand> session) {
+        this.session = session;
+    }
+
+    private synchronized MuxedSession<InteractionHand> getSession() {
+        return session;
     }
 }

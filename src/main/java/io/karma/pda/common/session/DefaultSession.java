@@ -17,17 +17,17 @@ import java.util.UUID;
  */
 @OnlyIn(Dist.CLIENT)
 public final class DefaultSession implements Session {
-    private final UUID uuid;
+    private final UUID id;
     private final SessionContext context;
 
-    public DefaultSession(final UUID uuid, final SessionContext context) {
-        this.uuid = uuid;
+    public DefaultSession(final UUID id, final SessionContext context) {
+        this.id = id;
         this.context = context;
     }
 
     @Override
-    public UUID getUUID() {
-        return uuid;
+    public UUID getId() {
+        return id;
     }
 
     @Override

@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
 
 /**
  * @author Alexander Hinze
@@ -22,4 +23,8 @@ public interface GFXContext {
     int getWidth();
 
     int getHeight();
+
+    default Matrix4f getTransform() {
+        return getPoseStack().last().pose();
+    }
 }

@@ -17,7 +17,7 @@ import java.util.UUID;
  */
 public class DefaultContainer extends AbstractComponent implements Container {
     protected final ArrayList<Component> children = new ArrayList<>();
-    protected final HashMap<UUID, Component> uuidToChildren = new HashMap<>();
+    protected final HashMap<UUID, Component> idToChildren = new HashMap<>();
 
     public DefaultContainer(final UUID uuid) {
         super(DefaultComponents.CONTAINER, uuid);
@@ -25,7 +25,7 @@ public class DefaultContainer extends AbstractComponent implements Container {
 
     @Override
     public @Nullable Component findChild(final UUID uuid) {
-        return uuidToChildren.get(uuid);
+        return idToChildren.get(uuid);
     }
 
     @Override
@@ -36,14 +36,14 @@ public class DefaultContainer extends AbstractComponent implements Container {
     @Override
     public void addChild(final Component child) {
         children.add(child);
-        uuidToChildren.put(child.getUUID(), child);
+        idToChildren.put(child.getId(), child);
         child.setParent(this);
     }
 
     @Override
     public void removeChild(final Component child) {
         children.remove(child);
-        uuidToChildren.remove(child.getUUID());
+        idToChildren.remove(child.getId());
         child.setParent(null);
     }
 

@@ -16,18 +16,18 @@ import java.util.UUID;
  */
 public abstract class AbstractComponent implements Component {
     protected final ComponentType<?> type;
-    protected final UUID uuid;
+    protected final UUID id;
     protected final DefaultFlexNode flexNode = new DefaultFlexNode();
     protected Component parent;
 
-    protected AbstractComponent(final ComponentType<?> type, final UUID uuid) {
+    protected AbstractComponent(final ComponentType<?> type, final UUID id) {
         this.type = type;
-        this.uuid = uuid;
+        this.id = id;
     }
 
     @Override
-    public UUID getUUID() {
-        return uuid;
+    public UUID getId() {
+        return id;
     }
 
     @Override

@@ -82,7 +82,7 @@ public final class ClientSessionHandler implements SessionHandler {
             muxedSession.getTargets().forEach(this::terminateSession);
             return;
         }
-        final var uuid = session.getUUID();
+        final var uuid = session.getId();
         Minecraft.getInstance().execute(() -> PDAMod.CHANNEL.sendToServer(new SPacketTerminateSession(uuid)));
         PDAMod.LOGGER.debug("Requesting session termination for session {}", uuid);
     }

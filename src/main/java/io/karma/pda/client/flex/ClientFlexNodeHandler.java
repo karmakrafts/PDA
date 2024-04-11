@@ -40,7 +40,7 @@ public final class ClientFlexNodeHandler implements FlexNodeHandler {
 
     @Override
     public void removeNode(final Component component) {
-        removeNode(component.getUUID());
+        removeNode(component.getId());
     }
 
     @Override
@@ -50,7 +50,7 @@ public final class ClientFlexNodeHandler implements FlexNodeHandler {
 
     @Override
     public FlexNode getOrCreateNode(final Component component) {
-        return nodes.computeIfAbsent(component.getUUID(), id -> DefaultFlexNode.copyOf(component.getLayoutSpec()));
+        return nodes.computeIfAbsent(component.getId(), id -> DefaultFlexNode.copyOf(component.getLayoutSpec()));
     }
 
     @Override

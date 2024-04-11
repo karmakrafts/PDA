@@ -4,7 +4,8 @@
 
 package io.karma.pda.api.common.session;
 
-import java.util.UUID;
+import io.karma.pda.api.common.session.sync.Synchronizer;
+import io.karma.pda.api.common.util.Identifiable;
 
 /**
  * A session describes a temporary pipe between client and server
@@ -14,9 +15,7 @@ import java.util.UUID;
  * @author Alexander Hinze
  * @since 04/04/2024
  */
-public interface Session {
-    UUID getUUID();
-
+public interface Session extends Identifiable {
     /**
      * Retrieve the context in which the session was created.
      * This includes the player entity who created the session,
@@ -27,4 +26,8 @@ public interface Session {
      * with this session on its creation.
      */
     SessionContext getContext();
+
+    default Synchronizer getSynchronizer() {
+        throw new UnsupportedOperationException();
+    }
 }

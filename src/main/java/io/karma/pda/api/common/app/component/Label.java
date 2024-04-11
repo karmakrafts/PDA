@@ -4,6 +4,8 @@
 
 package io.karma.pda.api.common.app.component;
 
+import io.karma.pda.api.common.session.sync.Synced;
+
 import java.util.UUID;
 
 /**
@@ -14,26 +16,18 @@ public class Label extends AbstractComponent {
     private static final String TAG_TEXT = "text";
     private static final String TAG_COLOR = "color";
     private static final int DEFAULT_TEXT_COLOR = 0xFF101010;
-    private String text;
-    private int color;
+    private final Synced<String> text = Synced.withInitial("");
+    private final Synced<Integer> color = Synced.withInitial(0);
 
     public Label(final UUID uuid) {
         super(DefaultComponents.LABEL, uuid);
     }
 
-    public String getText() {
+    public Synced<String> getText() {
         return text;
     }
 
-    public void setText(final String text) {
-        this.text = text;
-    }
-
-    public int getColor() {
+    public Synced<Integer> getColor() {
         return color;
-    }
-
-    public void setColor(final int color) {
-        this.color = color;
     }
 }

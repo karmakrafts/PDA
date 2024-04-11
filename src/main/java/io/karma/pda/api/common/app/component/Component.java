@@ -5,18 +5,15 @@
 package io.karma.pda.api.common.app.component;
 
 import io.karma.pda.api.common.flex.FlexNode;
+import io.karma.pda.api.common.util.Identifiable;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.UUID;
 
 /**
  * @author Alexander Hinze
  * @since 08/02/2024
  */
-public interface Component {
+public interface Component extends Identifiable {
     ComponentType<?> getType();
-
-    UUID getUUID();
 
     @Nullable
     Component getParent();

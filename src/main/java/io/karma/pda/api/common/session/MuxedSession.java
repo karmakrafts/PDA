@@ -4,6 +4,8 @@
 
 package io.karma.pda.api.common.session;
 
+import io.karma.pda.api.common.session.sync.Synchronizer;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
@@ -53,12 +55,17 @@ public final class MuxedSession<S> implements Session {
     }
 
     @Override
-    public UUID getUUID() {
-        return getTarget().getUUID();
+    public UUID getId() {
+        return getTarget().getId();
     }
 
     @Override
     public SessionContext getContext() {
         return getTarget().getContext();
+    }
+
+    @Override
+    public Synchronizer getSynchronizer() {
+        return getTarget().getSynchronizer();
     }
 }
