@@ -5,7 +5,6 @@
 package io.karma.pda.api.common.session;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -21,10 +20,6 @@ public final class MuxedSession<S> implements Session {
     public MuxedSession(final S initial, final Supplier<? extends Map<S, Session>> factory) {
         selector = initial;
         sessions = factory.get();
-    }
-
-    public MuxedSession(final S initial) {
-        this(initial, HashMap::new);
     }
 
     public void addTarget(final S selector, final Session session) {

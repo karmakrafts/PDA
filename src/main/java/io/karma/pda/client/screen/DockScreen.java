@@ -6,7 +6,6 @@ package io.karma.pda.client.screen;
 
 import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.session.DockedSessionContext;
-import io.karma.pda.api.common.session.Session;
 import io.karma.pda.client.DockInteractionHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -24,7 +23,6 @@ import org.lwjgl.glfw.GLFW;
 @OnlyIn(Dist.CLIENT)
 public final class DockScreen extends Screen {
     private final long window;
-    private Session session;
     private int previousInputMode;
 
     public DockScreen(final Player player, final BlockPos pos) {
@@ -33,12 +31,8 @@ public final class DockScreen extends Screen {
         DockInteractionHandler.INSTANCE.engage(pos);
         // Set up the session
         final var sessionHandler = API.getSessionHandler();
-        sessionHandler.createSession(new DockedSessionContext(player, pos)).thenAccept(session -> {
-            Minecraft.getInstance().execute(() -> {
-                this.session = session;
-                sessionHandler.setSession(session); // Make this the current session
-            });
-        });
+        // Make this the current session
+        sessionHandler.createSession(new DockedSessionContext(player, pos)).thenAccept(sessionHandler::setSession);
     }
 
     @Override
@@ -50,7 +44,7 @@ public final class DockScreen extends Screen {
 
     @Override
     public void onClose() {
-        API.getSessionHandler().terminateSession(session);
+        API.getSessionHandler().terminateSession();
         GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, previousInputMode);
         DockInteractionHandler.INSTANCE.disengage();
     }

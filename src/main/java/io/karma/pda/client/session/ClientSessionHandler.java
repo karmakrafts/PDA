@@ -12,6 +12,7 @@ import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.network.sb.SPacketCreateSession;
 import io.karma.pda.common.network.sb.SPacketTerminateSession;
 import io.karma.pda.common.session.DefaultSession;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.ApiStatus;
@@ -35,25 +36,6 @@ public final class ClientSessionHandler implements SessionHandler {
     private ClientSessionHandler() {}
     // @formatter:on
 
-    private @Nullable UUID waitForSessionId(final UUID requestId) {
-        int attempts = 0;
-        while (true) {
-            final var sessionId = newlyCreatedSessions.remove(requestId);
-            if (sessionId != null) {
-                return sessionId;
-            }
-            try {
-                Thread.sleep(10);
-            }
-            catch (Throwable error) {
-                PDAMod.LOGGER.warn("Could not suspend thread while waiting for session response");
-            }
-            if (attempts++ == 20) { // After 200ms at max we time out
-                return null;
-            }
-        }
-    }
-
     @ApiStatus.Internal
     public void addNewSessionId(final UUID requestId, final UUID sessionId) {
         if (newlyCreatedSessions.containsKey(requestId)) {
@@ -62,23 +44,36 @@ public final class ClientSessionHandler implements SessionHandler {
         newlyCreatedSessions.put(requestId, sessionId);
     }
 
+    private CompletableFuture<UUID> getSessionId(final UUID requestId) {
+        return CompletableFuture.supplyAsync(() -> {
+            PDAMod.LOGGER.debug("Waiting for session ID for request {}", requestId);
+            int attempts = 0;
+            while (true) {
+                final var sessionId = newlyCreatedSessions.remove(requestId);
+                if (sessionId != null) {
+                    PDAMod.LOGGER.debug("Found session ID {} for request {}", sessionId, requestId);
+                    return sessionId;
+                }
+                try {
+                    Thread.sleep(10);
+                }
+                catch (Throwable error) {
+                    PDAMod.LOGGER.warn("Could not suspend thread while waiting for session response");
+                }
+                if (attempts++ == 20) { // After 200ms at max we time out
+                    return null;
+                }
+            }
+        }, PDAMod.EXECUTOR_SERVICE);
+    }
+
     @Override
     public CompletableFuture<Session> createSession(final SessionContext context) {
         final var request = SPacketCreateSession.fromContext(context);
         final var requestId = request.getRequestId();
-        PDAMod.CHANNEL.sendToServer(request);
+        Minecraft.getInstance().execute(() -> PDAMod.CHANNEL.sendToServer(request));
         PDAMod.LOGGER.debug("Requesting new session");
-        return CompletableFuture.supplyAsync(() -> {
-            PDAMod.LOGGER.debug("Waiting for session ID for request {} asynchronously..", requestId);
-            final var sessionId = waitForSessionId(requestId);
-            if (sessionId == null) {
-                PDAMod.LOGGER.warn("Could not create session for request {}, using fallback, this shouldn't happen",
-                    requestId);
-                return new DefaultSession(UUID.randomUUID(), context);
-            }
-            PDAMod.LOGGER.debug("Received session ID {} for request {}", sessionId, requestId);
-            return new DefaultSession(sessionId, context);
-        }, PDAMod.EXECUTOR_SERVICE);
+        return getSessionId(requestId).thenApply(sessionId -> new DefaultSession(sessionId, context));
     }
 
     @Override
@@ -88,18 +83,18 @@ public final class ClientSessionHandler implements SessionHandler {
             return;
         }
         final var uuid = session.getUUID();
-        PDAMod.CHANNEL.sendToServer(new SPacketTerminateSession(uuid));
-        PDAMod.LOGGER.debug("Terminated session {}", uuid);
+        Minecraft.getInstance().execute(() -> PDAMod.CHANNEL.sendToServer(new SPacketTerminateSession(uuid)));
+        PDAMod.LOGGER.debug("Requesting session termination for session {}", uuid);
     }
 
     @Nullable
     @Override
-    public Session getSession() {
+    public synchronized Session getSession() {
         return session;
     }
 
     @Override
-    public void setSession(final Session session) {
+    public synchronized void setSession(final Session session) {
         this.session = session;
     }
 }

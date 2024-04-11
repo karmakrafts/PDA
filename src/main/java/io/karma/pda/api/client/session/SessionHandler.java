@@ -14,10 +14,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Alexander Hinze
@@ -34,28 +32,26 @@ public interface SessionHandler {
 
     void setSession(final Session session);
 
-    default <S> CompletableFuture<MuxedSession<S>> createSession(final Supplier<Map<S, Session>> mapFactory,
-                                                                 final Collection<? extends SelectiveSessionContext<S>> contexts,
-                                                                 final S initial) {
+    default <S> CompletableFuture<MuxedSession<S>> createSession(
+        final Collection<? extends SelectiveSessionContext<S>> contexts, final S initial) {
         return CompletableFuture.supplyAsync(() -> {
             API.getLogger().debug("Creating multiplexed session asynchronously..");
-            final var mux = new MuxedSession<>(initial, mapFactory);
-            for (final var context : contexts) {
-                try {
-                    final var session = createSession(context).get();
-                    mux.addTarget(context.getSelector(), session);
-                    API.getLogger().debug("Added MUX target {}", session.getUUID());
-                }
-                catch (Throwable error) {
-                    API.getLogger().error("Could not create MUX sub session");
-                }
-            }
+            final var mux = new MuxedSession<>(initial, ConcurrentHashMap::new);
+            // @formatter:off
+            CompletableFuture.allOf(contexts.stream()
+                .map(context -> createSession(context)
+                    .thenAccept(session -> mux.addTarget(context.getSelector(), session)))
+                .toArray(CompletableFuture[]::new)).join();
+            // @formatter:on
             return mux;
         }, API.getExecutorService());
     }
 
-    default <S> CompletableFuture<MuxedSession<S>> createSession(
-        final Collection<? extends SelectiveSessionContext<S>> contexts, final S initial) {
-        return createSession(HashMap::new, contexts, initial);
+    default void terminateSession() {
+        final var session = getSession();
+        if (session == null) {
+            return;
+        }
+        terminateSession(session);
     }
 }
