@@ -49,6 +49,7 @@ public final class API {
         API.sessionHandler = sessionHandler;
     }
 
+    @ApiStatus.Internal
     public static Logger getLogger() {
         return logger;
     }
