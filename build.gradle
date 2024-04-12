@@ -59,6 +59,7 @@ configurations {
     annotationProcessor.extendsFrom minecraft
     library
     compileClasspath.extendsFrom library
+    implementation.extendsFrom library
 }
 
 minecraft.runs.all {
