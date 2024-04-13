@@ -215,3 +215,61 @@ artifacts {
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
+
+publishing {
+    repositories {
+        maven {
+            url "https://nexus.covers1624.net/repository/karmakrafts-releases/"
+
+            if (System.getenv('MAVEN_PASSWORD')) {
+                credentials {
+                    username 'kitsunealex'
+                    password System.getenv('MAVEN_PASSWORD')
+                }
+            }
+        }
+    }
+
+    publications {
+        pda(MavenPublication) {
+            groupId project.group
+            artifactId project.archivesBaseName
+            version project.version
+
+            artifact jar
+            artifact shadowJar
+            artifact apiJar
+            artifact sourcesJar
+            artifact apiSourcesJar
+
+            pom {
+                name = archivesBaseName
+                description = archivesBaseName
+                url = "https://git.karmakrafts.dev/kk/commissions/${mod_id}"
+
+                scm {
+                    url = "https://git.karmakrafts.dev/kk/commissions/${mod_id}"
+                }
+
+                issueManagement {
+                    system = 'gitlab'
+                    url = "https://git.karmakrafts.dev/kk/commissions/${mod_id}/issues"
+                }
+
+                licenses {
+                    license {
+                        name = "All Rights Reserved"
+                        distribution = 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'kitsunealex'
+                        name = 'KitsuneAlex'
+                    }
+                }
+            }
+        }
+    }
+}
