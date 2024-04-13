@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) 2024 Karma Krafts & associates
+ */
+
 plugins {
     id 'eclipse'
     id 'idea'
@@ -9,14 +13,15 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.8.21'
 }
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 version = mod_version
 group = mod_group_id
 
 base {
     archivesName = mod_id
 }
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
     mappings channel: mapping_channel, version: "${mapping_version}-${minecraft_version}"
@@ -54,10 +59,12 @@ minecraft {
     }
 }
 
-sourceSets.main {
-    java { srcDirs = ['src/main/java', 'src/main/kotlin'] }
-    kotlin { srcDirs = ['src/main/java', 'src/main/kotlin'] }
-    resources { srcDirs = ['src/generated/resources', 'src/main/resources'] }
+sourceSets {
+    main {
+        java { srcDirs = ['src/main/java', 'src/main/kotlin'] }
+        kotlin { srcDirs = ['src/main/java', 'src/main/kotlin'] }
+        resources { srcDirs = ['src/generated/resources', 'src/main/resources'] }
+    }
 }
 
 configurations {
@@ -82,7 +89,6 @@ mixin {
 repositories {
     mavenCentral()
     maven { url = 'https://maven.covers1624.net' }
-    maven { url = 'https://thedarkcolour.github.io/KotlinForForge/' }
 }
 
 dependencies {
@@ -120,7 +126,15 @@ def commonManifest = {
     ])
 }
 
+jar {
+    from sourceSets.main.output
+    archiveClassifier = 'slim'
+    manifest commonManifest
+    finalizedBy 'reobfJar'
+}
+
 shadowJar {
+    from sourceSets.main.output
     archiveClassifier = ''
     manifest commonManifest
     finalizedBy 'reobfShadowJar'
@@ -139,14 +153,41 @@ shadowJar {
     }
 }
 
-jar {
-    archiveClassifier = 'slim'
-    manifest commonManifest
-    finalizedBy 'reobfJar'
+task apiJar(type: ShadowJar) {
+    dependsOn shadowJar
+    from sourceSets.main.output
+    archiveClassifier = 'api'
+    configurations.addAll(tasks.shadowJar.configurations)
+    dependencies {
+        include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-core')
+        include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations')
+        include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-databind')
+        include dependency(group: 'io.karma.sliced', name: 'sliced')
+        include dependency(group: 'io.karma.material', name: 'material-color-utils')
+        include dependency(group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib')
+        include dependency(group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-common')
+        include dependency(group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk7')
+        include dependency(group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8')
+    }
+    exclude 'io/karma/pda/client/**'
+    exclude 'io/karma/pda/common/**'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task apiSourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier = 'api-sources'
+    from sourceSets.main.allSource
+    exclude 'io/karma/pda/client/**'
+    exclude 'io/karma/pda/common/**'
 }
 
 reobf {
     shadowJar {}
+    apiJar {}
 }
 
 processResources {
@@ -166,6 +207,9 @@ processResources {
 artifacts {
     archives jar
     archives shadowJar
+    archives apiJar
+    archives sourcesJar
+    archives apiSourcesJar
 }
 
 tasks.withType(JavaCompile) {
