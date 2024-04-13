@@ -19,5 +19,6 @@ public interface AppView {
 
     Container getContainer();
 
-    default void dispose() {}
+    default void dispose() {
+    }
 }

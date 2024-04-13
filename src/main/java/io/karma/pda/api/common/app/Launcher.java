@@ -12,7 +12,8 @@ import org.jetbrains.annotations.Nullable;
  * @since 13/04/2024
  */
 public interface Launcher extends App {
-    @Nullable App closeApp();
+    @Nullable
+    App closeApp();
 
     <A extends App> A openApp(final AppType<A> type);
 
