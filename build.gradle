@@ -197,11 +197,11 @@ dokkaJavadoc {
                 url.set(new URL("https://docs.karmakrafts.dev/pda"))
             }
             perPackageOption {
-                matchingRegex.set("(.*)io\\.karma\\.pda\\.client\\.(.*)")
+                matchingRegex.set("(.*)io\\.karma\\.pda\\.client(.*)")
                 suppress.set(true)
             }
             perPackageOption {
-                matchingRegex.set("(.*)io\\.karma\\.pda\\.common\\.(.*)")
+                matchingRegex.set("(.*)io\\.karma\\.pda\\.common(.*)")
                 suppress.set(true)
             }
         }
