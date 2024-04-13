@@ -19,6 +19,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 version = "${mod_version}.${(System.getenv("CI_PIPELINE_IID") ?: 0)}"
 group = mod_group_id
+def docsDir = System.properties['publishDocs.root']
 
 base {
     archivesName = "${mod_id}-${minecraft_version}"
