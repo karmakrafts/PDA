@@ -23,6 +23,7 @@ import io.karma.pda.client.render.item.PDAItemRenderer;
 import io.karma.pda.client.screen.DockStorageScreen;
 import io.karma.pda.client.screen.PDAStorageScreen;
 import io.karma.pda.client.session.ClientSessionHandler;
+import io.karma.pda.client.sync.ClientSynchronizer;
 import io.karma.pda.common.init.*;
 import io.karma.pda.common.menu.DockStorageMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
@@ -198,6 +199,7 @@ public class PDAMod {
     @OnlyIn(Dist.CLIENT)
     private void initClientAPI() {
         ClientAPI.setSessionHandler(ClientSessionHandler.INSTANCE);
+        ClientAPI.setSynchronizerFactory(ClientSynchronizer::new);
         ClientAPI.setFlexNodeHandler(ClientFlexNodeHandler.INSTANCE);
         ClientAPI.setBrushFactory(DefaultBrushFactory.INSTANCE);
         ClientAPI.init();

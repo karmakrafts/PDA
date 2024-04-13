@@ -5,6 +5,8 @@
 package io.karma.pda.common.app;
 
 import io.karma.pda.api.common.app.AppContext;
+import io.karma.pda.api.common.app.view.AppView;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Alexander Hinze
@@ -12,8 +14,13 @@ import io.karma.pda.api.common.app.AppContext;
  */
 public final class DefaultAppContext implements AppContext {
     @Override
-    public void close() {
+    public void addView(final String name, final AppView view) {
 
+    }
+
+    @Override
+    public @Nullable AppView removeView(final String name) {
+        return null;
     }
 
     @Override
@@ -23,6 +30,16 @@ public final class DefaultAppContext implements AppContext {
 
     @Override
     public void showControls() {
+
+    }
+
+    @Override
+    public void close() {
+
+    }
+
+    @Override
+    public void suspend() {
 
     }
 }

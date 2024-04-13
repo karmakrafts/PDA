@@ -4,10 +4,10 @@
 
 package io.karma.pda.api.common.app.theme;
 
-import io.karma.pda.api.common.util.Color;
 import io.karma.material.dynamiccolor.DynamicScheme;
 import io.karma.material.hct.Hct;
 import io.karma.material.scheme.SchemeNeutral;
+import io.karma.pda.api.common.util.Color;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.BooleanSupplier;

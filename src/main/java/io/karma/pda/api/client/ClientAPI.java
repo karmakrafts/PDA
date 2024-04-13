@@ -8,9 +8,13 @@ import io.karma.pda.api.client.flex.FlexNodeHandler;
 import io.karma.pda.api.client.render.gfx.BrushFactory;
 import io.karma.pda.api.client.render.gfx.DefaultBrushes;
 import io.karma.pda.api.client.session.SessionHandler;
+import io.karma.pda.api.common.sync.Synchronizer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.ApiStatus;
+
+import java.util.UUID;
+import java.util.function.Function;
 
 /**
  * @author Alexander Hinze
@@ -19,6 +23,7 @@ import org.jetbrains.annotations.ApiStatus;
 @OnlyIn(Dist.CLIENT)
 public final class ClientAPI {
     private static SessionHandler sessionHandler;
+    private static Function<UUID, Synchronizer> synchronizerFactory;
     private static FlexNodeHandler flexNodeHandler;
     private static BrushFactory brushFactory;
 
@@ -34,6 +39,11 @@ public final class ClientAPI {
     @ApiStatus.Internal
     public static void setSessionHandler(final SessionHandler sessionHandler) {
         ClientAPI.sessionHandler = sessionHandler;
+    }
+
+    @ApiStatus.Internal
+    public static void setSynchronizerFactory(final Function<UUID, Synchronizer> synchronizerFactory) {
+        ClientAPI.synchronizerFactory = synchronizerFactory;
     }
 
     @ApiStatus.Internal
@@ -56,5 +66,9 @@ public final class ClientAPI {
 
     public static BrushFactory getBrushFactory() {
         return brushFactory;
+    }
+
+    public static Synchronizer createSynchronizer(final UUID id) {
+        return synchronizerFactory.apply(id);
     }
 }

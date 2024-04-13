@@ -47,8 +47,17 @@ public class DefaultContainer extends AbstractComponent implements Container {
         child.setParent(null);
     }
 
+    @Override
+    public void dispose() {
+        for (final var child : children) {
+            child.dispose();
+        }
+        super.dispose();
+    }
+
     public void addChild(final int index, final Component child) {
         children.add(index, child);
+        idToChildren.put(child.getId(), child);
         child.setParent(this);
     }
 
@@ -57,8 +66,8 @@ public class DefaultContainer extends AbstractComponent implements Container {
     }
 
     public void clear() {
-        while (!children.isEmpty()) {
-            removeChild(children.remove(0));
-        }
+        dispose();
+        children.clear();
+        idToChildren.clear();
     }
 }

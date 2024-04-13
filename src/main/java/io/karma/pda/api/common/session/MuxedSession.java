@@ -4,6 +4,7 @@
 
 package io.karma.pda.api.common.session;
 
+import io.karma.pda.api.common.app.Launcher;
 import io.karma.pda.api.common.sync.Synchronizer;
 
 import java.util.Collection;
@@ -52,6 +53,11 @@ public final class MuxedSession<S> implements Session {
 
     public Collection<Session> getTargets() {
         return sessions.values();
+    }
+
+    @Override
+    public Launcher getLauncher() {
+        return getTarget().getLauncher();
     }
 
     @Override

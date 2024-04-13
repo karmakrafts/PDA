@@ -6,8 +6,8 @@ package io.karma.pda.api.common.app.component;
 
 import io.karma.pda.api.common.app.event.ClickEvent;
 import io.karma.pda.api.common.app.event.MouseMoveEvent;
-import io.karma.pda.api.common.flex.StaticFlexNode;
 import io.karma.pda.api.common.flex.FlexNode;
+import io.karma.pda.api.common.flex.StaticFlexNode;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -35,6 +35,12 @@ public abstract class AbstractComponent implements Component {
     protected AbstractComponent(final ComponentType<?> type, final UUID id) {
         this.type = type;
         this.id = id;
+        Component.doWithSynchronizer(() -> sync -> sync.register(this));
+    }
+
+    @Override
+    public void dispose() {
+        Component.doWithSynchronizer(() -> sync -> sync.unregister(this));
     }
 
     @Override

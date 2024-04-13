@@ -18,7 +18,10 @@ public interface Synced<T> extends Supplier<T> {
 
     Class<T> getType();
 
-    void onChanged(final BiConsumer<T, T> callback);
+    void setCallback(final @Nullable BiConsumer<T, T> callback);
+
+    @Nullable
+    BiConsumer<T, T> getCallback();
 
     static <T> Synced<T> ofType(final Class<T> type) {
         return new DefaultSynced<>(type);

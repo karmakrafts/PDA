@@ -4,10 +4,11 @@
 
 package io.karma.pda.api.common.app;
 
-import io.karma.pda.api.common.app.component.DefaultContainer;
 import io.karma.pda.api.common.app.theme.Theme;
-import io.karma.pda.api.common.app.component.Container;
-import io.karma.pda.api.common.app.component.DefaultComponents;
+import io.karma.pda.api.common.app.view.AppView;
+
+import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * @author Alexander Hinze
@@ -15,8 +16,9 @@ import io.karma.pda.api.common.app.component.DefaultComponents;
  */
 public abstract class AbstractApp implements App {
     protected final AppType<?> type;
-    protected final DefaultContainer container = DefaultComponents.CONTAINER.create();
+    protected final HashMap<String, AppView> views = new HashMap<>();
     protected final Theme theme;
+    protected String currentView;
 
     public AbstractApp(final AppType<?> type, final Theme theme) {
         this.type = type;
@@ -24,13 +26,30 @@ public abstract class AbstractApp implements App {
     }
 
     @Override
-    public AppType<?> getType() {
-        return type;
+    public void setView(final String name) {
+        currentView = name;
     }
 
     @Override
-    public Container getContainer() {
-        return container;
+    public String getViewName() {
+        return currentView;
+    }
+
+    @Override
+    public AppView getView() {
+        return Objects.requireNonNull(views.get(currentView));
+    }
+
+    @Override
+    public void dispose(final AppContext context) {
+        for (final var view : views.values()) {
+            view.dispose();
+        }
+    }
+
+    @Override
+    public AppType<?> getType() {
+        return type;
     }
 
     @Override
