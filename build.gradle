@@ -188,8 +188,17 @@ task apiSourcesJar(type: Jar, dependsOn: classes) {
 }
 
 dokkaJavadoc {
-    dokkaSourceSets.configureEach {
-        includes.from(fileTree('src/main/java/io/karma/pda/api/**/*.java'), fileTree('src/main/kotlin/io/karma/pda/api/**/*.kt'))
+    dokkaSourceSets {
+        configureEach {
+            perPackageOption {
+                matchingRegex.set("(.*)io\\.karma\\.pda\\.client\\.(.*)")
+                suppress.set(true)
+            }
+            perPackageOption {
+                matchingRegex.set("(.*)io\\.karma\\.pda\\.common\\.(.*)")
+                suppress.set(true)
+            }
+        }
     }
 }
 
