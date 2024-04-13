@@ -10,8 +10,8 @@ import java.util.UUID;
  * @author Alexander Hinze
  * @since 13/04/2024
  */
-public class EntityRender extends AbstractComponent {
-    public EntityRender(final ComponentType<?> type, final UUID id) {
+public class EntityImage extends AbstractComponent {
+    public EntityImage(final ComponentType<?> type, final UUID id) {
         super(type, id);
     }
 }

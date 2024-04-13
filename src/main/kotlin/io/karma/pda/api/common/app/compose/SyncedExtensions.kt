@@ -18,5 +18,7 @@ import io.karma.pda.api.common.util.Color
 operator fun <T> Synced<T>.invoke(): T = get()
 operator fun <T> Synced<T>.invoke(value: T) = set(value)
 
-operator fun Synced<Color>.invoke(value: Int) = set(Color.unpackARGB(value))
-operator fun Synced<Color>.invoke(value: UInt) = set(Color.unpackARGB(value.toInt()))
+operator fun Synced<Color>.invoke(value: Int) = set(
+    Color.unpackARGB(value))
+operator fun Synced<Color>.invoke(value: UInt) = set(
+    Color.unpackARGB(value.toInt()))

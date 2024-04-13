@@ -55,4 +55,10 @@ public class DefaultContainer extends AbstractComponent implements Container {
     public int indexOfChild(final Component child) {
         return children.indexOf(child);
     }
+
+    public void clear() {
+        while (!children.isEmpty()) {
+            removeChild(children.remove(0));
+        }
+    }
 }

@@ -6,8 +6,8 @@ package io.karma.pda.api.common.app.component;
 
 import io.karma.pda.api.common.app.event.ClickEvent;
 import io.karma.pda.api.common.app.event.MouseMoveEvent;
-import io.karma.pda.api.common.flex.FlexNode;
 import io.karma.pda.api.common.flex.StaticFlexNode;
+import io.karma.pda.api.common.flex.FlexNode;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;

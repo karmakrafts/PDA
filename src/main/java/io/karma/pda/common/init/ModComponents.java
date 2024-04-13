@@ -29,11 +29,11 @@ public final class ModComponents {
         register("button", Button::new);
         register("separator", Separator::new);
         register("image", Image::new);
-        register("item_render", ItemRender::new);
-        register("block_render", BlockRender::new);
-        register("entity_render", EntityRender::new);
-        register("recipe_render", RecipeRender::new);
-        register("player_render", PlayerRender::new);
+        register("item_image", ItemImage::new);
+        register("block_image", BlockImage::new);
+        register("entity_image", EntityImage::new);
+        register("recipe_image", RecipeImage::new);
+        register("player_image", PlayerImage::new);
     }
 
     private static <C extends Component> void register(final String name,

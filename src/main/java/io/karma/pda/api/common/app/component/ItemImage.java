@@ -13,10 +13,10 @@ import java.util.UUID;
  * @author Alexander Hinze
  * @since 13/04/2024
  */
-public class ItemRender extends AbstractComponent {
+public class ItemImage extends AbstractComponent {
     public final Synced<ResourceLocation> item = Synced.withInitial(new ResourceLocation("apple"));
 
-    public ItemRender(final ComponentType<?> type, final UUID id) {
+    public ItemImage(final ComponentType<?> type, final UUID id) {
         super(type, id);
     }
 }

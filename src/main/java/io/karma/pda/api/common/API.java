@@ -5,9 +5,9 @@
 package io.karma.pda.api.common;
 
 import io.karma.pda.api.common.app.AppType;
+import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.theme.Theme;
-import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.api.common.util.RegistryUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.ResourceManager;

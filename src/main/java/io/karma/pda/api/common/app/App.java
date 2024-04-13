@@ -4,8 +4,8 @@
 
 package io.karma.pda.api.common.app;
 
-import io.karma.pda.api.common.app.component.Container;
 import io.karma.pda.api.common.app.theme.Theme;
+import io.karma.pda.api.common.app.component.Container;
 
 /**
  * @author Alexander Hinze
@@ -13,9 +13,6 @@ import io.karma.pda.api.common.app.theme.Theme;
  */
 public interface App {
     void init(final AppContext context);
-
-    default void reload(final AppContext context) {
-    }
 
     AppType<?> getType();
 

@@ -6,9 +6,9 @@ package io.karma.pda.api.client.session;
 
 import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.session.MuxedSession;
-import io.karma.pda.api.common.session.SelectiveSessionContext;
 import io.karma.pda.api.common.session.Session;
 import io.karma.pda.api.common.session.SessionContext;
+import io.karma.pda.api.common.session.SelectiveSessionContext;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 

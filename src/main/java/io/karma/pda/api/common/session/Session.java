@@ -4,9 +4,9 @@
 
 package io.karma.pda.api.common.session;
 
-import io.karma.pda.api.common.sync.NoopSynchronizer;
-import io.karma.pda.api.common.sync.Synchronizer;
+import io.karma.pda.api.common.sync.NopSynchronizer;
 import io.karma.pda.api.common.util.Identifiable;
+import io.karma.pda.api.common.sync.Synchronizer;
 
 /**
  * A session describes a temporary pipe between client and server
@@ -29,6 +29,6 @@ public interface Session extends Identifiable {
     SessionContext getContext();
 
     default Synchronizer getSynchronizer() {
-        return NoopSynchronizer.INSTANCE;
+        return NopSynchronizer.INSTANCE;
     }
 }

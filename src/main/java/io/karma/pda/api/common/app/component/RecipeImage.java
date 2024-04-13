@@ -13,10 +13,10 @@ import java.util.UUID;
  * @author Alexander Hinze
  * @since 13/04/2024
  */
-public class RecipeRender extends AbstractComponent {
+public class RecipeImage extends AbstractComponent {
     public final Synced<ResourceLocation> recipe = Synced.withInitial(new ResourceLocation("bucket"));
 
-    public RecipeRender(final ComponentType<?> type, final UUID id) {
+    public RecipeImage(final ComponentType<?> type, final UUID id) {
         super(type, id);
     }
 }

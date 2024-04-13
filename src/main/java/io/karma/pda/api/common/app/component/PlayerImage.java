@@ -12,10 +12,10 @@ import java.util.UUID;
  * @author Alexander Hinze
  * @since 13/04/2024
  */
-public class PlayerRender extends AbstractComponent {
+public class PlayerImage extends AbstractComponent {
     public final Synced<UUID> player = Synced.ofType(UUID.class);
 
-    public PlayerRender(final ComponentType<?> type, final UUID id) {
+    public PlayerImage(final ComponentType<?> type, final UUID id) {
         super(type, id);
     }
 }

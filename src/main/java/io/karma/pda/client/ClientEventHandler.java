@@ -18,8 +18,7 @@ import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.component.DefaultComponents;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.client.render.app.DefaultAppRenderer;
-import io.karma.pda.client.render.component.ContainerRenderer;
-import io.karma.pda.client.render.component.LabelRenderer;
+import io.karma.pda.client.render.component.*;
 import io.karma.pda.client.render.entity.DockBlockEntityRenderer;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.init.ModBlockEntities;
@@ -63,6 +62,21 @@ public final class ClientEventHandler {
     @SuppressWarnings("all")
     @ApiStatus.Internal
     public void fireRegisterEvents() {
+        // Components
+        ComponentRenderers.register(DefaultComponents.CONTAINER, new ContainerRenderer());
+        ComponentRenderers.register(DefaultComponents.LABEL, new LabelRenderer());
+        ComponentRenderers.register(DefaultComponents.BUTTON, new ButtonRenderer());
+        ComponentRenderers.register(DefaultComponents.IMAGE, new ImageRenderer());
+        ComponentRenderers.register(DefaultComponents.SEPARATOR, new SeparatorRenderer());
+        ComponentRenderers.register(DefaultComponents.ITEM_IMAGE, new ItemImageRenderer());
+        ComponentRenderers.register(DefaultComponents.BLOCK_IMAGE, new BlockImageRenderer());
+        ComponentRenderers.register(DefaultComponents.ENTITY_IMAGE, new EntityImageRenderer());
+        ComponentRenderers.register(DefaultComponents.PLAYER_IMAGE, new PlayerImageRenderer());
+        ComponentRenderers.register(DefaultComponents.RECIPE_IMAGE, new RecipeImageRenderer());
+        // Apps
+        AppRenderers.register(DefaultApps.LAUNCHER, new DefaultAppRenderer<>());
+        AppRenderers.register(DefaultApps.SETTINGS, new DefaultAppRenderer<>());
+
         final var forgeBus = MinecraftForge.EVENT_BUS;
         // @formatter:off
         forgeBus.post(new RegisterComponentRenderersEvent(
@@ -70,13 +84,6 @@ public final class ClientEventHandler {
         forgeBus.post(new RegisterAppRenderersEvent(
             (type, renderer) -> AppRenderers.register((AppType<App>)type, (AppRenderer<App>) renderer)));
         // @formatter:on
-
-        // Components
-        ComponentRenderers.register(DefaultComponents.CONTAINER, new ContainerRenderer());
-        ComponentRenderers.register(DefaultComponents.LABEL, new LabelRenderer());
-        // Apps
-        AppRenderers.register(DefaultApps.LAUNCHER, new DefaultAppRenderer<>());
-        AppRenderers.register(DefaultApps.SETTINGS, new DefaultAppRenderer<>());
     }
 
     private void onClientTick(final TickEvent.ClientTickEvent event) {

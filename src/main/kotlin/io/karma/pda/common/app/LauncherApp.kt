@@ -36,7 +36,7 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type, DefaultThemes.DEFAULT_
                 }) {
                     onClicked { println("HELLO WORLD!") }
                 }
-                playerRender({
+                playerImage({
                     width(100.percent)
                     height(100.percent)
                     overflow(FlexOverflow.HIDDEN)

@@ -55,23 +55,23 @@ value class Composer<C : Container>(val container: C) {
         crossinline props: ComponentProps, scope: Image.() -> Unit
     ) = component(DefaultComponents.IMAGE, props, scope)
 
-    inline fun itemRender(
-        crossinline props: ComponentProps, scope: ItemRender.() -> Unit
-    ) = component(DefaultComponents.ITEM_RENDER, props, scope)
+    inline fun itemImage(
+        crossinline props: ComponentProps, scope: ItemImage.() -> Unit
+    ) = component(DefaultComponents.ITEM_IMAGE, props, scope)
 
-    inline fun blockRender(
-        crossinline props: ComponentProps, scope: BlockRender.() -> Unit
-    ) = component(DefaultComponents.BLOCK_RENDER, props, scope)
+    inline fun blockImage(
+        crossinline props: ComponentProps, scope: BlockImage.() -> Unit
+    ) = component(DefaultComponents.BLOCK_IMAGE, props, scope)
 
-    inline fun entityRender(
-        crossinline props: ComponentProps, scope: EntityRender.() -> Unit
-    ) = component(DefaultComponents.ENTITY_RENDER, props, scope)
+    inline fun entityImage(
+        crossinline props: ComponentProps, scope: EntityImage.() -> Unit
+    ) = component(DefaultComponents.ENTITY_IMAGE, props, scope)
 
-    inline fun recipeRender(
-        crossinline props: ComponentProps, scope: RecipeRender.() -> Unit
-    ) = component(DefaultComponents.RECIPE_RENDER, props, scope)
+    inline fun recipeImage(
+        crossinline props: ComponentProps, scope: RecipeImage.() -> Unit
+    ) = component(DefaultComponents.RECIPE_IMAGE, props, scope)
 
-    inline fun playerRender(
-        crossinline props: ComponentProps, scope: PlayerRender.() -> Unit
-    ) = component(DefaultComponents.PLAYER_RENDER, props, scope)
+    inline fun playerImage(
+        crossinline props: ComponentProps, scope: PlayerImage.() -> Unit
+    ) = component(DefaultComponents.PLAYER_IMAGE, props, scope)
 }

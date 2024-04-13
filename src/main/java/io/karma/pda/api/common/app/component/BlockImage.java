@@ -13,10 +13,10 @@ import java.util.UUID;
  * @author Alexander Hinze
  * @since 13/04/2024
  */
-public class BlockRender extends AbstractComponent {
+public class BlockImage extends AbstractComponent {
     public final Synced<ResourceLocation> block = Synced.withInitial(new ResourceLocation("dirt"));
 
-    public BlockRender(final ComponentType<?> type, final UUID id) {
+    public BlockImage(final ComponentType<?> type, final UUID id) {
         super(type, id);
     }
 }

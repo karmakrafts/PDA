@@ -10,11 +10,11 @@ import java.util.UUID;
  * @author Alexander Hinze
  * @since 13/04/2024
  */
-public final class NoopSynchronizer implements Synchronizer {
-    public static final NoopSynchronizer INSTANCE = new NoopSynchronizer();
+public final class NopSynchronizer implements Synchronizer {
+    public static final NopSynchronizer INSTANCE = new NopSynchronizer();
 
     // @formatter:off
-    private NoopSynchronizer() {}
+    private NopSynchronizer() {}
     // @formatter:on
 
     @Override
