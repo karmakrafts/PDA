@@ -17,18 +17,10 @@ public class Label extends AbstractComponent {
     private static final String TAG_TEXT = "text";
     private static final String TAG_COLOR = "color";
     private static final int DEFAULT_TEXT_COLOR = 0xFF101010;
-    private final Synced<String> text = Synced.withInitial("");
-    private final Synced<Color> color = Synced.withInitial(Color.WHITE);
+    public final Synced<String> text = Synced.withInitial("");
+    public final Synced<Color> color = Synced.withInitial(Color.WHITE);
 
     public Label(final ComponentType<?> type, final UUID uuid) {
         super(type, uuid);
-    }
-
-    public Synced<String> getText() {
-        return text;
-    }
-
-    public Synced<Color> getColor() {
-        return color;
     }
 }

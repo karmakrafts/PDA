@@ -4,9 +4,13 @@
 
 package io.karma.pda.api.common.app.component;
 
+import io.karma.pda.api.common.app.event.ClickEvent;
+import io.karma.pda.api.common.app.event.MouseMoveEvent;
 import io.karma.pda.api.common.flex.FlexNode;
 import io.karma.pda.api.common.util.Identifiable;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Consumer;
 
 /**
  * @author Alexander Hinze
@@ -20,5 +24,17 @@ public interface Component extends Identifiable {
 
     void setParent(final @Nullable Component parent);
 
-    FlexNode getLayoutSpec();
+    FlexNode getFlexNode();
+
+    void requestUpdate();
+
+    boolean needsUpdate();
+
+    void onClicked(final Consumer<ClickEvent> callback);
+
+    void onMouseOver(final Consumer<MouseMoveEvent> callback);
+
+    void onMouseEnter(final Consumer<MouseMoveEvent> callback);
+
+    void onMouseExit(final Consumer<MouseMoveEvent> callback);
 }

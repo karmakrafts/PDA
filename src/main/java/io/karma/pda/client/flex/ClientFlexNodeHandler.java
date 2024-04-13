@@ -50,7 +50,7 @@ public final class ClientFlexNodeHandler implements FlexNodeHandler {
 
     @Override
     public FlexNode getOrCreateNode(final Component component) {
-        return nodes.computeIfAbsent(component.getId(), id -> DefaultFlexNode.copyOf(component.getLayoutSpec()));
+        return nodes.computeIfAbsent(component.getId(), id -> DefaultFlexNode.copyOf(component.getFlexNode()));
     }
 
     @Override

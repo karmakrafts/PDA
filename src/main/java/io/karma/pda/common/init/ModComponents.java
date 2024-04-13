@@ -4,13 +4,14 @@
 
 package io.karma.pda.common.init;
 
-import io.karma.pda.api.common.app.component.ComponentType;
-import io.karma.pda.api.common.app.component.DefaultContainer;
-import io.karma.pda.api.common.app.component.Label;
+import io.karma.pda.api.common.app.component.*;
 import io.karma.pda.api.common.util.Constants;
+import io.karma.pda.common.PDAMod;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.DeferredRegister;
 import org.jetbrains.annotations.ApiStatus;
+
+import java.util.UUID;
+import java.util.function.BiFunction;
 
 /**
  * @author Alexander Hinze
@@ -22,10 +23,22 @@ public final class ModComponents {
     // @formatter:on
 
     @ApiStatus.Internal
-    public static void register(final DeferredRegister<ComponentType<?>> register) {
-        register.register("container",
-            () -> new ComponentType<>(new ResourceLocation(Constants.MODID, "container"), DefaultContainer::new));
-        register.register("label",
-            () -> new ComponentType<>(new ResourceLocation(Constants.MODID, "label"), Label::new));
+    public static void register() {
+        register("container", DefaultContainer::new);
+        register("label", Label::new);
+        register("button", Button::new);
+        register("separator", Separator::new);
+        register("image", Image::new);
+        register("item_render", ItemRender::new);
+        register("block_render", BlockRender::new);
+        register("entity_render", EntityRender::new);
+        register("recipe_render", RecipeRender::new);
+        register("player_render", PlayerRender::new);
+    }
+
+    private static <C extends Component> void register(final String name,
+                                                       final BiFunction<ComponentType<C>, UUID, C> factory) {
+        PDAMod.COMPONENTS.register(name,
+            () -> new ComponentType<>(new ResourceLocation(Constants.MODID, name), factory));
     }
 }

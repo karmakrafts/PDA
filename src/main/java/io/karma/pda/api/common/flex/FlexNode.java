@@ -9,6 +9,8 @@ package io.karma.pda.api.common.flex;
  * @since 10/04/2024
  */
 public interface FlexNode {
+    void setFrom(final FlexNode flexNode);
+
     default FlexDirection getDirection() {
         return FlexDirection.ROW;
     }

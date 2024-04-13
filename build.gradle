@@ -6,6 +6,7 @@ plugins {
     id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'org.jetbrains.kotlin.jvm' version '1.8.21'
 }
 
 version = mod_version
@@ -53,7 +54,11 @@ minecraft {
     }
 }
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
+sourceSets.main {
+    java { srcDirs = ['src/main/java', 'src/main/kotlin'] }
+    kotlin { srcDirs = ['src/main/java', 'src/main/kotlin'] }
+    resources { srcDirs = ['src/generated/resources', 'src/main/resources'] }
+}
 
 configurations {
     annotationProcessor.extendsFrom minecraft
@@ -77,6 +82,7 @@ mixin {
 repositories {
     mavenCentral()
     maven { url = 'https://maven.covers1624.net' }
+    maven { url = 'https://thedarkcolour.github.io/KotlinForForge/' }
 }
 
 dependencies {
@@ -126,6 +132,10 @@ shadowJar {
         include dependency(group: 'io.karma.material', name: 'material-color-utils')
         include dependency(group: 'org.lz4', name: 'lz4-java')
         include dependency(group: 'org.lwjgl', name: 'lwjgl-yoga')
+        include dependency(group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib')
+        include dependency(group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-common')
+        include dependency(group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk7')
+        include dependency(group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8')
     }
 }
 

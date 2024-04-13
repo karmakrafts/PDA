@@ -4,10 +4,13 @@
 
 package io.karma.pda.api.common.app.component;
 
+import io.karma.pda.api.common.app.event.ClickEvent;
+import io.karma.pda.api.common.app.event.MouseMoveEvent;
 import io.karma.sliced.slice.Slice;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * @author Alexander Hinze
@@ -22,4 +25,34 @@ public interface Container extends Component {
     Component findChild(final UUID uuid);
 
     Slice<Component> getChildren();
+
+    @Override
+    default boolean needsUpdate() {
+        return getChildren().stream().anyMatch(Component::needsUpdate);
+    }
+
+    @Override
+    default void requestUpdate() {
+        getChildren().forEach(Component::requestUpdate);
+    }
+
+    @Override
+    default void onClicked(final Consumer<ClickEvent> callback) {
+        getChildren().forEach(component -> component.onClicked(callback));
+    }
+
+    @Override
+    default void onMouseOver(final Consumer<MouseMoveEvent> callback) {
+        getChildren().forEach(component -> component.onMouseOver(callback));
+    }
+
+    @Override
+    default void onMouseEnter(final Consumer<MouseMoveEvent> callback) {
+        getChildren().forEach(component -> component.onMouseEnter(callback));
+    }
+
+    @Override
+    default void onMouseExit(final Consumer<MouseMoveEvent> callback) {
+        getChildren().forEach(component -> component.onMouseExit(callback));
+    }
 }

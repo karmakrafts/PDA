@@ -8,27 +8,41 @@ package io.karma.pda.api.common.flex;
  * @author Alexander Hinze
  * @since 10/04/2024
  */
-public final class ImmutableFlexNode implements FlexNode {
-    private final FlexDirection direction;
-    private final FlexOverflow overflow;
-    private final FlexPositionType positionType;
-    private final FlexAlignment selfAlignment;
-    private final FlexAlignment itemAlignment;
-    private final FlexAlignment contentAlignment;
-    private final FlexJustify contentJustification;
-    private final FlexValue x;
-    private final FlexValue y;
-    private final FlexValue width;
-    private final FlexValue height;
-    private final FlexBorder margin;
-    private final FlexBorder padding;
+public final class StaticFlexNode implements FlexNode {
+    private static final StaticFlexNode DEFAULTS = new StaticFlexNode(FlexDirection.ROW,
+        FlexOverflow.VISIBLE,
+        FlexPositionType.RELATIVE,
+        FlexAlignment.CENTER,
+        FlexAlignment.CENTER,
+        FlexAlignment.CENTER,
+        FlexJustify.CENTER,
+        FlexValue.auto(),
+        FlexValue.auto(),
+        FlexValue.auto(),
+        FlexValue.auto(),
+        FlexBorder.empty(),
+        FlexBorder.empty());
 
-    private ImmutableFlexNode(final FlexDirection direction, final FlexOverflow overflow,
-                              final FlexPositionType positionType, final FlexAlignment selfAlignment,
-                              final FlexAlignment itemAlignment, final FlexAlignment contentAlignment,
-                              final FlexJustify contentJustification, final FlexValue x, final FlexValue y,
-                              final FlexValue width, final FlexValue height, final FlexBorder margin,
-                              final FlexBorder padding) {
+    private FlexDirection direction;
+    private FlexOverflow overflow;
+    private FlexPositionType positionType;
+    private FlexAlignment selfAlignment;
+    private FlexAlignment itemAlignment;
+    private FlexAlignment contentAlignment;
+    private FlexJustify contentJustification;
+    private FlexValue x;
+    private FlexValue y;
+    private FlexValue width;
+    private FlexValue height;
+    private FlexBorder margin;
+    private FlexBorder padding;
+
+    private StaticFlexNode(final FlexDirection direction, final FlexOverflow overflow,
+                           final FlexPositionType positionType, final FlexAlignment selfAlignment,
+                           final FlexAlignment itemAlignment, final FlexAlignment contentAlignment,
+                           final FlexJustify contentJustification, final FlexValue x, final FlexValue y,
+                           final FlexValue width, final FlexValue height, final FlexBorder margin,
+                           final FlexBorder padding) {
         this.direction = direction;
         this.overflow = overflow;
         this.positionType = positionType;
@@ -44,8 +58,29 @@ public final class ImmutableFlexNode implements FlexNode {
         this.padding = padding;
     }
 
+    public static StaticFlexNode defaults() {
+        return DEFAULTS;
+    }
+
     public static Builder builder() {
         return new Builder();
+    }
+
+    @Override
+    public void setFrom(final FlexNode flexNode) {
+        direction = flexNode.getDirection();
+        overflow = flexNode.getOverflow();
+        positionType = flexNode.getPositionType();
+        selfAlignment = flexNode.getSelfAlignment();
+        itemAlignment = flexNode.getItemAlignment();
+        contentAlignment = flexNode.getContentAlignment();
+        contentJustification = flexNode.getContentJustification();
+        x = flexNode.getX();
+        y = flexNode.getY();
+        width = flexNode.getWidth();
+        height = flexNode.getHeight();
+        margin = flexNode.getMargin();
+        padding = flexNode.getPadding();
     }
 
     @Override
@@ -113,7 +148,7 @@ public final class ImmutableFlexNode implements FlexNode {
         return padding;
     }
 
-    public static final class Builder {
+    public static class Builder {
         private FlexDirection direction = FlexDirection.ROW;
         private FlexOverflow overflow = FlexOverflow.HIDDEN;
         private FlexPositionType positionType = FlexPositionType.RELATIVE;
@@ -129,7 +164,7 @@ public final class ImmutableFlexNode implements FlexNode {
         private FlexBorder padding = FlexBorder.empty();
 
         // @formatter:off
-        private Builder() {}
+        protected Builder() {}
         // @formatter:on
 
         public Builder direction(final FlexDirection direction) {
@@ -197,8 +232,8 @@ public final class ImmutableFlexNode implements FlexNode {
             return this;
         }
 
-        public ImmutableFlexNode build() {
-            return new ImmutableFlexNode(direction,
+        public StaticFlexNode build() {
+            return new StaticFlexNode(direction,
                 overflow,
                 positionType,
                 selfAlignment,

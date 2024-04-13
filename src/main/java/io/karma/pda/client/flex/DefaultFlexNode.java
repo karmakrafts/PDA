@@ -32,21 +32,9 @@ public final class DefaultFlexNode implements FlexNode, Disposable {
         }
     }
 
-    public static DefaultFlexNode copyOf(final FlexNode spec) {
+    public static DefaultFlexNode copyOf(final FlexNode flexNode) {
         final var node = new DefaultFlexNode();
-        node.setDirection(spec.getDirection());
-        node.setOverflow(spec.getOverflow());
-        node.setSelfAlignment(spec.getSelfAlignment());
-        node.setItemAlignment(spec.getItemAlignment());
-        node.setContentAlignment(spec.getContentAlignment());
-        node.setContentJustification(spec.getContentJustification());
-        node.setMargin(spec.getMargin());
-        node.setPadding(spec.getPadding());
-        node.setPositionType(spec.getPositionType());
-        node.setWidth(spec.getWidth());
-        node.setHeight(spec.getHeight());
-        node.setX(spec.getX());
-        node.setY(spec.getY());
+        node.setFrom(flexNode);
         return node;
     }
 
@@ -68,6 +56,23 @@ public final class DefaultFlexNode implements FlexNode, Disposable {
 
     public Slice<DefaultFlexNode> getChildren() {
         return Slice.of(children);
+    }
+
+    @Override
+    public void setFrom(final FlexNode flexNode) {
+        setDirection(flexNode.getDirection());
+        setOverflow(flexNode.getOverflow());
+        setSelfAlignment(flexNode.getSelfAlignment());
+        setItemAlignment(flexNode.getItemAlignment());
+        setContentAlignment(flexNode.getContentAlignment());
+        setContentJustification(flexNode.getContentJustification());
+        setMargin(flexNode.getMargin());
+        setPadding(flexNode.getPadding());
+        setPositionType(flexNode.getPositionType());
+        setWidth(flexNode.getWidth());
+        setHeight(flexNode.getHeight());
+        setX(flexNode.getX());
+        setY(flexNode.getY());
     }
 
     // Direction

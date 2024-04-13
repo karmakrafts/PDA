@@ -11,13 +11,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 /**
  * @author Alexander Hinze
- * @since 11/04/2024
+ * @since 13/04/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class DarkTheme implements Theme {
+public final class LightTheme implements Theme {
     @Override
     public String getName() {
-        return Themes.DARK;
+        return Themes.LIGHT;
     }
 
     @Override

@@ -4,6 +4,7 @@
 
 package io.karma.pda.api.common.session;
 
+import io.karma.pda.api.common.sync.NoopSynchronizer;
 import io.karma.pda.api.common.sync.Synchronizer;
 import io.karma.pda.api.common.util.Identifiable;
 
@@ -28,6 +29,6 @@ public interface Session extends Identifiable {
     SessionContext getContext();
 
     default Synchronizer getSynchronizer() {
-        throw new UnsupportedOperationException();
+        return NoopSynchronizer.INSTANCE;
     }
 }
