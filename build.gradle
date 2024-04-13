@@ -187,7 +187,7 @@ task apiSourcesJar(type: Jar, dependsOn: classes) {
     exclude 'io/karma/pda/common/**'
 }
 
-dokkaJavadoc {
+dokkaHtml {
     dokkaSourceSets {
         configureEach {
             reportUndocumented.set(false)
@@ -209,10 +209,10 @@ dokkaJavadoc {
 }
 
 task apiJavadocJar(type: Jar) {
-    dependsOn dokkaJavadoc
-    mustRunAfter dokkaJavadoc
+    dependsOn dokkaHtml
+    mustRunAfter dokkaHtml
     archiveClassifier = 'api-javadoc'
-    from dokkaJavadoc
+    from dokkaHtml
 }
 
 if(docsDir != null) {
