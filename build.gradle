@@ -196,7 +196,7 @@ dokkaJavadoc {
 task apiJavadocJar(type: Jar) {
     dependsOn dokkaJavadoc
     mustRunAfter dokkaJavadoc
-    archiveClassifier = 'javadoc'
+    archiveClassifier = 'api-javadoc'
     from dokkaJavadoc
 }
 
