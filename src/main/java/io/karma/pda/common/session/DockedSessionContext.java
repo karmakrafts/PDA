@@ -2,11 +2,15 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.api.common.session;
+package io.karma.pda.common.session;
 
+import io.karma.pda.api.common.session.SessionContext;
+import io.karma.pda.api.common.session.SessionType;
+import io.karma.pda.common.entity.DockBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,6 +21,15 @@ import java.util.Objects;
  * @since 04/04/2024
  */
 public record DockedSessionContext(Player player, BlockPos pos) implements SessionContext {
+    @Override
+    public ItemStack getDeviceItem() {
+        final var level = player.level();
+        if (!(level.getBlockEntity(pos) instanceof DockBlockEntity dockEntity)) {
+            return ItemStack.EMPTY;
+        }
+        return dockEntity.getItem(0);
+    }
+
     @Override
     public Player getPlayer() {
         return player;

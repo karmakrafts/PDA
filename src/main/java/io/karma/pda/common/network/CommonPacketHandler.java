@@ -4,13 +4,13 @@
 
 package io.karma.pda.common.network;
 
-import io.karma.pda.api.common.session.DockedSessionContext;
-import io.karma.pda.api.common.session.HandheldSessionContext;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.network.cb.CPacketCreateSession;
 import io.karma.pda.common.network.sb.SPacketCreateSession;
 import io.karma.pda.common.network.sb.SPacketSyncValues;
 import io.karma.pda.common.network.sb.SPacketTerminateSession;
+import io.karma.pda.common.session.DockedSessionContext;
+import io.karma.pda.common.session.HandheldSessionContext;
 import io.karma.pda.common.session.ServerSessionHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;

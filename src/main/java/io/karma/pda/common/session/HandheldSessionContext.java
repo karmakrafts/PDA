@@ -2,11 +2,14 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.api.common.session;
+package io.karma.pda.common.session;
 
+import io.karma.pda.api.common.session.SelectiveSessionContext;
+import io.karma.pda.api.common.session.SessionType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,6 +21,11 @@ import java.util.Objects;
  */
 public record HandheldSessionContext(Player player, InteractionHand hand)
     implements SelectiveSessionContext<InteractionHand> {
+    @Override
+    public ItemStack getDeviceItem() {
+        return player.getItemInHand(hand);
+    }
+
     @Override
     public InteractionHand getSelector() {
         return hand;

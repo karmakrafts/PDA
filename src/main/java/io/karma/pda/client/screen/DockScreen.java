@@ -5,8 +5,8 @@
 package io.karma.pda.client.screen;
 
 import io.karma.pda.api.client.ClientAPI;
-import io.karma.pda.api.common.session.DockedSessionContext;
 import io.karma.pda.client.DockInteractionHandler;
+import io.karma.pda.common.session.DockedSessionContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;

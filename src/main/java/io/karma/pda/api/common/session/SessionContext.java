@@ -31,6 +31,8 @@ import org.jetbrains.annotations.Nullable;
 public interface SessionContext {
     SessionType getType();
 
+    ItemStack getDeviceItem();
+
     Player getPlayer();
 
     Level getLevel();
