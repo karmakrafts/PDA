@@ -11,6 +11,7 @@ plugins {
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'org.jetbrains.kotlin.jvm' version '1.8.21'
+    id 'org.jetbrains.dokka' version '1.9.20'
 }
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
@@ -185,6 +186,28 @@ task apiSourcesJar(type: Jar, dependsOn: classes) {
     exclude 'io/karma/pda/common/**'
 }
 
+dokkaJavadoc {
+    dokkaSourceSets.configureEach {
+        includes.from(fileTree('src/main/java/io/karma/pda/api/**/*.java'), fileTree('src/main/kotlin/io/karma/pda/api/**/*.kt'))
+    }
+}
+
+task apiJavadocJar(type: Jar) {
+    dependsOn dokkaJavadoc
+    mustRunAfter dokkaJavadoc
+    archiveClassifier = 'javadoc'
+    from dokkaJavadoc
+}
+
+if(docsDir != null) {
+    task publishDocs(type: Copy) {
+        dependsOn apiJavadocJar
+        mustRunAfter apiJavadocJar
+        from zipTree(file("${buildDir}/libs/${archivesBaseName}-${version}-api-javadoc.jar"))
+        into file(docsDir)
+    }
+}
+
 reobf {
     shadowJar {}
     apiJar {}
@@ -210,6 +233,7 @@ artifacts {
     archives apiJar
     archives sourcesJar
     archives apiSourcesJar
+    archives apiJavadocJar
 }
 
 tasks.withType(JavaCompile) {
@@ -241,6 +265,7 @@ publishing {
             artifact apiJar
             artifact sourcesJar
             artifact apiSourcesJar
+            artifact apiJavadocJar
 
             pom {
                 name = archivesBaseName
