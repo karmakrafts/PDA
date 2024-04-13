@@ -4,8 +4,12 @@
 
 package io.karma.pda.api.common.app;
 
+import io.karma.pda.api.common.app.component.DefaultContainer;
 import io.karma.pda.api.common.app.view.AppView;
+import io.karma.pda.api.common.app.view.DefaultContainerView;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Consumer;
 
 /**
  * @author Alexander Hinze
@@ -13,6 +17,10 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface AppContext {
     void addView(final String name, final AppView view);
+
+    default void addView(final String name, final Consumer<DefaultContainer> callback) {
+        addView(name, new DefaultContainerView(name, callback));
+    }
 
     @Nullable
     AppView removeView(final String name);

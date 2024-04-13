@@ -42,12 +42,14 @@ public final class ExampleApp extends AbstractApp {
     }
     
     public void init(final AppContext context) {
-        final var label = DefaultComponents.LABEL.create(props -> props
-            .width(FlexValue.percent(100F))
-            .height(FlexValue.auto())
-        );
-        label.text.set("Hello World!");
-        container.addChild(label);
+        context.addView("default", container -> {
+            final var label = DefaultComponents.LABEL.create(props -> props
+                .width(FlexValue.percent(100F))
+                .height(FlexValue.auto())
+            );
+            label.text.set("Hello World!");
+            container.addChild(label);
+        });
     }
 }
 ```
@@ -60,8 +62,8 @@ import io.karma.pda.api.common.app.component.*
 import io.karma.pda.api.common.app.compose.*
 
 class ExampleApp(type: AppType<*>) : ComposableApp(type) {
-    override fun init(context: AppContext) {
-        compose {
+    override fun compose() {
+        view("default") {
             label({
                 width(100.percent)
                 height(auto)
