@@ -19,12 +19,15 @@ import java.util.UUID;
  */
 @OnlyIn(Dist.CLIENT)
 public final class ClientSession extends DefaultSession {
+    private final ClientSynchronizer synchronizer;
+
     public ClientSession(final UUID id, final SessionContext context) {
         super(id, context);
+        synchronizer = new ClientSynchronizer(id);
     }
 
     @Override
     public Synchronizer getSynchronizer() {
-        return new ClientSynchronizer(id);
+        return synchronizer;
     }
 }

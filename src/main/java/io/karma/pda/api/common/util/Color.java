@@ -86,12 +86,12 @@ public final class Color {
     }
 
     @JsonIgnore
-    public int getRGBA() {
+    public int packRGBA() {
         return (int) (r * 255F) << 24 | (int) (g * 255F) << 16 | (int) (b * 255F) << 8 | (int) (a * 255F);
     }
 
     @JsonIgnore
-    public int getARGB() {
+    public int packARGB() {
         return (int) (a * 255F) | (int) (g * 255F) << 16 | (int) (b * 255F) << 8 | (int) (r * 255F) << 24;
     }
 }

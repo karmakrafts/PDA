@@ -15,6 +15,7 @@ public final class Constants {
     public static final String PROTOCOL_VERSION = "1";
     public static final ResourceLocation COMPONENT_REGISTRY_NAME = new ResourceLocation(MODID, "components");
     public static final ResourceLocation APP_REGISTRY_NAME = new ResourceLocation(MODID, "apps");
+    public static final ResourceLocation THEME_REGISTRY_NAME = new ResourceLocation(MODID, "themes");
 
     // @formatter:off
     private Constants() {}

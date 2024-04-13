@@ -85,6 +85,8 @@ public final class CommonEventHandler {
         PDAMod.LOGGER.info("Creating registries");
         event.create(RegistryBuilder.of(Constants.COMPONENT_REGISTRY_NAME));
         event.create(RegistryBuilder.of(Constants.APP_REGISTRY_NAME));
+        event.create(RegistryBuilder.of(Constants.THEME_REGISTRY_NAME));
+
     }
 
     private void onRegisterCommands(final RegisterCommandsEvent event) {

@@ -6,6 +6,8 @@ package io.karma.pda.api.common;
 
 import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.component.ComponentType;
+import io.karma.pda.api.common.app.theme.Theme;
+import io.karma.pda.api.common.app.theme.ThemeHandler;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.api.common.util.RegistryUtils;
 import net.minecraft.client.Minecraft;
@@ -27,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 public class API {
     private static Logger logger;
     private static ExecutorService executorService;
+    private static ThemeHandler themeHandler;
 
     // @formatter:off
     @ApiStatus.Internal
@@ -49,6 +52,12 @@ public class API {
     }
 
     @ApiStatus.Internal
+    public static void setThemeHandler(final ThemeHandler themeHandler) {
+        API.themeHandler = themeHandler;
+    }
+
+
+    @ApiStatus.Internal
     public static Logger getLogger() {
         return logger;
     }
@@ -62,12 +71,20 @@ public class API {
         return executorService;
     }
 
+    public static ThemeHandler getThemeHandler() {
+        return themeHandler;
+    }
+
     public static DeferredRegister<ComponentType<?>> makeDeferredComponentTypeRegister(final String modId) {
         return DeferredRegister.create(Constants.COMPONENT_REGISTRY_NAME, modId);
     }
 
     public static DeferredRegister<AppType<?>> makeDeferredAppTypeRegister(final String modId) {
         return DeferredRegister.create(Constants.APP_REGISTRY_NAME, modId);
+    }
+
+    public static DeferredRegister<Theme> makeThemeRegister(final String modId) {
+        return DeferredRegister.create(Constants.THEME_REGISTRY_NAME, modId);
     }
 
     @SuppressWarnings("all")
@@ -77,6 +94,10 @@ public class API {
 
     public static IForgeRegistry<AppType<?>> getAppTypeRegistry() {
         return RegistryUtils.getRegistry(Constants.APP_REGISTRY_NAME);
+    }
+
+    public static IForgeRegistry<Theme> getThemeRegistry() {
+        return RegistryUtils.getRegistry(Constants.THEME_REGISTRY_NAME);
     }
 
     @SuppressWarnings("all")

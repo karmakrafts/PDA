@@ -42,7 +42,7 @@ public final class ClientAPI {
     }
 
     @ApiStatus.Internal
-    public static void setBrushFactory(BrushFactory brushFactory) {
+    public static void setBrushFactory(final BrushFactory brushFactory) {
         ClientAPI.brushFactory = brushFactory;
     }
 

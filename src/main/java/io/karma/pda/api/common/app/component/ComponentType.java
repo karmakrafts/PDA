@@ -4,10 +4,12 @@
 
 package io.karma.pda.api.common.app.component;
 
+import io.karma.pda.api.common.flex.StaticFlexNode;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 /**
  * @author Alexander Hinze
@@ -28,12 +30,21 @@ public final class ComponentType<C extends Component> {
         return name;
     }
 
-    public C create(final UUID uuid) {
-        return factory.apply(this, uuid);
+    public C create(final UUID uuid, final Consumer<StaticFlexNode.Builder> props) {
+        final var builder = StaticFlexNode.builder();
+        props.accept(builder);
+        final var component = factory.apply(this, uuid);
+        component.getFlexNode().setFrom(builder.build());
+        return component;
+    }
+
+    public C create(final Consumer<StaticFlexNode.Builder> props) {
+        return create(UUID.randomUUID(), props);
     }
 
     public C create() {
-        return create(UUID.randomUUID());
+        return create(props -> {
+        });
     }
 
     @SuppressWarnings("unchecked")

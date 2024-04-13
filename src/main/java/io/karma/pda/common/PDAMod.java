@@ -9,6 +9,7 @@ import io.karma.pda.api.client.ClientAPI;
 import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.component.ComponentType;
+import io.karma.pda.api.common.app.theme.Theme;
 import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.pda.api.common.dispose.DispositionHandler;
 import io.karma.pda.api.common.util.Constants;
@@ -22,6 +23,7 @@ import io.karma.pda.client.render.item.PDAItemRenderer;
 import io.karma.pda.client.screen.DockStorageScreen;
 import io.karma.pda.client.screen.PDAStorageScreen;
 import io.karma.pda.client.session.ClientSessionHandler;
+import io.karma.pda.common.app.theme.DefaultThemeHandler;
 import io.karma.pda.common.init.*;
 import io.karma.pda.common.menu.DockStorageMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
@@ -112,6 +114,7 @@ public class PDAMod {
         .build());
     public static final DeferredRegister<ComponentType<?>> COMPONENTS = API.makeDeferredComponentTypeRegister(Constants.MODID);
     public static final DeferredRegister<AppType<?>> APPS = API.makeDeferredAppTypeRegister(Constants.MODID);
+    public static final DeferredRegister<Theme> THEMES = API.makeThemeRegister(Constants.MODID);
     // @formatter:on
 
     public static boolean IS_DEV_ENV;
@@ -139,6 +142,7 @@ public class PDAMod {
         ServerSessionHandler.INSTANCE.setup();
 
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
+
         BLOCK_ENTITIES.register(modBus);
         BLOCKS.register(modBus);
         ITEMS.register(modBus);
@@ -146,6 +150,7 @@ public class PDAMod {
         MENU_TYPES.register(modBus);
         COMPONENTS.register(modBus);
         APPS.register(modBus);
+        THEMES.register(modBus);
 
         MinecraftForge.EVENT_BUS.addListener(this::onGameShutdown);
         initAPI();
@@ -178,6 +183,7 @@ public class PDAMod {
     private void initAPI() {
         API.setLogger(LOGGER);
         API.setExecutorService(EXECUTOR_SERVICE);
+        API.setThemeHandler(DefaultThemeHandler.INSTANCE);
         API.init();
     }
 
