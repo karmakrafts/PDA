@@ -190,6 +190,12 @@ task apiSourcesJar(type: Jar, dependsOn: classes) {
 dokkaJavadoc {
     dokkaSourceSets {
         configureEach {
+            reportUndocumented.set(false)
+            jdkVersion.set(17)
+            noAndroidSdkLink.set(true)
+            externalDocumentationLink {
+                url.set(new URL("https://docs.karmakrafts.dev/pda"))
+            }
             perPackageOption {
                 matchingRegex.set("(.*)io\\.karma\\.pda\\.client\\.(.*)")
                 suppress.set(true)
