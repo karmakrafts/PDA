@@ -10,6 +10,7 @@ import io.karma.pda.api.common.session.SessionContext;
 import io.karma.pda.common.app.DefaultLauncher;
 
 import java.util.UUID;
+import java.util.function.Function;
 
 /**
  * @author Alexander Hinze
@@ -18,10 +19,17 @@ import java.util.UUID;
 public class DefaultSession implements Session {
     protected final UUID id;
     protected final SessionContext context;
+    protected final Launcher launcher;
 
-    public DefaultSession(final UUID id, final SessionContext context) {
+    public DefaultSession(final UUID id, final SessionContext context,
+                          final Function<Session, Launcher> launcherFactory) {
         this.id = id;
         this.context = context;
+        this.launcher = launcherFactory.apply(this);
+    }
+
+    public DefaultSession(final UUID id, final SessionContext context) {
+        this(id, context, DefaultLauncher::new);
     }
 
     @Override
@@ -36,7 +44,7 @@ public class DefaultSession implements Session {
 
     @Override
     public Launcher getLauncher() {
-        return DefaultLauncher.INSTANCE;
+        return launcher;
     }
 
     @Override

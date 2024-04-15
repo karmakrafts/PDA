@@ -14,8 +14,8 @@ import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.pda.api.common.dispose.DispositionHandler;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.client.ClientEventHandler;
-import io.karma.pda.client.DockInteractionHandler;
 import io.karma.pda.client.flex.ClientFlexNodeHandler;
+import io.karma.pda.client.interaction.DockInteractionHandler;
 import io.karma.pda.client.render.display.DisplayRenderer;
 import io.karma.pda.client.render.gfx.DefaultBrushFactory;
 import io.karma.pda.client.render.gfx.DefaultGFXRenderTypes;
@@ -29,7 +29,7 @@ import io.karma.pda.common.menu.DockStorageMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import io.karma.pda.common.network.ClientPacketHandler;
 import io.karma.pda.common.network.CommonPacketHandler;
-import io.karma.pda.common.session.CommonSessionHandler;
+import io.karma.pda.common.session.DefaultSessionHandler;
 import io.karma.pda.common.util.TabItemProvider;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.NonNullList;
@@ -140,7 +140,7 @@ public class PDAMod {
 
     public PDAMod() {
         CommonEventHandler.INSTANCE.setup();
-        CommonSessionHandler.INSTANCE.setup();
+        DefaultSessionHandler.INSTANCE.setup();
 
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(this::onCommonSetup);
@@ -194,6 +194,7 @@ public class PDAMod {
     private void initAPI() {
         API.setLogger(LOGGER);
         API.setExecutorService(EXECUTOR_SERVICE);
+        API.setSessionHandler(DefaultSessionHandler.INSTANCE);
         API.init();
     }
 

@@ -7,6 +7,7 @@ package io.karma.pda.api.common;
 import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.theme.Theme;
+import io.karma.pda.api.common.session.SessionHandler;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.api.common.util.RegistryUtils;
 import net.minecraft.client.Minecraft;
@@ -28,6 +29,8 @@ import java.util.concurrent.ExecutorService;
 public class API {
     private static Logger logger;
     private static ExecutorService executorService;
+    private static SessionHandler sessionHandler;
+    private static boolean isInitialized;
 
     // @formatter:off
     @ApiStatus.Internal
@@ -36,11 +39,21 @@ public class API {
 
     @ApiStatus.Internal
     public static void init() {
+        if (isInitialized) {
+            throw new IllegalStateException("Already initialized");
+        }
+        logger.info("Initializing API");
+        isInitialized = true;
+    }
 
+    private static void assertInitialized() {
+        if (!isInitialized) {
+            throw new IllegalStateException("Not initialized");
+        }
     }
 
     @ApiStatus.Internal
-    public static void setLogger(Logger logger) {
+    public static void setLogger(final Logger logger) {
         API.logger = logger;
     }
 
@@ -50,7 +63,13 @@ public class API {
     }
 
     @ApiStatus.Internal
+    public static void setSessionHandler(final SessionHandler sessionHandler) {
+        API.sessionHandler = sessionHandler;
+    }
+
+    @ApiStatus.Internal
     public static Logger getLogger() {
+        assertInitialized();
         return logger;
     }
 
@@ -60,7 +79,13 @@ public class API {
     }
 
     public static ExecutorService getExecutorService() {
+        assertInitialized();
         return executorService;
+    }
+
+    public static SessionHandler getSessionHandler() {
+        assertInitialized();
+        return sessionHandler;
     }
 
     public static DeferredRegister<ComponentType<?>> makeDeferredComponentTypeRegister(final String modId) {

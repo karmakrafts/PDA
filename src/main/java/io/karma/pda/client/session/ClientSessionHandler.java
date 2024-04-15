@@ -4,11 +4,7 @@
 
 package io.karma.pda.client.session;
 
-import io.karma.pda.api.client.session.SessionHandler;
-import io.karma.pda.api.common.session.MuxedSession;
-import io.karma.pda.api.common.session.SelectiveSessionContext;
-import io.karma.pda.api.common.session.Session;
-import io.karma.pda.api.common.session.SessionContext;
+import io.karma.pda.api.common.session.*;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.network.sb.SPacketCreateSession;
 import io.karma.pda.common.network.sb.SPacketTerminateSession;
@@ -33,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @OnlyIn(value = Dist.CLIENT)
 public final class ClientSessionHandler implements SessionHandler {
     public static final ClientSessionHandler INSTANCE = new ClientSessionHandler();
-    private final BlockingHashMap<UUID, UUID> newlyCreatedSessions = new BlockingHashMap<>();
+    private final BlockingHashMap<UUID, UUID> pendingSessions = new BlockingHashMap<>();
     private final AtomicReference<Session> session = new AtomicReference<>(null);
 
     // @formatter:off
@@ -41,15 +37,15 @@ public final class ClientSessionHandler implements SessionHandler {
     // @formatter:on
 
     @ApiStatus.Internal
-    public void addNewSessionId(final UUID requestId, final UUID sessionId) {
-        if (newlyCreatedSessions.containsKey(requestId)) {
+    public void addPendingSession(final UUID requestId, final UUID sessionId) {
+        if (pendingSessions.containsKey(requestId)) {
             return;
         }
-        newlyCreatedSessions.put(requestId, sessionId);
+        pendingSessions.put(requestId, sessionId);
     }
 
-    private CompletableFuture<UUID> getSessionId(final UUID requestId) {
-        return newlyCreatedSessions.removeLater(requestId, 200, TimeUnit.MILLISECONDS, PDAMod.EXECUTOR_SERVICE);
+    private CompletableFuture<UUID> getPendingSession(final UUID requestId) {
+        return pendingSessions.removeLater(requestId, 200, TimeUnit.MILLISECONDS, PDAMod.EXECUTOR_SERVICE);
     }
 
     @Override
@@ -59,7 +55,7 @@ public final class ClientSessionHandler implements SessionHandler {
             PDAMod.LOGGER.debug("Requesting new session from server");
             PDAMod.CHANNEL.sendToServer(SPacketCreateSession.fromContext(requestId, context));
         });
-        return getSessionId(requestId).thenApply(sessionId -> {
+        return getPendingSession(requestId).thenApply(sessionId -> {
             PDAMod.LOGGER.debug("Received session ID {} from server", sessionId);
             return new ClientSession(sessionId, context);
         });

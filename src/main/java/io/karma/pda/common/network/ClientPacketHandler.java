@@ -46,7 +46,7 @@ public final class ClientPacketHandler extends CommonPacketHandler {
 
     private void handleCPacketCreateSession(final CPacketCreateSession packet, final NetworkEvent.Context context) {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
-            () -> () -> ClientSessionHandler.INSTANCE.addNewSessionId(packet.getRequestId(), packet.getSessionId()));
+            () -> () -> ClientSessionHandler.INSTANCE.addPendingSession(packet.getRequestId(), packet.getSessionId()));
     }
 
     private void handleCPacketSyncValues(final CPacketSyncValues packet, final NetworkEvent.Context context) {

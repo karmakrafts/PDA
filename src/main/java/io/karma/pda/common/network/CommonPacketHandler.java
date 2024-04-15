@@ -7,7 +7,7 @@ package io.karma.pda.common.network;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.network.cb.CPacketCreateSession;
 import io.karma.pda.common.network.sb.*;
-import io.karma.pda.common.session.CommonSessionHandler;
+import io.karma.pda.common.session.DefaultSessionHandler;
 import io.karma.pda.common.session.DockedSessionContext;
 import io.karma.pda.common.session.HandheldSessionContext;
 import net.minecraft.network.FriendlyByteBuf;
@@ -70,15 +70,20 @@ public class CommonPacketHandler {
 
     private void handleSPacketCreateSession(final SPacketCreateSession packet, final NetworkEvent.Context context) {
         final var player = context.getSender();
-        final var session = CommonSessionHandler.INSTANCE.createSession(packet.getType().isHandheld() ? new HandheldSessionContext(
+        final var session = DefaultSessionHandler.INSTANCE.createSession(packet.getType().isHandheld() ? new HandheldSessionContext(
             player,
-            packet.getHand()) : new DockedSessionContext(player, packet.getPos()));
+            packet.getHand()) : new DockedSessionContext(player, packet.getPos())).join();
         PDAMod.CHANNEL.reply(new CPacketCreateSession(packet.getRequestId(), session.getId()), context);
     }
 
     private void handleSPacketTerminateSession(final SPacketTerminateSession packet,
                                                final NetworkEvent.Context context) {
-        CommonSessionHandler.INSTANCE.terminateSession(packet.getId());
+        final var sessionHandler = DefaultSessionHandler.INSTANCE;
+        final var session = sessionHandler.getActiveSession(packet.getId());
+        if (session == null) {
+            return;
+        }
+        sessionHandler.terminateSession(session);
     }
 
     private void handleSPacketSyncValues(final SPacketSyncValues packet, final NetworkEvent.Context context) {

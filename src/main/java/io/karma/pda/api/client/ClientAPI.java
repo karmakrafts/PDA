@@ -7,7 +7,7 @@ package io.karma.pda.api.client;
 import io.karma.pda.api.client.flex.FlexNodeHandler;
 import io.karma.pda.api.client.render.gfx.BrushFactory;
 import io.karma.pda.api.client.render.gfx.DefaultBrushes;
-import io.karma.pda.api.client.session.SessionHandler;
+import io.karma.pda.api.common.session.SessionHandler;
 import io.karma.pda.api.common.sync.Synchronizer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -26,6 +26,7 @@ public final class ClientAPI {
     private static Function<UUID, Synchronizer> synchronizerFactory;
     private static FlexNodeHandler flexNodeHandler;
     private static BrushFactory brushFactory;
+    private static boolean isInitialized;
 
     // @formatter:off
     private ClientAPI() {}
@@ -33,7 +34,17 @@ public final class ClientAPI {
 
     @ApiStatus.Internal
     public static void init() {
+        if (isInitialized) {
+            throw new IllegalStateException("Already initialized");
+        }
         DefaultBrushes.setup(brushFactory);
+        isInitialized = true;
+    }
+
+    private static void assertInitialized() {
+        if (!isInitialized) {
+            throw new IllegalStateException("Not initialized");
+        }
     }
 
     @ApiStatus.Internal
@@ -57,18 +68,22 @@ public final class ClientAPI {
     }
 
     public static SessionHandler getSessionHandler() {
+        assertInitialized();
         return sessionHandler;
     }
 
     public static FlexNodeHandler getFlexNodeHandler() {
+        assertInitialized();
         return flexNodeHandler;
     }
 
     public static BrushFactory getBrushFactory() {
+        assertInitialized();
         return brushFactory;
     }
 
     public static Synchronizer createSynchronizer(final UUID id) {
+        assertInitialized();
         return synchronizerFactory.apply(id);
     }
 }

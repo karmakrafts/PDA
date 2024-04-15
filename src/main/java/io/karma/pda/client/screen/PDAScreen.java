@@ -7,6 +7,7 @@ package io.karma.pda.client.screen;
 import io.karma.pda.api.client.ClientAPI;
 import io.karma.pda.api.common.session.Session;
 import io.karma.pda.client.render.item.PDAItemRenderer;
+import io.karma.pda.common.item.PDAItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -36,9 +37,13 @@ public final class PDAScreen extends Screen {
 
     @Override
     public void onClose() {
+        // Cursed state notify for the flag in the Item class
+        PDAItem.IS_SCREEN_OPEN = false;
+        // Terminate session
         final var sessionHandler = ClientAPI.getSessionHandler();
         sessionHandler.terminateSession(session);
         sessionHandler.setActiveSession(null);
+        // Disengage the renderer
         hands.forEach(hand -> PDAItemRenderer.INSTANCE.setEngaged(hand, false));
         // Play sound when disengaging
         final var player = Objects.requireNonNull(Minecraft.getInstance().player);

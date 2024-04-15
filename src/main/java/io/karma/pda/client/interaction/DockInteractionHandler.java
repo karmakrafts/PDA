@@ -2,7 +2,7 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.client;
+package io.karma.pda.client.interaction;
 
 import com.mojang.blaze3d.vertex.Tesselator;
 import io.karma.pda.client.screen.DockScreen;

@@ -38,6 +38,13 @@ public final class PDAItem extends Item implements TabItemProvider {
     public static final String TAG_HAS_CARD = "has_card";
     public static final String TAG_IS_ON = "is_on";
     public static final String TAG_DISPLAY_TYPE = "display_type";
+    /*
+     * This flag tracks the immediate state of the UI to prevent double openScreen invocations
+     * caused by vanilla invoking use twice, once for each hand.
+     * << If you touch this flag, things will most likely break in horrible ways. >>
+     */
+    @OnlyIn(Dist.CLIENT)
+    public static boolean IS_SCREEN_OPEN;
 
     public PDAItem() {
         super(new Properties().stacksTo(1));
@@ -94,7 +101,8 @@ public final class PDAItem extends Item implements TabItemProvider {
             }
             stack.getOrCreateTag().putBoolean(TAG_IS_ON, true);
             if (world.isClientSide) {
-                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> openScreen(player, hand, hands));
+                DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+                    () -> () -> openScreen(player, hands.size() == 1 ? hand : InteractionHand.MAIN_HAND, hands));
                 // Play sound when engaging
                 player.playSound(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, 0.3F, 1.75F);
             }
@@ -105,11 +113,15 @@ public final class PDAItem extends Item implements TabItemProvider {
     @OnlyIn(Dist.CLIENT)
     private void openScreen(final Player player, final InteractionHand defaultHand,
                             final EnumSet<InteractionHand> hands) {
+        if (IS_SCREEN_OPEN) {
+            return;
+        }
         ClientSessionHandler.INSTANCE.createSession(hands.stream().map(hand -> new HandheldSessionContext(player,
             hand)).toList(), defaultHand).thenAccept(session -> {
             ClientSessionHandler.INSTANCE.setActiveSession(session);
             Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new PDAScreen(hands,
                 ClientSessionHandler.INSTANCE.getActiveSession())));
         });
+        IS_SCREEN_OPEN = true;
     }
 }
