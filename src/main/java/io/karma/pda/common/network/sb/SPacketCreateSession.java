@@ -28,10 +28,10 @@ public final class SPacketCreateSession {
         this.context = context;
     }
 
-    public static SPacketCreateSession fromContext(final SessionContext context) {
+    public static SPacketCreateSession fromContext(final UUID uuid, final SessionContext context) {
         final var type = context.getType();
         final var contextData = type == SessionType.DOCKED ? context.getPos() : context.getHand();
-        return new SPacketCreateSession(type, UUID.randomUUID(), contextData);
+        return new SPacketCreateSession(type, uuid, contextData);
     }
 
     public static void encode(final SPacketCreateSession packet, final FriendlyByteBuf buffer) {

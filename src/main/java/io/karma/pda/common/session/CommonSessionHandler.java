@@ -9,26 +9,26 @@ import io.karma.pda.api.common.session.SessionContext;
 import io.karma.pda.common.PDAMod;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Alexander Hinze
  * @since 10/04/2024
  */
-public final class ServerSessionHandler {
-    public static final ServerSessionHandler INSTANCE = new ServerSessionHandler();
-    private final HashMap<UUID, Session> activeSessions = new HashMap<>();
+public final class CommonSessionHandler {
+    public static final CommonSessionHandler INSTANCE = new CommonSessionHandler();
+    private final ConcurrentHashMap<UUID, Session> activeSessions = new ConcurrentHashMap<>();
 
     // @formatter:off
-    private ServerSessionHandler() {}
+    private CommonSessionHandler() {}
     // @formatter:on
 
     public Session createSession(final SessionContext context) {
-        final var uuid = UUID.randomUUID();
-        final var session = new DefaultSession(uuid, context);
-        activeSessions.put(uuid, session);
-        PDAMod.LOGGER.debug("Created session {}", uuid);
+        final var sessionId = UUID.randomUUID();
+        final var session = new DefaultSession(sessionId, context);
+        activeSessions.put(sessionId, session);
+        PDAMod.LOGGER.debug("Created session {}", sessionId);
         return session;
     }
 

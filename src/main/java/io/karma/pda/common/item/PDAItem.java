@@ -6,8 +6,10 @@ package io.karma.pda.common.item;
 
 import io.karma.pda.api.common.util.DisplayType;
 import io.karma.pda.client.screen.PDAScreen;
+import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.init.ModItems;
 import io.karma.pda.common.menu.PDAStorageMenu;
+import io.karma.pda.common.session.HandheldSessionContext;
 import io.karma.pda.common.util.PlayerUtils;
 import io.karma.pda.common.util.TabItemProvider;
 import net.minecraft.client.Minecraft;
@@ -92,16 +94,22 @@ public final class PDAItem extends Item implements TabItemProvider {
             }
             stack.getOrCreateTag().putBoolean(TAG_IS_ON, true);
             if (world.isClientSide) {
-                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> openScreen(player, hands));
+                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> openScreen(player, hand, hands));
                 // Play sound when engaging
                 player.playSound(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, 0.3F, 1.75F);
             }
         }
-        return InteractionResultHolder.sidedSuccess(stack, false); // Prevent builtin animation
+        return InteractionResultHolder.pass(stack);
     }
 
     @OnlyIn(Dist.CLIENT)
-    private void openScreen(final Player player, final EnumSet<InteractionHand> hands) {
-        Minecraft.getInstance().setScreen(new PDAScreen(player, hands));
+    private void openScreen(final Player player, final InteractionHand defaultHand,
+                            final EnumSet<InteractionHand> hands) {
+        ClientSessionHandler.INSTANCE.createSession(hands.stream().map(hand -> new HandheldSessionContext(player,
+            hand)).toList(), defaultHand).thenAccept(session -> {
+            ClientSessionHandler.INSTANCE.setActiveSession(session);
+            Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new PDAScreen(hands,
+                ClientSessionHandler.INSTANCE.getActiveSession())));
+        });
     }
 }

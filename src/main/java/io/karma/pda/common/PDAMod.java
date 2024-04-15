@@ -29,7 +29,7 @@ import io.karma.pda.common.menu.DockStorageMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import io.karma.pda.common.network.ClientPacketHandler;
 import io.karma.pda.common.network.CommonPacketHandler;
-import io.karma.pda.common.session.ServerSessionHandler;
+import io.karma.pda.common.session.CommonSessionHandler;
 import io.karma.pda.common.util.TabItemProvider;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.NonNullList;
@@ -51,6 +51,7 @@ import net.minecraftforge.event.GameShuttingDownEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -62,6 +63,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Alexander Hinze
@@ -133,15 +135,15 @@ public class PDAMod {
         ModMenus.register(MENU_TYPES);
         ModComponents.register();
         ModApps.register();
+        ModThemes.register();
     }
 
     public PDAMod() {
         CommonEventHandler.INSTANCE.setup();
-        CommonPacketHandler.INSTANCE.setup();
-        ClientPacketHandler.INSTANCE.setup();
-        ServerSessionHandler.INSTANCE.setup();
+        CommonSessionHandler.INSTANCE.setup();
 
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        modBus.addListener(this::onCommonSetup);
 
         BLOCK_ENTITIES.register(modBus);
         BLOCKS.register(modBus);
@@ -178,12 +180,28 @@ public class PDAMod {
 
     private void onGameShutdown(final GameShuttingDownEvent event) {
         DISPOSITION_HANDLER.disposeAll();
+        try {
+            EXECUTOR_SERVICE.shutdown();
+            if (!EXECUTOR_SERVICE.awaitTermination(500, TimeUnit.MILLISECONDS)) {
+                EXECUTOR_SERVICE.shutdownNow().forEach(Runnable::run); // Call all remaining tasks immediatly
+            }
+        }
+        catch (Throwable error) {
+            LOGGER.error("Could not shutdown executor service: {}", error.getMessage());
+        }
     }
 
     private void initAPI() {
         API.setLogger(LOGGER);
         API.setExecutorService(EXECUTOR_SERVICE);
         API.init();
+    }
+
+    private void onCommonSetup(final FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> {
+            CommonPacketHandler.INSTANCE.registerPackets();
+            ClientPacketHandler.INSTANCE.registerPackets();
+        });
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -5,15 +5,13 @@
 package io.karma.pda.client.screen;
 
 import io.karma.pda.api.client.ClientAPI;
-import io.karma.pda.api.common.session.MuxedSession;
+import io.karma.pda.api.common.session.Session;
 import io.karma.pda.client.render.item.PDAItemRenderer;
-import io.karma.pda.common.session.HandheldSessionContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -27,21 +25,20 @@ import java.util.Objects;
 @OnlyIn(Dist.CLIENT)
 public final class PDAScreen extends Screen {
     private final EnumSet<InteractionHand> hands;
-    private MuxedSession<InteractionHand> session;
+    private final Session session;
 
-    public PDAScreen(final Player player, final EnumSet<InteractionHand> hands) {
+    public PDAScreen(final EnumSet<InteractionHand> hands, final Session session) {
         super(Component.empty());
         this.hands = hands;
+        this.session = session;
         hands.forEach(hand -> PDAItemRenderer.INSTANCE.setEngaged(hand, true));
-        // Set up session
-        final var sessionHandler = ClientAPI.getSessionHandler();
-        sessionHandler.createSession(hands.stream().map(hand -> new HandheldSessionContext(player, hand)).toList(),
-            InteractionHand.MAIN_HAND).thenAccept(this::setSession);
     }
 
     @Override
     public void onClose() {
-        ClientAPI.getSessionHandler().terminateSession(getSession());
+        final var sessionHandler = ClientAPI.getSessionHandler();
+        sessionHandler.terminateSession(session);
+        sessionHandler.setActiveSession(null);
         hands.forEach(hand -> PDAItemRenderer.INSTANCE.setEngaged(hand, false));
         // Play sound when disengaging
         final var player = Objects.requireNonNull(Minecraft.getInstance().player);
@@ -52,13 +49,5 @@ public final class PDAScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
-    }
-
-    private synchronized void setSession(final MuxedSession<InteractionHand> session) {
-        this.session = session;
-    }
-
-    private synchronized MuxedSession<InteractionHand> getSession() {
-        return session;
     }
 }

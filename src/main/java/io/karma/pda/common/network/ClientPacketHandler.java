@@ -6,6 +6,7 @@ package io.karma.pda.common.network;
 
 import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.network.cb.CPacketCreateSession;
+import io.karma.pda.common.network.cb.CPacketOpenApp;
 import io.karma.pda.common.network.cb.CPacketSyncValues;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -25,7 +26,7 @@ public final class ClientPacketHandler extends CommonPacketHandler {
     // @formatter:on
 
     @ApiStatus.Internal
-    public void setup() {
+    public void registerPackets() {
         registerPacket(PacketIDs.CB_CREATE_SESSION,
             CPacketCreateSession.class,
             CPacketCreateSession::encode,
@@ -36,6 +37,11 @@ public final class ClientPacketHandler extends CommonPacketHandler {
             CPacketSyncValues::encode,
             CPacketSyncValues::decode,
             this::handleCPacketSyncValues);
+        registerPacket(PacketIDs.CB_OPEN_APP,
+            CPacketOpenApp.class,
+            CPacketOpenApp::encode,
+            CPacketOpenApp::decode,
+            this::handleCPacketOpenApp);
     }
 
     private void handleCPacketCreateSession(final CPacketCreateSession packet, final NetworkEvent.Context context) {
@@ -44,6 +50,10 @@ public final class ClientPacketHandler extends CommonPacketHandler {
     }
 
     private void handleCPacketSyncValues(final CPacketSyncValues packet, final NetworkEvent.Context context) {
+
+    }
+
+    private void handleCPacketOpenApp(final CPacketOpenApp packet, final NetworkEvent.Context context) {
 
     }
 }

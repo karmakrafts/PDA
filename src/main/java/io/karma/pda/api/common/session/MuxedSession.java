@@ -10,6 +10,7 @@ import io.karma.pda.api.common.sync.Synchronizer;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 /**
@@ -18,10 +19,10 @@ import java.util.function.Supplier;
  */
 public final class MuxedSession<S> implements Session {
     private final Map<S, Session> sessions;
-    private S selector;
+    private final AtomicReference<S> selector = new AtomicReference<>();
 
     public MuxedSession(final S initial, final Supplier<? extends Map<S, Session>> factory) {
-        selector = initial;
+        selector.set(initial);
         sessions = factory.get();
     }
 
@@ -40,15 +41,15 @@ public final class MuxedSession<S> implements Session {
     }
 
     public Session getTarget() {
-        return sessions.get(selector);
+        return sessions.get(selector.get());
     }
 
     public S getSelector() {
-        return selector;
+        return selector.get();
     }
 
     public void setSelector(final S selector) {
-        this.selector = selector;
+        this.selector.set(selector);
     }
 
     public Collection<Session> getTargets() {

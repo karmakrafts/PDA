@@ -21,6 +21,8 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * @author Alexander Hinze<
@@ -28,10 +30,10 @@ import java.util.*;
  */
 @OnlyIn(Dist.CLIENT)
 public final class ClientSynchronizer implements Synchronizer {
-    private static final HashMap<Class<? extends Identifiable>, List<VarHandle>> FIELD_CACHE = new HashMap<>();
+    private static final ConcurrentHashMap<Class<? extends Identifiable>, List<VarHandle>> FIELD_CACHE = new ConcurrentHashMap<>();
     private final UUID id;
-    private final HashMap<UUID, Synced<?>> fields = new HashMap<>();
-    private final ArrayDeque<Pair<UUID, Synced<?>>> queue = new ArrayDeque<>();
+    private final ConcurrentHashMap<UUID, Synced<?>> fields = new ConcurrentHashMap<>();
+    private final ConcurrentLinkedDeque<Pair<UUID, Synced<?>>> queue = new ConcurrentLinkedDeque<>();
 
     public ClientSynchronizer(final UUID id) {
         this.id = id;
@@ -64,12 +66,17 @@ public final class ClientSynchronizer implements Synchronizer {
 
     @Override
     public void flush() {
-        final var values = new HashMap<UUID, JsonNode>();
-        while (!queue.isEmpty()) {
-            final var pair = queue.removeFirst();
-            values.put(pair.getLeft(), JSONUtils.MAPPER.valueToTree(pair.getRight().get()));
-        }
-        Minecraft.getInstance().execute(() -> PDAMod.CHANNEL.sendToServer(new SPacketSyncValues(id, values)));
+        PDAMod.LOGGER.debug("Submitting synchronizer flush");
+        // Offload the sync serialization to our executor service to utilize full CPU
+        PDAMod.EXECUTOR_SERVICE.submit(() -> {
+            final var values = new HashMap<UUID, JsonNode>();
+            while (!queue.isEmpty()) {
+                final var pair = queue.removeFirst();
+                values.put(pair.getLeft(), JSONUtils.MAPPER.valueToTree(pair.getRight().get()));
+            }
+            Minecraft.getInstance().execute(() -> PDAMod.CHANNEL.sendToServer(new SPacketSyncValues(id, values)));
+            PDAMod.LOGGER.debug("Flushed synchronizer data to server");
+        });
     }
 
     @SuppressWarnings("all")
@@ -85,6 +92,7 @@ public final class ClientSynchronizer implements Synchronizer {
             queue.addLast(Pair.of(id, value));
         });
         fields.put(id, value);
+        PDAMod.LOGGER.debug("Registered value {}/{} to synchronizer", id, value);
     }
 
     @Override
@@ -114,5 +122,6 @@ public final class ClientSynchronizer implements Synchronizer {
             toRemove.add(pair);
         }
         queue.removeAll(toRemove);
+        PDAMod.LOGGER.debug("Unregistered value {} from synchronizer", id);
     }
 }

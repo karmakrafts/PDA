@@ -35,12 +35,6 @@ public abstract class AbstractComponent implements Component {
     protected AbstractComponent(final ComponentType<?> type, final UUID id) {
         this.type = type;
         this.id = id;
-        Component.doWithSynchronizer(() -> sync -> sync.register(this));
-    }
-
-    @Override
-    public void dispose() {
-        Component.doWithSynchronizer(() -> sync -> sync.unregister(this));
     }
 
     @Override

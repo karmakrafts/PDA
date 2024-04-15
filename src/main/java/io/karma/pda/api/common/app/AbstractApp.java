@@ -6,6 +6,7 @@ package io.karma.pda.api.common.app;
 
 import io.karma.pda.api.common.app.theme.Theme;
 import io.karma.pda.api.common.app.view.AppView;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -18,11 +19,24 @@ public abstract class AbstractApp implements App {
     protected final AppType<?> type;
     protected final HashMap<String, AppView> views = new HashMap<>();
     protected final Theme theme;
-    protected String currentView;
+    protected String currentView = DEFAULT_VIEW;
 
     public AbstractApp(final AppType<?> type, final Theme theme) {
         this.type = type;
         this.theme = theme;
+    }
+
+    @Override
+    public void addView(final String name, final AppView view) {
+        if (views.containsKey(name)) {
+            throw new IllegalArgumentException(String.format("View %s already exists", name));
+        }
+        views.put(name, view);
+    }
+
+    @Override
+    public @Nullable AppView removeView(final String name) {
+        return views.remove(name);
     }
 
     @Override

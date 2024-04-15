@@ -5,8 +5,8 @@
 package io.karma.pda.client.screen;
 
 import io.karma.pda.api.client.ClientAPI;
+import io.karma.pda.api.common.session.Session;
 import io.karma.pda.client.DockInteractionHandler;
-import io.karma.pda.common.session.DockedSessionContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
@@ -23,16 +23,14 @@ import org.lwjgl.glfw.GLFW;
 @OnlyIn(Dist.CLIENT)
 public final class DockScreen extends Screen {
     private final long window;
+    private final Session session;
     private int previousInputMode;
 
-    public DockScreen(final Player player, final BlockPos pos) {
+    public DockScreen(final Player player, final BlockPos pos, final Session session) {
         super(Component.empty());
         window = Minecraft.getInstance().getWindow().getWindow();
+        this.session = session;
         DockInteractionHandler.INSTANCE.engage(pos);
-        // Set up the session
-        final var sessionHandler = ClientAPI.getSessionHandler();
-        // Make this the current session
-        sessionHandler.createSession(new DockedSessionContext(player, pos)).thenAccept(sessionHandler::setSession);
     }
 
     @Override
@@ -44,7 +42,9 @@ public final class DockScreen extends Screen {
 
     @Override
     public void onClose() {
-        ClientAPI.getSessionHandler().terminateSession();
+        final var sessionHandler = ClientAPI.getSessionHandler();
+        sessionHandler.terminateSession(session);
+        sessionHandler.setActiveSession(null);
         GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, previousInputMode);
         DockInteractionHandler.INSTANCE.disengage();
     }

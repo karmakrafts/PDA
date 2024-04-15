@@ -13,22 +13,22 @@ import java.util.UUID;
  * @since 06/04/2024
  */
 public final class SPacketTerminateSession {
-    private final UUID uuid;
+    private final UUID id;
 
-    public SPacketTerminateSession(final UUID uuid) {
-        this.uuid = uuid;
+    public SPacketTerminateSession(final UUID id) {
+        this.id = id;
     }
 
     public static void encode(final SPacketTerminateSession packet, final FriendlyByteBuf buffer) {
-        buffer.writeUUID(packet.uuid);
+        buffer.writeUUID(packet.id);
     }
 
     public static SPacketTerminateSession decode(final FriendlyByteBuf buffer) {
-        final var uuid = buffer.readUUID();
-        return new SPacketTerminateSession(uuid);
+        final var id = buffer.readUUID();
+        return new SPacketTerminateSession(id);
     }
 
-    public UUID getUUID() {
-        return uuid;
+    public UUID getId() {
+        return id;
     }
 }

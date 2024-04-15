@@ -6,10 +6,12 @@ package io.karma.pda.common.block;
 
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.client.screen.DockScreen;
+import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.entity.DockBlockEntity;
 import io.karma.pda.common.init.ModBlockEntities;
 import io.karma.pda.common.init.ModItems;
 import io.karma.pda.common.menu.DockStorageMenu;
+import io.karma.pda.common.session.DockedSessionContext;
 import io.karma.pda.common.util.HorizontalDirection;
 import io.karma.pda.common.util.MathUtils;
 import io.karma.pda.common.util.PlayerUtils;
@@ -189,7 +191,12 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     private void openScreen(final Player player, final BlockPos pos) {
         final var game = Minecraft.getInstance();
         if (game.options.getCameraType() == CameraType.FIRST_PERSON) {
-            game.setScreen(new DockScreen(player, pos));
+            ClientSessionHandler.INSTANCE.createSession(new DockedSessionContext(player, pos)).thenAccept(session -> {
+                ClientSessionHandler.INSTANCE.setActiveSession(session);
+                game.execute(() -> game.setScreen(new DockScreen(player,
+                    pos,
+                    ClientSessionHandler.INSTANCE.getActiveSession())));
+            });
         }
     }
 

@@ -12,9 +12,12 @@ public final class PacketIDs {
     public static final int SB_CREATE_SESSION = 1;
     public static final int SB_TERMINATE_SESSION = 2;
     public static final int SB_SYNC_VALUES = 3;
+    public static final int SB_OPEN_APP = 4;
+    public static final int SB_CLOSE_APP = 5;
 
-    public static final int CB_CREATE_SESSION = 4;
-    public static final int CB_SYNC_VALUES = 5;
+    public static final int CB_CREATE_SESSION = 6;
+    public static final int CB_SYNC_VALUES = 7;
+    public static final int CB_OPEN_APP = 8;
 
     // @formatter:off
     private PacketIDs() {}

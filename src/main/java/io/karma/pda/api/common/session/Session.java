@@ -9,8 +9,6 @@ import io.karma.pda.api.common.sync.NopSynchronizer;
 import io.karma.pda.api.common.sync.Synchronizer;
 import io.karma.pda.api.common.util.Identifiable;
 
-import java.util.function.Supplier;
-
 /**
  * A session describes a temporary pipe between client and server
  * that is used to exchange mutable display data in realtime to reduce
@@ -40,14 +38,16 @@ public interface Session extends Identifiable {
     SessionContext getContext();
 
     /**
-     * Retrieves the synchronizer instance associated with this
-     * session by its UUID. This is used for UI synchronization
-     * through functions like {@link io.karma.pda.api.common.app.component.Component#doWithSynchronizer(Supplier)}.
-     *
      * @return The synchronizer instance associated with this
      * session by its UUID.
      */
     default Synchronizer getSynchronizer() {
         return NopSynchronizer.INSTANCE;
+    }
+
+    /**
+     * Called when the session is terminated by the underlying session handler.
+     */
+    default void onTermination() {
     }
 }
