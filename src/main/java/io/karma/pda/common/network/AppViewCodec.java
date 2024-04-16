@@ -9,7 +9,6 @@ import io.karma.pda.api.common.app.component.Container;
 import io.karma.pda.api.common.app.view.AppView;
 import io.karma.pda.api.common.app.view.DefaultView;
 import io.karma.pda.api.common.util.JSONUtils;
-import io.karma.pda.common.PDAMod;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -28,10 +27,9 @@ public final class AppViewCodec {
             return;
         }
         node.put("name", view.getName());
-        final var componentsNode = JSONUtils.MAPPER.createObjectNode();
-        ComponentCodec.encode(componentsNode, view.getContainer());
-        node.set("components", componentsNode);
-        PDAMod.LOGGER.debug("Encoded view:\n{}\n", node.toPrettyString());
+        final var containerNode = JSONUtils.MAPPER.createObjectNode();
+        ComponentCodec.encode(containerNode, view.getContainer());
+        node.set("container", containerNode);
     }
 
     public static byte[] encode(final @Nullable AppView view) {
@@ -45,8 +43,8 @@ public final class AppViewCodec {
 
     public static @Nullable AppView decode(final ObjectNode node) {
         final var name = Objects.requireNonNull(node.get("name")).asText();
-        final var componentsNode = Objects.requireNonNull(node.get("components"));
-        if (!(componentsNode instanceof ObjectNode componentsObjectNode)) {
+        final var containerNode = Objects.requireNonNull(node.get("container"));
+        if (!(containerNode instanceof ObjectNode componentsObjectNode)) {
             return null;
         }
         final var component = ComponentCodec.decode(componentsObjectNode);

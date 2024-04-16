@@ -192,21 +192,21 @@ public class PDAMod {
         }
     }
 
-    private void initAPI() {
-        API.setLogger(LOGGER);
-        API.setExecutorService(EXECUTOR_SERVICE);
-        API.setSessionHandler(DefaultSessionHandler.INSTANCE);
-        API.setComponentTypeRegistry(RegistryUtils.getRegistry(Constants.COMPONENT_REGISTRY_NAME));
-        API.setAppTypeRegistry(RegistryUtils.getRegistry(Constants.APP_REGISTRY_NAME));
-        API.setThemeRegistry(RegistryUtils.getRegistry(Constants.THEME_REGISTRY_NAME));
-        API.init();
-    }
-
     private void onCommonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             CommonPacketHandler.INSTANCE.registerPackets();
             ClientPacketHandler.INSTANCE.registerPackets();
         });
+    }
+
+    private void initAPI() {
+        API.setLogger(LOGGER);
+        API.setExecutorService(EXECUTOR_SERVICE);
+        API.setSessionHandler(DefaultSessionHandler.INSTANCE);
+        API.setComponentTypeRegistry(() -> RegistryUtils.getRegistry(Constants.COMPONENT_REGISTRY_NAME));
+        API.setAppTypeRegistry(() -> RegistryUtils.getRegistry(Constants.APP_REGISTRY_NAME));
+        API.setThemeRegistry(() -> RegistryUtils.getRegistry(Constants.THEME_REGISTRY_NAME));
+        API.init();
     }
 
     @OnlyIn(Dist.CLIENT)

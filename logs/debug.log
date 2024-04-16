@@ -1,0 +1,167 @@
+[16Apr.2024 23:12:48.529] [Test worker/INFO] [TestHarness/]: Initializing API
+[16Apr.2024 23:12:48.537] [Test worker/DEBUG] [TestHarness/]: Creating component 549d1752-0ed1-4a9e-9803-005271a05c96 of type test:container
+[16Apr.2024 23:12:48.538] [Test worker/DEBUG] [TestHarness/]: Creating component 28f9c2fa-0a48-4538-9784-dc3fdd9c4bed of type test:component
+[16Apr.2024 23:12:48.699] [Test worker/DEBUG] [TestHarness/]: Encoded component:
+{
+  "type" : "test:component",
+  "id" : "28f9c2fa-0a48-4538-9784-dc3fdd9c4bed"
+}
+
+[16Apr.2024 23:12:48.700] [Test worker/DEBUG] [TestHarness/]: Encoded component:
+{
+  "type" : "test:container",
+  "id" : "549d1752-0ed1-4a9e-9803-005271a05c96",
+  "children" : [ {
+    "type" : "test:component",
+    "id" : "28f9c2fa-0a48-4538-9784-dc3fdd9c4bed"
+  } ]
+}
+
+[16Apr.2024 23:12:48.700] [Test worker/DEBUG] [TestHarness/]: Encoded view:
+{
+  "name" : "foo",
+  "container" : {
+    "type" : "test:container",
+    "id" : "549d1752-0ed1-4a9e-9803-005271a05c96",
+    "children" : [ {
+      "type" : "test:component",
+      "id" : "28f9c2fa-0a48-4538-9784-dc3fdd9c4bed"
+    } ]
+  }
+}
+
+[16Apr.2024 23:12:48.717] [Test worker/INFO] [TestHarness/]: Encoded and compressed view:
+[76, 90, 52, 66, 108, 111, 99, 107, 38, -62, 0, 0, 0, -17, 0, 0, 0, -6, -35, 124, 10, -16, 4, 123, 10, 32, 32, 34, 110, 97, 109, 101, 34, 32, 58, 32, 34, 102, 111, 111, 34, 44, 18, 0, -112, 99, 111, 110, 116, 97, 105, 110, 101, 114, 23, 0, 0, 36, 0, 98, 32, 32, 34, 116, 121, 112, 38, 0, 86, 116, 101, 115, 116, 58, 34, 0, 0, 49, 0, 80, 32, 32, 34, 105, 100, 44, 0, -15, 22, 34, 53, 52, 57, 100, 49, 55, 53, 50, 45, 48, 101, 100, 49, 45, 52, 97, 57, 101, 45, 57, 56, 48, 51, 45, 48, 48, 53, 50, 55, 49, 97, 48, 53, 99, 57, 54, 100, 0, -80, 32, 32, 34, 99, 104, 105, 108, 100, 114, 101, 110, 57, 0, 19, 91, 103, 0, 15, 105, 0, 0, 115, 109, 112, 111, 110, 101, 110, 116, 54, 0, 6, 107, 0, -16, 23, 50, 56, 102, 57, 99, 50, 102, 97, 45, 48, 97, 52, 56, 45, 52, 53, 51, 56, 45, 57, 55, 56, 52, 45, 100, 99, 51, 102, 100, 100, 57, 99, 52, 98, 101, 100, 34, 10, 50, 0, -112, 125, 32, 93, 10, 32, 32, 125, 10, 125, 76, 90, 52, 66, 108, 111, 99, 107, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+[16Apr.2024 23:12:48.726] [Test worker/DEBUG] [TestHarness/]: Creating component 549d1752-0ed1-4a9e-9803-005271a05c96 of type test:container
+[16Apr.2024 23:12:48.726] [Test worker/DEBUG] [TestHarness/]: Creating component 28f9c2fa-0a48-4538-9784-dc3fdd9c4bed of type test:component
+[16Apr.2024 23:12:48.727] [Test worker/INFO] [TestHarness/]: Decompressed and decoded view: io.karma.pda.api.common.app.view.DefaultView@20e6c4dc
+[16Apr.2024 23:12:48.739] [Test worker/DEBUG] [TestHarness/]: Creating component 04caa054-1bfb-447e-90f9-91fcba75333c of type test:container
+[16Apr.2024 23:12:48.739] [Test worker/DEBUG] [TestHarness/]: Creating component 20b57e1f-7890-410d-be23-331ce3613de4 of type test:component
+[16Apr.2024 23:12:48.740] [Test worker/DEBUG] [TestHarness/]: Encoded component:
+{
+  "type" : "test:component",
+  "id" : "20b57e1f-7890-410d-be23-331ce3613de4"
+}
+
+[16Apr.2024 23:12:48.740] [Test worker/DEBUG] [TestHarness/]: Encoded component:
+{
+  "type" : "test:container",
+  "id" : "04caa054-1bfb-447e-90f9-91fcba75333c",
+  "children" : [ {
+    "type" : "test:component",
+    "id" : "20b57e1f-7890-410d-be23-331ce3613de4"
+  } ]
+}
+
+[16Apr.2024 23:12:48.740] [Test worker/DEBUG] [TestHarness/]: Encoded view:
+{
+  "name" : "foo",
+  "container" : {
+    "type" : "test:container",
+    "id" : "04caa054-1bfb-447e-90f9-91fcba75333c",
+    "children" : [ {
+      "type" : "test:component",
+      "id" : "20b57e1f-7890-410d-be23-331ce3613de4"
+    } ]
+  }
+}
+
+[16Apr.2024 23:12:48.740] [Test worker/INFO] [TestHarness/]: Encoded view:
+{
+  "name" : "foo",
+  "container" : {
+    "type" : "test:container",
+    "id" : "04caa054-1bfb-447e-90f9-91fcba75333c",
+    "children" : [ {
+      "type" : "test:component",
+      "id" : "20b57e1f-7890-410d-be23-331ce3613de4"
+    } ]
+  }
+}
+
+[16Apr.2024 23:12:48.741] [Test worker/DEBUG] [TestHarness/]: Creating component 04caa054-1bfb-447e-90f9-91fcba75333c of type test:container
+[16Apr.2024 23:12:48.741] [Test worker/DEBUG] [TestHarness/]: Creating component 20b57e1f-7890-410d-be23-331ce3613de4 of type test:component
+[16Apr.2024 23:12:48.742] [Test worker/INFO] [TestHarness/]: Decoded view: io.karma.pda.api.common.app.view.DefaultView@7d0614f
+[16Apr.2024 23:12:48.761] [Test worker/DEBUG] [TestHarness/]: Creating component 4eb68e60-d171-44fc-b9ad-f3b7dcfaae2b of type test:container
+[16Apr.2024 23:12:48.761] [Test worker/DEBUG] [TestHarness/]: Creating component dce22c76-a735-47ed-a189-cbaeeb814e2b of type test:component
+[16Apr.2024 23:12:48.762] [Test worker/DEBUG] [TestHarness/]: Encoded component:
+{
+  "type" : "test:component",
+  "id" : "dce22c76-a735-47ed-a189-cbaeeb814e2b"
+}
+
+[16Apr.2024 23:12:48.762] [Test worker/DEBUG] [TestHarness/]: Encoded component:
+{
+  "type" : "test:container",
+  "id" : "4eb68e60-d171-44fc-b9ad-f3b7dcfaae2b",
+  "children" : [ {
+    "type" : "test:component",
+    "id" : "dce22c76-a735-47ed-a189-cbaeeb814e2b"
+  } ]
+}
+
+[16Apr.2024 23:12:48.762] [Test worker/INFO] [TestHarness/]: Encoded container:
+{
+  "type" : "test:container",
+  "id" : "4eb68e60-d171-44fc-b9ad-f3b7dcfaae2b",
+  "children" : [ {
+    "type" : "test:component",
+    "id" : "dce22c76-a735-47ed-a189-cbaeeb814e2b"
+  } ]
+}
+
+[16Apr.2024 23:12:48.763] [Test worker/DEBUG] [TestHarness/]: Creating component 4eb68e60-d171-44fc-b9ad-f3b7dcfaae2b of type test:container
+[16Apr.2024 23:12:48.763] [Test worker/DEBUG] [TestHarness/]: Creating component dce22c76-a735-47ed-a189-cbaeeb814e2b of type test:component
+[16Apr.2024 23:12:48.764] [Test worker/INFO] [TestHarness/]: Decoded component: TestHarness$TestContainer@6de0f580 
+[16Apr.2024 23:12:48.766] [Test worker/DEBUG] [TestHarness/]: Creating component b74f5229-397e-46d9-99a2-c69550e41b87 of type test:component
+[16Apr.2024 23:12:48.767] [Test worker/DEBUG] [TestHarness/]: Encoded component:
+{
+  "type" : "test:component",
+  "id" : "b74f5229-397e-46d9-99a2-c69550e41b87"
+}
+
+[16Apr.2024 23:12:48.767] [Test worker/INFO] [TestHarness/]: Encoded and compressed component:
+[76, 90, 52, 66, 108, 111, 99, 107, 22, 80, 0, 0, 0, 80, 0, 0, 0, 60, -85, -70, 4, 123, 10, 32, 32, 34, 116, 121, 112, 101, 34, 32, 58, 32, 34, 116, 101, 115, 116, 58, 99, 111, 109, 112, 111, 110, 101, 110, 116, 34, 44, 10, 32, 32, 34, 105, 100, 34, 32, 58, 32, 34, 98, 55, 52, 102, 53, 50, 50, 57, 45, 51, 57, 55, 101, 45, 52, 54, 100, 57, 45, 57, 57, 97, 50, 45, 99, 54, 57, 53, 53, 48, 101, 52, 49, 98, 56, 55, 34, 10, 125, 76, 90, 52, 66, 108, 111, 99, 107, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+[16Apr.2024 23:12:48.768] [Test worker/DEBUG] [TestHarness/]: Creating component b74f5229-397e-46d9-99a2-c69550e41b87 of type test:component
+[16Apr.2024 23:12:48.768] [Test worker/INFO] [TestHarness/]: Decompressed and decoded component: TestHarness$TestComponent@6e495b48 
+[16Apr.2024 23:12:48.771] [Test worker/DEBUG] [TestHarness/]: Creating component ac34b489-f9ca-4fd0-b7e0-77eb73925420 of type test:container
+[16Apr.2024 23:12:48.771] [Test worker/DEBUG] [TestHarness/]: Creating component 8916a2d5-84e0-4ad5-a042-69a8012e82bb of type test:component
+[16Apr.2024 23:12:48.771] [Test worker/DEBUG] [TestHarness/]: Encoded component:
+{
+  "type" : "test:component",
+  "id" : "8916a2d5-84e0-4ad5-a042-69a8012e82bb"
+}
+
+[16Apr.2024 23:12:48.772] [Test worker/DEBUG] [TestHarness/]: Encoded component:
+{
+  "type" : "test:container",
+  "id" : "ac34b489-f9ca-4fd0-b7e0-77eb73925420",
+  "children" : [ {
+    "type" : "test:component",
+    "id" : "8916a2d5-84e0-4ad5-a042-69a8012e82bb"
+  } ]
+}
+
+[16Apr.2024 23:12:48.772] [Test worker/INFO] [TestHarness/]: Encoded and compressed container:
+[76, 90, 52, 66, 108, 111, 99, 107, 38, -97, 0, 0, 0, -69, 0, 0, 0, -103, 76, 1, 12, -16, 15, 123, 10, 32, 32, 34, 116, 121, 112, 101, 34, 32, 58, 32, 34, 116, 101, 115, 116, 58, 99, 111, 110, 116, 97, 105, 110, 101, 114, 34, 44, 29, 0, 33, 105, 100, 27, 0, -14, 21, 97, 99, 51, 52, 98, 52, 56, 57, 45, 102, 57, 99, 97, 45, 52, 102, 100, 48, 45, 98, 55, 101, 48, 45, 55, 55, 101, 98, 55, 51, 57, 50, 53, 52, 50, 48, 49, 0, -128, 99, 104, 105, 108, 100, 114, 101, 110, 55, 0, 32, 91, 32, 97, 0, 15, 99, 0, 0, 113, 109, 112, 111, 110, 101, 110, 116, 50, 0, 6, 101, 0, -16, 30, 56, 57, 49, 54, 97, 50, 100, 53, 45, 56, 52, 101, 48, 45, 52, 97, 100, 53, 45, 97, 48, 52, 50, 45, 54, 57, 97, 56, 48, 49, 50, 101, 56, 50, 98, 98, 34, 10, 32, 32, 125, 32, 93, 10, 125, 76, 90, 52, 66, 108, 111, 99, 107, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+[16Apr.2024 23:12:48.773] [Test worker/DEBUG] [TestHarness/]: Creating component ac34b489-f9ca-4fd0-b7e0-77eb73925420 of type test:container
+[16Apr.2024 23:12:48.773] [Test worker/DEBUG] [TestHarness/]: Creating component 8916a2d5-84e0-4ad5-a042-69a8012e82bb of type test:component
+[16Apr.2024 23:12:48.773] [Test worker/INFO] [TestHarness/]: Decompressed and decoded component: TestHarness$TestContainer@1d61c6dc 
+[16Apr.2024 23:12:48.776] [Test worker/DEBUG] [TestHarness/]: Creating component ab60f19f-0a32-407e-8b4e-9f7e5368b43d of type test:component
+[16Apr.2024 23:12:48.776] [Test worker/DEBUG] [TestHarness/]: Encoded component:
+{
+  "type" : "test:component",
+  "id" : "ab60f19f-0a32-407e-8b4e-9f7e5368b43d"
+}
+
+[16Apr.2024 23:12:48.777] [Test worker/INFO] [TestHarness/]: Encoded component:
+{
+  "type" : "test:component",
+  "id" : "ab60f19f-0a32-407e-8b4e-9f7e5368b43d"
+}
+
+[16Apr.2024 23:12:48.777] [Test worker/DEBUG] [TestHarness/]: Creating component ab60f19f-0a32-407e-8b4e-9f7e5368b43d of type test:component
+[16Apr.2024 23:12:48.778] [Test worker/INFO] [TestHarness/]: Decoded component: TestHarness$TestComponent@53c68ce 

@@ -41,6 +41,5 @@ public class DefaultContainerView implements AppView {
     public void build(final App app, final AppContext context) {
         API.getLogger().debug("Building view '{}'", name);
         callback.accept(container);
-        app.getView().getContainer().addChild(container);
     }
 }

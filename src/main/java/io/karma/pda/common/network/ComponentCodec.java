@@ -41,7 +41,6 @@ public final class ComponentCodec {
             }
             node.set("children", childrenNode);
         }
-        API.getLogger().debug("Encoded component:\n{}\n", node.toPrettyString());
     }
 
     public static byte[] encode(final @Nullable Component component) {

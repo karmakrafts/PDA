@@ -11,7 +11,6 @@ import io.karma.pda.api.common.session.Session;
 import io.karma.pda.common.PDAMod;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.CompletableFuture;
@@ -22,11 +21,14 @@ import java.util.concurrent.CompletableFuture;
  */
 public class DefaultLauncher implements Launcher {
     protected final Session session;
-    protected final Stack<App> appStack = new Stack<>();
+    protected final Stack<AppInstance> appStack = new Stack<>();
     protected final Object appStackLock = new Object();
 
     public DefaultLauncher(final Session session) {
         this.session = session;
+    }
+
+    protected record AppInstance(App app, DefaultAppContext context) {
     }
 
     @SuppressWarnings("unchecked")
@@ -37,32 +39,37 @@ public class DefaultLauncher implements Launcher {
                 return null;
             }
             PDAMod.LOGGER.debug("Closing app {}", type.getName());
-            App toRemove = null;
-            for (final var app : appStack) {
-                if (app.getType() != type) {
+            AppInstance toRemove = null;
+            for (final var instance : appStack) {
+                if (instance.app.getType() != type) {
                     continue;
                 }
-                toRemove = app;
+                toRemove = instance;
                 break;
             }
+            if (toRemove == null) {
+                return null;
+            }
+            toRemove.app.dispose(toRemove.context);
             appStack.remove(toRemove);
-            return (A) toRemove;
+            return (A) toRemove.app;
         }
     }
 
     @Override
     public <A extends App> CompletableFuture<@Nullable A> openApp(final AppType<A> type) {
         synchronized (appStackLock) {
-            for (final var app : appStack) {
-                if (app.getType() != type) {
+            for (final var instance : appStack) {
+                if (instance.app.getType() != type) {
                     continue;
                 }
                 return CompletableFuture.completedFuture(null);
             }
             PDAMod.LOGGER.debug("Opening app {}", type.getName());
             final var app = type.create();
-            app.init(new DefaultAppContext());
-            appStack.push(app);
+            final var context = new DefaultAppContext();
+            app.init(context);
+            appStack.push(new AppInstance(app, context));
             return CompletableFuture.completedFuture(app);
         }
     }
@@ -70,7 +77,7 @@ public class DefaultLauncher implements Launcher {
     @Override
     public List<App> getActiveApps() {
         synchronized (appStackLock) {
-            return Collections.unmodifiableList(appStack);
+            return appStack.stream().map(AppInstance::app).toList();
         }
     }
 }

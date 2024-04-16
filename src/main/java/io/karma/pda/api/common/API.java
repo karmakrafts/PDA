@@ -20,6 +20,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Supplier;
 
 /**
  * @author Alexander Hinze
@@ -29,9 +30,9 @@ public class API {
     private static Logger logger;
     private static ExecutorService executorService;
     private static SessionHandler sessionHandler;
-    private static IForgeRegistry<ComponentType<?>> componentTypeRegistry;
-    private static IForgeRegistry<AppType<?>> appTypeRegistry;
-    private static IForgeRegistry<Theme> themeRegistry;
+    private static Supplier<IForgeRegistry<ComponentType<?>>> componentTypeRegistry;
+    private static Supplier<IForgeRegistry<AppType<?>>> appTypeRegistry;
+    private static Supplier<IForgeRegistry<Theme>> themeRegistry;
     private static boolean isInitialized;
 
     // @formatter:off
@@ -46,6 +47,10 @@ public class API {
         }
         logger.info("Initializing API");
         isInitialized = true;
+    }
+
+    public static boolean isInitialized() {
+        return isInitialized;
     }
 
     private static void assertInitialized() {
@@ -70,17 +75,18 @@ public class API {
     }
 
     @ApiStatus.Internal
-    public static void setComponentTypeRegistry(final IForgeRegistry<ComponentType<?>> componentTypeRegistry) {
+    public static void setComponentTypeRegistry(
+        final Supplier<IForgeRegistry<ComponentType<?>>> componentTypeRegistry) {
         API.componentTypeRegistry = componentTypeRegistry;
     }
 
     @ApiStatus.Internal
-    public static void setAppTypeRegistry(final IForgeRegistry<AppType<?>> appTypeRegistry) {
+    public static void setAppTypeRegistry(final Supplier<IForgeRegistry<AppType<?>>> appTypeRegistry) {
         API.appTypeRegistry = appTypeRegistry;
     }
 
     @ApiStatus.Internal
-    public static void setThemeRegistry(final IForgeRegistry<Theme> themeRegistry) {
+    public static void setThemeRegistry(final Supplier<IForgeRegistry<Theme>> themeRegistry) {
         API.themeRegistry = themeRegistry;
     }
 
@@ -120,33 +126,33 @@ public class API {
     @SuppressWarnings("all")
     public static IForgeRegistry<ComponentType<?>> getComponentTypeRegistry() {
         assertInitialized();
-        return componentTypeRegistry;
+        return componentTypeRegistry.get();
     }
 
     public static IForgeRegistry<AppType<?>> getAppTypeRegistry() {
         assertInitialized();
-        return appTypeRegistry;
+        return appTypeRegistry.get();
     }
 
     public static IForgeRegistry<Theme> getThemeRegistry() {
         assertInitialized();
-        return themeRegistry;
+        return themeRegistry.get();
     }
 
     @SuppressWarnings("all")
     public static Collection<ComponentType<?>> getComponentTypes() {
         assertInitialized();
-        return componentTypeRegistry.getValues();
+        return componentTypeRegistry.get().getValues();
     }
 
     @SuppressWarnings("all")
     public static Collection<AppType<?>> getAppTypes() {
         assertInitialized();
-        return appTypeRegistry.getValues();
+        return appTypeRegistry.get().getValues();
     }
 
     public static Collection<Theme> getThemes() {
         assertInitialized();
-        return themeRegistry.getValues();
+        return themeRegistry.get().getValues();
     }
 }

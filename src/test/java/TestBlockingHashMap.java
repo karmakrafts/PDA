@@ -12,7 +12,7 @@ import org.junit.jupiter.api.TestInstance;
  * @since 15/04/2024
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public final class TestBlockingHashMap extends AbstractTest {
+public final class TestBlockingHashMap {
     @Test
     void testPut() {
         final var map = new BlockingHashMap<String, String>();
@@ -42,14 +42,16 @@ public final class TestBlockingHashMap extends AbstractTest {
 
     @Test
     void testRemoveLater() {
+        TestHarness.init();
+
         final var map = new BlockingHashMap<String, String>();
-        map.getLater("foo", executorService).thenAccept(value -> Assertions.assertEquals("bar", value));
+        map.removeLater("foo", TestHarness.executor).thenAccept(value -> Assertions.assertEquals("bar", value));
 
         Assertions.assertTrue(map.isEmpty());
         Assertions.assertEquals(0, map.size());
 
         map.put("foo", "bar");
-        Assertions.assertFalse(map.isEmpty());
-        Assertions.assertEquals(1, map.size());
+
+        TestHarness.dispose();
     }
 }

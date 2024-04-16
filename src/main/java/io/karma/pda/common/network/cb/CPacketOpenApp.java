@@ -34,8 +34,6 @@ public final class CPacketOpenApp {
     }
 
     public static void encode(final CPacketOpenApp packet, final FriendlyByteBuf buffer) {
-        buffer.writeResourceLocation(packet.getName());
-        var numViewDataArrays = 0;
         final var viewDataArrays = new ArrayList<byte[]>();
         for (final var view : packet.views) {
             final var viewData = AppViewCodec.encode(view);
@@ -43,9 +41,9 @@ public final class CPacketOpenApp {
                 continue; // TODO: warn?
             }
             viewDataArrays.add(viewData);
-            numViewDataArrays++;
         }
-        buffer.writeVarInt(numViewDataArrays);
+        buffer.writeResourceLocation(packet.getName());
+        buffer.writeInt(viewDataArrays.size());
         for (final var viewData : viewDataArrays) {
             buffer.writeByteArray(viewData);
         }
@@ -53,11 +51,10 @@ public final class CPacketOpenApp {
 
     public static CPacketOpenApp decode(final FriendlyByteBuf buffer) {
         final var name = buffer.readResourceLocation();
-        final var numViews = buffer.readVarInt();
+        final var numViews = buffer.readInt();
         final var views = new ArrayList<AppView>();
         for (var i = 0; i < numViews; i++) {
-            final var viewData = buffer.readByteArray();
-            final var view = AppViewCodec.decode(viewData);
+            final var view = AppViewCodec.decode(buffer.readByteArray());
             if (view == null) {
                 continue; // TODO: warn?
             }

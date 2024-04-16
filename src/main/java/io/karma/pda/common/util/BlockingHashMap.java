@@ -45,39 +45,6 @@ public final class BlockingHashMap<K, V> implements Map<K, V> {
         return CompletableFuture.supplyAsync(() -> remove(key, timeout, timeUnit));
     }
 
-    public CompletableFuture<@Nullable V> getLater(final @Nullable K key, final Executor executor) {
-        return CompletableFuture.supplyAsync(() -> getOrWait(key), executor);
-    }
-
-    public CompletableFuture<@Nullable V> getLater(final @Nullable K key, final long timeout, final TimeUnit timeUnit,
-                                                   final Executor executor) {
-        return CompletableFuture.supplyAsync(() -> getOrWait(key, timeout, timeUnit), executor);
-    }
-
-    public CompletableFuture<@Nullable V> getLater(final @Nullable K key) {
-        return CompletableFuture.supplyAsync(() -> getOrWait(key));
-    }
-
-    public CompletableFuture<@Nullable V> getLater(final @Nullable K key, final long timeout, final TimeUnit timeUnit) {
-        return CompletableFuture.supplyAsync(() -> getOrWait(key, timeout, timeUnit));
-    }
-
-    public @Nullable V getOrWait(final @Nullable K key, final long timeout, final TimeUnit timeUnit) {
-        final var value = remove(key, timeout, timeUnit);
-        if (value != null) {
-            put(key, value);
-        }
-        return value;
-    }
-
-    public @Nullable V getOrWait(final @Nullable K key) {
-        final var value = remove(key);
-        if (value != null) {
-            put(key, value);
-        }
-        return value;
-    }
-
     public @Nullable V remove(final @Nullable K key, final long timeout, final TimeUnit timeUnit) {
         try {
             final var value = getQueue(key).poll(timeout, timeUnit);
