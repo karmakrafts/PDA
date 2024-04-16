@@ -4,6 +4,7 @@
 
 package io.karma.pda.api.common.app.component;
 
+import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.app.event.ClickEvent;
 import io.karma.pda.api.common.app.event.MouseMoveEvent;
 import io.karma.pda.api.common.flex.FlexNode;
@@ -35,6 +36,7 @@ public abstract class AbstractComponent implements Component {
     protected AbstractComponent(final ComponentType<?> type, final UUID id) {
         this.type = type;
         this.id = id;
+        API.getLogger().debug("Creating component {} of type {}", id, type.getName());
     }
 
     @Override

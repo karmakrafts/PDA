@@ -5,6 +5,7 @@
 package io.karma.pda.common.network.sb;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.karma.pda.api.common.util.JSONUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import org.apache.commons.lang3.tuple.Pair;
@@ -54,7 +55,7 @@ public final class SPacketSyncValues {
 
     public static SPacketSyncValues decode(final FriendlyByteBuf buffer) {
         final var sessionId = buffer.readUUID();
-        final var node = Objects.requireNonNull(JSONUtils.decompress(buffer.readByteArray()));
+        final var node = Objects.requireNonNull(JSONUtils.decompress(buffer.readByteArray(), ObjectNode.class));
         // @formatter:off
         return new SPacketSyncValues(sessionId, node.properties()
             .stream()

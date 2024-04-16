@@ -4,11 +4,11 @@
 
 package io.karma.pda.api.common.app;
 
-import io.karma.pda.api.common.app.component.Container;
 import io.karma.pda.api.common.app.component.DefaultContainer;
 import io.karma.pda.api.common.app.theme.Theme;
 import io.karma.pda.api.common.app.view.AppView;
 import io.karma.pda.api.common.app.view.DefaultContainerView;
+import io.karma.sliced.slice.Slice;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -52,7 +52,7 @@ public interface App {
 
     AppView getView();
 
-    default Container getContainer() {
-        return getView().getContainer();
-    }
+    Slice<AppView> getViews();
+
+    void clearViews();
 }

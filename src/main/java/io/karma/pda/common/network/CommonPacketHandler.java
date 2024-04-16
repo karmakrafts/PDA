@@ -4,8 +4,10 @@
 
 package io.karma.pda.common.network;
 
+import io.karma.pda.api.common.API;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.network.cb.CPacketCreateSession;
+import io.karma.pda.common.network.cb.CPacketOpenApp;
 import io.karma.pda.common.network.sb.*;
 import io.karma.pda.common.session.DefaultSessionHandler;
 import io.karma.pda.common.session.DockedSessionContext;
@@ -87,14 +89,31 @@ public class CommonPacketHandler {
     }
 
     private void handleSPacketSyncValues(final SPacketSyncValues packet, final NetworkEvent.Context context) {
-
+        // TODO: ...
     }
 
     private void handleSPacketOpenApp(final SPacketOpenApp packet, final NetworkEvent.Context context) {
-
+        final var sessionHandler = DefaultSessionHandler.INSTANCE;
+        final var session = sessionHandler.getActiveSession(packet.getSessionId());
+        if (session == null) {
+            return;
+        }
+        final var app = session.getLauncher().openApp(API.getAppTypeRegistry().getValue(packet.getName())).join();
+        final var typeName = app.getType().getName();
+        PDAMod.CHANNEL.reply(new CPacketOpenApp(typeName, app.getViews().copyArrayList()), context);
     }
 
     private void handleSPacketCloseApp(final SPacketCloseApp packet, final NetworkEvent.Context context) {
-
+        final var sessionHandler = DefaultSessionHandler.INSTANCE;
+        final var session = sessionHandler.getActiveSession(packet.getSessionId());
+        if (session == null) {
+            return;
+        }
+        final var typeName = packet.getName();
+        if (typeName == null) {
+            session.getLauncher().closeApp();
+            return;
+        }
+        session.getLauncher().closeApp(API.getAppTypeRegistry().getValue(typeName));
     }
 }

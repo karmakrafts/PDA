@@ -6,6 +6,7 @@ package io.karma.pda.api.common.app;
 
 import io.karma.pda.api.common.app.theme.Theme;
 import io.karma.pda.api.common.app.view.AppView;
+import io.karma.sliced.slice.Slice;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -27,9 +28,16 @@ public abstract class AbstractApp implements App {
     }
 
     @Override
+    public void init(final AppContext context) {
+        for (final var view : views.values()) {
+            view.build(this, context);
+        }
+    }
+
+    @Override
     public void addView(final String name, final AppView view) {
         if (views.containsKey(name)) {
-            throw new IllegalArgumentException(String.format("View %s already exists", name));
+            throw new IllegalArgumentException(String.format("View '%s' already exists", name));
         }
         views.put(name, view);
     }
@@ -50,8 +58,18 @@ public abstract class AbstractApp implements App {
     }
 
     @Override
+    public void clearViews() {
+        views.clear();
+    }
+
+    @Override
     public AppView getView() {
         return Objects.requireNonNull(views.get(currentView));
+    }
+
+    @Override
+    public Slice<AppView> getViews() {
+        return Slice.copyOf(views.values());
     }
 
     @Override

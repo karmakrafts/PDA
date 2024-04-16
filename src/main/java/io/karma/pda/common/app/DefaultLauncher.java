@@ -8,6 +8,7 @@ import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.Launcher;
 import io.karma.pda.api.common.session.Session;
+import io.karma.pda.common.PDAMod;
 import io.karma.sliced.slice.Slice;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,6 +35,7 @@ public class DefaultLauncher implements Launcher {
             if (appStack.isEmpty()) {
                 return null;
             }
+            PDAMod.LOGGER.debug("Closing app {}", type.getName());
             App toRemove = null;
             for (final var app : appStack) {
                 if (app.getType() != type) {
@@ -49,13 +51,25 @@ public class DefaultLauncher implements Launcher {
 
     @Override
     public <A extends App> CompletableFuture<@Nullable A> openApp(final AppType<A> type) {
-        final var app = type.create();
-        appStack.push(app);
-        return CompletableFuture.completedFuture(app);
+        synchronized (appStackLock) {
+            for (final var app : appStack) {
+                if (app.getType() != type) {
+                    continue;
+                }
+                return CompletableFuture.completedFuture(null);
+            }
+            PDAMod.LOGGER.debug("Opening app {}", type.getName());
+            final var app = type.create();
+            app.init(new DefaultAppContext());
+            appStack.push(app);
+            return CompletableFuture.completedFuture(app);
+        }
     }
 
     @Override
     public Slice<App> getActiveApps() {
-        return Slice.of(appStack);
+        synchronized (appStackLock) {
+            return Slice.of(appStack);
+        }
     }
 }

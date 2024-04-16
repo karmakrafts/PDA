@@ -23,13 +23,13 @@ public final class DefaultAppRenderer<A extends App> implements AppRenderer<A> {
     @SuppressWarnings("unchecked")
     @Override
     public void render(final A app, final GFX graphics) {
-        final var container = app.getContainer();
+        final var container = app.getView().getContainer();
         final var flexNode = ClientFlexNodeHandler.INSTANCE.getOrCreateNode(container);
         ComponentRenderers.get((ComponentType<Container>) container.getType()).render(container, flexNode, graphics);
     }
 
     @Override
     public void cleanup(final A app, final GFX graphics) {
-        ClientFlexNodeHandler.INSTANCE.removeNode(app.getContainer());
+        ClientFlexNodeHandler.INSTANCE.removeNode(app.getView().getContainer());
     }
 }

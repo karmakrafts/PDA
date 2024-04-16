@@ -15,7 +15,7 @@ import io.karma.pda.common.PDAMod
  * @since 13/04/2024
  */
 class LauncherApp(type: AppType<*>) : ComposableApp(type, DefaultThemes.DEFAULT_DARK) {
-    override fun init(context: AppContext) {
+    override fun compose(context: AppContext) {
         PDAMod.LOGGER.debug("Composing launcher app")
         defaultView {
             PDAMod.LOGGER.debug("Composing default view")

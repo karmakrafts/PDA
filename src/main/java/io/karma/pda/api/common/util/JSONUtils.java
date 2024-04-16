@@ -50,10 +50,10 @@ public final class JSONUtils {
         }
     }
 
-    public static @Nullable JsonNode decompress(final byte[] data) {
+    public static <T> @Nullable T decompress(final byte[] data, final Class<T> type) {
         try (final var stream = new ByteArrayInputStream(data); final var decompressedStream = new LZ4BlockInputStream(
             stream)) {
-            return READER.readTree(decompressedStream);
+            return READER.readValue(decompressedStream, type);
         }
         catch (Throwable error) {
             API.getLogger().error("Could not decompress JSON node: {}", error.getMessage());

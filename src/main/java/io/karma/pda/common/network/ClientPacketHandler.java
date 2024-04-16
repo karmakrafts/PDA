@@ -4,6 +4,8 @@
 
 package io.karma.pda.common.network;
 
+import io.karma.pda.api.common.API;
+import io.karma.pda.client.app.ClientLauncher;
 import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.network.cb.CPacketCreateSession;
 import io.karma.pda.common.network.cb.CPacketOpenApp;
@@ -12,6 +14,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.ApiStatus;
+
+import java.util.Objects;
 
 /**
  * @author Alexander Hinze
@@ -54,6 +58,17 @@ public final class ClientPacketHandler extends CommonPacketHandler {
     }
 
     private void handleCPacketOpenApp(final CPacketOpenApp packet, final NetworkEvent.Context context) {
-
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            final var session = ClientSessionHandler.INSTANCE.getActiveSession();
+            if (session == null) {
+                return; // TODO: warn?
+            }
+            final var app = Objects.requireNonNull(API.getAppTypeRegistry().getValue(packet.getName())).create();
+            app.clearViews(); // We reconstruct the views from packet data
+            for (final var view : packet.getViews()) {
+                app.addView(view.getName(), view);
+            }
+            ((ClientLauncher) session.getLauncher()).addPendingApp(app);
+        });
     }
 }
