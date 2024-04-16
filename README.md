@@ -38,17 +38,17 @@ import io.karma.pda.api.common.app.component.*;
 
 public final class ExampleApp extends AbstractApp {
     public ExampleApp(final AppType<?> type) {
-        super(type);
+        super(type); // Passing no theme here will use the device theme
     }
     
     public void init(final AppContext context) {
-        context.addView("default", container -> {
+        addDefaultView(container -> {           // The default must always be present
             final var label = DefaultComponents.LABEL.create(props -> props
-                .width(FlexValue.percent(100F))
-                .height(FlexValue.auto())
+                .width(FlexValue.percent(100F)) // 100% of the width of the parent
+                .height(FlexValue.auto())       // Automatically decide on the height
             );
-            label.text.set("Hello World!");
-            container.addChild(label);
+            label.text.set("Hello World!");     // Use setter since this is a syncable property
+            container.addChild(label);          // Add the label to the container of the default view
         });
     }
 }
@@ -62,8 +62,8 @@ import io.karma.pda.api.common.app.component.*
 import io.karma.pda.api.common.app.compose.*
 
 class ExampleApp(type: AppType<*>) : ComposableApp(type) {
-    override fun compose() {
-        view("default") {
+    override fun compose(context: AppContext) {
+        defaultView {
             label({
                 width(100.percent)
                 height(auto)
