@@ -6,9 +6,10 @@ package io.karma.pda.api.common.app;
 
 import io.karma.pda.api.common.app.theme.Theme;
 import io.karma.pda.api.common.app.view.AppView;
-import io.karma.sliced.slice.Slice;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -68,8 +69,8 @@ public abstract class AbstractApp implements App {
     }
 
     @Override
-    public Slice<AppView> getViews() {
-        return Slice.copyOf(views.values());
+    public Collection<AppView> getViews() {
+        return Collections.unmodifiableCollection(views.values());
     }
 
     @Override

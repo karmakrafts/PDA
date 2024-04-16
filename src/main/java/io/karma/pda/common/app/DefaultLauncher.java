@@ -9,9 +9,10 @@ import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.Launcher;
 import io.karma.pda.api.common.session.Session;
 import io.karma.pda.common.PDAMod;
-import io.karma.sliced.slice.Slice;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.CompletableFuture;
 
@@ -67,9 +68,9 @@ public class DefaultLauncher implements Launcher {
     }
 
     @Override
-    public Slice<App> getActiveApps() {
+    public List<App> getActiveApps() {
         synchronized (appStackLock) {
-            return Slice.of(appStack);
+            return Collections.unmodifiableList(appStack);
         }
     }
 }

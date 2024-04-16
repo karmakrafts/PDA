@@ -9,7 +9,6 @@ import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.theme.Theme;
 import io.karma.pda.api.common.session.SessionHandler;
 import io.karma.pda.api.common.util.Constants;
-import io.karma.pda.api.common.util.RegistryUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.fml.DistExecutor;
@@ -30,6 +29,9 @@ public class API {
     private static Logger logger;
     private static ExecutorService executorService;
     private static SessionHandler sessionHandler;
+    private static IForgeRegistry<ComponentType<?>> componentTypeRegistry;
+    private static IForgeRegistry<AppType<?>> appTypeRegistry;
+    private static IForgeRegistry<Theme> themeRegistry;
     private static boolean isInitialized;
 
     // @formatter:off
@@ -68,6 +70,21 @@ public class API {
     }
 
     @ApiStatus.Internal
+    public static void setComponentTypeRegistry(final IForgeRegistry<ComponentType<?>> componentTypeRegistry) {
+        API.componentTypeRegistry = componentTypeRegistry;
+    }
+
+    @ApiStatus.Internal
+    public static void setAppTypeRegistry(final IForgeRegistry<AppType<?>> appTypeRegistry) {
+        API.appTypeRegistry = appTypeRegistry;
+    }
+
+    @ApiStatus.Internal
+    public static void setThemeRegistry(final IForgeRegistry<Theme> themeRegistry) {
+        API.themeRegistry = themeRegistry;
+    }
+
+    @ApiStatus.Internal
     public static Logger getLogger() {
         assertInitialized();
         return logger;
@@ -102,28 +119,34 @@ public class API {
 
     @SuppressWarnings("all")
     public static IForgeRegistry<ComponentType<?>> getComponentTypeRegistry() {
-        return RegistryUtils.getRegistry(Constants.COMPONENT_REGISTRY_NAME);
+        assertInitialized();
+        return componentTypeRegistry;
     }
 
     public static IForgeRegistry<AppType<?>> getAppTypeRegistry() {
-        return RegistryUtils.getRegistry(Constants.APP_REGISTRY_NAME);
+        assertInitialized();
+        return appTypeRegistry;
     }
 
     public static IForgeRegistry<Theme> getThemeRegistry() {
-        return RegistryUtils.getRegistry(Constants.THEME_REGISTRY_NAME);
+        assertInitialized();
+        return themeRegistry;
     }
 
     @SuppressWarnings("all")
     public static Collection<ComponentType<?>> getComponentTypes() {
-        return getComponentTypeRegistry().getValues();
+        assertInitialized();
+        return componentTypeRegistry.getValues();
     }
 
     @SuppressWarnings("all")
     public static Collection<AppType<?>> getAppTypes() {
-        return getAppTypeRegistry().getValues();
+        assertInitialized();
+        return appTypeRegistry.getValues();
     }
 
     public static Collection<Theme> getThemes() {
-        return getThemeRegistry().getValues();
+        assertInitialized();
+        return themeRegistry.getValues();
     }
 }

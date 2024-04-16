@@ -6,9 +6,9 @@ package io.karma.pda.api.common.app.component;
 
 import io.karma.pda.api.common.app.event.ClickEvent;
 import io.karma.pda.api.common.app.event.MouseMoveEvent;
-import io.karma.sliced.slice.Slice;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -22,9 +22,9 @@ public interface Container extends Component {
     void removeChild(final Component child);
 
     @Nullable
-    Component findChild(final UUID uuid);
+    Component findChild(final UUID id);
 
-    Slice<Component> getChildren();
+    Collection<Component> getChildren();
 
     @Override
     default boolean needsUpdate() {

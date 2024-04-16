@@ -4,9 +4,9 @@
 
 package io.karma.pda.api.common.app;
 
-import io.karma.sliced.slice.Slice;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -16,14 +16,14 @@ import java.util.concurrent.CompletableFuture;
 public interface Launcher {
     <A extends App> CompletableFuture<@Nullable A> openApp(final AppType<A> type);
 
-    Slice<App> getActiveApps();
+    List<App> getActiveApps();
 
     @Nullable
     <A extends App> A closeApp(final AppType<A> type);
 
     default @Nullable App closeApp() {
         final var apps = getActiveApps();
-        if (apps.size() == 0) {
+        if (apps.isEmpty()) {
             return null;
         }
         return closeApp(apps.get(0).getType());

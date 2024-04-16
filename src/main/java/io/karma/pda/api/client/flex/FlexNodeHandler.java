@@ -6,10 +6,10 @@ package io.karma.pda.api.client.flex;
 
 import io.karma.pda.api.common.app.component.Component;
 import io.karma.pda.api.common.flex.FlexNode;
-import io.karma.sliced.view.View;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.Collection;
 import java.util.UUID;
 
 /**
@@ -26,5 +26,5 @@ public interface FlexNodeHandler {
 
     FlexNode getOrCreateNode(final Component component);
 
-    View<FlexNode> getNodes();
+    Collection<FlexNode> getNodes();
 }

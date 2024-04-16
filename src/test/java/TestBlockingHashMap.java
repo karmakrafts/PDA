@@ -43,7 +43,7 @@ public final class TestBlockingHashMap extends AbstractTest {
     @Test
     void testRemoveLater() {
         final var map = new BlockingHashMap<String, String>();
-        map.getLater("foo", executor).thenAccept(value -> Assertions.assertEquals("bar", value));
+        map.getLater("foo", executorService).thenAccept(value -> Assertions.assertEquals("bar", value));
 
         Assertions.assertTrue(map.isEmpty());
         Assertions.assertEquals(0, map.size());

@@ -6,7 +6,6 @@ package io.karma.pda.client.flex;
 
 import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.pda.api.common.flex.*;
-import io.karma.sliced.slice.Slice;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.system.MemoryStack;
@@ -15,6 +14,8 @@ import org.lwjgl.util.yoga.YGValue;
 import org.lwjgl.util.yoga.Yoga;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Alexander Hinze
@@ -54,8 +55,8 @@ public final class DefaultFlexNode implements FlexNode, Disposable {
         children.remove(node);
     }
 
-    public Slice<DefaultFlexNode> getChildren() {
-        return Slice.of(children);
+    public List<DefaultFlexNode> getChildren() {
+        return Collections.unmodifiableList(children);
     }
 
     @Override

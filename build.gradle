@@ -101,7 +101,6 @@ dependencies {
     library group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jackson_version
     library group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jackson_version
     library group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
-    library group: 'io.karma.sliced', name: 'sliced', version: sliced_version
     library group: 'io.karma.material', name: 'material-color-utils', version: mcu_version
     library group: 'org.lz4', name: 'lz4-java', version: lz4_version
 

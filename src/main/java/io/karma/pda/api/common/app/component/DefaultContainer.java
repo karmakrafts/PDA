@@ -4,10 +4,9 @@
 
 package io.karma.pda.api.common.app.component;
 
-import io.karma.sliced.slice.Slice;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -16,58 +15,43 @@ import java.util.UUID;
  * @since 08/02/2024
  */
 public class DefaultContainer extends AbstractComponent implements Container {
-    protected final ArrayList<Component> children = new ArrayList<>();
-    protected final HashMap<UUID, Component> idToChildren = new HashMap<>();
+    protected final HashMap<UUID, Component> children = new HashMap<>();
 
-    public DefaultContainer(final ComponentType<?> type, final UUID uuid) {
-        super(type, uuid);
+    public DefaultContainer(final ComponentType<?> type, final UUID id) {
+        super(type, id);
     }
 
     @Override
-    public @Nullable Component findChild(final UUID uuid) {
-        return idToChildren.get(uuid);
+    public @Nullable Component findChild(final UUID id) {
+        return children.get(id);
     }
 
     @Override
-    public Slice<Component> getChildren() {
-        return Slice.of(children);
+    public Collection<Component> getChildren() {
+        return children.values();
     }
 
     @Override
     public void addChild(final Component child) {
-        children.add(child);
-        idToChildren.put(child.getId(), child);
+        children.put(child.getId(), child);
         child.setParent(this);
     }
 
     @Override
     public void removeChild(final Component child) {
-        children.remove(child);
-        idToChildren.remove(child.getId());
+        children.remove(child.getId());
         child.setParent(null);
     }
 
     @Override
     public void dispose() {
-        for (final var child : children) {
+        for (final var child : children.values()) {
             child.dispose();
         }
         super.dispose();
     }
 
-    public void addChild(final int index, final Component child) {
-        children.add(index, child);
-        idToChildren.put(child.getId(), child);
-        child.setParent(this);
-    }
-
-    public int indexOfChild(final Component child) {
-        return children.indexOf(child);
-    }
-
     public void clear() {
-        dispose();
         children.clear();
-        idToChildren.clear();
     }
 }

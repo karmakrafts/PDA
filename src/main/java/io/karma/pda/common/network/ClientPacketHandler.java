@@ -16,6 +16,7 @@ import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author Alexander Hinze
@@ -48,16 +49,18 @@ public final class ClientPacketHandler extends CommonPacketHandler {
             this::handleCPacketOpenApp);
     }
 
-    private void handleCPacketCreateSession(final CPacketCreateSession packet, final NetworkEvent.Context context) {
+    private void handleCPacketCreateSession(final CPacketCreateSession packet,
+                                            final Supplier<NetworkEvent.Context> contextGetter) {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
             () -> () -> ClientSessionHandler.INSTANCE.addPendingSession(packet.getRequestId(), packet.getSessionId()));
     }
 
-    private void handleCPacketSyncValues(final CPacketSyncValues packet, final NetworkEvent.Context context) {
+    private void handleCPacketSyncValues(final CPacketSyncValues packet,
+                                         final Supplier<NetworkEvent.Context> contextGetter) {
 
     }
 
-    private void handleCPacketOpenApp(final CPacketOpenApp packet, final NetworkEvent.Context context) {
+    private void handleCPacketOpenApp(final CPacketOpenApp packet, final Supplier<NetworkEvent.Context> contextGetter) {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             final var session = ClientSessionHandler.INSTANCE.getActiveSession();
             if (session == null) {

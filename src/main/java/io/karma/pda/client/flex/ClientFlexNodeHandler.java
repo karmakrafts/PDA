@@ -8,10 +8,11 @@ import io.karma.pda.api.client.flex.FlexNodeHandler;
 import io.karma.pda.api.common.app.component.Component;
 import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.pda.api.common.flex.FlexNode;
-import io.karma.sliced.view.View;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -54,7 +55,7 @@ public final class ClientFlexNodeHandler implements FlexNodeHandler {
     }
 
     @Override
-    public View<FlexNode> getNodes() {
-        return View.of(nodes.values());
+    public Collection<FlexNode> getNodes() {
+        return Collections.unmodifiableCollection(nodes.values());
     }
 }

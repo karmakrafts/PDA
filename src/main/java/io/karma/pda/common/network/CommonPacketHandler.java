@@ -16,8 +16,10 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.ArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author Alexander Hinze
@@ -62,24 +64,27 @@ public class CommonPacketHandler {
     protected <MSG> void registerPacket(final int id, final Class<MSG> type,
                                         final BiConsumer<MSG, FriendlyByteBuf> encoder,
                                         final Function<FriendlyByteBuf, MSG> decoder,
-                                        final BiConsumer<MSG, NetworkEvent.Context> handler) {
+                                        final BiConsumer<MSG, Supplier<NetworkEvent.Context>> handler) {
         PDAMod.CHANNEL.registerMessage(id, type, encoder, decoder, (packet, contextGetter) -> {
             final var context = contextGetter.get();
-            context.enqueueWork(() -> handler.accept(packet, context));
+            context.enqueueWork(() -> handler.accept(packet, contextGetter));
             context.setPacketHandled(true);
         });
     }
 
-    private void handleSPacketCreateSession(final SPacketCreateSession packet, final NetworkEvent.Context context) {
+    private void handleSPacketCreateSession(final SPacketCreateSession packet,
+                                            final Supplier<NetworkEvent.Context> contextGetter) {
+        final var context = contextGetter.get();
         final var player = context.getSender();
         final var session = DefaultSessionHandler.INSTANCE.createSession(packet.getType().isHandheld() ? new HandheldSessionContext(
             player,
             packet.getHand()) : new DockedSessionContext(player, packet.getPos())).join();
-        PDAMod.CHANNEL.reply(new CPacketCreateSession(packet.getRequestId(), session.getId()), context);
+        final var response = new CPacketCreateSession(packet.getRequestId(), session.getId());
+        PDAMod.CHANNEL.reply(response, context);
     }
 
     private void handleSPacketTerminateSession(final SPacketTerminateSession packet,
-                                               final NetworkEvent.Context context) {
+                                               final Supplier<NetworkEvent.Context> contextGetter) {
         final var sessionHandler = DefaultSessionHandler.INSTANCE;
         final var session = sessionHandler.getActiveSession(packet.getId());
         if (session == null) {
@@ -88,11 +93,12 @@ public class CommonPacketHandler {
         sessionHandler.terminateSession(session);
     }
 
-    private void handleSPacketSyncValues(final SPacketSyncValues packet, final NetworkEvent.Context context) {
+    private void handleSPacketSyncValues(final SPacketSyncValues packet,
+                                         final Supplier<NetworkEvent.Context> contextGetter) {
         // TODO: ...
     }
 
-    private void handleSPacketOpenApp(final SPacketOpenApp packet, final NetworkEvent.Context context) {
+    private void handleSPacketOpenApp(final SPacketOpenApp packet, final Supplier<NetworkEvent.Context> contextGetter) {
         final var sessionHandler = DefaultSessionHandler.INSTANCE;
         final var session = sessionHandler.getActiveSession(packet.getSessionId());
         if (session == null) {
@@ -100,10 +106,12 @@ public class CommonPacketHandler {
         }
         final var app = session.getLauncher().openApp(API.getAppTypeRegistry().getValue(packet.getName())).join();
         final var typeName = app.getType().getName();
-        PDAMod.CHANNEL.reply(new CPacketOpenApp(typeName, app.getViews().copyArrayList()), context);
+        final var response = new CPacketOpenApp(typeName, new ArrayList<>(app.getViews()));
+        PDAMod.CHANNEL.reply(response, contextGetter.get());
     }
 
-    private void handleSPacketCloseApp(final SPacketCloseApp packet, final NetworkEvent.Context context) {
+    private void handleSPacketCloseApp(final SPacketCloseApp packet,
+                                       final Supplier<NetworkEvent.Context> contextGetter) {
         final var sessionHandler = DefaultSessionHandler.INSTANCE;
         final var session = sessionHandler.getActiveSession(packet.getSessionId());
         if (session == null) {

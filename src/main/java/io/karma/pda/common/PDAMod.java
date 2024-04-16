@@ -13,6 +13,7 @@ import io.karma.pda.api.common.app.theme.Theme;
 import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.pda.api.common.dispose.DispositionHandler;
 import io.karma.pda.api.common.util.Constants;
+import io.karma.pda.api.common.util.RegistryUtils;
 import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.client.flex.ClientFlexNodeHandler;
 import io.karma.pda.client.interaction.DockInteractionHandler;
@@ -195,6 +196,9 @@ public class PDAMod {
         API.setLogger(LOGGER);
         API.setExecutorService(EXECUTOR_SERVICE);
         API.setSessionHandler(DefaultSessionHandler.INSTANCE);
+        API.setComponentTypeRegistry(RegistryUtils.getRegistry(Constants.COMPONENT_REGISTRY_NAME));
+        API.setAppTypeRegistry(RegistryUtils.getRegistry(Constants.APP_REGISTRY_NAME));
+        API.setThemeRegistry(RegistryUtils.getRegistry(Constants.THEME_REGISTRY_NAME));
         API.init();
     }
 
