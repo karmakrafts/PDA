@@ -6,7 +6,6 @@ package io.karma.pda.api.common.util;
 
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Separators;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -38,10 +37,10 @@ public final class JSONUtils {
     private JSONUtils() {}
     // @formatter:on
 
-    public static byte[] compress(final JsonNode node) {
+    public static byte[] compress(final Object value) {
         try (final var stream = new ByteArrayOutputStream(); final var compressedStream = new LZ4BlockOutputStream(
             stream)) {
-            WRITER.writeValue(compressedStream, node);
+            WRITER.writeValue(compressedStream, value);
             return stream.toByteArray();
         }
         catch (Throwable error) {

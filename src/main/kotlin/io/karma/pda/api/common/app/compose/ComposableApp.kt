@@ -5,22 +5,20 @@
 package io.karma.pda.api.common.app.compose
 
 import io.karma.pda.api.common.app.AbstractApp
-import io.karma.pda.api.common.app.AppContext
 import io.karma.pda.api.common.app.AppType
 import io.karma.pda.api.common.app.component.DefaultContainer
-import io.karma.pda.api.common.app.theme.Theme
 import io.karma.pda.api.common.app.view.DefaultContainerView
 
 /**
  * @author Alexander Hinze
  * @since 13/04/2024
  */
-abstract class ComposableApp(type: AppType<*>, theme: Theme) : AbstractApp(type, theme) {
-    abstract fun compose(context: AppContext)
+abstract class ComposableApp(type: AppType<*>) : AbstractApp(type) {
+    abstract fun compose()
 
-    override fun init(context: AppContext) {
-        compose(context)
-        super.init(context)
+    override fun init() {
+        compose()
+        super.init()
     }
 
     protected inline fun view(name: String, crossinline scope: Composer<DefaultContainer>.() -> Unit) {

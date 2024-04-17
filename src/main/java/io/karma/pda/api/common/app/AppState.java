@@ -2,66 +2,82 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.common.app;
+package io.karma.pda.api.common.app;
 
-import io.karma.pda.api.common.app.AppContext;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author Alexander Hinze
  * @since 11/04/2024
  */
-public final class DefaultAppContext implements AppContext {
+public final class AppState {
     private boolean isFullscreen;
     private boolean areControlsVisible;
     private boolean isSuspended;
     private boolean autoHideControls;
 
-    @Override
+    @JsonCreator
+    public AppState(final boolean isFullscreen, final boolean areControlsVisible, final boolean isSuspended,
+                    final boolean autoHideControls) {
+        this.isFullscreen = isFullscreen;
+        this.areControlsVisible = areControlsVisible;
+        this.isSuspended = isSuspended;
+        this.autoHideControls = autoHideControls;
+    }
+
+    @JsonIgnore
+    public AppState() {
+        this(false, true, false, false);
+    }
+
+    @JsonIgnore
     public void setAutoHideControls(boolean autoHideControls) {
         this.autoHideControls = autoHideControls;
     }
 
-    @Override
+    @JsonIgnore
     public void setFullscreen(final boolean isFullscreen) {
         this.isFullscreen = isFullscreen;
     }
 
-    @Override
+    @JsonIgnore
     public void showControls() {
         areControlsVisible = true;
     }
 
-    @Override
+    @JsonIgnore
     public void hideControls() {
         areControlsVisible = false;
     }
 
-    @Override
+    @JsonIgnore
     public void close() {
 
     }
 
-    @Override
+    @JsonIgnore
     public void suspend() {
         isSuspended = true;
     }
 
-    @Override
+    @JsonGetter
     public boolean isSuspended() {
         return isSuspended;
     }
 
-    @Override
+    @JsonGetter
     public boolean areControlsVisible() {
         return areControlsVisible;
     }
 
-    @Override
+    @JsonGetter
     public boolean isFullscreen() {
         return isFullscreen;
     }
 
-    @Override
+    @JsonGetter
     public boolean autoHideControls() {
         return autoHideControls;
     }

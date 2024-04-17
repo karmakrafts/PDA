@@ -31,21 +31,48 @@ public final class ClientSessionHandler implements SessionHandler {
     public static final ClientSessionHandler INSTANCE = new ClientSessionHandler();
     private final BlockingHashMap<UUID, UUID> pendingSessions = new BlockingHashMap<>();
     private final AtomicReference<Session> session = new AtomicReference<>(null);
+    private final ConcurrentHashMap<UUID, Session> activeSessions = new ConcurrentHashMap<>();
+    private final BlockingHashMap<UUID, Session> terminatedSessions = new BlockingHashMap<>();
 
     // @formatter:off
     private ClientSessionHandler() {}
     // @formatter:on
 
     @ApiStatus.Internal
+    public void addActiveSession(final UUID sessionId, final Session session) {
+        if (activeSessions.containsKey(sessionId)) {
+            PDAMod.LOGGER.warn("Session {} already exists, ignoring", sessionId);
+            return;
+        }
+        activeSessions.put(sessionId, session);
+    }
+
+    @ApiStatus.Internal
+    public void removeActiveSession(final UUID sessionId) {
+        activeSessions.remove(sessionId);
+    }
+
+    @ApiStatus.Internal
+    public void addTerminatedSession(final UUID sessionId) {
+        if (terminatedSessions.containsKey(sessionId)) {
+            PDAMod.LOGGER.warn("Session {} already terminated, ignoring", sessionId);
+            return;
+        }
+        final var session = activeSessions.get(sessionId);
+        if (session == null) {
+            PDAMod.LOGGER.warn("Session {} does not exist, ignoring", sessionId);
+            return;
+        }
+        terminatedSessions.put(sessionId, session);
+    }
+
+    @ApiStatus.Internal
     public void addPendingSession(final UUID requestId, final UUID sessionId) {
         if (pendingSessions.containsKey(requestId)) {
+            PDAMod.LOGGER.warn("Session {} is already pending, ignoring", sessionId);
             return;
         }
         pendingSessions.put(requestId, sessionId);
-    }
-
-    private CompletableFuture<UUID> getPendingSession(final UUID requestId) {
-        return pendingSessions.removeLater(requestId, 200, TimeUnit.MILLISECONDS, PDAMod.EXECUTOR_SERVICE);
     }
 
     @Override
@@ -55,10 +82,20 @@ public final class ClientSessionHandler implements SessionHandler {
             PDAMod.LOGGER.debug("Requesting new session from server");
             PDAMod.CHANNEL.sendToServer(SPacketCreateSession.fromContext(requestId, context));
         });
-        return getPendingSession(requestId).thenApply(sessionId -> {
-            PDAMod.LOGGER.debug("Received session ID {} from server", sessionId);
-            return new ClientSession(sessionId, context);
-        });
+        // @formatter:off
+        return pendingSessions.removeLater(requestId, 200, TimeUnit.MILLISECONDS, PDAMod.EXECUTOR_SERVICE)
+            .thenApply(sessionId -> {
+                if (sessionId == null) {
+                    PDAMod.LOGGER.error("Server didn't send session ID back in time for request {}, ignoring",
+                        requestId);
+                    return null;
+                }
+                PDAMod.LOGGER.debug("Received session ID {} from server", sessionId);
+                final var session = new ClientSession(sessionId, context);
+                addActiveSession(sessionId, session);
+                return session;
+            });
+        // @formatter:on
     }
 
     @Override
@@ -77,22 +114,36 @@ public final class ClientSessionHandler implements SessionHandler {
     }
 
     @Override
-    public void terminateSession(final Session session) {
-        final var game = Minecraft.getInstance();
-        game.execute(() -> {
-            if (session instanceof MuxedSession<?> muxedSession) {
-                for (final var target : muxedSession.getTargets()) {
-                    final var id = target.getId();
-                    PDAMod.LOGGER.debug("Requesting termination for session {}", id);
-                    PDAMod.CHANNEL.sendToServer(new SPacketTerminateSession(id));
-                }
-                return;
-            }
+    public CompletableFuture<Void> terminateSession(final Session session) {
+        // If this is a multiplexed session, unwind its targets and create a new future from each termination..
+        if (session instanceof MuxedSession<?> muxedSession) { // @formatter:off
+            return CompletableFuture.allOf(muxedSession.getTargets().stream()
+                .map(this::terminateSession)
+                .toArray(CompletableFuture[]::new));
+        } // @formatter:on
+        // ..otherwise this is a single-ended session, so we send a packet and wait for acknowledgement
+        Minecraft.getInstance().execute(() -> {
             final var id = session.getId();
             PDAMod.LOGGER.debug("Requesting termination for session {}", id);
             PDAMod.CHANNEL.sendToServer(new SPacketTerminateSession(id));
-            session.onTermination();
         });
+        // @formatter:off
+        return terminatedSessions.removeLater(session.getId(), 200, TimeUnit.MILLISECONDS, PDAMod.EXECUTOR_SERVICE)
+            .thenApply(sess -> {
+                if(sess == null) {
+                    PDAMod.LOGGER.warn("Server didn't send acknowledgement back in time, ignoring");
+                    return null;
+                }
+                removeActiveSession(sess.getId());
+                return null;
+            });
+        // @formatter:on
+    }
+
+    @Nullable
+    @Override
+    public Session getActiveSession(final UUID id) {
+        return activeSessions.get(id);
     }
 
     @Override

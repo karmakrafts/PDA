@@ -8,6 +8,7 @@ import io.karma.pda.api.common.API;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.network.cb.CPacketCreateSession;
 import io.karma.pda.common.network.cb.CPacketOpenApp;
+import io.karma.pda.common.network.cb.CPacketTerminateSession;
 import io.karma.pda.common.network.sb.*;
 import io.karma.pda.common.session.DefaultSessionHandler;
 import io.karma.pda.common.session.DockedSessionContext;
@@ -17,9 +18,9 @@ import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * @author Alexander Hinze
@@ -64,41 +65,43 @@ public class CommonPacketHandler {
     protected <MSG> void registerPacket(final int id, final Class<MSG> type,
                                         final BiConsumer<MSG, FriendlyByteBuf> encoder,
                                         final Function<FriendlyByteBuf, MSG> decoder,
-                                        final BiConsumer<MSG, Supplier<NetworkEvent.Context>> handler) {
+                                        final BiConsumer<MSG, NetworkEvent.Context> handler) {
         PDAMod.CHANNEL.registerMessage(id, type, encoder, decoder, (packet, contextGetter) -> {
             final var context = contextGetter.get();
-            context.enqueueWork(() -> handler.accept(packet, contextGetter));
+            context.enqueueWork(() -> handler.accept(packet, context));
             context.setPacketHandled(true);
         });
     }
 
-    private void handleSPacketCreateSession(final SPacketCreateSession packet,
-                                            final Supplier<NetworkEvent.Context> contextGetter) {
-        final var context = contextGetter.get();
-        final var player = context.getSender();
-        final var session = DefaultSessionHandler.INSTANCE.createSession(packet.getType().isHandheld() ? new HandheldSessionContext(
+    private void handleSPacketCreateSession(final SPacketCreateSession packet, final NetworkEvent.Context context) {
+        final var player = Objects.requireNonNull(context.getSender());
+        final var type = packet.getType();
+        final var session = DefaultSessionHandler.INSTANCE.createSession(type.isHandheld() ? new HandheldSessionContext(
             player,
             packet.getHand()) : new DockedSessionContext(player, packet.getPos())).join();
-        final var response = new CPacketCreateSession(packet.getRequestId(), session.getId());
-        PDAMod.CHANNEL.reply(response, context);
+        PDAMod.CHANNEL.reply(new CPacketCreateSession(type,
+            packet.getRequestId(),
+            session.getId(),
+            player.getUUID(),
+            packet.getContext()), context);
     }
 
     private void handleSPacketTerminateSession(final SPacketTerminateSession packet,
-                                               final Supplier<NetworkEvent.Context> contextGetter) {
+                                               final NetworkEvent.Context context) {
         final var sessionHandler = DefaultSessionHandler.INSTANCE;
         final var session = sessionHandler.getActiveSession(packet.getId());
         if (session == null) {
             return;
         }
         sessionHandler.terminateSession(session);
+        PDAMod.CHANNEL.reply(new CPacketTerminateSession(session.getId()), context);
     }
 
-    private void handleSPacketSyncValues(final SPacketSyncValues packet,
-                                         final Supplier<NetworkEvent.Context> contextGetter) {
+    private void handleSPacketSyncValues(final SPacketSyncValues packet, final NetworkEvent.Context context) {
         // TODO: ...
     }
 
-    private void handleSPacketOpenApp(final SPacketOpenApp packet, final Supplier<NetworkEvent.Context> contextGetter) {
+    private void handleSPacketOpenApp(final SPacketOpenApp packet, final NetworkEvent.Context context) {
         final var sessionHandler = DefaultSessionHandler.INSTANCE;
         final var session = sessionHandler.getActiveSession(packet.getSessionId());
         if (session == null) {
@@ -106,12 +109,10 @@ public class CommonPacketHandler {
         }
         final var app = session.getLauncher().openApp(API.getAppTypeRegistry().getValue(packet.getName())).join();
         final var typeName = app.getType().getName();
-        final var response = new CPacketOpenApp(typeName, new ArrayList<>(app.getViews()));
-        PDAMod.CHANNEL.reply(response, contextGetter.get());
+        PDAMod.CHANNEL.reply(new CPacketOpenApp(session.getId(), typeName, new ArrayList<>(app.getViews())), context);
     }
 
-    private void handleSPacketCloseApp(final SPacketCloseApp packet,
-                                       final Supplier<NetworkEvent.Context> contextGetter) {
+    private void handleSPacketCloseApp(final SPacketCloseApp packet, final NetworkEvent.Context context) {
         final var sessionHandler = DefaultSessionHandler.INSTANCE;
         final var session = sessionHandler.getActiveSession(packet.getSessionId());
         if (session == null) {

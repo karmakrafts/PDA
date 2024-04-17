@@ -6,6 +6,7 @@ package io.karma.pda.api.common.session;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -18,10 +19,17 @@ public interface SessionHandler {
     <S> CompletableFuture<MuxedSession<S>> createSession(
         final Collection<? extends SelectiveSessionContext<S>> contexts, final S initial);
 
-    void terminateSession(final Session session);
-
-    void setActiveSession(final @Nullable Session session);
+    CompletableFuture<Void> terminateSession(final Session session);
 
     @Nullable
-    Session getActiveSession();
+    Session getActiveSession(final UUID id);
+
+    default void setActiveSession(final @Nullable Session session) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Nullable
+    default Session getActiveSession() {
+        throw new UnsupportedOperationException();
+    }
 }

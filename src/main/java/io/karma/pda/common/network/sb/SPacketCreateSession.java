@@ -35,14 +35,14 @@ public final class SPacketCreateSession {
     }
 
     public static void encode(final SPacketCreateSession packet, final FriendlyByteBuf buffer) {
-        buffer.writeEnum(packet.type);
+        final var type = packet.type;
+        buffer.writeEnum(type);
         buffer.writeUUID(packet.requestId);
-        final var context = packet.context;
-        if (context instanceof InteractionHand hand) {
-            buffer.writeEnum(hand);
+        if (type == SessionType.DOCKED) {
+            buffer.writeBlockPos((BlockPos) packet.context);
             return;
         }
-        buffer.writeBlockPos((BlockPos) context);
+        buffer.writeEnum((InteractionHand) packet.context);
     }
 
     public static SPacketCreateSession decode(final FriendlyByteBuf buffer) {
@@ -60,6 +60,10 @@ public final class SPacketCreateSession {
 
     public UUID getRequestId() {
         return requestId;
+    }
+
+    public Object getContext() {
+        return context;
     }
 
     public @Nullable InteractionHand getHand() {

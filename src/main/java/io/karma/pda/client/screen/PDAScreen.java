@@ -37,18 +37,21 @@ public final class PDAScreen extends Screen {
 
     @Override
     public void onClose() {
-        // Cursed state notify for the flag in the Item class
-        PDAItem.IS_SCREEN_OPEN = false;
         // Terminate session
         final var sessionHandler = ClientAPI.getSessionHandler();
-        sessionHandler.terminateSession(session);
-        sessionHandler.setActiveSession(null);
-        // Disengage the renderer
-        hands.forEach(hand -> PDAItemRenderer.INSTANCE.setEngaged(hand, false));
-        // Play sound when disengaging
-        final var player = Objects.requireNonNull(Minecraft.getInstance().player);
-        player.playSound(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, 0.3F, 1.75F);
-        super.onClose();
+        sessionHandler.terminateSession(session).thenAccept(v -> {
+            sessionHandler.setActiveSession(null);
+            Minecraft.getInstance().execute(() -> {
+                // Cursed state notify for the flag in the Item class
+                PDAItem.IS_SCREEN_OPEN = false;
+                // Disengage the renderer
+                hands.forEach(hand -> PDAItemRenderer.INSTANCE.setEngaged(hand, false));
+                // Play sound when disengaging
+                final var player = Objects.requireNonNull(Minecraft.getInstance().player);
+                player.playSound(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, 0.3F, 1.75F);
+                super.onClose();
+            });
+        });
     }
 
     @Override

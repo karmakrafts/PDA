@@ -5,7 +5,6 @@
 package io.karma.pda.api.common.app.view;
 
 import io.karma.pda.api.common.app.App;
-import io.karma.pda.api.common.app.AppContext;
 import io.karma.pda.api.common.app.component.Container;
 
 /**
@@ -27,7 +26,7 @@ public class DefaultView implements AppView {
     }
 
     @Override
-    public void build(final App app, final AppContext context) {
+    public void build(final App app) {
     }
 
     @Override

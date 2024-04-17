@@ -11,18 +11,25 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Alexander Hinze
  * @since 14/04/2024
  */
 public final class CPacketOpenApp {
+    private final UUID sessionId;
     private final ResourceLocation name;
     private final List<AppView> views;
 
-    public CPacketOpenApp(final ResourceLocation name, final List<AppView> views) {
+    public CPacketOpenApp(final UUID sessionId, final ResourceLocation name, final List<AppView> views) {
+        this.sessionId = sessionId;
         this.name = name;
         this.views = views;
+    }
+
+    public UUID getSessionId() {
+        return sessionId;
     }
 
     public ResourceLocation getName() {
@@ -42,6 +49,7 @@ public final class CPacketOpenApp {
             }
             viewDataArrays.add(viewData);
         }
+        buffer.writeUUID(packet.sessionId);
         buffer.writeResourceLocation(packet.getName());
         buffer.writeInt(viewDataArrays.size());
         for (final var viewData : viewDataArrays) {
@@ -50,6 +58,7 @@ public final class CPacketOpenApp {
     }
 
     public static CPacketOpenApp decode(final FriendlyByteBuf buffer) {
+        final var sessionId = buffer.readUUID();
         final var name = buffer.readResourceLocation();
         final var numViews = buffer.readInt();
         final var views = new ArrayList<AppView>();
@@ -60,6 +69,6 @@ public final class CPacketOpenApp {
             }
             views.add(view);
         }
-        return new CPacketOpenApp(name, views);
+        return new CPacketOpenApp(sessionId, name, views);
     }
 }

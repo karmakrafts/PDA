@@ -40,32 +40,23 @@ public final class DefaultSessionHandler implements SessionHandler {
     }
 
     @Override
-    public void terminateSession(final Session session) {
+    public CompletableFuture<Void> terminateSession(final Session session) {
         final var id = session.getId();
         if (!activeSessions.containsKey(id)) {
-            return;
+            return CompletableFuture.failedFuture(new IllegalArgumentException("Session not found"));
         }
         session.onTermination();
         activeSessions.remove(id);
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override
-    public void setActiveSession(final @Nullable Session session) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Nullable
-    @Override
-    public Session getActiveSession() {
-        throw new UnsupportedOperationException();
+    public @Nullable Session getActiveSession(final UUID id) {
+        return activeSessions.get(id);
     }
 
     @ApiStatus.Internal
     public void setup() {
 
-    }
-
-    public @Nullable Session getActiveSession(final UUID id) {
-        return activeSessions.get(id);
     }
 }

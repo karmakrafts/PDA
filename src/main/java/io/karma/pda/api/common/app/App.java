@@ -5,7 +5,6 @@
 package io.karma.pda.api.common.app;
 
 import io.karma.pda.api.common.app.component.DefaultContainer;
-import io.karma.pda.api.common.app.theme.Theme;
 import io.karma.pda.api.common.app.view.AppView;
 import io.karma.pda.api.common.app.view.DefaultContainerView;
 import org.jetbrains.annotations.Nullable;
@@ -20,14 +19,12 @@ import java.util.function.Consumer;
 public interface App {
     String DEFAULT_VIEW = "default";
 
-    void init(final AppContext context);
+    void init();
 
-    default void dispose(final AppContext context) {
+    default void dispose() {
     }
 
     AppType<?> getType();
-
-    Theme getTheme();
 
     void addView(final String name, final AppView view);
 
@@ -55,4 +52,6 @@ public interface App {
     Collection<AppView> getViews();
 
     void clearViews();
+
+    AppState getState();
 }

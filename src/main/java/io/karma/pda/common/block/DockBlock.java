@@ -21,6 +21,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -49,6 +51,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Alexander Hinze
@@ -193,9 +196,12 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
         if (game.options.getCameraType() == CameraType.FIRST_PERSON) {
             ClientSessionHandler.INSTANCE.createSession(new DockedSessionContext(player, pos)).thenAccept(session -> {
                 ClientSessionHandler.INSTANCE.setActiveSession(session);
-                game.execute(() -> game.setScreen(new DockScreen(player,
-                    pos,
-                    ClientSessionHandler.INSTANCE.getActiveSession())));
+                game.execute(() -> { // @formatter:off
+                    game.setScreen(new DockScreen(pos,
+                        ClientSessionHandler.INSTANCE.getActiveSession()));
+                    Objects.requireNonNull(player.level()).playSound(
+                        player, pos, SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, SoundSource.AMBIENT, 0.3F, 1.75F);
+                }); // @formatter:on
             });
         }
     }

@@ -4,7 +4,6 @@
 
 package io.karma.pda.api.common.app;
 
-import io.karma.pda.api.common.app.theme.Theme;
 import io.karma.pda.api.common.app.view.AppView;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,19 +18,23 @@ import java.util.Objects;
  */
 public abstract class AbstractApp implements App {
     protected final AppType<?> type;
+    protected final AppState state = new AppState();
     protected final HashMap<String, AppView> views = new HashMap<>();
-    protected final Theme theme;
     protected String currentView = DEFAULT_VIEW;
 
-    public AbstractApp(final AppType<?> type, final Theme theme) {
+    public AbstractApp(final AppType<?> type) {
         this.type = type;
-        this.theme = theme;
     }
 
     @Override
-    public void init(final AppContext context) {
+    public AppState getState() {
+        return state;
+    }
+
+    @Override
+    public void init() {
         for (final var view : views.values()) {
-            view.build(this, context);
+            view.build(this);
         }
     }
 
@@ -74,7 +77,7 @@ public abstract class AbstractApp implements App {
     }
 
     @Override
-    public void dispose(final AppContext context) {
+    public void dispose() {
         for (final var view : views.values()) {
             view.dispose();
         }
@@ -83,10 +86,5 @@ public abstract class AbstractApp implements App {
     @Override
     public AppType<?> getType() {
         return type;
-    }
-
-    @Override
-    public Theme getTheme() {
-        return theme;
     }
 }

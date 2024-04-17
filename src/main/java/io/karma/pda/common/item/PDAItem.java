@@ -100,12 +100,8 @@ public final class PDAItem extends Item implements TabItemProvider {
                 }
             }
             stack.getOrCreateTag().putBoolean(TAG_IS_ON, true);
-            if (world.isClientSide) {
-                DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
-                    () -> () -> openScreen(player, hands.size() == 1 ? hand : InteractionHand.MAIN_HAND, hands));
-                // Play sound when engaging
-                player.playSound(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, 0.3F, 1.75F);
-            }
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+                () -> () -> openScreen(player, hands.size() == 1 ? hand : InteractionHand.MAIN_HAND, hands));
         }
         return InteractionResultHolder.pass(stack);
     }
@@ -119,8 +115,11 @@ public final class PDAItem extends Item implements TabItemProvider {
         ClientSessionHandler.INSTANCE.createSession(hands.stream().map(hand -> new HandheldSessionContext(player,
             hand)).toList(), defaultHand).thenAccept(session -> {
             ClientSessionHandler.INSTANCE.setActiveSession(session);
-            Minecraft.getInstance().execute(() -> Minecraft.getInstance().setScreen(new PDAScreen(hands,
-                ClientSessionHandler.INSTANCE.getActiveSession())));
+            Minecraft.getInstance().execute(() -> {
+                Minecraft.getInstance().setScreen(new PDAScreen(hands,
+                    ClientSessionHandler.INSTANCE.getActiveSession()));
+                player.playSound(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, 0.3F, 1.75F);
+            });
         });
         IS_SCREEN_OPEN = true;
     }

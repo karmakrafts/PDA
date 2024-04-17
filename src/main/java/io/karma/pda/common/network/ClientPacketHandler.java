@@ -10,13 +10,13 @@ import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.network.cb.CPacketCreateSession;
 import io.karma.pda.common.network.cb.CPacketOpenApp;
 import io.karma.pda.common.network.cb.CPacketSyncValues;
+import io.karma.pda.common.network.cb.CPacketTerminateSession;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
  * @author Alexander Hinze
@@ -37,6 +37,11 @@ public final class ClientPacketHandler extends CommonPacketHandler {
             CPacketCreateSession::encode,
             CPacketCreateSession::decode,
             this::handleCPacketCreateSession);
+        registerPacket(PacketIDs.CB_TERMINATE_SESSION,
+            CPacketTerminateSession.class,
+            CPacketTerminateSession::encode,
+            CPacketTerminateSession::decode,
+            this::handleCPacketTerminateSession);
         registerPacket(PacketIDs.CB_SYNC_VALUES,
             CPacketSyncValues.class,
             CPacketSyncValues::encode,
@@ -49,20 +54,18 @@ public final class ClientPacketHandler extends CommonPacketHandler {
             this::handleCPacketOpenApp);
     }
 
-    private void handleCPacketCreateSession(final CPacketCreateSession packet,
-                                            final Supplier<NetworkEvent.Context> contextGetter) {
+    private void handleCPacketCreateSession(final CPacketCreateSession packet, final NetworkEvent.Context context) {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
             () -> () -> ClientSessionHandler.INSTANCE.addPendingSession(packet.getRequestId(), packet.getSessionId()));
     }
 
-    private void handleCPacketSyncValues(final CPacketSyncValues packet,
-                                         final Supplier<NetworkEvent.Context> contextGetter) {
+    private void handleCPacketSyncValues(final CPacketSyncValues packet, final NetworkEvent.Context context) {
 
     }
 
-    private void handleCPacketOpenApp(final CPacketOpenApp packet, final Supplier<NetworkEvent.Context> contextGetter) {
+    private void handleCPacketOpenApp(final CPacketOpenApp packet, final NetworkEvent.Context context) {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            final var session = ClientSessionHandler.INSTANCE.getActiveSession();
+            final var session = ClientSessionHandler.INSTANCE.getActiveSession(packet.getSessionId());
             if (session == null) {
                 return; // TODO: warn?
             }
@@ -73,5 +76,11 @@ public final class ClientPacketHandler extends CommonPacketHandler {
             }
             ((ClientLauncher) session.getLauncher()).addPendingApp(app);
         });
+    }
+
+    private void handleCPacketTerminateSession(final CPacketTerminateSession packet,
+                                               final NetworkEvent.Context context) {
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+            () -> () -> ClientSessionHandler.INSTANCE.addTerminatedSession(packet.getSessionId()));
     }
 }

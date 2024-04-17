@@ -11,7 +11,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.glfw.GLFW;
@@ -26,7 +25,7 @@ public final class DockScreen extends Screen {
     private final Session session;
     private int previousInputMode;
 
-    public DockScreen(final Player player, final BlockPos pos, final Session session) {
+    public DockScreen(final BlockPos pos, final Session session) {
         super(Component.empty());
         window = Minecraft.getInstance().getWindow().getWindow();
         this.session = session;
@@ -43,10 +42,14 @@ public final class DockScreen extends Screen {
     @Override
     public void onClose() {
         final var sessionHandler = ClientAPI.getSessionHandler();
-        sessionHandler.terminateSession(session);
-        sessionHandler.setActiveSession(null);
-        GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, previousInputMode);
-        DockInteractionHandler.INSTANCE.disengage();
+        sessionHandler.terminateSession(session).thenAccept(v -> {
+            sessionHandler.setActiveSession(null);
+            Minecraft.getInstance().execute(() -> {
+                GLFW.glfwSetInputMode(window, GLFW.GLFW_CURSOR, previousInputMode);
+                DockInteractionHandler.INSTANCE.disengage();
+                super.onClose();
+            });
+        });
     }
 
     @Override

@@ -16,8 +16,10 @@ public final class PacketIDs {
     public static final int SB_CLOSE_APP = 5;
 
     public static final int CB_CREATE_SESSION = 6;
-    public static final int CB_SYNC_VALUES = 7;
-    public static final int CB_OPEN_APP = 8;
+    public static final int CB_TERMINATE_SESSION = 7;
+    public static final int CB_SYNC_VALUES = 8;
+    public static final int CB_OPEN_APP = 9;
+    public static final int CB_CLOSE_APP = 10;
 
     // @formatter:off
     private PacketIDs() {}
