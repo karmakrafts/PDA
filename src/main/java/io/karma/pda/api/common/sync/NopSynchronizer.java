@@ -4,6 +4,7 @@
 
 package io.karma.pda.api.common.sync;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
 /**
@@ -38,6 +39,7 @@ public final class NopSynchronizer implements Synchronizer {
     }
 
     @Override
-    public void flush(final Predicate<Synced<?>> filter) {
+    public CompletableFuture<Void> flush(final Predicate<Synced<?>> filter) {
+        return CompletableFuture.completedFuture(null);
     }
 }

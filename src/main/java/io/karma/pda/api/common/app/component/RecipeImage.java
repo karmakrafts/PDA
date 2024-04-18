@@ -16,7 +16,7 @@ import java.util.UUID;
  */
 public class RecipeImage extends AbstractComponent {
     @Sync
-    public final Synced<ResourceLocation> recipe = Synced.withInitial(new ResourceLocation("bucket"));
+    public final Synced<ResourceLocation> recipe = Synced.of(new ResourceLocation("bucket"));
 
     public RecipeImage(final ComponentType<?> type, final UUID id) {
         super(type, id);

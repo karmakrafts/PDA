@@ -14,13 +14,6 @@ import io.karma.pda.api.common.app.view.DefaultContainerView
  * @since 13/04/2024
  */
 abstract class ComposableApp(type: AppType<*>) : AbstractApp(type) {
-    abstract fun compose()
-
-    override fun init() {
-        compose()
-        super.init()
-    }
-
     protected inline fun view(name: String, crossinline scope: Composer<DefaultContainer>.() -> Unit) {
         addView(name, DefaultContainerView(name) { container ->
             Composer(container).apply(scope)

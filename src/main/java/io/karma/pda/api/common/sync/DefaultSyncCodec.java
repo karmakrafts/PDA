@@ -45,4 +45,9 @@ public final class DefaultSyncCodec implements SyncCodec<Object> {
         }
         node.set(name, childNode);
     }
+
+    @Override
+    public Class<Object> getType() {
+        return Object.class;
+    }
 }

@@ -19,8 +19,21 @@ import java.util.function.Consumer;
 public interface App {
     String DEFAULT_VIEW = "default";
 
+    /**
+     * Called to compose the actual layout of the app.
+     * This function may be called multiple times as needed,
+     * so initialization logic should exclusively go into {@link #init()}.
+     */
+    void compose();
+
+    /**
+     * Called to initialize the app after it has been composed.
+     */
     void init();
 
+    /**
+     * Called when the app is closed.
+     */
     default void dispose() {
     }
 

@@ -18,7 +18,10 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
         defaultView {
             PDAMod.LOGGER.debug("Composing default view")
 
-            label({}) {
+            label({
+                width(100.percent)
+                height(20.pixels)
+            }) {
                 text("Hello World!")
             }
         }

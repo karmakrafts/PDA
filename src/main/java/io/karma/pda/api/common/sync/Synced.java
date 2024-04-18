@@ -27,31 +27,29 @@ import java.util.function.Supplier;
  */
 public interface Synced<T> extends Supplier<T> {
     /**
-     * Creates a new synchronized property instance with
-     * an initial value of null and the given type.
-     * The ID for this property will be generated randomly
-     * and synchronized automatically.
+     * Creates a new synchronized property instance with an initial value of null and the given type.
+     * The ID for this property will be generated randomly and synchronized automatically.
      *
      * @param type An instance of the underlying value's type.
      * @param <T>  The type of the newly created property.
      * @return A new synchronized property instance with the given type.
      */
     static <T> Synced<T> create(final Class<T> type) {
-        return new DefaultSynced<>(UUID.randomUUID(), type);
+        return new DefaultSynced<>(UUID.randomUUID(), type, null);
     }
 
     /**
-     * Creates a new synchronized property instance with
-     * the given initial value. The ID for this property
-     * will be generated randomly and synchronized automatically.
+     * Creates a new synchronized property instance with the given initial value.
+     * The ID for this property will be generated randomly and synchronized automatically.
      * The type of the property is derived from the given value.
      *
      * @param value The value to set the property to initially.
      * @param <T>   The type of the newly created property.
      * @return A new synchronized property instance with the given initial value.
      */
-    static <T> Synced<T> withInitial(final T value) {
-        return new DefaultSynced<>(UUID.randomUUID(), value);
+    @SuppressWarnings("unchecked")
+    static <T> Synced<T> of(final T value) {
+        return new DefaultSynced<>(UUID.randomUUID(), (Class<T>) value.getClass(), value);
     }
 
     /**

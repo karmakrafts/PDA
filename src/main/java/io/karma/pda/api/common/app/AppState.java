@@ -4,6 +4,7 @@
 
 package io.karma.pda.api.common.app;
 
+import io.karma.pda.api.common.sync.Sync;
 import io.karma.pda.api.common.sync.Synced;
 
 /**
@@ -11,10 +12,14 @@ import io.karma.pda.api.common.sync.Synced;
  * @since 11/04/2024
  */
 public final class AppState {
-    private final Synced<Boolean> isFullscreen = Synced.withInitial(false);
-    private final Synced<Boolean> areControlsVisible = Synced.withInitial(true);
-    private final Synced<Boolean> isSuspended = Synced.withInitial(false);
-    private final Synced<Boolean> autoHideControls = Synced.withInitial(false);
+    @Sync
+    private final Synced<Boolean> isFullscreen = Synced.of(false);
+    @Sync
+    private final Synced<Boolean> areControlsVisible = Synced.of(true);
+    @Sync
+    private final Synced<Boolean> isSuspended = Synced.of(false);
+    @Sync
+    private final Synced<Boolean> autoHideControls = Synced.of(false);
 
     public void setIsFullscreen(final boolean isFullscreen) {
         this.isFullscreen.set(isFullscreen);

@@ -16,7 +16,7 @@ import java.util.UUID;
  */
 public class BlockImage extends AbstractComponent {
     @Sync
-    public final Synced<ResourceLocation> block = Synced.withInitial(new ResourceLocation("dirt"));
+    public final Synced<ResourceLocation> block = Synced.of(new ResourceLocation("dirt"));
 
     public BlockImage(final ComponentType<?> type, final UUID id) {
         super(type, id);

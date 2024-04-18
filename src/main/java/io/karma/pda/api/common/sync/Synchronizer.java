@@ -4,6 +4,7 @@
 
 package io.karma.pda.api.common.sync;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
 /**
@@ -62,15 +63,19 @@ public interface Synchronizer {
      * in one go. This will broadcast all changes to the server and to
      * all other clients connected.
      *
-     * @param filter A filter function which decides whether to flush a value change or not.
+     * @param filter A filter function which decides which updates to discard
+     *               or retain before compiling the packet data.
+     * @return A future which completes after the updates were broadcast.
      */
-    void flush(final Predicate<Synced<?>> filter);
+    CompletableFuture<Void> flush(final Predicate<Synced<?>> filter);
 
     /**
      * Same as {@link #flush(Predicate)} except
      * that it flushes all properties.
+     *
+     * @return A future which completes after the updates were broadcast.
      */
-    default void flush() {
-        flush(value -> true);
+    default CompletableFuture<Void> flush() {
+        return flush(value -> true);
     }
 }

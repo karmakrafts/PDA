@@ -15,13 +15,10 @@ import java.util.UUID;
  * @since 08/02/2024
  */
 public class Label extends AbstractComponent {
-    private static final String TAG_TEXT = "text";
-    private static final String TAG_COLOR = "color";
-    private static final int DEFAULT_TEXT_COLOR = 0xFF101010;
     @Sync
-    public final Synced<String> text = Synced.withInitial("");
+    public final Synced<String> text = Synced.of("");
     @Sync
-    public final Synced<Color> color = Synced.withInitial(Color.WHITE);
+    public final Synced<Color> color = Synced.of(Color.WHITE);
 
     public Label(final ComponentType<?> type, final UUID uuid) {
         super(type, uuid);

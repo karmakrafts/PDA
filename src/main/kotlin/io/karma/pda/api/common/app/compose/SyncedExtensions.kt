@@ -19,13 +19,14 @@ operator fun <T> Synced<T>.invoke(): T = get()
 operator fun <T> Synced<T>.invoke(value: T) = set(value)
 
 operator fun Synced<Color>.invoke(value: Int) = set(
-    Color.unpackARGB(value))
+    Color.unpackARGB(value)
+)
+
 operator fun Synced<Color>.invoke(value: UInt) = set(
-    Color.unpackARGB(value.toInt()))
+    Color.unpackARGB(value.toInt())
+)
 
-inline fun <reified T> syncedOf(): Synced<T> = Synced.create(T::class.java)
-
-inline fun <reified T> syncedOf(value: T?): Synced<T?> {
-    return if(value == null) syncedOf<T?>()
-    else Synced.withInitial(value)
+inline fun <reified T> syncedOf(value: T? = null): Synced<T?> {
+    return if (value == null) Synced.create(T::class.java)
+    else Synced.of(value)
 }

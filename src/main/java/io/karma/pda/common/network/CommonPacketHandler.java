@@ -39,38 +39,29 @@ public class CommonPacketHandler {
     // @formatter:on
 
     @ApiStatus.Internal
-    public void registerPackets() {
+    public void registerPackets() { // @formatter:off
         registerPacket(PacketIDs.SB_CREATE_SESSION,
-            SPacketCreateSession.class,
-            SPacketCreateSession::encode,
-            SPacketCreateSession::decode,
-            this::handleSPacketCreateSession);
+            SPacketCreateSession.class, SPacketCreateSession::encode, SPacketCreateSession::decode,
+            this::onCreateSession);
         registerPacket(PacketIDs.SB_TERMINATE_SESSION,
-            SPacketTerminateSession.class,
-            SPacketTerminateSession::encode,
-            SPacketTerminateSession::decode,
-            this::handleSPacketTerminateSession);
-        registerPacket(PacketIDs.SB_SYNC_VALUES,
-            SPacketSyncValues.class,
-            SPacketSyncValues::encode,
-            SPacketSyncValues::decode,
-            this::handleSPacketSyncValues);
+            SPacketTerminateSession.class, SPacketTerminateSession::encode, SPacketTerminateSession::decode,
+            this::onTerminateSession);
         registerPacket(PacketIDs.SB_OPEN_APP,
-            SPacketOpenApp.class,
-            SPacketOpenApp::encode,
-            SPacketOpenApp::decode,
-            this::handleSPacketOpenApp);
+            SPacketOpenApp.class, SPacketOpenApp::encode, SPacketOpenApp::decode,
+            this::onOpenApp);
         registerPacket(PacketIDs.SB_CLOSE_APP,
-            SPacketCloseApp.class,
-            SPacketCloseApp::encode,
-            SPacketCloseApp::decode,
-            this::handleSPacketCloseApp);
-        registerPacket(PacketIDs.SB_UPDATE_APP_STATE,
-            SPacketUpdateAppState.class,
-            SPacketUpdateAppState::encode,
-            SPacketUpdateAppState::decode,
-            this::handleSPacketUpdateAppState);
-    }
+            SPacketCloseApp.class, SPacketCloseApp::encode, SPacketCloseApp::decode,
+            this::onCloseApp);
+        registerPacket(PacketIDs.SB_ADD_SYNC_VALUE,
+            SPacketAddSyncValue.class, SPacketAddSyncValue::encode, SPacketAddSyncValue::decode,
+            this::onAddSyncValue);
+        registerPacket(PacketIDs.SB_REMOVE_SYNC_VALUE,
+            SPacketRemoveSyncValue.class, SPacketRemoveSyncValue::encode, SPacketRemoveSyncValue::decode,
+            this::onRemoveSyncValue);
+        registerPacket(PacketIDs.SB_SYNC_VALUES,
+            SPacketSyncValues.class, SPacketSyncValues::encode, SPacketSyncValues::decode,
+            this::onSyncValues);
+    } // @formatter:on
 
     private static PacketDistributor<ServerPlayer> allMatching(final Predicate<ServerPlayer> predicate) {
         return new PacketDistributor<>((distributor, supplier) -> {
@@ -99,7 +90,7 @@ public class CommonPacketHandler {
         });
     }
 
-    private void handleSPacketCreateSession(final SPacketCreateSession packet, final NetworkEvent.Context context) {
+    private void onCreateSession(final SPacketCreateSession packet, final NetworkEvent.Context context) {
         final var player = Objects.requireNonNull(context.getSender());
         final var type = packet.getType();
         final var session = DefaultSessionHandler.INSTANCE.createSession(type.isHandheld() ? new HandheldSessionContext(
@@ -114,8 +105,7 @@ public class CommonPacketHandler {
             new CPacketCreateSession(type, requestId, sessionId, player.getUUID(), packet.getContext()));
     }
 
-    private void handleSPacketTerminateSession(final SPacketTerminateSession packet,
-                                               final NetworkEvent.Context context) {
+    private void onTerminateSession(final SPacketTerminateSession packet, final NetworkEvent.Context context) {
         final var sessionHandler = DefaultSessionHandler.INSTANCE;
         final var session = sessionHandler.getActiveSession(packet.getId());
         if (session == null) {
@@ -130,11 +120,7 @@ public class CommonPacketHandler {
         sendToAllExcept(player, new CPacketTerminateSession(sessionId, player.getUUID()));
     }
 
-    private void handleSPacketSyncValues(final SPacketSyncValues packet, final NetworkEvent.Context context) {
-        // TODO: ...
-    }
-
-    private void handleSPacketOpenApp(final SPacketOpenApp packet, final NetworkEvent.Context context) {
+    private void onOpenApp(final SPacketOpenApp packet, final NetworkEvent.Context context) {
         final var sessionHandler = DefaultSessionHandler.INSTANCE;
         final var session = sessionHandler.getActiveSession(packet.getSessionId());
         if (session == null) {
@@ -151,7 +137,7 @@ public class CommonPacketHandler {
             new CPacketOpenApp(sessionId, player.getUUID(), typeName, new ArrayList<>(app.getViews())));
     }
 
-    private void handleSPacketCloseApp(final SPacketCloseApp packet, final NetworkEvent.Context context) {
+    private void onCloseApp(final SPacketCloseApp packet, final NetworkEvent.Context context) {
         final var sessionHandler = DefaultSessionHandler.INSTANCE;
         final var session = sessionHandler.getActiveSession(packet.getSessionId());
         if (session == null) {
@@ -171,7 +157,15 @@ public class CommonPacketHandler {
         sendToAllExcept(player, new CPacketCloseApp(sessionId, player.getUUID(), typeName));
     }
 
-    private void handleSPacketUpdateAppState(final SPacketUpdateAppState packet, final NetworkEvent.Context context) {
+    private void onAddSyncValue(final SPacketAddSyncValue packet, final NetworkEvent.Context context) {
+        // TODO: ...
+    }
 
+    private void onRemoveSyncValue(final SPacketRemoveSyncValue packet, final NetworkEvent.Context context) {
+        // TODO: ...
+    }
+
+    private void onSyncValues(final SPacketSyncValues packet, final NetworkEvent.Context context) {
+        // TODO: ...
     }
 }

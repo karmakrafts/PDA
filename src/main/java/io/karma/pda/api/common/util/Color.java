@@ -5,6 +5,7 @@
 package io.karma.pda.api.common.util;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -27,16 +28,16 @@ public final class Color {
     public static final Color PINK       = new Color(1F, 0.7F, 0.7F);
     // @formatter:on
 
-    @JsonProperty
+    @JsonIgnore
     public final float r;
-    @JsonProperty
+    @JsonIgnore
     public final float g;
-    @JsonProperty
+    @JsonIgnore
     public final float b;
-    @JsonProperty
+    @JsonIgnore
     public final float a;
 
-    @JsonCreator
+    @JsonIgnore
     public Color(final float r, final float g, final float b, final float a) {
         this.r = r;
         this.g = g;
@@ -66,7 +67,8 @@ public final class Color {
         return new Color((byte) ((value >> 16) & 0xFF), (byte) ((value >> 8) & 0xFF), (byte) (value & 0xFF), 255);
     }
 
-    public static Color unpackRGBA(final int value) {
+    @JsonCreator
+    public static Color unpackRGBA(final @JsonProperty("value") int value) {
         return new Color((byte) ((value >> 24) & 0xFF),
             (byte) ((value >> 16) & 0xFF),
             (byte) ((value >> 8) & 0xFF),
@@ -85,7 +87,7 @@ public final class Color {
         return (int) (r * 255F) << 16 | (int) (g * 255F) << 8 | (int) (b * 255F);
     }
 
-    @JsonIgnore
+    @JsonGetter("value")
     public int packRGBA() {
         return (int) (r * 255F) << 24 | (int) (g * 255F) << 16 | (int) (b * 255F) << 8 | (int) (a * 255F);
     }

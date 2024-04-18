@@ -16,7 +16,7 @@ import java.util.UUID;
  */
 public class ItemImage extends AbstractComponent {
     @Sync
-    public final Synced<ResourceLocation> item = Synced.withInitial(new ResourceLocation("apple"));
+    public final Synced<ResourceLocation> item = Synced.of(new ResourceLocation("apple"));
 
     public ItemImage(final ComponentType<?> type, final UUID id) {
         super(type, id);

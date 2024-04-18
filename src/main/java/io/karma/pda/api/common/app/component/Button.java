@@ -15,7 +15,7 @@ import java.util.UUID;
  */
 public class Button extends AbstractComponent {
     @Sync
-    public final Synced<String> text = Synced.withInitial("");
+    public final Synced<String> text = Synced.of("");
 
     public Button(final ComponentType<?> type, final UUID id) {
         super(type, id);

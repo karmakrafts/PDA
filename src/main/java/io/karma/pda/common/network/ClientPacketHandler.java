@@ -8,8 +8,6 @@ import io.karma.pda.api.common.API;
 import io.karma.pda.client.app.ClientLauncher;
 import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.network.cb.*;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -28,50 +26,43 @@ public final class ClientPacketHandler extends CommonPacketHandler {
     // @formatter:on
 
     @ApiStatus.Internal
-    public void registerPackets() {
+    public void registerPackets() { // @formatter:off
         registerPacket(PacketIDs.CB_CREATE_SESSION,
-            CPacketCreateSession.class,
-            CPacketCreateSession::encode,
-            CPacketCreateSession::decode,
-            this::handleCPacketCreateSession);
+            CPacketCreateSession.class, CPacketCreateSession::encode, CPacketCreateSession::decode,
+            this::onCreateSession);
         registerPacket(PacketIDs.CB_TERMINATE_SESSION,
-            CPacketTerminateSession.class,
-            CPacketTerminateSession::encode,
-            CPacketTerminateSession::decode,
-            this::handleCPacketTerminateSession);
-        registerPacket(PacketIDs.CB_SYNC_VALUES,
-            CPacketSyncValues.class,
-            CPacketSyncValues::encode,
-            CPacketSyncValues::decode,
-            this::handleCPacketSyncValues);
+            CPacketTerminateSession.class, CPacketTerminateSession::encode, CPacketTerminateSession::decode,
+            this::onTerminateSession);
         registerPacket(PacketIDs.CB_OPEN_APP,
-            CPacketOpenApp.class,
-            CPacketOpenApp::encode,
-            CPacketOpenApp::decode,
-            this::handleCPacketOpenApp);
+            CPacketOpenApp.class, CPacketOpenApp::encode, CPacketOpenApp::decode,
+            this::onOpenApp);
         registerPacket(PacketIDs.CB_CLOSE_APP,
-            CPacketCloseApp.class,
-            CPacketCloseApp::encode,
-            CPacketCloseApp::decode,
-            this::handleCPacketCloseApp);
-        registerPacket(PacketIDs.CB_UPDATE_APP_STATE,
-            CPacketUpdateAppState.class,
-            CPacketUpdateAppState::encode,
-            CPacketUpdateAppState::decode,
-            this::handleCPacketUpdateAppState);
+            CPacketCloseApp.class, CPacketCloseApp::encode, CPacketCloseApp::decode,
+            this::onCloseApp);
+        registerPacket(PacketIDs.CB_ADD_SYNC_VALUE,
+            CPacketAddSyncValue.class, CPacketAddSyncValue::encode, CPacketAddSyncValue::decode,
+            this::onAddSyncValue);
+        registerPacket(PacketIDs.CB_REMOVE_SYNC_VALUE,
+            CPacketRemoveSyncValue.class, CPacketRemoveSyncValue::encode, CPacketRemoveSyncValue::decode,
+            this::onRemoveSyncValue);
+        registerPacket(PacketIDs.CB_SYNC_VALUES,
+            CPacketSyncValues.class, CPacketSyncValues::encode, CPacketSyncValues::decode,
+            this::onSyncValues);
+    } // @formatter:on
+
+    private void onCreateSession(final CPacketCreateSession packet, final NetworkEvent.Context context) {
+        final var sessionHandler = ClientSessionHandler.INSTANCE;
+        final var playerId = packet.getPlayerId();
+        final var sessionId = packet.getSessionId();
+        if (playerId == null) {
+            sessionHandler.addPendingSession(packet.getRequestId(), sessionId);
+        }
+        // TODO: implement external sessions
     }
 
-    private void handleCPacketCreateSession(final CPacketCreateSession packet, final NetworkEvent.Context context) {
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
-            () -> () -> ClientSessionHandler.INSTANCE.addPendingSession(packet.getRequestId(), packet.getSessionId()));
-    }
-
-    private void handleCPacketSyncValues(final CPacketSyncValues packet, final NetworkEvent.Context context) {
-
-    }
-
-    private void handleCPacketOpenApp(final CPacketOpenApp packet, final NetworkEvent.Context context) {
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+    private void onOpenApp(final CPacketOpenApp packet, final NetworkEvent.Context context) {
+        final var playerId = packet.getPlayerId();
+        if (playerId == null) {
             final var session = ClientSessionHandler.INSTANCE.getActiveSession(packet.getSessionId());
             if (session == null) {
                 return; // TODO: warn?
@@ -82,17 +73,21 @@ public final class ClientPacketHandler extends CommonPacketHandler {
                 app.addView(view.getName(), view);
             }
             ((ClientLauncher) session.getLauncher()).addPendingApp(app);
-        });
+        }
+        // TODO: implement external sessions
     }
 
-    private void handleCPacketTerminateSession(final CPacketTerminateSession packet,
-                                               final NetworkEvent.Context context) {
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
-            () -> () -> ClientSessionHandler.INSTANCE.addTerminatedSession(packet.getSessionId()));
+    private void onTerminateSession(final CPacketTerminateSession packet, final NetworkEvent.Context context) {
+        final var playerId = packet.getPlayerId();
+        if (playerId == null) {
+            ClientSessionHandler.INSTANCE.addTerminatedSession(packet.getSessionId());
+        }
+        // TODO: implement external sessions
     }
 
-    private void handleCPacketCloseApp(final CPacketCloseApp packet, final NetworkEvent.Context context) {
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+    private void onCloseApp(final CPacketCloseApp packet, final NetworkEvent.Context context) {
+        final var playerId = packet.getPlayerId();
+        if (playerId == null) {
             final var session = ClientSessionHandler.INSTANCE.getActiveSession(packet.getSessionId());
             if (session == null) {
                 return; // TODO: warn?
@@ -104,10 +99,19 @@ public final class ClientPacketHandler extends CommonPacketHandler {
                 return; // TODO: warn?
             }
             launcher.addTerminatedApp(app);
-        });
+        }
+        // TODO: implement external sessions
     }
 
-    private void handleCPacketUpdateAppState(final CPacketUpdateAppState packet, final NetworkEvent.Context context) {
+    private void onAddSyncValue(final CPacketAddSyncValue packet, final NetworkEvent.Context context) {
+        // TODO: ...
+    }
 
+    private void onRemoveSyncValue(final CPacketRemoveSyncValue packet, final NetworkEvent.Context context) {
+        // TODO: ...
+    }
+
+    private void onSyncValues(final CPacketSyncValues packet, final NetworkEvent.Context context) {
+        // TODO: ...
     }
 }

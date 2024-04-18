@@ -20,10 +20,14 @@ public final class SyncCodecCache {
     // @formatter:on
 
     @SuppressWarnings("unchecked")
-    public static <T, C extends SyncCodec<T>> C getCodec(final Class<C> type) {
+    public static <T, C extends SyncCodec<T>> C getCodec(final Class<T> valueType, final Class<C> type) {
         return (C) codecs.computeIfAbsent(type, t -> {
             try {
-                return t.getConstructor().newInstance();
+                final var instance = t.getConstructor().newInstance();
+                if (!valueType.isAssignableFrom(instance.getType())) {
+                    throw new IllegalStateException("Mismatched value type");
+                }
+                return instance;
             }
             catch (Throwable error) {
                 API.getLogger().error("Could not create sync codec instance: {}", error.getMessage());

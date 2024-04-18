@@ -11,7 +11,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * @since 18/04/2024
  */
 public interface SyncCodec<T> extends SyncEncodeFunction<T>, SyncDecodeFunction<T> {
-    static <T> SyncCodec<T> create(final SyncEncodeFunction<T> encoder, final SyncDecodeFunction<T> decoder) {
+    Class<T> getType();
+
+    static <T> SyncCodec<T> create(final Class<T> type, final SyncEncodeFunction<T> encoder,
+                                   final SyncDecodeFunction<T> decoder) {
         return new SyncCodec<>() {
             @Override
             public void encode(final String name, final Class<T> type, final T value, final ObjectNode node) {
@@ -21,6 +24,11 @@ public interface SyncCodec<T> extends SyncEncodeFunction<T>, SyncDecodeFunction<
             @Override
             public T decode(final String name, final ObjectNode node) {
                 return decoder.decode(name, node);
+            }
+
+            @Override
+            public Class<T> getType() {
+                return type;
             }
         };
     }
