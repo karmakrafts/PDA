@@ -4,11 +4,9 @@
 
 package io.karma.pda.api.common.sync;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
 import java.util.function.BiConsumer;
 
 /**
@@ -16,55 +14,69 @@ import java.util.function.BiConsumer;
  * @since 11/04/2024
  */
 final class DefaultSynced<T> implements Synced<T> {
-    @JsonIgnore
     private final Class<T> type;
-    @JsonIgnore
+    private UUID id;
     private T value;
-    @JsonIgnore
-    private BiConsumer<T, T> callback;
+    private SyncCodec<T> codec;
+    private BiConsumer<Synced<T>, T> callback;
 
-    @JsonCreator
     @SuppressWarnings("unchecked")
-    public DefaultSynced(final T initial) {
+    public DefaultSynced(final UUID id, final T initial) {
+        this.id = id;
         this.type = (Class<T>) initial.getClass();
         this.value = initial;
     }
 
-    @JsonIgnore
-    DefaultSynced(final Class<T> type) {
+    DefaultSynced(final UUID id, final Class<T> type) {
+        this.id = id;
         this.type = type;
     }
 
-    @JsonIgnore
     @Override
     public void set(final @Nullable T value) {
         if (callback != null) {
-            callback.accept(this.value, value);
+            callback.accept(this, value);
         }
         this.value = value;
     }
 
-    @JsonIgnore
     @Override
     public Class<T> getType() {
         return type;
     }
 
-    @JsonIgnore
     @Override
-    public void setCallback(final @Nullable BiConsumer<T, T> callback) {
+    public UUID getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(final UUID id) {
+        this.id = id;
+    }
+
+    @Override
+    public void setCallback(final @Nullable BiConsumer<Synced<T>, T> callback) {
         this.callback = callback;
     }
 
-    @JsonIgnore
     @Override
-    public @Nullable BiConsumer<T, T> getCallback() {
+    public @Nullable BiConsumer<Synced<T>, T> getCallback() {
         return callback;
     }
 
-    @JsonAnyGetter
     @Override
     public T get() {
         return value;
+    }
+
+    @Override
+    public SyncCodec<T> getCodec() {
+        return codec;
+    }
+
+    @Override
+    public void setCodec(final SyncCodec<T> codec) {
+        this.codec = codec;
     }
 }

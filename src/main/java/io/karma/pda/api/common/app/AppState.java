@@ -4,81 +4,47 @@
 
 package io.karma.pda.api.common.app;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.karma.pda.api.common.sync.Synced;
 
 /**
  * @author Alexander Hinze
  * @since 11/04/2024
  */
 public final class AppState {
-    private boolean isFullscreen;
-    private boolean areControlsVisible;
-    private boolean isSuspended;
-    private boolean autoHideControls;
+    private final Synced<Boolean> isFullscreen = Synced.withInitial(false);
+    private final Synced<Boolean> areControlsVisible = Synced.withInitial(true);
+    private final Synced<Boolean> isSuspended = Synced.withInitial(false);
+    private final Synced<Boolean> autoHideControls = Synced.withInitial(false);
 
-    @JsonCreator
-    public AppState(final boolean isFullscreen, final boolean areControlsVisible, final boolean isSuspended,
-                    final boolean autoHideControls) {
-        this.isFullscreen = isFullscreen;
-        this.areControlsVisible = areControlsVisible;
-        this.isSuspended = isSuspended;
-        this.autoHideControls = autoHideControls;
+    public void setIsFullscreen(final boolean isFullscreen) {
+        this.isFullscreen.set(isFullscreen);
     }
 
-    @JsonIgnore
-    public AppState() {
-        this(false, true, false, false);
+    public void setAreControlsVisible(final boolean areControlsVisible) {
+        this.areControlsVisible.set(areControlsVisible);
     }
 
-    @JsonIgnore
-    public void setAutoHideControls(boolean autoHideControls) {
-        this.autoHideControls = autoHideControls;
+    public void setIsSuspended(final boolean isSuspended) {
+        this.isSuspended.set(isSuspended);
     }
 
-    @JsonIgnore
-    public void setFullscreen(final boolean isFullscreen) {
-        this.isFullscreen = isFullscreen;
+    public void setAutoHideControls(final boolean autoHideControls) {
+        this.autoHideControls.set(autoHideControls);
     }
 
-    @JsonIgnore
-    public void showControls() {
-        areControlsVisible = true;
-    }
-
-    @JsonIgnore
-    public void hideControls() {
-        areControlsVisible = false;
-    }
-
-    @JsonIgnore
-    public void close() {
-
-    }
-
-    @JsonIgnore
-    public void suspend() {
-        isSuspended = true;
-    }
-
-    @JsonGetter
-    public boolean isSuspended() {
-        return isSuspended;
-    }
-
-    @JsonGetter
-    public boolean areControlsVisible() {
-        return areControlsVisible;
-    }
-
-    @JsonGetter
     public boolean isFullscreen() {
-        return isFullscreen;
+        return isFullscreen.get();
     }
 
-    @JsonGetter
+    public boolean areControlsVisible() {
+        return areControlsVisible.get();
+    }
+
+    public boolean isSuspended() {
+        return isSuspended.get();
+    }
+
     public boolean autoHideControls() {
-        return autoHideControls;
+        return autoHideControls.get();
     }
 }

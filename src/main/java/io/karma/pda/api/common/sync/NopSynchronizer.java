@@ -4,9 +4,7 @@
 
 package io.karma.pda.api.common.sync;
 
-import io.karma.pda.api.common.util.Identifiable;
-
-import java.util.UUID;
+import java.util.function.Predicate;
 
 /**
  * @author Alexander Hinze
@@ -20,19 +18,26 @@ public final class NopSynchronizer implements Synchronizer {
     // @formatter:on
 
     @Override
-    public void register(final UUID id, final Synced<?> value) {
-    }
-
-    @Override
-    public void register(final Identifiable object) {
+    public void register(final Synced<?> value) {
 
     }
 
     @Override
-    public void unregister(final UUID id) {
+    public void register(final Object instance) {
+
     }
 
     @Override
-    public void flush() {
+    public void unregister(final Synced<?> value) {
+
+    }
+
+    @Override
+    public void unregister(final Object instance) {
+
+    }
+
+    @Override
+    public void flush(final Predicate<Synced<?>> filter) {
     }
 }

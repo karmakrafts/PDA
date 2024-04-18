@@ -24,6 +24,7 @@ public final class ModComponents {
 
     @ApiStatus.Internal
     public static void register() {
+        PDAMod.LOGGER.info("Registering components");
         register("container", DefaultContainer::new);
         register("label", Label::new);
         register("button", Button::new);

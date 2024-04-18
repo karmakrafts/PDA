@@ -8,6 +8,7 @@ import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.Launcher;
 import io.karma.pda.api.common.session.Session;
+import io.karma.pda.api.common.util.LogMarkers;
 import io.karma.pda.common.PDAMod;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,7 +37,7 @@ public class DefaultLauncher implements Launcher {
             if (appStack.isEmpty()) {
                 return CompletableFuture.completedFuture(null);
             }
-            PDAMod.LOGGER.debug("Closing app {}", type.getName());
+            PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Closing app {}", type.getName());
             App toRemove = null;
             for (final var app : appStack) {
                 if (app.getType() != type) {
@@ -63,7 +64,7 @@ public class DefaultLauncher implements Launcher {
                 }
                 return CompletableFuture.completedFuture(null);
             }
-            PDAMod.LOGGER.debug("Opening app {}", type.getName());
+            PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Opening app {}", type.getName());
             final var app = type.create();
             app.init();
             appStack.push(app);

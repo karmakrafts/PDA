@@ -24,6 +24,7 @@ public final class ModApps {
     // @formatter:on
 
     public static void register() {
+        PDAMod.LOGGER.info("Registering apps");
         register("launcher", LauncherApp::new);
         register("settings", SettingsApp::new);
     }

@@ -4,6 +4,7 @@
 
 package io.karma.pda.api.common.app.component;
 
+import io.karma.pda.api.common.sync.Sync;
 import io.karma.pda.api.common.sync.Synced;
 import net.minecraft.resources.ResourceLocation;
 
@@ -14,6 +15,7 @@ import java.util.UUID;
  * @since 13/04/2024
  */
 public class ItemImage extends AbstractComponent {
+    @Sync
     public final Synced<ResourceLocation> item = Synced.withInitial(new ResourceLocation("apple"));
 
     public ItemImage(final ComponentType<?> type, final UUID id) {

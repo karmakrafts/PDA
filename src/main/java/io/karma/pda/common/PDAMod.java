@@ -24,7 +24,6 @@ import io.karma.pda.client.render.item.PDAItemRenderer;
 import io.karma.pda.client.screen.DockStorageScreen;
 import io.karma.pda.client.screen.PDAStorageScreen;
 import io.karma.pda.client.session.ClientSessionHandler;
-import io.karma.pda.client.sync.ClientSynchronizer;
 import io.karma.pda.common.init.*;
 import io.karma.pda.common.menu.DockStorageMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
@@ -72,8 +71,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Mod(Constants.MODID)
 public class PDAMod {
-    public static final Logger LOGGER = LogManager.getLogger("PDA");
-    public static final Logger PROTOCOL_LOGGER = LogManager.getLogger("PDA");
+    public static final Logger LOGGER = LogManager.getLogger();
     public static final ExecutorService EXECUTOR_SERVICE = Executors.newWorkStealingPool();
     public static final DispositionHandler DISPOSITION_HANDLER = new DispositionHandler(PDAMod::handleDisposition);
 
@@ -223,7 +221,6 @@ public class PDAMod {
     @OnlyIn(Dist.CLIENT)
     private void initClientAPI() {
         ClientAPI.setSessionHandler(ClientSessionHandler.INSTANCE);
-        ClientAPI.setSynchronizerFactory(ClientSynchronizer::new);
         ClientAPI.setFlexNodeHandler(ClientFlexNodeHandler.INSTANCE);
         ClientAPI.setBrushFactory(DefaultBrushFactory.INSTANCE);
         ClientAPI.init();

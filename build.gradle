@@ -32,7 +32,7 @@ minecraft {
     runs {
         configureEach {
             workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.markers', 'PDAAPI,PDAPRO'
             property 'forge.logging.console.level', 'debug'
             property 'mixin.debug', 'true'
             property 'mixin.debug.dumpTargetOnFailure', 'true'

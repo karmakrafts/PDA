@@ -24,6 +24,7 @@ public final class ModThemes {
     // @formatter:on
 
     public static void register() {
+        PDAMod.LOGGER.info("Registering themes");
         register("default_dark", name -> new DarkTheme(name, Color.WHITE));
         register("default_light", name -> new LightTheme(name, Color.BLACK));
     }

@@ -4,24 +4,73 @@
 
 package io.karma.pda.api.common.sync;
 
-import io.karma.pda.api.common.util.Identifiable;
-
-import java.util.UUID;
+import java.util.function.Predicate;
 
 /**
+ * This interface provides client-to-server
+ * communication and persistence within a session, as well as
+ * server-to-client broadcasting to all other
+ * clients in order to display live content on PDA displays.
+ *
  * @author Alexander Hinze
  * @since 11/04/2024
  */
 public interface Synchronizer {
-    void register(final UUID id, final Synced<?> value);
+    /**
+     * Register the given value to this synchronizer
+     * instance and record every value change to be
+     * sent to the server.
+     *
+     * @param value The property to be registered.
+     */
+    void register(final Synced<?> value);
 
-    void unregister(final UUID id);
+    /**
+     * Register the given object instance to this synchronizer
+     * instance and record every value change of every
+     * Synced field within the instance to be sent to the server.
+     * <p>
+     * The field must look like this:
+     * {@code @Sync private final Synced<String> value = Synced.create(String.class);}
+     * The access modifier of the field does not matter,
+     * however it is not possible to make a synchronized field static.
+     *
+     * @param instance The instance to register.
+     */
+    void register(final Object instance);
 
-    void flush();
+    /**
+     * Unregister the given value from this synchronizer
+     * instance and stop recording every change of the given property.
+     *
+     * @param value The property to be unregistered.
+     */
+    void unregister(final Synced<?> value);
 
-    void register(final Identifiable object);
+    /**
+     * Unregister the given object instance from this
+     * synchronized and stop recording every change of every
+     * Synced field within the instance to be sent to the server.
+     *
+     * @param instance The instance to unregister.
+     */
+    void unregister(final Object instance);
 
-    default void unregister(final Identifiable object) {
-        unregister(object.getId());
+    /**
+     * Dequeues all accumulated values in need of synchronization
+     * and compiles a compressed update packet to be sent to the server
+     * in one go. This will broadcast all changes to the server and to
+     * all other clients connected.
+     *
+     * @param filter A filter function which decides whether to flush a value change or not.
+     */
+    void flush(final Predicate<Synced<?>> filter);
+
+    /**
+     * Same as {@link #flush(Predicate)} except
+     * that it flushes all properties.
+     */
+    default void flush() {
+        flush(value -> true);
     }
 }

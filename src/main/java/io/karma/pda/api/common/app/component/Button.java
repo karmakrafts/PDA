@@ -4,6 +4,7 @@
 
 package io.karma.pda.api.common.app.component;
 
+import io.karma.pda.api.common.sync.Sync;
 import io.karma.pda.api.common.sync.Synced;
 
 import java.util.UUID;
@@ -13,6 +14,7 @@ import java.util.UUID;
  * @since 13/04/2024
  */
 public class Button extends AbstractComponent {
+    @Sync
     public final Synced<String> text = Synced.withInitial("");
 
     public Button(final ComponentType<?> type, final UUID id) {

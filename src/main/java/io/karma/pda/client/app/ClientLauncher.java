@@ -7,6 +7,7 @@ package io.karma.pda.client.app;
 import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.session.Session;
+import io.karma.pda.api.common.util.LogMarkers;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.app.DefaultLauncher;
 import io.karma.pda.common.network.sb.SPacketCloseApp;
@@ -42,7 +43,7 @@ public class ClientLauncher extends DefaultLauncher {
             return;
         }
         pendingApps.put(name, app);
-        PDAMod.LOGGER.debug("Added pending app {}", app.getType().getName());
+        PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Added pending app {}", app.getType().getName());
     }
 
     @ApiStatus.Internal
@@ -52,7 +53,7 @@ public class ClientLauncher extends DefaultLauncher {
             return;
         }
         terminatedApps.put(name, app);
-        PDAMod.LOGGER.debug("Added terminated app {}", app.getType().getName());
+        PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Added terminated app {}", app.getType().getName());
     }
 
     @SuppressWarnings("unchecked")
@@ -65,7 +66,7 @@ public class ClientLauncher extends DefaultLauncher {
         // @formatter:on
         Minecraft.getInstance().execute(() -> {
             final var sessionId = session.getId();
-            PDAMod.LOGGER.debug("Requesting topmost app to close for session {}", sessionId);
+            PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Requesting topmost app to close for session {}", sessionId);
             PDAMod.CHANNEL.sendToServer(new SPacketCloseApp(sessionId, name));
         });
         return future;
@@ -81,7 +82,7 @@ public class ClientLauncher extends DefaultLauncher {
         // @formatter:on
         Minecraft.getInstance().execute(() -> {
             final var sessionId = session.getId();
-            PDAMod.LOGGER.debug("Requesting app {} to open for session {}", name, sessionId);
+            PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Requesting app {} to open for session {}", name, sessionId);
             PDAMod.CHANNEL.sendToServer(new SPacketOpenApp(sessionId, name));
         });
         return future;
