@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * @author Alexander Hinze
  * @since 15/04/2024
@@ -45,12 +47,16 @@ public final class TestBlockingHashMap {
         TestHarness.init();
 
         final var map = new BlockingHashMap<String, String>();
-        map.removeLater("foo", TestHarness.executor).thenAccept(value -> Assertions.assertEquals("bar", value));
+
+        final var resultValue = new AtomicReference<String>(null);
+        final var future = map.removeLater("foo", TestHarness.executor).thenAccept(resultValue::set);
 
         Assertions.assertTrue(map.isEmpty());
         Assertions.assertEquals(0, map.size());
 
         map.put("foo", "bar");
+        future.join();
+        Assertions.assertEquals("bar", resultValue.get());
 
         TestHarness.dispose();
     }

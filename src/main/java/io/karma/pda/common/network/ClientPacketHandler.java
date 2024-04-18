@@ -7,10 +7,7 @@ package io.karma.pda.common.network;
 import io.karma.pda.api.common.API;
 import io.karma.pda.client.app.ClientLauncher;
 import io.karma.pda.client.session.ClientSessionHandler;
-import io.karma.pda.common.network.cb.CPacketCreateSession;
-import io.karma.pda.common.network.cb.CPacketOpenApp;
-import io.karma.pda.common.network.cb.CPacketSyncValues;
-import io.karma.pda.common.network.cb.CPacketTerminateSession;
+import io.karma.pda.common.network.cb.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
@@ -52,6 +49,16 @@ public final class ClientPacketHandler extends CommonPacketHandler {
             CPacketOpenApp::encode,
             CPacketOpenApp::decode,
             this::handleCPacketOpenApp);
+        registerPacket(PacketIDs.CB_CLOSE_APP,
+            CPacketCloseApp.class,
+            CPacketCloseApp::encode,
+            CPacketCloseApp::decode,
+            this::handleCPacketCloseApp);
+        registerPacket(PacketIDs.CB_UPDATE_APP_STATE,
+            CPacketUpdateAppState.class,
+            CPacketUpdateAppState::encode,
+            CPacketUpdateAppState::decode,
+            this::handleCPacketUpdateAppState);
     }
 
     private void handleCPacketCreateSession(final CPacketCreateSession packet, final NetworkEvent.Context context) {
@@ -82,5 +89,25 @@ public final class ClientPacketHandler extends CommonPacketHandler {
                                                final NetworkEvent.Context context) {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
             () -> () -> ClientSessionHandler.INSTANCE.addTerminatedSession(packet.getSessionId()));
+    }
+
+    private void handleCPacketCloseApp(final CPacketCloseApp packet, final NetworkEvent.Context context) {
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            final var session = ClientSessionHandler.INSTANCE.getActiveSession(packet.getSessionId());
+            if (session == null) {
+                return; // TODO: warn?
+            }
+            final var launcher = (ClientLauncher) session.getLauncher();
+            final var type = API.getAppTypeRegistry().getValue(packet.getName());
+            final var app = launcher.getOpenApp(type);
+            if (app == null) {
+                return; // TODO: warn?
+            }
+            launcher.addTerminatedApp(app);
+        });
+    }
+
+    private void handleCPacketUpdateAppState(final CPacketUpdateAppState packet, final NetworkEvent.Context context) {
+
     }
 }

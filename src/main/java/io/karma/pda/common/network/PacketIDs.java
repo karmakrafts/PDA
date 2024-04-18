@@ -9,19 +9,27 @@ package io.karma.pda.common.network;
  * @since 10/04/2024
  */
 public final class PacketIDs {
-    public static final int SB_CREATE_SESSION = 1;
-    public static final int SB_TERMINATE_SESSION = 2;
-    public static final int SB_SYNC_VALUES = 3;
-    public static final int SB_OPEN_APP = 4;
-    public static final int SB_CLOSE_APP = 5;
+    private static int currentId = 0;
 
-    public static final int CB_CREATE_SESSION = 6;
-    public static final int CB_TERMINATE_SESSION = 7;
-    public static final int CB_SYNC_VALUES = 8;
-    public static final int CB_OPEN_APP = 9;
-    public static final int CB_CLOSE_APP = 10;
+    public static final int SB_CREATE_SESSION = getNextId();
+    public static final int SB_TERMINATE_SESSION = getNextId();
+    public static final int SB_SYNC_VALUES = getNextId();
+    public static final int SB_OPEN_APP = getNextId();
+    public static final int SB_CLOSE_APP = getNextId();
+    public static final int SB_UPDATE_APP_STATE = getNextId();
+
+    public static final int CB_CREATE_SESSION = getNextId();
+    public static final int CB_TERMINATE_SESSION = getNextId();
+    public static final int CB_SYNC_VALUES = getNextId();
+    public static final int CB_OPEN_APP = getNextId();
+    public static final int CB_CLOSE_APP = getNextId();
+    public static final int CB_UPDATE_APP_STATE = getNextId();
 
     // @formatter:off
     private PacketIDs() {}
     // @formatter:on
+
+    private static int getNextId() {
+        return currentId++;
+    }
 }

@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 @OnlyIn(Dist.CLIENT)
 public class ClientLauncher extends DefaultLauncher {
     private final BlockingHashMap<ResourceLocation, App> pendingApps = new BlockingHashMap<>();
+    private final BlockingHashMap<ResourceLocation, App> terminatedApps = new BlockingHashMap<>();
 
     public ClientLauncher(final Session session) {
         super(session);
@@ -41,31 +42,48 @@ public class ClientLauncher extends DefaultLauncher {
             return;
         }
         pendingApps.put(name, app);
+        PDAMod.LOGGER.debug("Added pending app {}", app.getType().getName());
     }
 
-    private CompletableFuture<@Nullable App> getPendingApp(final ResourceLocation name) {
-        return pendingApps.removeLater(name, 200, TimeUnit.MILLISECONDS, PDAMod.EXECUTOR_SERVICE);
+    @ApiStatus.Internal
+    public void addTerminatedApp(final App app) {
+        final var name = app.getType().getName();
+        if (terminatedApps.containsKey(name)) {
+            return;
+        }
+        terminatedApps.put(name, app);
+        PDAMod.LOGGER.debug("Added terminated app {}", app.getType().getName());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <A extends App> @Nullable A closeApp(final AppType<A> type) {
+    public <A extends App> CompletableFuture<@Nullable A> closeApp(final AppType<A> type) {
+        final var name = type.getName();
+        // @formatter:off
+        final var future = terminatedApps.removeLater(name, 30, TimeUnit.SECONDS, PDAMod.EXECUTOR_SERVICE)
+            .thenApply(app -> (A) app);
+        // @formatter:on
         Minecraft.getInstance().execute(() -> {
             final var sessionId = session.getId();
             PDAMod.LOGGER.debug("Requesting topmost app to close for session {}", sessionId);
-            PDAMod.CHANNEL.sendToServer(new SPacketCloseApp(sessionId, type.getName()));
+            PDAMod.CHANNEL.sendToServer(new SPacketCloseApp(sessionId, name));
         });
-        return super.closeApp(type);
+        return future;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <A extends App> CompletableFuture<@Nullable A> openApp(final AppType<A> type) {
+        final var name = type.getName();
+        // @formatter:off
+        final var future = pendingApps.removeLater(name, 30, TimeUnit.SECONDS, PDAMod.EXECUTOR_SERVICE)
+            .thenApply(app -> (A) app);
+        // @formatter:on
         Minecraft.getInstance().execute(() -> {
-            final var name = type.getName();
             final var sessionId = session.getId();
             PDAMod.LOGGER.debug("Requesting app {} to open for session {}", name, sessionId);
             PDAMod.CHANNEL.sendToServer(new SPacketOpenApp(sessionId, name));
         });
-        return getPendingApp(type.getName()).thenApply(app -> (A) app);
+        return future;
     }
 }

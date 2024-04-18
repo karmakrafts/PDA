@@ -5,6 +5,7 @@
 package io.karma.pda.common.network.cb;
 
 import net.minecraft.network.FriendlyByteBuf;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -14,21 +15,36 @@ import java.util.UUID;
  */
 public final class CPacketTerminateSession {
     private final UUID sessionId;
+    private final UUID playerId;
 
-    public CPacketTerminateSession(final UUID sessionId) {
+    public CPacketTerminateSession(final UUID sessionId, final @Nullable UUID playerId) {
         this.sessionId = sessionId;
+        this.playerId = playerId;
     }
 
     public UUID getSessionId() {
         return sessionId;
     }
 
+    public @Nullable UUID getPlayerId() {
+        return playerId;
+    }
+
     public static void encode(final CPacketTerminateSession packet, final FriendlyByteBuf buffer) {
         buffer.writeUUID(packet.sessionId);
+        final var playerId = packet.playerId;
+        if (playerId != null) {
+            buffer.writeBoolean(true);
+            buffer.writeUUID(playerId);
+        }
+        else {
+            buffer.writeBoolean(false);
+        }
     }
 
     public static CPacketTerminateSession decode(final FriendlyByteBuf buffer) {
         final var sessionId = buffer.readUUID();
-        return new CPacketTerminateSession(sessionId);
+        final var playerId = buffer.readBoolean() ? buffer.readUUID() : null;
+        return new CPacketTerminateSession(sessionId, playerId);
     }
 }

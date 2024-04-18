@@ -4,6 +4,7 @@
 
 package io.karma.pda.common.item;
 
+import io.karma.pda.api.common.app.DefaultApps;
 import io.karma.pda.api.common.util.DisplayType;
 import io.karma.pda.client.screen.PDAScreen;
 import io.karma.pda.client.session.ClientSessionHandler;
@@ -112,15 +113,19 @@ public final class PDAItem extends Item implements TabItemProvider {
         if (IS_SCREEN_OPEN) {
             return;
         }
-        ClientSessionHandler.INSTANCE.createSession(hands.stream().map(hand -> new HandheldSessionContext(player,
-            hand)).toList(), defaultHand).thenAccept(session -> {
-            ClientSessionHandler.INSTANCE.setActiveSession(session);
-            Minecraft.getInstance().execute(() -> {
-                Minecraft.getInstance().setScreen(new PDAScreen(hands,
-                    ClientSessionHandler.INSTANCE.getActiveSession()));
-                player.playSound(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, 0.3F, 1.75F);
+        // @formatter:off
+        ClientSessionHandler.INSTANCE.createSession(hands.stream()
+            .map(hand -> new HandheldSessionContext(player, hand))
+            .toList(), defaultHand).thenAccept(session -> {
+                session.getLauncher().openApp(DefaultApps.LAUNCHER).join();
+                ClientSessionHandler.INSTANCE.setActiveSession(session);
+                Minecraft.getInstance().execute(() -> {
+                    Minecraft.getInstance().setScreen(new PDAScreen(hands,
+                        ClientSessionHandler.INSTANCE.getActiveSession()));
+                    player.playSound(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, 0.3F, 1.75F);
+                });
             });
-        });
+        // @formatter:on
         IS_SCREEN_OPEN = true;
     }
 }

@@ -20,11 +20,11 @@ import java.util.stream.Collectors;
  * @since 14/04/2024
  */
 public final class BlockingHashMap<K, V> implements Map<K, V> {
-    private final ConcurrentHashMap<K, ArrayBlockingQueue<V>> delegate = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<K, LinkedBlockingQueue<V>> delegate = new ConcurrentHashMap<>();
 
     @SuppressWarnings("unchecked")
     private BlockingQueue<V> getQueue(final Object key) {
-        return delegate.computeIfAbsent((K) key, k -> new ArrayBlockingQueue<>(1));
+        return delegate.computeIfAbsent((K) key, k -> new LinkedBlockingQueue<>());
     }
 
     public CompletableFuture<@Nullable V> removeLater(final @Nullable K key, final Executor executor) {
@@ -112,7 +112,7 @@ public final class BlockingHashMap<K, V> implements Map<K, V> {
     public V put(final K key, final V value) {
         final var queue = getQueue(key);
         final var oldValue = queue.poll();
-        queue.offer(value);
+        queue.add(value);
         return oldValue;
     }
 

@@ -4,6 +4,7 @@
 
 package io.karma.pda.common.block;
 
+import io.karma.pda.api.common.app.DefaultApps;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.client.screen.DockScreen;
 import io.karma.pda.client.session.ClientSessionHandler;
@@ -194,15 +195,17 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
     private void openScreen(final Player player, final BlockPos pos) {
         final var game = Minecraft.getInstance();
         if (game.options.getCameraType() == CameraType.FIRST_PERSON) {
+            // @formatter:off
             ClientSessionHandler.INSTANCE.createSession(new DockedSessionContext(player, pos)).thenAccept(session -> {
+                session.getLauncher().openApp(DefaultApps.LAUNCHER).join();
                 ClientSessionHandler.INSTANCE.setActiveSession(session);
-                game.execute(() -> { // @formatter:off
-                    game.setScreen(new DockScreen(pos,
-                        ClientSessionHandler.INSTANCE.getActiveSession()));
+                game.execute(() -> {
+                    game.setScreen(new DockScreen(pos, ClientSessionHandler.INSTANCE.getActiveSession()));
                     Objects.requireNonNull(player.level()).playSound(
                         player, pos, SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, SoundSource.AMBIENT, 0.3F, 1.75F);
-                }); // @formatter:on
+                });
             });
+            // @formatter:on
         }
     }
 

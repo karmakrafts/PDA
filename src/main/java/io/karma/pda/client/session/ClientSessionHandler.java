@@ -45,11 +45,13 @@ public final class ClientSessionHandler implements SessionHandler {
             return;
         }
         activeSessions.put(sessionId, session);
+        PDAMod.LOGGER.debug("Added active session {}", sessionId);
     }
 
     @ApiStatus.Internal
     public void removeActiveSession(final UUID sessionId) {
         activeSessions.remove(sessionId);
+        PDAMod.LOGGER.debug("Removed active session {}", sessionId);
     }
 
     @ApiStatus.Internal
@@ -64,6 +66,7 @@ public final class ClientSessionHandler implements SessionHandler {
             return;
         }
         terminatedSessions.put(sessionId, session);
+        PDAMod.LOGGER.debug("Added terminated session {}", sessionId);
     }
 
     @ApiStatus.Internal
@@ -73,29 +76,30 @@ public final class ClientSessionHandler implements SessionHandler {
             return;
         }
         pendingSessions.put(requestId, sessionId);
+        PDAMod.LOGGER.debug("Added pending session {}", sessionId);
     }
 
     @Override
     public CompletableFuture<Session> createSession(final SessionContext context) {
         final var requestId = UUID.randomUUID();
-        Minecraft.getInstance().execute(() -> {
-            PDAMod.LOGGER.debug("Requesting new session from server");
-            PDAMod.CHANNEL.sendToServer(SPacketCreateSession.fromContext(requestId, context));
-        });
         // @formatter:off
-        return pendingSessions.removeLater(requestId, 200, TimeUnit.MILLISECONDS, PDAMod.EXECUTOR_SERVICE)
+        final var future = pendingSessions.removeLater(requestId, 30, TimeUnit.SECONDS, PDAMod.EXECUTOR_SERVICE)
             .thenApply(sessionId -> {
                 if (sessionId == null) {
-                    PDAMod.LOGGER.error("Server didn't send session ID back in time for request {}, ignoring",
-                        requestId);
+                    PDAMod.LOGGER.error("Server didn't send session ID back in time for request {}, ignoring", requestId);
                     return null;
                 }
                 PDAMod.LOGGER.debug("Received session ID {} from server", sessionId);
                 final var session = new ClientSession(sessionId, context);
                 addActiveSession(sessionId, session);
-                return session;
+                return (Session) session;
             });
         // @formatter:on
+        Minecraft.getInstance().execute(() -> {
+            PDAMod.LOGGER.debug("Requesting new session from server");
+            PDAMod.CHANNEL.sendToServer(SPacketCreateSession.fromContext(requestId, context));
+        });
+        return future;
     }
 
     @Override
@@ -116,28 +120,28 @@ public final class ClientSessionHandler implements SessionHandler {
     @Override
     public CompletableFuture<Void> terminateSession(final Session session) {
         // If this is a multiplexed session, unwind its targets and create a new future from each termination..
-        if (session instanceof MuxedSession<?> muxedSession) { // @formatter:off
+        // @formatter:off
+        if (session instanceof MuxedSession<?> muxedSession) {
             return CompletableFuture.allOf(muxedSession.getTargets().stream()
                 .map(this::terminateSession)
                 .toArray(CompletableFuture[]::new));
-        } // @formatter:on
+        }
+        final var future = terminatedSessions.removeLater(session.getId(), 30, TimeUnit.SECONDS, PDAMod.EXECUTOR_SERVICE)
+            .thenAccept(sess -> {
+                if (sess == null) {
+                    PDAMod.LOGGER.warn("Server didn't send acknowledgement back in time, ignoring");
+                    return;
+                }
+                removeActiveSession(sess.getId());
+            });
+        // @formatter:on
         // ..otherwise this is a single-ended session, so we send a packet and wait for acknowledgement
         Minecraft.getInstance().execute(() -> {
             final var id = session.getId();
             PDAMod.LOGGER.debug("Requesting termination for session {}", id);
             PDAMod.CHANNEL.sendToServer(new SPacketTerminateSession(id));
         });
-        // @formatter:off
-        return terminatedSessions.removeLater(session.getId(), 200, TimeUnit.MILLISECONDS, PDAMod.EXECUTOR_SERVICE)
-            .thenApply(sess -> {
-                if(sess == null) {
-                    PDAMod.LOGGER.warn("Server didn't send acknowledgement back in time, ignoring");
-                    return null;
-                }
-                removeActiveSession(sess.getId());
-                return null;
-            });
-        // @formatter:on
+        return future;
     }
 
     @Nullable

@@ -72,7 +72,8 @@ import java.util.concurrent.TimeUnit;
  */
 @Mod(Constants.MODID)
 public class PDAMod {
-    public static final Logger LOGGER = LogManager.getLogger();
+    public static final Logger LOGGER = LogManager.getLogger("PDA");
+    public static final Logger PROTOCOL_LOGGER = LogManager.getLogger("PDA");
     public static final ExecutorService EXECUTOR_SERVICE = Executors.newWorkStealingPool();
     public static final DispositionHandler DISPOSITION_HANDLER = new DispositionHandler(PDAMod::handleDisposition);
 

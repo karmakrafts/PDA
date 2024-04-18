@@ -8,6 +8,7 @@ import io.karma.pda.api.common.app.view.AppView;
 import io.karma.pda.common.network.AppViewCodec;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,17 +20,24 @@ import java.util.UUID;
  */
 public final class CPacketOpenApp {
     private final UUID sessionId;
+    private final UUID playerId;
     private final ResourceLocation name;
     private final List<AppView> views;
 
-    public CPacketOpenApp(final UUID sessionId, final ResourceLocation name, final List<AppView> views) {
+    public CPacketOpenApp(final UUID sessionId, final @Nullable UUID playerId, final ResourceLocation name,
+                          final List<AppView> views) {
         this.sessionId = sessionId;
+        this.playerId = playerId;
         this.name = name;
         this.views = views;
     }
 
     public UUID getSessionId() {
         return sessionId;
+    }
+
+    public @Nullable UUID getPlayerId() {
+        return playerId;
     }
 
     public ResourceLocation getName() {
@@ -50,6 +58,14 @@ public final class CPacketOpenApp {
             viewDataArrays.add(viewData);
         }
         buffer.writeUUID(packet.sessionId);
+        final var playerId = packet.playerId;
+        if (playerId != null) {
+            buffer.writeBoolean(true);
+            buffer.writeUUID(playerId);
+        }
+        else {
+            buffer.writeBoolean(false);
+        }
         buffer.writeResourceLocation(packet.getName());
         buffer.writeInt(viewDataArrays.size());
         for (final var viewData : viewDataArrays) {
@@ -59,6 +75,7 @@ public final class CPacketOpenApp {
 
     public static CPacketOpenApp decode(final FriendlyByteBuf buffer) {
         final var sessionId = buffer.readUUID();
+        final var playerId = buffer.readBoolean() ? buffer.readUUID() : null;
         final var name = buffer.readResourceLocation();
         final var numViews = buffer.readInt();
         final var views = new ArrayList<AppView>();
@@ -69,6 +86,6 @@ public final class CPacketOpenApp {
             }
             views.add(view);
         }
-        return new CPacketOpenApp(sessionId, name, views);
+        return new CPacketOpenApp(sessionId, playerId, name, views);
     }
 }

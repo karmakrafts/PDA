@@ -31,10 +31,10 @@ public class DefaultLauncher implements Launcher {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <A extends App> @Nullable A closeApp(final AppType<A> type) {
+    public <A extends App> CompletableFuture<@Nullable A> closeApp(final AppType<A> type) {
         synchronized (appStackLock) {
             if (appStack.isEmpty()) {
-                return null;
+                return CompletableFuture.completedFuture(null);
             }
             PDAMod.LOGGER.debug("Closing app {}", type.getName());
             App toRemove = null;
@@ -46,11 +46,11 @@ public class DefaultLauncher implements Launcher {
                 break;
             }
             if (toRemove == null) {
-                return null;
+                return CompletableFuture.completedFuture(null);
             }
             toRemove.dispose();
             appStack.remove(toRemove);
-            return (A) toRemove;
+            return CompletableFuture.completedFuture((A) toRemove);
         }
     }
 
@@ -72,7 +72,28 @@ public class DefaultLauncher implements Launcher {
     }
 
     @Override
-    public List<App> getActiveApps() {
+    public App getCurrentApp() {
+        synchronized (appStackLock) {
+            return appStack.peek();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <A extends App> @Nullable A getOpenApp(final AppType<A> type) {
+        synchronized (appStackLock) {
+            for (final var app : appStack) {
+                if (app.getType() != type) {
+                    continue;
+                }
+                return (A) app;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<App> getOpenApps() {
         synchronized (appStackLock) {
             return Collections.unmodifiableList(appStack);
         }

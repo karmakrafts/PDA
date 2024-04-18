@@ -4,7 +4,6 @@
 
 package io.karma.pda.client.session;
 
-import io.karma.pda.api.common.app.DefaultApps;
 import io.karma.pda.api.common.session.SessionContext;
 import io.karma.pda.api.common.sync.Synchronizer;
 import io.karma.pda.client.app.ClientLauncher;
@@ -26,7 +25,6 @@ public final class ClientSession extends DefaultSession {
     public ClientSession(final UUID id, final SessionContext context) {
         super(id, context, ClientLauncher::new);
         synchronizer = new ClientSynchronizer(id);
-        launcher.openApp(DefaultApps.LAUNCHER).join(); // Open the launcher and wait
     }
 
     @Override
