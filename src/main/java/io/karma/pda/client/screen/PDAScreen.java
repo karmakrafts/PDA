@@ -6,7 +6,7 @@ package io.karma.pda.client.screen;
 
 import io.karma.pda.api.client.ClientAPI;
 import io.karma.pda.api.common.session.Session;
-import io.karma.pda.client.render.item.PDAItemRenderer;
+import io.karma.pda.client.interaction.PDAInteractionHandler;
 import io.karma.pda.common.item.PDAItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -32,7 +32,7 @@ public final class PDAScreen extends Screen {
         super(Component.empty());
         this.hands = hands;
         this.session = session;
-        hands.forEach(hand -> PDAItemRenderer.INSTANCE.setEngaged(hand, true));
+        hands.forEach(hand -> PDAInteractionHandler.INSTANCE.setEngaged(hand, true));
     }
 
     @Override
@@ -43,9 +43,9 @@ public final class PDAScreen extends Screen {
             sessionHandler.setActiveSession(null);
             Minecraft.getInstance().execute(() -> {
                 // Cursed state notify for the flag in the Item class
-                PDAItem.IS_SCREEN_OPEN = false;
+                PDAItem.isScreenOpen = false;
                 // Disengage the renderer
-                hands.forEach(hand -> PDAItemRenderer.INSTANCE.setEngaged(hand, false));
+                hands.forEach(hand -> PDAInteractionHandler.INSTANCE.setEngaged(hand, false));
                 // Play sound when disengaging
                 final var player = Objects.requireNonNull(Minecraft.getInstance().player);
                 player.playSound(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, 0.3F, 1.75F);

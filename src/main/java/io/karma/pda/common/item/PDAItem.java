@@ -45,7 +45,7 @@ public final class PDAItem extends Item implements TabItemProvider {
      * << If you touch this flag, things will most likely break in horrible ways. >>
      */
     @OnlyIn(Dist.CLIENT)
-    public static boolean IS_SCREEN_OPEN;
+    public static boolean isScreenOpen;
 
     public PDAItem() {
         super(new Properties().stacksTo(1));
@@ -110,7 +110,7 @@ public final class PDAItem extends Item implements TabItemProvider {
     @OnlyIn(Dist.CLIENT)
     private void openScreen(final Player player, final InteractionHand defaultHand,
                             final EnumSet<InteractionHand> hands) {
-        if (IS_SCREEN_OPEN) {
+        if (isScreenOpen) {
             return;
         }
         // @formatter:off
@@ -126,6 +126,6 @@ public final class PDAItem extends Item implements TabItemProvider {
                 });
             });
         // @formatter:on
-        IS_SCREEN_OPEN = true;
+        isScreenOpen = true;
     }
 }

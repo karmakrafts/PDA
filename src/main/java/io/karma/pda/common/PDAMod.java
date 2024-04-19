@@ -17,6 +17,7 @@ import io.karma.pda.api.common.util.RegistryUtils;
 import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.client.flex.ClientFlexNodeHandler;
 import io.karma.pda.client.interaction.DockInteractionHandler;
+import io.karma.pda.client.interaction.PDAInteractionHandler;
 import io.karma.pda.client.render.display.DisplayRenderer;
 import io.karma.pda.client.render.gfx.DefaultBrushFactory;
 import io.karma.pda.client.render.gfx.DefaultGFXRenderTypes;
@@ -212,6 +213,7 @@ public class PDAMod {
     private void onClientEarlySetup() {
         ClientEventHandler.INSTANCE.setup();
         DockInteractionHandler.INSTANCE.setup();
+        PDAInteractionHandler.INSTANCE.setup();
         PDAItemRenderer.INSTANCE.setup();
         DisplayRenderer.getInstance().setupEarly();
         DefaultGFXRenderTypes.INSTANCE.setupEarly();

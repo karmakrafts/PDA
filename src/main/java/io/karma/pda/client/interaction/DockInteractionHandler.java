@@ -6,6 +6,7 @@ package io.karma.pda.client.interaction;
 
 import com.mojang.blaze3d.vertex.Tesselator;
 import io.karma.pda.client.screen.DockScreen;
+import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.block.DockBlock;
 import io.karma.pda.common.hook.MutableClipContext;
 import io.karma.pda.common.util.BezierCurve;
@@ -274,12 +275,24 @@ public final class DockInteractionHandler {
         poseStack.popPose();
     }
 
+    private void reset() {
+        resetAnimation();
+        final var sessionHandler = ClientSessionHandler.INSTANCE;
+        final var session = sessionHandler.getActiveSession();
+        if (session == null) {
+            return;
+        }
+        sessionHandler.terminateSession(session).thenAccept(v -> {
+            sessionHandler.setActiveSession(null); // Reset client session
+        });
+    }
+
     private void onLivingDeath(final LivingDeathEvent event) {
         if (!(event.getEntity() instanceof Player player)) {
             return;
         }
         if (PlayerUtils.isSame(player, Objects.requireNonNull(Minecraft.getInstance().player))) {
-            resetAnimation();
+            reset();
         }
     }
 
@@ -288,13 +301,13 @@ public final class DockInteractionHandler {
             return;
         }
         if (PlayerUtils.isSame(player, Objects.requireNonNull(Minecraft.getInstance().player))) {
-            resetAnimation();
+            reset();
         }
     }
 
     private void onPlayerChangeDimension(final PlayerEvent.PlayerChangedDimensionEvent event) {
         if (PlayerUtils.isSame(event.getEntity(), Objects.requireNonNull(Minecraft.getInstance().player))) {
-            resetAnimation();
+            reset();
         }
     }
 
@@ -303,7 +316,7 @@ public final class DockInteractionHandler {
             return;
         }
         if (PlayerUtils.isSame(player, Objects.requireNonNull(Minecraft.getInstance().player))) {
-            resetAnimation();
+            reset();
         }
     }
 

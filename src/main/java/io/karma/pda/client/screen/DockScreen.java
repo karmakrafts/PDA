@@ -4,7 +4,6 @@
 
 package io.karma.pda.client.screen;
 
-import io.karma.pda.api.client.ClientAPI;
 import io.karma.pda.api.common.session.Session;
 import io.karma.pda.client.interaction.DockInteractionHandler;
 import io.karma.pda.client.session.ClientSessionHandler;

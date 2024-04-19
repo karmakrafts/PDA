@@ -190,7 +190,7 @@ public final class DisplayRenderer {
 
         GL11.glGetIntegerv(GL11.GL_VIEWPORT, prevViewport);
         GL11.glViewport(0, 0, RES_X, RES_Y);
-        GL11.glClearColor(1F, 0F, 0F, 1F);
+        GL11.glClearColor(0F, 0F, 0F, 1F);
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
     }
 
