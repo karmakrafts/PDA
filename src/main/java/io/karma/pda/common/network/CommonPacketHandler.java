@@ -107,7 +107,7 @@ public class CommonPacketHandler {
 
     private void onTerminateSession(final SPacketTerminateSession packet, final NetworkEvent.Context context) {
         final var sessionHandler = DefaultSessionHandler.INSTANCE;
-        final var session = sessionHandler.getActiveSession(packet.getId());
+        final var session = sessionHandler.findById(packet.getId());
         if (session == null) {
             return;
         }
@@ -122,7 +122,7 @@ public class CommonPacketHandler {
 
     private void onOpenApp(final SPacketOpenApp packet, final NetworkEvent.Context context) {
         final var sessionHandler = DefaultSessionHandler.INSTANCE;
-        final var session = sessionHandler.getActiveSession(packet.getSessionId());
+        final var session = sessionHandler.findById(packet.getSessionId());
         if (session == null) {
             return;
         }
@@ -139,7 +139,7 @@ public class CommonPacketHandler {
 
     private void onCloseApp(final SPacketCloseApp packet, final NetworkEvent.Context context) {
         final var sessionHandler = DefaultSessionHandler.INSTANCE;
-        final var session = sessionHandler.getActiveSession(packet.getSessionId());
+        final var session = sessionHandler.findById(packet.getSessionId());
         if (session == null) {
             return;
         }

@@ -7,6 +7,7 @@ package io.karma.pda.client.screen;
 import io.karma.pda.api.client.ClientAPI;
 import io.karma.pda.api.common.session.Session;
 import io.karma.pda.client.interaction.DockInteractionHandler;
+import io.karma.pda.client.session.ClientSessionHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
@@ -41,7 +42,7 @@ public final class DockScreen extends Screen {
 
     @Override
     public void onClose() {
-        final var sessionHandler = ClientAPI.getSessionHandler();
+        final var sessionHandler = ClientSessionHandler.INSTANCE;
         sessionHandler.terminateSession(session).thenAccept(v -> {
             sessionHandler.setActiveSession(null);
             Minecraft.getInstance().execute(() -> {

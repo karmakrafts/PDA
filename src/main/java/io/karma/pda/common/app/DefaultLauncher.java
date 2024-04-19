@@ -66,6 +66,7 @@ public class DefaultLauncher implements Launcher {
             }
             PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Opening app {}", type.getName());
             final var app = type.create();
+            app.compose();
             app.init();
             appStack.push(app);
             return CompletableFuture.completedFuture(app);

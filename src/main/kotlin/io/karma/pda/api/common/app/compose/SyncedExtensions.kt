@@ -27,6 +27,6 @@ operator fun Synced<Color>.invoke(value: UInt) = set(
 )
 
 inline fun <reified T> syncedOf(value: T? = null): Synced<T?> {
-    return if (value == null) Synced.create(T::class.java)
+    return if (value == null) Synced.ofNull(T::class.java)
     else Synced.of(value)
 }

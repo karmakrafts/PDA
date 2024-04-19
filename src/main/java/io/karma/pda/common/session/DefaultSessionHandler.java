@@ -4,25 +4,26 @@
 
 package io.karma.pda.common.session;
 
-import io.karma.pda.api.common.session.*;
+import io.karma.pda.api.common.session.MuxedSession;
+import io.karma.pda.api.common.session.SelectiveSessionContext;
+import io.karma.pda.api.common.session.Session;
+import io.karma.pda.api.common.session.SessionContext;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Alexander Hinze
  * @since 10/04/2024
  */
-public final class DefaultSessionHandler implements SessionHandler {
+public class DefaultSessionHandler extends AbstractSessionHandler {
     public static final DefaultSessionHandler INSTANCE = new DefaultSessionHandler();
-    private final ConcurrentHashMap<UUID, Session> activeSessions = new ConcurrentHashMap<>();
 
     // @formatter:off
-    private DefaultSessionHandler() {}
+    protected DefaultSessionHandler() {}
     // @formatter:on
 
     @Override
@@ -51,8 +52,14 @@ public final class DefaultSessionHandler implements SessionHandler {
     }
 
     @Override
-    public @Nullable Session getActiveSession(final UUID id) {
-        return activeSessions.get(id);
+    public void setActiveSession(final @Nullable Session session) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Nullable
+    @Override
+    public Session getActiveSession() {
+        throw new UnsupportedOperationException();
     }
 
     @ApiStatus.Internal

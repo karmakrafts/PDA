@@ -63,7 +63,7 @@ public final class ClientPacketHandler extends CommonPacketHandler {
     private void onOpenApp(final CPacketOpenApp packet, final NetworkEvent.Context context) {
         final var playerId = packet.getPlayerId();
         if (playerId == null) {
-            final var session = ClientSessionHandler.INSTANCE.getActiveSession(packet.getSessionId());
+            final var session = ClientSessionHandler.INSTANCE.findById(packet.getSessionId());
             if (session == null) {
                 return; // TODO: warn?
             }
@@ -88,7 +88,7 @@ public final class ClientPacketHandler extends CommonPacketHandler {
     private void onCloseApp(final CPacketCloseApp packet, final NetworkEvent.Context context) {
         final var playerId = packet.getPlayerId();
         if (playerId == null) {
-            final var session = ClientSessionHandler.INSTANCE.getActiveSession(packet.getSessionId());
+            final var session = ClientSessionHandler.INSTANCE.findById(packet.getSessionId());
             if (session == null) {
                 return; // TODO: warn?
             }

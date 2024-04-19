@@ -19,10 +19,10 @@ public final class TestJSONUtils {
         final var node = JSONUtils.MAPPER.createObjectNode();
         node.put("value", "HELLO WORLD!");
 
-        final var data = JSONUtils.compress(node);
+        final var data = JSONUtils.compressRaw(node);
         Assertions.assertNotEquals(0, data.length);
 
-        final var reconstructed = JSONUtils.decompress(data, ObjectNode.class);
+        final var reconstructed = JSONUtils.decompressRaw(data, ObjectNode.class);
         Assertions.assertNotNull(reconstructed);
         final var subNode = reconstructed.get("value");
         Assertions.assertTrue(subNode.isTextual());

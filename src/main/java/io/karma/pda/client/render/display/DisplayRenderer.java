@@ -10,12 +10,14 @@ import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.api.common.util.DisplayType;
 import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.client.render.gfx.DefaultGFXRenderTypes;
+import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterShadersEvent;
@@ -199,23 +201,31 @@ public final class DisplayRenderer {
         framebuffer.unbind();
     }
 
-    private void renderIntoDisplayBuffer() {
+    private void renderIntoDisplayBuffer(final ItemStack stack) {
+        final var session = ClientSessionHandler.INSTANCE.findByDevice(stack);
         displayPoseStack.pushPose();
-
         final var matrix = displayPoseStack.last().pose();
         final var buffer = displayBufferSource.getBuffer(DefaultGFXRenderTypes.COLOR);
-        buffer.vertex(matrix, 0F, 0F, 0F).color(1F, 0F, 0F, 1F).endVertex();
-        buffer.vertex(matrix, 0F, RES_Y, 0F).color(0F, 1F, 0F, 1F).endVertex();
-        buffer.vertex(matrix, RES_X, RES_Y, 0F).color(0F, 0F, 1F, 1F).endVertex();
-        buffer.vertex(matrix, RES_X, 0F, 0F).color(1F, 1F, 1F, 1F).endVertex();
-
+        if (session != null) {
+            buffer.vertex(matrix, 0F, 0F, 0F).color(1F, 0F, 0F, 1F).endVertex();
+            buffer.vertex(matrix, 0F, RES_Y, 0F).color(0F, 1F, 0F, 1F).endVertex();
+            buffer.vertex(matrix, RES_X, RES_Y, 0F).color(0F, 0F, 1F, 1F).endVertex();
+            buffer.vertex(matrix, RES_X, 0F, 0F).color(1F, 1F, 1F, 1F).endVertex();
+        }
+        else {
+            buffer.vertex(matrix, 0F, 0F, 0F).color(0).endVertex();
+            buffer.vertex(matrix, 0F, RES_Y, 0F).color(0).endVertex();
+            buffer.vertex(matrix, RES_X, RES_Y, 0F).color(0).endVertex();
+            buffer.vertex(matrix, RES_X, 0F, 0F).color(0).endVertex();
+        }
         displayBufferSource.endBatch();
         displayPoseStack.popPose();
     }
 
     @SuppressWarnings("all")
-    public void renderDisplay(final MultiBufferSource bufferSource, final PoseStack poseStack, final DisplayType type) {
-        renderIntoDisplayBuffer(); // TODO: make this happen for every active PDA
+    public void renderDisplay(final ItemStack stack, final MultiBufferSource bufferSource, final PoseStack poseStack,
+                              final DisplayType type) {
+        renderIntoDisplayBuffer(stack);
 
         // Use an immediate buffer to blit the FBO onto the baked model
         final var matrix = poseStack.last().pose();

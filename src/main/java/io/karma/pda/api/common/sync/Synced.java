@@ -4,12 +4,12 @@
 
 package io.karma.pda.api.common.sync;
 
+import io.karma.pda.api.common.util.TypedValue;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 /**
  * An instance of this interface may behave like a regular property;
@@ -25,7 +25,7 @@ import java.util.function.Supplier;
  * @author Alexander Hinze
  * @since 11/04/2024
  */
-public interface Synced<T> extends Supplier<T> {
+public interface Synced<T> extends TypedValue<T> {
     /**
      * Creates a new synchronized property instance with an initial value of null and the given type.
      * The ID for this property will be generated randomly and synchronized automatically.
@@ -34,7 +34,7 @@ public interface Synced<T> extends Supplier<T> {
      * @param <T>  The type of the newly created property.
      * @return A new synchronized property instance with the given type.
      */
-    static <T> Synced<T> create(final Class<T> type) {
+    static <T> Synced<T> ofNull(final Class<T> type) {
         return new DefaultSynced<>(UUID.randomUUID(), type, null);
     }
 
@@ -58,14 +58,6 @@ public interface Synced<T> extends Supplier<T> {
      * @param value The value to set this property to.
      */
     void set(final @Nullable T value);
-
-    /**
-     * Retrieves the type of the value contained
-     * within this property, regardless whether it's null or not.
-     *
-     * @return The type of the value contained within this property.
-     */
-    Class<T> getType();
 
     /**
      * Retrieves the unique ID of this property.

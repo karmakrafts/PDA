@@ -62,7 +62,14 @@ public class ClientLauncher extends DefaultLauncher {
         final var name = type.getName();
         // @formatter:off
         final var future = terminatedApps.removeLater(name, 30, TimeUnit.SECONDS, PDAMod.EXECUTOR_SERVICE)
-            .thenApply(app -> (A) app);
+            .thenApply(app -> {
+                if(app == null) {
+                    PDAMod.LOGGER.warn("Server didn't respond in time to close app {}, ignoring", name);
+                    return null;
+                }
+                app.init(); // Only initialize, don't compose on the client
+                return (A) app;
+            });
         // @formatter:on
         Minecraft.getInstance().execute(() -> {
             final var sessionId = session.getId();
@@ -78,7 +85,13 @@ public class ClientLauncher extends DefaultLauncher {
         final var name = type.getName();
         // @formatter:off
         final var future = pendingApps.removeLater(name, 30, TimeUnit.SECONDS, PDAMod.EXECUTOR_SERVICE)
-            .thenApply(app -> (A) app);
+            .thenApply(app -> {
+                if(app == null) {
+                    PDAMod.LOGGER.warn("Server didn't respond in time to open app {}, ignoring", name);
+                    return null;
+                }
+                return (A) app;
+            });
         // @formatter:on
         Minecraft.getInstance().execute(() -> {
             final var sessionId = session.getId();

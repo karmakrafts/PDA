@@ -15,7 +15,7 @@ import java.util.UUID;
  */
 public class PlayerImage extends AbstractComponent {
     @Sync
-    public final Synced<UUID> player = Synced.create(UUID.class);
+    public final Synced<UUID> player = Synced.ofNull(UUID.class);
 
     public PlayerImage(final ComponentType<?> type, final UUID id) {
         super(type, id);

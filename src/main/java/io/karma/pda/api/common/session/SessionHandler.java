@@ -4,6 +4,8 @@
 
 package io.karma.pda.api.common.session;
 
+import net.minecraft.world.item.ItemStack;
+
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.UUID;
@@ -22,14 +24,13 @@ public interface SessionHandler {
     CompletableFuture<Void> terminateSession(final Session session);
 
     @Nullable
-    Session getActiveSession(final UUID id);
-
-    default void setActiveSession(final @Nullable Session session) {
-        throw new UnsupportedOperationException();
-    }
+    Session findById(final UUID id);
 
     @Nullable
-    default Session getActiveSession() {
-        throw new UnsupportedOperationException();
-    }
+    Session findByDevice(final ItemStack stack);
+
+    void setActiveSession(final @Nullable Session session);
+
+    @Nullable
+    Session getActiveSession();
 }

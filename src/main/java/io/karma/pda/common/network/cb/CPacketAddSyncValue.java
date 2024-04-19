@@ -5,7 +5,7 @@
 package io.karma.pda.common.network.cb;
 
 import io.karma.pda.api.common.util.JSONUtils;
-import io.karma.pda.common.PDAMod;
+import io.karma.pda.api.common.util.TypedValue;
 import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,10 +20,10 @@ public final class CPacketAddSyncValue {
     private final UUID playerId;
     private final UUID oldId;
     private final UUID newId;
-    private final Object initialValue;
+    private final TypedValue<?> initialValue;
 
     public CPacketAddSyncValue(final UUID sessionId, final @Nullable UUID playerId, final UUID oldId, final UUID newId,
-                               final @Nullable Object initialValue) {
+                               final TypedValue<?> initialValue) {
         this.sessionId = sessionId;
         this.playerId = playerId;
         this.oldId = oldId;
@@ -47,7 +47,7 @@ public final class CPacketAddSyncValue {
         return newId;
     }
 
-    public @Nullable Object getInitialValue() {
+    public TypedValue<?> getInitialValue() {
         return initialValue;
     }
 
@@ -63,15 +63,7 @@ public final class CPacketAddSyncValue {
         }
         buffer.writeUUID(packet.oldId);
         buffer.writeUUID(packet.newId);
-        final var initialValue = packet.initialValue;
-        if (initialValue != null) {
-            buffer.writeBoolean(true);
-            buffer.writeUtf(initialValue.getClass().getName());
-            buffer.writeByteArray(JSONUtils.compress(initialValue));
-        }
-        else {
-            buffer.writeBoolean(false);
-        }
+        buffer.writeByteArray(JSONUtils.compress(packet.initialValue.get()));
     }
 
     public static CPacketAddSyncValue decode(final FriendlyByteBuf buffer) {
@@ -79,16 +71,7 @@ public final class CPacketAddSyncValue {
         final var playerId = buffer.readBoolean() ? buffer.readUUID() : null;
         final var oldId = buffer.readUUID();
         final var newId = buffer.readUUID();
-        if (buffer.readBoolean()) {
-            try {
-                final var type = Class.forName(buffer.readUtf());
-                final var initialValue = JSONUtils.decompress(buffer.readByteArray(), type);
-                return new CPacketAddSyncValue(sessionId, playerId, oldId, newId, initialValue);
-            }
-            catch (Throwable error) {
-                PDAMod.LOGGER.error("Could not decode add sync value packet: {}", error.getMessage());
-            }
-        }
-        return new CPacketAddSyncValue(sessionId, playerId, oldId, newId, null);
+        final var initialValue = TypedValue.fromPair(JSONUtils.decompress(buffer.readByteArray()));
+        return new CPacketAddSyncValue(sessionId, playerId, oldId, newId, initialValue);
     }
 }

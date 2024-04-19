@@ -49,7 +49,7 @@ public final class ComponentCodec {
         }
         final var node = JSONUtils.MAPPER.createObjectNode();
         encode(node, component);
-        return JSONUtils.compress(node);
+        return JSONUtils.compressRaw(node);
     }
 
     public static @Nullable Component decode(final ObjectNode node) {
@@ -88,10 +88,10 @@ public final class ComponentCodec {
     }
 
     public static @Nullable Component decode(final byte[] data) {
-        return decode(JSONUtils.decompress(data, ObjectNode.class));
+        return decode(JSONUtils.decompressRaw(data, ObjectNode.class));
     }
 
     public static <C extends Component> @Nullable C decode(final byte[] data, final ComponentType<C> type) {
-        return decode(JSONUtils.decompress(data, ObjectNode.class), type);
+        return decode(JSONUtils.decompressRaw(data, ObjectNode.class), type);
     }
 }

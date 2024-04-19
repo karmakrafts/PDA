@@ -38,7 +38,7 @@ public final class AppViewCodec {
         }
         final var node = JSONUtils.MAPPER.createObjectNode();
         encode(node, view);
-        return JSONUtils.compress(node);
+        return JSONUtils.compressRaw(node);
     }
 
     public static @Nullable AppView decode(final ObjectNode node) {
@@ -55,6 +55,6 @@ public final class AppViewCodec {
     }
 
     public static @Nullable AppView decode(final byte[] data) {
-        return decode(Objects.requireNonNull(JSONUtils.decompress(data, ObjectNode.class)));
+        return decode(Objects.requireNonNull(JSONUtils.decompressRaw(data, ObjectNode.class)));
     }
 }

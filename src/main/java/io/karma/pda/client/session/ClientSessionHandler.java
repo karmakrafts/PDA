@@ -4,11 +4,15 @@
 
 package io.karma.pda.client.session;
 
-import io.karma.pda.api.common.session.*;
+import io.karma.pda.api.common.session.MuxedSession;
+import io.karma.pda.api.common.session.SelectiveSessionContext;
+import io.karma.pda.api.common.session.Session;
+import io.karma.pda.api.common.session.SessionContext;
 import io.karma.pda.api.common.util.LogMarkers;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.network.sb.SPacketCreateSession;
 import io.karma.pda.common.network.sb.SPacketTerminateSession;
+import io.karma.pda.common.session.AbstractSessionHandler;
 import io.karma.pda.common.util.BlockingHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
@@ -28,32 +32,15 @@ import java.util.concurrent.atomic.AtomicReference;
  * @since 10/04/2024
  */
 @OnlyIn(value = Dist.CLIENT)
-public final class ClientSessionHandler implements SessionHandler {
+public final class ClientSessionHandler extends AbstractSessionHandler {
     public static final ClientSessionHandler INSTANCE = new ClientSessionHandler();
     private final BlockingHashMap<UUID, UUID> pendingSessions = new BlockingHashMap<>();
     private final AtomicReference<Session> session = new AtomicReference<>(null);
-    private final ConcurrentHashMap<UUID, Session> activeSessions = new ConcurrentHashMap<>();
     private final BlockingHashMap<UUID, Session> terminatedSessions = new BlockingHashMap<>();
 
     // @formatter:off
     private ClientSessionHandler() {}
     // @formatter:on
-
-    @ApiStatus.Internal
-    public void addActiveSession(final UUID sessionId, final Session session) {
-        if (activeSessions.containsKey(sessionId)) {
-            PDAMod.LOGGER.warn(LogMarkers.PROTOCOL, "Session {} already exists, ignoring", sessionId);
-            return;
-        }
-        activeSessions.put(sessionId, session);
-        PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Added active session {}", sessionId);
-    }
-
-    @ApiStatus.Internal
-    public void removeActiveSession(final UUID sessionId) {
-        activeSessions.remove(sessionId);
-        PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Removed active session {}", sessionId);
-    }
 
     @ApiStatus.Internal
     public void addTerminatedSession(final UUID sessionId) {
@@ -131,28 +118,22 @@ public final class ClientSessionHandler implements SessionHandler {
                 .map(this::terminateSession)
                 .toArray(CompletableFuture[]::new));
         }
-        final var future = terminatedSessions.removeLater(session.getId(), 30, TimeUnit.SECONDS, PDAMod.EXECUTOR_SERVICE)
+        final var sessionId = session.getId();
+        final var future = terminatedSessions.removeLater(sessionId, 30, TimeUnit.SECONDS, PDAMod.EXECUTOR_SERVICE)
             .thenAccept(sess -> {
                 if (sess == null) {
                     PDAMod.LOGGER.warn(LogMarkers.PROTOCOL, "Server didn't send acknowledgement back in time, ignoring");
                     return;
                 }
-                removeActiveSession(sess.getId());
+                removeActiveSession(sessionId);
             });
         // @formatter:on
         // ..otherwise this is a single-ended session, so we send a packet and wait for acknowledgement
         Minecraft.getInstance().execute(() -> {
-            final var id = session.getId();
-            PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Requesting termination for session {}", id);
-            PDAMod.CHANNEL.sendToServer(new SPacketTerminateSession(id));
+            PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Requesting termination for session {}", sessionId);
+            PDAMod.CHANNEL.sendToServer(new SPacketTerminateSession(sessionId));
         });
         return future;
-    }
-
-    @Nullable
-    @Override
-    public Session getActiveSession(final UUID id) {
-        return activeSessions.get(id);
     }
 
     @Override
