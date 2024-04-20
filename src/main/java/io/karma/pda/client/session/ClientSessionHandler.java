@@ -125,6 +125,7 @@ public final class ClientSessionHandler extends AbstractSessionHandler {
                     PDAMod.LOGGER.warn(LogMarkers.PROTOCOL, "Server didn't send acknowledgement back in time, ignoring");
                     return;
                 }
+                sess.onTermination();
                 removeActiveSession(sessionId);
             });
         // @formatter:on

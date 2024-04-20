@@ -6,6 +6,7 @@
 
 #moj_import <pda:utils.glsl>
 #moj_import <pda:display.glsl>
+#moj_import <pda:crt.glsl>
 
 uniform sampler2D Sampler0;
 uniform sampler2D Sampler1;

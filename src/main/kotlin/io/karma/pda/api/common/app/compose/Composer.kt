@@ -5,9 +5,9 @@
 package io.karma.pda.api.common.app.compose
 
 import io.karma.pda.api.common.app.component.*
-import io.karma.pda.api.common.flex.StaticFlexNode
+import io.karma.pda.api.common.flex.DefaultFlexNode
 
-typealias ComponentProps = StaticFlexNode.Builder.() -> Unit
+typealias ComponentProps = DefaultFlexNode.Builder.() -> Unit
 
 /**
  * @author Alexander Hinze

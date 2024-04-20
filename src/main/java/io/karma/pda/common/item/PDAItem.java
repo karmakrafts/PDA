@@ -110,7 +110,7 @@ public final class PDAItem extends Item implements TabItemProvider {
     @OnlyIn(Dist.CLIENT)
     private void openScreen(final Player player, final InteractionHand defaultHand,
                             final EnumSet<InteractionHand> hands) {
-        if (isScreenOpen) {
+        if (isScreenOpen || !Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
             return;
         }
         // @formatter:off

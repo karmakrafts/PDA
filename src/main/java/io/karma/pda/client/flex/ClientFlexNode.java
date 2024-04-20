@@ -8,6 +8,7 @@ import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.pda.api.common.flex.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.yoga.YGValue;
@@ -22,40 +23,72 @@ import java.util.List;
  * @since 20/03/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class DefaultFlexNode implements FlexNode, Disposable {
+public final class ClientFlexNode implements FlexNode, Disposable {
     private final long address;
-    private final ArrayList<DefaultFlexNode> children = new ArrayList<>();
+    private final ArrayList<FlexNode> children = new ArrayList<>();
+    private boolean isDisposed;
 
-    public DefaultFlexNode() {
+    public ClientFlexNode() {
         address = Yoga.YGNodeNew();
         if (address == MemoryUtil.NULL) {
             throw new IllegalStateException("Could not allocate layout node");
         }
     }
 
-    public static DefaultFlexNode copyOf(final FlexNode flexNode) {
-        final var node = new DefaultFlexNode();
+    public static ClientFlexNode copyOf(final FlexNode flexNode) {
+        final var node = new ClientFlexNode();
         node.setFrom(flexNode);
         return node;
     }
 
-    public void addChild(final DefaultFlexNode node) {
-        if (children.contains(node)) {
-            return;
+    @Override
+    public void clearChildren() {
+        for (final var child : children) {
+            if (!(child instanceof Disposable disposable)) {
+                continue;
+            }
+            disposable.dispose();
         }
-        Yoga.YGNodeInsertChild(address, node.address, children.size());
-        children.add(node);
+        children.clear();
     }
 
-    public void removeChild(final DefaultFlexNode node) {
-        if (!children.contains(node)) {
-            return;
-        }
-        Yoga.YGNodeRemoveChild(address, node.address);
-        children.remove(node);
+    @Override
+    public int indexOfChild(final FlexNode child) {
+        return children.indexOf(child);
     }
 
-    public List<DefaultFlexNode> getChildren() {
+    @Override
+    public @Nullable FlexNode getChild(final int index) {
+        if (children.isEmpty() || index < 0 || index >= children.size()) {
+            return null;
+        }
+        return children.get(index);
+    }
+
+    @Override
+    public void addChild(final FlexNode child) {
+        if (children.contains(child)) {
+            return;
+        }
+        if (child instanceof ClientFlexNode defaultNode) {
+            Yoga.YGNodeInsertChild(address, defaultNode.address, children.size());
+        }
+        children.add(child);
+    }
+
+    @Override
+    public void removeChild(final FlexNode child) {
+        if (!children.contains(child)) {
+            return;
+        }
+        if (child instanceof ClientFlexNode defaultNode) {
+            Yoga.YGNodeRemoveChild(address, defaultNode.address);
+        }
+        children.remove(child);
+    }
+
+    @Override
+    public List<FlexNode> getChildren() {
         return Collections.unmodifiableList(children);
     }
 
@@ -83,6 +116,7 @@ public final class DefaultFlexNode implements FlexNode, Disposable {
         return FlexUtils.getDirection(Yoga.YGNodeStyleGetDirection(address));
     }
 
+    @Override
     public void setDirection(final FlexDirection direction) {
         Yoga.YGNodeStyleSetDirection(address, FlexUtils.getDirection(direction));
     }
@@ -94,6 +128,7 @@ public final class DefaultFlexNode implements FlexNode, Disposable {
         return FlexUtils.getOverflow(Yoga.YGNodeStyleGetOverflow(address));
     }
 
+    @Override
     public void setOverflow(final FlexOverflow overflow) {
         Yoga.YGNodeStyleSetOverflow(address, FlexUtils.getOverflow(overflow));
     }
@@ -105,6 +140,7 @@ public final class DefaultFlexNode implements FlexNode, Disposable {
         return FlexUtils.getAlignment(Yoga.YGNodeStyleGetAlignSelf(address));
     }
 
+    @Override
     public void setSelfAlignment(final FlexAlignment alignment) {
         Yoga.YGNodeStyleSetAlignSelf(address, FlexUtils.getAlignment(alignment));
     }
@@ -114,6 +150,7 @@ public final class DefaultFlexNode implements FlexNode, Disposable {
         return FlexUtils.getAlignment(Yoga.YGNodeStyleGetAlignItems(address));
     }
 
+    @Override
     public void setItemAlignment(final FlexAlignment alignment) {
         Yoga.YGNodeStyleSetAlignItems(address, FlexUtils.getAlignment(alignment));
     }
@@ -123,6 +160,7 @@ public final class DefaultFlexNode implements FlexNode, Disposable {
         return FlexUtils.getAlignment(Yoga.YGNodeStyleGetAlignContent(address));
     }
 
+    @Override
     public void setContentAlignment(final FlexAlignment alignment) {
         Yoga.YGNodeStyleSetAlignContent(address, FlexUtils.getAlignment(alignment));
     }
@@ -134,6 +172,7 @@ public final class DefaultFlexNode implements FlexNode, Disposable {
         return FlexUtils.getJustify(Yoga.YGNodeStyleGetJustifyContent(address));
     }
 
+    @Override
     public void setContentJustification(final FlexJustify justify) {
         Yoga.YGNodeStyleSetJustifyContent(address, FlexUtils.getJustify(justify));
     }
@@ -164,6 +203,7 @@ public final class DefaultFlexNode implements FlexNode, Disposable {
             getMargin(FlexEdge.BOTTOM));
     }
 
+    @Override
     public void setMargin(final FlexBorder margin) {
         setMargin(FlexEdge.LEFT, margin.getLeft());
         setMargin(FlexEdge.RIGHT, margin.getRight());
@@ -197,6 +237,7 @@ public final class DefaultFlexNode implements FlexNode, Disposable {
             getPadding(FlexEdge.BOTTOM));
     }
 
+    @Override
     public void setPadding(final FlexBorder padding) {
         setPadding(FlexEdge.LEFT, padding.getLeft());
         setPadding(FlexEdge.RIGHT, padding.getRight());
@@ -226,11 +267,12 @@ public final class DefaultFlexNode implements FlexNode, Disposable {
         }
     }
 
+    @Override
     public void setX(final FlexValue value) {
         switch (value.getType()) { // @formatter:off
             case PIXEL   -> Yoga.YGNodeStyleSetPosition(address, Yoga.YGEdgeLeft, value.get());
             case PERCENT -> Yoga.YGNodeStyleSetPositionPercent(address, Yoga.YGEdgeLeft, value.get());
-            default      -> throw new UnsupportedOperationException();
+            default      -> {}
         } // @formatter:on
     }
 
@@ -243,18 +285,21 @@ public final class DefaultFlexNode implements FlexNode, Disposable {
         }
     }
 
+    @Override
     public void setY(final FlexValue value) {
         switch (value.getType()) { // @formatter:off
             case PIXEL   -> Yoga.YGNodeStyleSetPosition(address, Yoga.YGEdgeTop, value.get());
             case PERCENT -> Yoga.YGNodeStyleSetPositionPercent(address, Yoga.YGEdgeTop, value.get());
-            default      -> throw new UnsupportedOperationException();
+            default      -> {}
         } // @formatter:on
     }
 
+    @Override
     public int getAbsoluteX() {
         return (int) Yoga.YGNodeLayoutGetLeft(address);
     }
 
+    @Override
     public int getAbsoluteY() {
         return (int) Yoga.YGNodeLayoutGetTop(address);
     }
@@ -270,6 +315,7 @@ public final class DefaultFlexNode implements FlexNode, Disposable {
         }
     }
 
+    @Override
     public void setWidth(final FlexValue width) {
         switch (width.getType()) { // @formatter:off
             case PIXEL   -> Yoga.YGNodeStyleSetWidth(address, width.get());
@@ -287,6 +333,7 @@ public final class DefaultFlexNode implements FlexNode, Disposable {
         }
     }
 
+    @Override
     public void setHeight(final FlexValue height) {
         switch (height.getType()) { // @formatter:off
             case PIXEL   -> Yoga.YGNodeStyleSetHeight(address, height.get());
@@ -295,19 +342,28 @@ public final class DefaultFlexNode implements FlexNode, Disposable {
         } // @formatter:on
     }
 
+    @Override
     public int getAbsoluteWidth() {
         return (int) Yoga.YGNodeLayoutGetWidth(address);
     }
 
+    @Override
     public int getAbsoluteHeight() {
         return (int) Yoga.YGNodeLayoutGetHeight(address);
     }
 
     @Override
     public void dispose() {
-        Yoga.YGNodeFree(address);
-        for (final var child : children) {
-            child.dispose();
+        if (isDisposed) {
+            return;
         }
+        // We do not recursively dispose our children here since the node handler takes care of that
+        Yoga.YGNodeFree(address);
+        isDisposed = true;
+    }
+
+    @Override
+    public void computeLayout(final int width, final int height) {
+        Yoga.YGNodeCalculateLayout(address, width, height, Yoga.YGDirectionLTR);
     }
 }

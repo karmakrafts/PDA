@@ -4,12 +4,19 @@
 
 package io.karma.pda.api.common.flex;
 
+import io.karma.pda.api.common.dispose.Disposable;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author Alexander Hinze
  * @since 10/04/2024
  */
-public final class StaticFlexNode implements FlexNode {
-    private static final StaticFlexNode DEFAULTS = new StaticFlexNode(FlexDirection.ROW,
+public final class DefaultFlexNode implements FlexNode {
+    private static final DefaultFlexNode DEFAULTS = new DefaultFlexNode(FlexDirection.ROW,
         FlexOverflow.VISIBLE,
         FlexPositionType.RELATIVE,
         FlexAlignment.CENTER,
@@ -23,6 +30,7 @@ public final class StaticFlexNode implements FlexNode {
         FlexBorder.empty(),
         FlexBorder.empty());
 
+    private final ArrayList<FlexNode> children = new ArrayList<>();
     private FlexDirection direction;
     private FlexOverflow overflow;
     private FlexPositionType positionType;
@@ -37,12 +45,12 @@ public final class StaticFlexNode implements FlexNode {
     private FlexBorder margin;
     private FlexBorder padding;
 
-    private StaticFlexNode(final FlexDirection direction, final FlexOverflow overflow,
-                           final FlexPositionType positionType, final FlexAlignment selfAlignment,
-                           final FlexAlignment itemAlignment, final FlexAlignment contentAlignment,
-                           final FlexJustify contentJustification, final FlexValue x, final FlexValue y,
-                           final FlexValue width, final FlexValue height, final FlexBorder margin,
-                           final FlexBorder padding) {
+    private DefaultFlexNode(final FlexDirection direction, final FlexOverflow overflow,
+                            final FlexPositionType positionType, final FlexAlignment selfAlignment,
+                            final FlexAlignment itemAlignment, final FlexAlignment contentAlignment,
+                            final FlexJustify contentJustification, final FlexValue x, final FlexValue y,
+                            final FlexValue width, final FlexValue height, final FlexBorder margin,
+                            final FlexBorder padding) {
         this.direction = direction;
         this.overflow = overflow;
         this.positionType = positionType;
@@ -58,7 +66,7 @@ public final class StaticFlexNode implements FlexNode {
         this.padding = padding;
     }
 
-    public static StaticFlexNode defaults() {
+    public static DefaultFlexNode defaults() {
         return DEFAULTS;
     }
 
@@ -81,6 +89,113 @@ public final class StaticFlexNode implements FlexNode {
         height = flexNode.getHeight();
         margin = flexNode.getMargin();
         padding = flexNode.getPadding();
+    }
+
+    @Override
+    public void clearChildren() {
+        for (final var child : children) {
+            if (!(child instanceof Disposable disposable)) {
+                continue;
+            }
+            disposable.dispose();
+        }
+        children.clear();
+    }
+
+    @Override
+    public List<FlexNode> getChildren() {
+        return Collections.unmodifiableList(children);
+    }
+
+    @Override
+    public void addChild(final FlexNode child) {
+        if (children.contains(child)) {
+            return;
+        }
+        children.add(child);
+    }
+
+    @Override
+    public void removeChild(final FlexNode child) {
+        children.remove(child);
+    }
+
+    @Override
+    public int indexOfChild(final FlexNode child) {
+        return children.indexOf(child);
+    }
+
+    @Override
+    public @Nullable FlexNode getChild(final int index) {
+        if (children.isEmpty() || index < 0 || index >= children.size()) {
+            return null;
+        }
+        return children.get(index);
+    }
+
+    @Override
+    public void setDirection(final FlexDirection direction) {
+        this.direction = direction;
+    }
+
+    @Override
+    public void setOverflow(final FlexOverflow overflow) {
+        this.overflow = overflow;
+    }
+
+    @Override
+    public void setPositionType(final FlexPositionType positionType) {
+        this.positionType = positionType;
+    }
+
+    @Override
+    public void setSelfAlignment(final FlexAlignment selfAlignment) {
+        this.selfAlignment = selfAlignment;
+    }
+
+    @Override
+    public void setItemAlignment(final FlexAlignment itemAlignment) {
+        this.itemAlignment = itemAlignment;
+    }
+
+    @Override
+    public void setContentAlignment(final FlexAlignment contentAlignment) {
+        this.contentAlignment = contentAlignment;
+    }
+
+    @Override
+    public void setContentJustification(final FlexJustify contentJustification) {
+        this.contentJustification = contentJustification;
+    }
+
+    @Override
+    public void setX(final FlexValue x) {
+        this.x = x;
+    }
+
+    @Override
+    public void setY(final FlexValue y) {
+        this.y = y;
+    }
+
+    @Override
+    public void setWidth(final FlexValue width) {
+        this.width = width;
+    }
+
+    @Override
+    public void setHeight(final FlexValue height) {
+        this.height = height;
+    }
+
+    @Override
+    public void setMargin(final FlexBorder margin) {
+        this.margin = margin;
+    }
+
+    @Override
+    public void setPadding(final FlexBorder padding) {
+        this.padding = padding;
     }
 
     @Override
@@ -146,6 +261,30 @@ public final class StaticFlexNode implements FlexNode {
     @Override
     public FlexBorder getPadding() {
         return padding;
+    }
+
+    @Override
+    public int getAbsoluteWidth() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getAbsoluteHeight() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getAbsoluteX() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getAbsoluteY() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void computeLayout(final int width, final int height) {
     }
 
     public static class Builder {
@@ -232,8 +371,8 @@ public final class StaticFlexNode implements FlexNode {
             return this;
         }
 
-        public StaticFlexNode build() {
-            return new StaticFlexNode(direction,
+        public DefaultFlexNode build() {
+            return new DefaultFlexNode(direction,
                 overflow,
                 positionType,
                 selfAlignment,

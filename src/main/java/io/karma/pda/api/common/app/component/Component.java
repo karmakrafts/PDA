@@ -29,9 +29,9 @@ public interface Component extends Identifiable {
 
     FlexNode getFlexNode();
 
-    void requestUpdate();
+    void setVisible(final boolean isVisible);
 
-    boolean needsUpdate();
+    boolean isVisible();
 
     void onClicked(final Consumer<ClickEvent> callback);
 

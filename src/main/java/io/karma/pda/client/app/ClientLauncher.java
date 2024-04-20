@@ -67,7 +67,10 @@ public class ClientLauncher extends DefaultLauncher {
                     PDAMod.LOGGER.warn("Server didn't respond in time to close app {}, ignoring", name);
                     return null;
                 }
-                app.init(); // Only initialize, don't compose on the client
+                synchronized (appStackLock) {
+                    appStack.remove(app);
+                }
+                PDAMod.LOGGER.debug("Closed app {}", name);
                 return (A) app;
             });
         // @formatter:on
@@ -90,6 +93,11 @@ public class ClientLauncher extends DefaultLauncher {
                     PDAMod.LOGGER.warn("Server didn't respond in time to open app {}, ignoring", name);
                     return null;
                 }
+                app.init(); // Only initialize, don't compose on the client
+                synchronized (appStackLock) {
+                    appStack.push(app);
+                }
+                PDAMod.LOGGER.debug("Opened app {}", name);
                 return (A) app;
             });
         // @formatter:on

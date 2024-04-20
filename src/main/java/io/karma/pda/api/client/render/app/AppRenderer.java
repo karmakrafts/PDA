@@ -17,6 +17,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public interface AppRenderer<A extends App> {
     void render(final A app, final GFX graphics);
 
-    default void cleanup(final A app, final GFX graphics) {
+    default void cleanup(final A app) {
     }
 }

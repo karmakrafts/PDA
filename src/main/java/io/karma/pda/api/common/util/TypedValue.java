@@ -14,7 +14,7 @@ import java.util.function.Supplier;
  */
 public interface TypedValue<T> extends Supplier<T> {
     static <T> TypedValue<T> fromPair(final Pair<Class<T>, T> pair) {
-        return new TypedValue<T>() {
+        return new TypedValue<>() {
             @Override
             public Class<T> getType() {
                 return pair.getLeft();

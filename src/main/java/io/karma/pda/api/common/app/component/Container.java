@@ -27,16 +27,6 @@ public interface Container extends Component {
     Collection<Component> getChildren();
 
     @Override
-    default boolean needsUpdate() {
-        return getChildren().stream().anyMatch(Component::needsUpdate);
-    }
-
-    @Override
-    default void requestUpdate() {
-        getChildren().forEach(Component::requestUpdate);
-    }
-
-    @Override
     default void onClicked(final Consumer<ClickEvent> callback) {
         getChildren().forEach(component -> component.onClicked(callback));
     }

@@ -4,6 +4,9 @@
 
 package io.karma.pda.api.common.flex;
 
+import javax.annotation.Nullable;
+import java.util.List;
+
 /**
  * @author Alexander Hinze
  * @since 10/04/2024
@@ -11,55 +14,78 @@ package io.karma.pda.api.common.flex;
 public interface FlexNode {
     void setFrom(final FlexNode flexNode);
 
-    default FlexDirection getDirection() {
-        return FlexDirection.ROW;
-    }
+    List<FlexNode> getChildren();
 
-    default FlexOverflow getOverflow() {
-        return FlexOverflow.HIDDEN;
-    }
+    void addChild(final FlexNode child);
 
-    default FlexPositionType getPositionType() {
-        return FlexPositionType.RELATIVE;
-    }
+    void removeChild(final FlexNode child);
 
-    default FlexAlignment getSelfAlignment() {
-        return FlexAlignment.AUTO;
-    }
+    int indexOfChild(final FlexNode child);
 
-    default FlexAlignment getItemAlignment() {
-        return FlexAlignment.AUTO;
-    }
+    @Nullable
+    FlexNode getChild(final int index);
 
-    default FlexAlignment getContentAlignment() {
-        return FlexAlignment.AUTO;
-    }
+    void clearChildren();
 
-    default FlexJustify getContentJustification() {
-        return FlexJustify.CENTER;
-    }
+    void setDirection(final FlexDirection direction);
 
-    default FlexValue getX() {
-        return FlexValue.auto();
-    }
+    FlexDirection getDirection();
 
-    default FlexValue getY() {
-        return FlexValue.auto();
-    }
+    void setOverflow(final FlexOverflow overflow);
 
-    default FlexValue getWidth() {
-        return FlexValue.auto();
-    }
+    FlexOverflow getOverflow();
 
-    default FlexValue getHeight() {
-        return FlexValue.auto();
-    }
+    void setPositionType(final FlexPositionType positionType);
 
-    default FlexBorder getMargin() {
-        return FlexBorder.empty();
-    }
+    FlexPositionType getPositionType();
 
-    default FlexBorder getPadding() {
-        return FlexBorder.empty();
-    }
+    void setSelfAlignment(final FlexAlignment selfAlignment);
+
+    FlexAlignment getSelfAlignment();
+
+    void setItemAlignment(final FlexAlignment itemAlignment);
+
+    FlexAlignment getItemAlignment();
+
+    void setContentAlignment(final FlexAlignment contentAlignment);
+
+    FlexAlignment getContentAlignment();
+
+    void setContentJustification(final FlexJustify contentJustification);
+
+    FlexJustify getContentJustification();
+
+    void setX(final FlexValue x);
+
+    FlexValue getX();
+
+    void setY(final FlexValue y);
+
+    FlexValue getY();
+
+    void setWidth(final FlexValue width);
+
+    FlexValue getWidth();
+
+    void setHeight(final FlexValue height);
+
+    FlexValue getHeight();
+
+    void setMargin(final FlexBorder margin);
+
+    FlexBorder getMargin();
+
+    void setPadding(final FlexBorder padding);
+
+    FlexBorder getPadding();
+
+    int getAbsoluteWidth();
+
+    int getAbsoluteHeight();
+
+    int getAbsoluteX();
+
+    int getAbsoluteY();
+
+    void computeLayout(final int width, final int height);
 }

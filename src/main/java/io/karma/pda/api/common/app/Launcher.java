@@ -18,7 +18,7 @@ public interface Launcher {
 
     <A extends App> CompletableFuture<@Nullable A> closeApp(final AppType<A> type);
 
-    App getCurrentApp();
+    @Nullable App getCurrentApp();
 
     <A extends App> @Nullable A getOpenApp(final AppType<A> type);
 

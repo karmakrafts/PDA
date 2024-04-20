@@ -7,8 +7,10 @@ package io.karma.pda.api.common.app.component;
 import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.app.event.ClickEvent;
 import io.karma.pda.api.common.app.event.MouseMoveEvent;
+import io.karma.pda.api.common.flex.DefaultFlexNode;
 import io.karma.pda.api.common.flex.FlexNode;
-import io.karma.pda.api.common.flex.StaticFlexNode;
+import io.karma.pda.api.common.sync.Sync;
+import io.karma.pda.api.common.sync.Synced;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -21,9 +23,8 @@ import java.util.function.Consumer;
 public abstract class AbstractComponent implements Component {
     protected final ComponentType<?> type;
     protected final UUID id;
-    protected final FlexNode flexNode = StaticFlexNode.defaults();
+    protected final FlexNode flexNode = DefaultFlexNode.defaults();
     protected Component parent;
-    protected boolean needsUpdate;
     protected Consumer<ClickEvent> clickEventConsumer = event -> {
     };
     protected Consumer<MouseMoveEvent> mouseOverEventConsumer = event -> {
@@ -33,10 +34,24 @@ public abstract class AbstractComponent implements Component {
     protected Consumer<MouseMoveEvent> mouseExitEventConsumer = event -> {
     };
 
+    // Internal synchronized property for tracking visibility state
+    @Sync
+    protected final Synced<Boolean> isVisible = Synced.of(true);
+
     protected AbstractComponent(final ComponentType<?> type, final UUID id) {
         this.type = type;
         this.id = id;
         API.getLogger().debug("Creating component {} of type {}", id, type.getName());
+    }
+
+    @Override
+    public void setVisible(final boolean isVisible) {
+        this.isVisible.set(isVisible);
+    }
+
+    @Override
+    public boolean isVisible() {
+        return isVisible.get();
     }
 
     @Override
@@ -67,16 +82,6 @@ public abstract class AbstractComponent implements Component {
     @Override
     public FlexNode getFlexNode() {
         return flexNode;
-    }
-
-    @Override
-    public boolean needsUpdate() {
-        return needsUpdate;
-    }
-
-    @Override
-    public void requestUpdate() {
-        needsUpdate = true;
     }
 
     @Override

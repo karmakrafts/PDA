@@ -74,8 +74,11 @@ public class DefaultLauncher implements Launcher {
     }
 
     @Override
-    public App getCurrentApp() {
+    public @Nullable App getCurrentApp() {
         synchronized (appStackLock) {
+            if(appStack.isEmpty()) {
+                return null;
+            }
             return appStack.peek();
         }
     }

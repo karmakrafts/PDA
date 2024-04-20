@@ -17,7 +17,6 @@ import io.karma.pda.common.util.HorizontalDirection;
 import io.karma.pda.common.util.MathUtils;
 import io.karma.pda.common.util.PlayerUtils;
 import io.karma.pda.common.util.ShapeUtils;
-import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -193,20 +192,20 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
 
     @OnlyIn(Dist.CLIENT)
     private void openScreen(final Player player, final BlockPos pos) {
-        final var game = Minecraft.getInstance();
-        if (game.options.getCameraType() == CameraType.FIRST_PERSON) {
-            // @formatter:off
-            ClientSessionHandler.INSTANCE.createSession(new DockedSessionContext(player, pos)).thenAccept(session -> {
-                session.getLauncher().openApp(DefaultApps.LAUNCHER).join();
-                ClientSessionHandler.INSTANCE.setActiveSession(session);
-                game.execute(() -> {
-                    game.setScreen(new DockScreen(pos, ClientSessionHandler.INSTANCE.getActiveSession()));
-                    Objects.requireNonNull(player.level()).playSound(
-                        player, pos, SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, SoundSource.AMBIENT, 0.3F, 1.75F);
-                });
-            });
-            // @formatter:on
+        if (!Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+            return;
         }
+        // @formatter:off
+        ClientSessionHandler.INSTANCE.createSession(new DockedSessionContext(player, pos)).thenAccept(session -> {
+            session.getLauncher().openApp(DefaultApps.LAUNCHER).join();
+            ClientSessionHandler.INSTANCE.setActiveSession(session);
+            Minecraft.getInstance().execute(() -> {
+                Minecraft.getInstance().setScreen(new DockScreen(pos, ClientSessionHandler.INSTANCE.getActiveSession()));
+                Objects.requireNonNull(player.level()).playSound(
+                    player, pos, SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, SoundSource.AMBIENT, 0.3F, 1.75F);
+            });
+        });
+        // @formatter:on
     }
 
     @Override

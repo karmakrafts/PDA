@@ -73,6 +73,7 @@ public final class ClientEventHandler {
         ComponentRenderers.register(DefaultComponents.ENTITY_IMAGE, new EntityImageRenderer());
         ComponentRenderers.register(DefaultComponents.PLAYER_IMAGE, new PlayerImageRenderer());
         ComponentRenderers.register(DefaultComponents.RECIPE_IMAGE, new RecipeImageRenderer());
+        ComponentRenderers.register(DefaultComponents.SPINNER, new SpinnerRenderer());
         // Apps
         AppRenderers.register(DefaultApps.LAUNCHER, new DefaultAppRenderer<>());
         AppRenderers.register(DefaultApps.SETTINGS, new DefaultAppRenderer<>());

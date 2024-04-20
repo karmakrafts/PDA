@@ -34,6 +34,8 @@ public final class DefaultComponents {
     public static final ComponentType<RecipeImage> RECIPE_IMAGE = ComponentType.nullType();
     @ObjectHolder(value = Constants.MODID + ":player_image", registryName = REGISTRY_NAME)
     public static final ComponentType<PlayerImage> PLAYER_IMAGE = ComponentType.nullType();
+    @ObjectHolder(value = Constants.MODID + ":spinner", registryName = REGISTRY_NAME)
+    public static final ComponentType<Spinner> SPINNER = ComponentType.nullType();
 
     // @formatter:off
     private DefaultComponents() {}

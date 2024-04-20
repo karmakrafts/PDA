@@ -6,10 +6,13 @@ package io.karma.pda.client.flex;
 
 import io.karma.pda.api.client.flex.FlexNodeHandler;
 import io.karma.pda.api.common.app.component.Component;
+import io.karma.pda.api.common.app.component.Container;
 import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.pda.api.common.flex.FlexNode;
+import io.karma.pda.common.PDAMod;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -30,11 +33,22 @@ public final class ClientFlexNodeHandler implements FlexNodeHandler {
     // @formatter:on
 
     @Override
-    public void removeNode(final UUID uuid) {
-        if (!nodes.containsKey(uuid)) {
+    public @Nullable FlexNode getNode(final UUID id) {
+        return nodes.get(id);
+    }
+
+    @Override
+    public @Nullable FlexNode getNode(final Component component) {
+        return nodes.get(component.getId());
+    }
+
+    @Override
+    public void removeNode(final UUID id) {
+        if (!nodes.containsKey(id)) {
             return;
         }
-        if (nodes.remove(uuid) instanceof Disposable disposable) {
+        PDAMod.LOGGER.debug("Removing flex node {}", id);
+        if (nodes.remove(id) instanceof Disposable disposable) {
             disposable.dispose();
         }
     }
@@ -45,13 +59,41 @@ public final class ClientFlexNodeHandler implements FlexNodeHandler {
     }
 
     @Override
-    public FlexNode getOrCreateNode(final UUID uuid) {
-        return nodes.computeIfAbsent(uuid, id -> new DefaultFlexNode());
+    public FlexNode getOrCreateNode(final UUID id) {
+        return nodes.computeIfAbsent(id, i -> {
+            PDAMod.LOGGER.debug("Creating flex node {}", i);
+            return new ClientFlexNode();
+        });
     }
 
     @Override
     public FlexNode getOrCreateNode(final Component component) {
-        return nodes.computeIfAbsent(component.getId(), id -> DefaultFlexNode.copyOf(component.getFlexNode()));
+        final var result = getOrCreateNode(component.getId());
+        result.setFrom(component.getFlexNode());
+        return result;
+    }
+
+    @Override
+    public FlexNode getOrCreateNodeRecursive(final Component component) {
+        final var result = getOrCreateNode(component); // Create shallow copy
+        if (component instanceof Container container) { // Reconstruct children recursively if we are a container
+            final var children = container.getChildren();
+            for (final var child : children) {
+                result.addChild(getOrCreateNodeRecursive(child));
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public void removeNodeRecursively(final Component component) {
+        if (component instanceof Container container) {
+            final var children = container.getChildren();
+            for (final var child : children) {
+                removeNodeRecursively(child);
+            }
+        }
+        removeNode(component);
     }
 
     @Override

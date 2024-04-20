@@ -6,9 +6,14 @@ package io.karma.pda.client.render.display;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import io.karma.pda.api.client.render.app.AppRenderers;
+import io.karma.pda.api.common.app.App;
+import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.api.common.util.DisplayType;
 import io.karma.pda.client.ClientEventHandler;
+import io.karma.pda.client.render.gfx.DefaultGFX;
+import io.karma.pda.client.render.gfx.DefaultGFXContext;
 import io.karma.pda.client.render.gfx.DefaultGFXRenderTypes;
 import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.PDAMod;
@@ -201,16 +206,21 @@ public final class DisplayRenderer {
         framebuffer.unbind();
     }
 
+    @SuppressWarnings("unchecked")
     private void renderIntoDisplayBuffer(final ItemStack stack) {
         final var session = ClientSessionHandler.INSTANCE.findByDevice(stack);
         displayPoseStack.pushPose();
         final var matrix = displayPoseStack.last().pose();
         final var buffer = displayBufferSource.getBuffer(DefaultGFXRenderTypes.COLOR);
+
         if (session != null) {
-            buffer.vertex(matrix, 0F, 0F, 0F).color(1F, 0F, 0F, 1F).endVertex();
-            buffer.vertex(matrix, 0F, RES_Y, 0F).color(0F, 1F, 0F, 1F).endVertex();
-            buffer.vertex(matrix, RES_X, RES_Y, 0F).color(0F, 0F, 1F, 1F).endVertex();
-            buffer.vertex(matrix, RES_X, 0F, 0F).color(1F, 1F, 1F, 1F).endVertex();
+            final var launcher = session.getLauncher();
+            final var app = launcher.getCurrentApp();
+            if (app != null) {
+                final var appRenderer = AppRenderers.get((AppType<App>) app.getType());
+                appRenderer.render(app,
+                    new DefaultGFX(new DefaultGFXContext(displayPoseStack, displayBufferSource, RES_X, RES_Y)));
+            }
         }
         else {
             buffer.vertex(matrix, 0F, 0F, 0F).color(0).endVertex();
@@ -218,6 +228,7 @@ public final class DisplayRenderer {
             buffer.vertex(matrix, RES_X, RES_Y, 0F).color(0).endVertex();
             buffer.vertex(matrix, RES_X, 0F, 0F).color(0).endVertex();
         }
+
         displayBufferSource.endBatch();
         displayPoseStack.popPose();
     }

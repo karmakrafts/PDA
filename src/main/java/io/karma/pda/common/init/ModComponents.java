@@ -35,6 +35,7 @@ public final class ModComponents {
         register("entity_image", EntityImage::new);
         register("recipe_image", RecipeImage::new);
         register("player_image", PlayerImage::new);
+        register("spinner", Spinner::new);
     }
 
     private static <C extends Component> void register(final String name,
