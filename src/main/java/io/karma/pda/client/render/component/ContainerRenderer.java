@@ -30,13 +30,4 @@ public final class ContainerRenderer implements ComponentRenderer<DefaultContain
             ComponentRenderers.get((ComponentType<Component>) child.getType()).render(child, childFlexNode, graphics);
         }
     }
-
-    @Override
-    public void cleanup(final DefaultContainer component, final FlexNode flexNode, final GFX graphics) {
-        final var children = component.getChildren();
-        for (final var child : children) {
-            ClientFlexNodeHandler.INSTANCE.removeNode(child);
-        }
-        ComponentRenderer.super.cleanup(component, flexNode, graphics);
-    }
 }
