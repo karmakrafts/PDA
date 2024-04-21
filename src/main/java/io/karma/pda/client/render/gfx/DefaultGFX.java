@@ -118,7 +118,6 @@ public final class DefaultGFX implements GFX {
         }
         if (startY == endY) {
             hLine(startX, endX, startY);
-            return;
         }
         // TODO: implement triangle based line rendering
     }

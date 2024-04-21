@@ -25,7 +25,7 @@ public final class FlexBorderDeserializer extends StdDeserializer<FlexBorder> {
 
     @Override
     public FlexBorder deserialize(final JsonParser parser,
-                                  final DeserializationContext deserializationContext) throws IOException, JacksonException {
+                                  final DeserializationContext deserializationContext) throws IOException {
         final var node = parser.getCodec().readTree(parser);
         final var mapper = JSONUtils.MAPPER;
         final var left = mapper.treeToValue(node.get(0), FlexValue.class);
