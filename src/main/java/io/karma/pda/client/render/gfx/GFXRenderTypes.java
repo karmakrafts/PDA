@@ -6,7 +6,6 @@ package io.karma.pda.client.render.gfx;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import io.karma.pda.api.client.render.gfx.GFXRenderTypes;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.client.render.display.DisplayRenderer;
 import io.karma.pda.common.PDAMod;
@@ -25,31 +24,40 @@ import org.jetbrains.annotations.ApiStatus;
  * @since 11/04/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class DefaultGFXRenderTypes implements GFXRenderTypes {
-    public static final DefaultGFXRenderTypes INSTANCE = new DefaultGFXRenderTypes();
+public final class GFXRenderTypes {
+    public static final GFXRenderTypes INSTANCE = new GFXRenderTypes();
     private ShaderInstance colorShader;
     private ShaderInstance colorTextureShader;
 
     // @formatter:off
-    public static final RenderType COLOR = RenderType.create("pda_display_color",
-        DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 4, false, false,
+    public static final RenderType COLOR_LINES = RenderType.create("pda_display_color_lines",
+        DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES, 256, false, false,
         RenderType.CompositeState.builder()
-            .setCullState(RenderStateShard.CULL)
+            .setCullState(RenderStateShard.NO_CULL)
             .setShaderState(new RenderStateShard.ShaderStateShard(INSTANCE::getColorShader))
             .setOutputState(DisplayRenderer.DISPLAY_OUTPUT)
             .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
             .createCompositeState(false));
 
-    public static final RenderType COLOR_TEXTURE = RenderType.create("pda_display_color_tex",
-        DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 4, false, false,
+    public static final RenderType COLOR_TRIS = RenderType.create("pda_display_color_tris",
+        DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
         RenderType.CompositeState.builder()
-            .setCullState(RenderStateShard.CULL)
+            .setCullState(RenderStateShard.NO_CULL)
+            .setShaderState(new RenderStateShard.ShaderStateShard(INSTANCE::getColorShader))
+            .setOutputState(DisplayRenderer.DISPLAY_OUTPUT)
+            .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+            .createCompositeState(false));
+
+    public static final RenderType COLOR_TEXTURE_TRIS = RenderType.create("pda_display_color_tex_tris",
+        DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
+        RenderType.CompositeState.builder()
+            .setCullState(RenderStateShard.NO_CULL)
             .setShaderState(new RenderStateShard.ShaderStateShard(INSTANCE::getColorTextureShader))
             .setOutputState(DisplayRenderer.DISPLAY_OUTPUT)
             .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
             .createCompositeState(false));
 
-    private DefaultGFXRenderTypes() {}
+    private GFXRenderTypes() {}
     // @formatter:on
 
     @ApiStatus.Internal
@@ -69,16 +77,6 @@ public final class DefaultGFXRenderTypes implements GFXRenderTypes {
         catch (Throwable error) {
             PDAMod.LOGGER.error("Could not register default GFX render type shaders: {}", error.getMessage());
         }
-    }
-
-    @Override
-    public RenderType color() {
-        return COLOR;
-    }
-
-    @Override
-    public RenderType colorTexture() {
-        return COLOR_TEXTURE;
     }
 
     private ShaderInstance getColorShader() {

@@ -14,7 +14,7 @@ import io.karma.pda.api.common.util.DisplayType;
 import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.client.render.gfx.DefaultGFX;
 import io.karma.pda.client.render.gfx.DefaultGFXContext;
-import io.karma.pda.client.render.gfx.DefaultGFXRenderTypes;
+import io.karma.pda.client.render.gfx.GFXRenderTypes;
 import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -44,7 +44,6 @@ public final class DisplayRenderer {
     public static final float MIN_Y = 0.125F;
     public static final float OFFSET_Z = 0.609375F;
     private static final DisplayRenderer INSTANCE = new DisplayRenderer();
-    private static final int GLITCH_TICKS = 10;
     private static final float SIZE_X = 0.5F;
     public static final int RES_X = ((int) (SIZE_X * 16F) * 16) << 1; // 256
     public static final float MAX_X = MIN_X + SIZE_X;
@@ -211,7 +210,6 @@ public final class DisplayRenderer {
         final var session = ClientSessionHandler.INSTANCE.findByDevice(stack);
         displayPoseStack.pushPose();
         final var matrix = displayPoseStack.last().pose();
-        final var buffer = displayBufferSource.getBuffer(DefaultGFXRenderTypes.COLOR);
 
         if (session != null) {
             final var launcher = session.getLauncher();
@@ -221,15 +219,25 @@ public final class DisplayRenderer {
                 appRenderer.render(app,
                     new DefaultGFX(new DefaultGFXContext(displayPoseStack, displayBufferSource, RES_X, RES_Y)));
             }
+            session.getSynchronizer().flush(); // Flush the synchronizer after each frame
         }
         else {
+            final var buffer = displayBufferSource.getBuffer(GFXRenderTypes.COLOR_TRIS);
+            // First triangle
             buffer.vertex(matrix, 0F, 0F, 0F).color(0).endVertex();
-            buffer.vertex(matrix, 0F, RES_Y, 0F).color(0).endVertex();
-            buffer.vertex(matrix, RES_X, RES_Y, 0F).color(0).endVertex();
             buffer.vertex(matrix, RES_X, 0F, 0F).color(0).endVertex();
+            buffer.vertex(matrix, 0F, RES_Y, 0F).color(0).endVertex();
+            // Second triangle
+            buffer.vertex(matrix, RES_X, 0F, 0F).color(0).endVertex();
+            buffer.vertex(matrix, RES_X, RES_Y, 0F).color(0).endVertex();
+            buffer.vertex(matrix, 0F, RES_Y, 0F).color(0).endVertex();
         }
 
+        final var prevFrontFace = GL11.glGetInteger(GL11.GL_FRONT_FACE);
+        GL11.glFrontFace(GL11.GL_CW);
         displayBufferSource.endBatch();
+        GL11.glFrontFace(prevFrontFace);
+
         displayPoseStack.popPose();
     }
 
@@ -242,13 +250,9 @@ public final class DisplayRenderer {
         final var matrix = poseStack.last().pose();
         final var buffer = blitBufferSource.getBuffer(getBlitRenderType(type));
         buffer.vertex(matrix, MIN_X, MIN_Y, OFFSET_Z).uv(0F, 0F).color(0xFFFFFFFF).endVertex();
-        buffer.vertex(matrix, MIN_X, MAX_Y, OFFSET_Z).uv(0F, 1F).color(0xFFFFFFFF).endVertex();
-        buffer.vertex(matrix, MAX_X, MAX_Y, OFFSET_Z).uv(1F, 1F).color(0xFFFFFFFF).endVertex();
         buffer.vertex(matrix, MAX_X, MIN_Y, OFFSET_Z).uv(1F, 0F).color(0xFFFFFFFF).endVertex();
-
-        final var prevFrontFace = GL11.glGetInteger(GL11.GL_FRONT_FACE);
-        GL11.glFrontFace(GL11.GL_CW);
+        buffer.vertex(matrix, MAX_X, MAX_Y, OFFSET_Z).uv(1F, 1F).color(0xFFFFFFFF).endVertex();
+        buffer.vertex(matrix, MIN_X, MAX_Y, OFFSET_Z).uv(0F, 1F).color(0xFFFFFFFF).endVertex();
         blitBufferSource.endBatch(); // Flush buffer data
-        GL11.glFrontFace(prevFrontFace);
     }
 }

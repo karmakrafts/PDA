@@ -16,8 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Alexander Hinze
@@ -26,7 +26,7 @@ import java.util.UUID;
 @OnlyIn(Dist.CLIENT)
 public final class ClientFlexNodeHandler implements FlexNodeHandler {
     public static final ClientFlexNodeHandler INSTANCE = new ClientFlexNodeHandler();
-    private final HashMap<UUID, FlexNode> nodes = new HashMap<>();
+    private final ConcurrentHashMap<UUID, FlexNode> nodes = new ConcurrentHashMap<>();
 
     // @formatter:off
     private ClientFlexNodeHandler() {}

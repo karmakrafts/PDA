@@ -5,6 +5,7 @@
 package io.karma.pda.api.client.render.gfx;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -16,8 +17,6 @@ import org.joml.Matrix4f;
  */
 @OnlyIn(Dist.CLIENT)
 public interface GFXContext {
-    GFXRenderTypes getRenderTypes();
-
     PoseStack getPoseStack();
 
     MultiBufferSource getBufferSource();
@@ -28,5 +27,9 @@ public interface GFXContext {
 
     default Matrix4f getTransform() {
         return getPoseStack().last().pose();
+    }
+
+    default boolean isDebugMode() {
+        return Minecraft.getInstance().options.renderDebug;
     }
 }

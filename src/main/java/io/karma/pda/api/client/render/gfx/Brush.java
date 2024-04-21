@@ -4,9 +4,11 @@
 
 package io.karma.pda.api.client.render.gfx;
 
-import net.minecraft.client.renderer.RenderType;
+import io.karma.pda.api.common.util.Color;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Alexander Hinze
@@ -14,7 +16,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  */
 @OnlyIn(Dist.CLIENT)
 public interface Brush {
-    RenderType getRenderType();
+    Color getColor(final int vertexIndex);
 
-    void apply(final GFXContext context);
+    @Nullable
+    ResourceLocation getTexture();
+
+    void apply(final GFX graphics);
 }

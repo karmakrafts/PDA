@@ -19,13 +19,13 @@ import io.karma.pda.client.flex.ClientFlexNodeHandler;
 import io.karma.pda.client.interaction.DockInteractionHandler;
 import io.karma.pda.client.interaction.PDAInteractionHandler;
 import io.karma.pda.client.render.display.DisplayRenderer;
-import io.karma.pda.client.render.gfx.DefaultBrushFactory;
-import io.karma.pda.client.render.gfx.DefaultGFXRenderTypes;
+import io.karma.pda.client.render.gfx.GFXRenderTypes;
 import io.karma.pda.client.render.item.PDAItemRenderer;
 import io.karma.pda.client.screen.DockStorageScreen;
 import io.karma.pda.client.screen.PDAStorageScreen;
 import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.init.*;
+import io.karma.pda.common.json.JSONCodecs;
 import io.karma.pda.common.menu.DockStorageMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import io.karma.pda.common.network.ClientPacketHandler;
@@ -130,6 +130,8 @@ public class PDAMod {
         }
         catch (Throwable error) { /* IGNORE */ }
 
+        JSONCodecs.setup();
+
         ModBlockEntities.register(BLOCK_ENTITIES);
         ModBlocks.register(BLOCKS);
         ModItems.register(ITEMS);
@@ -216,7 +218,7 @@ public class PDAMod {
         PDAInteractionHandler.INSTANCE.setup();
         PDAItemRenderer.INSTANCE.setup();
         DisplayRenderer.getInstance().setupEarly();
-        DefaultGFXRenderTypes.INSTANCE.setupEarly();
+        GFXRenderTypes.INSTANCE.setupEarly();
         initClientAPI();
     }
 
@@ -224,7 +226,6 @@ public class PDAMod {
     private void initClientAPI() {
         ClientAPI.setSessionHandler(ClientSessionHandler.INSTANCE);
         ClientAPI.setFlexNodeHandler(ClientFlexNodeHandler.INSTANCE);
-        ClientAPI.setBrushFactory(DefaultBrushFactory.INSTANCE);
         ClientAPI.init();
     }
 

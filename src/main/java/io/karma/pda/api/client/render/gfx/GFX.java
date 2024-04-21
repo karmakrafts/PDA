@@ -15,6 +15,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public interface GFX {
     GFXContext getContext();
 
+    BrushFactory getBrushFactory();
+
     GFX copy();
 
     void setBrush(final Brush brush);
@@ -28,6 +30,10 @@ public interface GFX {
     void point(final int x, final int y);
 
     void line(final int startX, final int startY, final int endX, final int endY);
+
+    void hLine(final int startX, final int endX, final int y);
+
+    void vLine(final int x, final int startY, final int endY);
 
     void drawRect(final int x, final int y, final int width, final int height);
 

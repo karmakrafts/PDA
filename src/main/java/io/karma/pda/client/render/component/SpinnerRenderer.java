@@ -4,7 +4,7 @@
 
 package io.karma.pda.client.render.component;
 
-import io.karma.pda.api.client.render.component.ComponentRenderer;
+import io.karma.pda.api.client.render.component.AbstractComponentRenderer;
 import io.karma.pda.api.client.render.gfx.GFX;
 import io.karma.pda.api.common.app.component.Spinner;
 import io.karma.pda.api.common.flex.FlexNode;
@@ -16,9 +16,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  * @since 20/04/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class SpinnerRenderer implements ComponentRenderer<Spinner> {
+public final class SpinnerRenderer extends AbstractComponentRenderer<Spinner> {
     @Override
     public void render(final Spinner component, final FlexNode flexNode, final GFX graphics) {
-
+        super.render(component, flexNode, graphics);
     }
 }

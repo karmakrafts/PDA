@@ -5,12 +5,11 @@
 package io.karma.pda.api.client.render.gfx;
 
 import io.karma.pda.api.common.util.Color;
-import net.minecraft.client.renderer.RenderType;
+import io.karma.pda.api.common.util.Identifiable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -19,22 +18,17 @@ import java.util.function.Supplier;
  */
 @OnlyIn(Dist.CLIENT)
 public interface BrushFactory {
-    Brush create(final Supplier<Color> colorSupplier);
+    Brush createDebugBrush(final Identifiable identifiable);
 
-    default Brush create(final Color color) {
-        return create(() -> color);
+    Brush create(final Color color);
+
+    default Brush create(final Supplier<Color> colorSupplier) {
+        return create(colorSupplier.get());
     }
 
-    Brush create(final Supplier<ResourceLocation> textureSupplier, final Supplier<Color> colorSupplier);
+    Brush create(final ResourceLocation texture, final Color color);
 
-    default Brush create(final ResourceLocation texture, final Color color) {
-        return create(() -> texture, () -> color);
-    }
-
-    Brush create(final RenderType renderType, final Consumer<GFXContext> callback);
-
-    default Brush create(final RenderType renderType) {
-        return create(renderType, context -> {
-        });
+    default Brush create(final Supplier<ResourceLocation> textureSupplier, final Supplier<Color> colorSupplier) {
+        return create(textureSupplier.get(), colorSupplier.get());
     }
 }

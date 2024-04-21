@@ -5,13 +5,12 @@
 package io.karma.pda.client.render.gfx;
 
 import io.karma.pda.api.client.render.gfx.Brush;
-import io.karma.pda.api.client.render.gfx.GFXContext;
+import io.karma.pda.api.client.render.gfx.GFX;
 import io.karma.pda.api.common.util.Color;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-
-import java.util.function.Supplier;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Alexander Hinze
@@ -19,19 +18,24 @@ import java.util.function.Supplier;
  */
 @OnlyIn(Dist.CLIENT)
 public final class ColorBrush implements Brush {
-    private final Supplier<Color> color;
+    private final Color color;
 
-    public ColorBrush(final Supplier<Color> color) {
+    public ColorBrush(final Color color) {
         this.color = color;
     }
 
     @Override
-    public RenderType getRenderType() {
-        return DefaultGFXRenderTypes.COLOR;
+    public Color getColor(final int vertexIndex) {
+        return color;
     }
 
     @Override
-    public void apply(final GFXContext context) {
+    public @Nullable ResourceLocation getTexture() {
+        return null;
+    }
+
+    @Override
+    public void apply(final GFX graphics) {
 
     }
 }

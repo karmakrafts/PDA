@@ -37,12 +37,13 @@ minecraft {
             property 'mixin.debug', 'true'
             property 'mixin.debug.dumpTargetOnFailure', 'true'
             property 'mixin.debug.verbose', 'true'
-            property 'mixin.debug.hotSwap', 'true'
+            property 'mixin.hotSwap', 'true'
             mods {
                 "${mod_id}" {
                     source sourceSets.main
                 }
             }
+            jvmArgs '-XX:+AllowEnhancedClassRedefinition', '-XX:HotswapAgent=core'
         }
         client {
             property 'forge.enabledGameTestNamespaces', mod_id

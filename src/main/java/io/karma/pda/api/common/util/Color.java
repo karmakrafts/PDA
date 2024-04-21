@@ -94,6 +94,6 @@ public final class Color {
 
     @JsonIgnore
     public int packARGB() {
-        return (int) (a * 255F) | (int) (g * 255F) << 16 | (int) (b * 255F) << 8 | (int) (r * 255F) << 24;
+        return (int) (a * 255F) << 24 | (int) (r * 255F) << 16 | (int) (g * 255F) << 8 | (int) (b * 255F);
     }
 }

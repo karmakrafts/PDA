@@ -7,7 +7,6 @@ package io.karma.pda.client.sync;
 import io.karma.pda.api.common.sync.Synced;
 import io.karma.pda.api.common.sync.Synchronizer;
 import io.karma.pda.api.common.util.Identifiable;
-import io.karma.pda.api.common.util.LogMarkers;
 import io.karma.pda.common.PDAMod;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -37,7 +36,6 @@ public final class ClientSynchronizer implements Synchronizer {
 
     @Override
     public CompletableFuture<Void> flush(final Predicate<Synced<?>> filter) {
-        PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Submitting synchronizer flush");
         // Offload the sync serialization to our executor service to utilize full CPU
         return CompletableFuture.supplyAsync(() -> {
 

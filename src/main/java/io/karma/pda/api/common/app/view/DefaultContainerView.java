@@ -9,6 +9,8 @@ import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.component.Container;
 import io.karma.pda.api.common.app.component.DefaultComponents;
 import io.karma.pda.api.common.app.component.DefaultContainer;
+import io.karma.pda.api.common.flex.FlexPositionType;
+import io.karma.pda.api.common.flex.FlexValue;
 
 import java.util.function.Consumer;
 
@@ -17,7 +19,12 @@ import java.util.function.Consumer;
  * @since 13/04/2024
  */
 public class DefaultContainerView implements AppView {
-    private final DefaultContainer container = DefaultComponents.CONTAINER.create();
+    // @formatter:off
+    private final DefaultContainer container = DefaultComponents.CONTAINER.create(props -> props
+        .positionType(FlexPositionType.ABSOLUTE)
+        .width(FlexValue.percent(100F))
+        .height(FlexValue.percent(100F)));
+    // @formatter:on
     private final String name;
     private final Consumer<DefaultContainer> callback;
 

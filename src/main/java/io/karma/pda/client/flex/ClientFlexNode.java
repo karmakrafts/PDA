@@ -252,6 +252,7 @@ public final class ClientFlexNode implements FlexNode, Disposable {
         return FlexUtils.getPositionType(Yoga.YGNodeStyleGetPositionType(address));
     }
 
+    @Override
     public void setPositionType(final FlexPositionType type) {
         Yoga.YGNodeStyleSetPositionType(address, FlexUtils.getPositionType(type));
     }
