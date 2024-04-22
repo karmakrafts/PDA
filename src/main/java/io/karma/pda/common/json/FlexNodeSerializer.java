@@ -31,10 +31,12 @@ public final class FlexNodeSerializer extends StdSerializer<FlexNode> {
         generator.writeNumberField("item_alignment", flexNode.getItemAlignment().ordinal());
         generator.writeNumberField("content_alignment", flexNode.getContentAlignment().ordinal());
         generator.writeNumberField("content_justification", flexNode.getContentJustification().ordinal());
+        generator.writeNumberField("wrap", flexNode.getWrap().ordinal());
         generator.writeObjectField("x", flexNode.getX());
         generator.writeObjectField("y", flexNode.getY());
         generator.writeObjectField("w", flexNode.getWidth());
         generator.writeObjectField("h", flexNode.getHeight());
+        generator.writeObjectField("border", flexNode.getBorder());
         generator.writeObjectField("padding", flexNode.getPadding());
         generator.writeObjectField("margin", flexNode.getMargin());
         generator.writeEndObject();

@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Alexander Hinze
@@ -20,7 +21,7 @@ public abstract class AbstractApp implements App {
     protected final AppType<?> type;
     protected final AppState state = new AppState();
     protected final HashMap<String, AppView> views = new HashMap<>();
-    protected String currentView = DEFAULT_VIEW;
+    protected final AtomicReference<String> currentView = new AtomicReference<>(DEFAULT_VIEW);
 
     public AbstractApp(final AppType<?> type) {
         this.type = type;
@@ -53,12 +54,12 @@ public abstract class AbstractApp implements App {
 
     @Override
     public void setView(final String name) {
-        currentView = name;
+        currentView.set(name);
     }
 
     @Override
     public String getViewName() {
-        return currentView;
+        return currentView.get();
     }
 
     @Override
@@ -68,7 +69,7 @@ public abstract class AbstractApp implements App {
 
     @Override
     public AppView getView() {
-        return Objects.requireNonNull(views.get(currentView));
+        return Objects.requireNonNull(views.get(currentView.get()));
     }
 
     @Override

@@ -55,6 +55,10 @@ public interface FlexNode {
 
     FlexJustify getContentJustification();
 
+    void setWrap(final FlexWrap wrap);
+
+    FlexWrap getWrap();
+
     void setX(final FlexValue x);
 
     FlexValue getX();
@@ -70,6 +74,10 @@ public interface FlexNode {
     void setHeight(final FlexValue height);
 
     FlexValue getHeight();
+
+    void setBorder(final FlexBorder border);
+
+    FlexBorder getBorder();
 
     void setMargin(final FlexBorder margin);
 
@@ -87,5 +95,5 @@ public interface FlexNode {
 
     int getAbsoluteY();
 
-    void computeLayout(final int width, final int height);
+    void computeLayout();
 }

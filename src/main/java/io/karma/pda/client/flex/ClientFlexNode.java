@@ -6,6 +6,7 @@ package io.karma.pda.client.flex;
 
 import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.pda.api.common.flex.*;
+import io.karma.pda.common.PDAMod;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
@@ -17,6 +18,7 @@ import org.lwjgl.util.yoga.Yoga;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Alexander Hinze
@@ -33,12 +35,7 @@ public final class ClientFlexNode implements FlexNode, Disposable {
         if (address == MemoryUtil.NULL) {
             throw new IllegalStateException("Could not allocate layout node");
         }
-    }
-
-    public static ClientFlexNode copyOf(final FlexNode flexNode) {
-        final var node = new ClientFlexNode();
-        node.setFrom(flexNode);
-        return node;
+        PDAMod.LOGGER.debug("Allocated flex node at {}", String.format("0x%08X", address));
     }
 
     @Override
@@ -93,20 +90,33 @@ public final class ClientFlexNode implements FlexNode, Disposable {
     }
 
     @Override
-    public void setFrom(final FlexNode flexNode) {
-        setDirection(flexNode.getDirection());
-        setOverflow(flexNode.getOverflow());
-        setSelfAlignment(flexNode.getSelfAlignment());
-        setItemAlignment(flexNode.getItemAlignment());
-        setContentAlignment(flexNode.getContentAlignment());
-        setContentJustification(flexNode.getContentJustification());
-        setMargin(flexNode.getMargin());
-        setPadding(flexNode.getPadding());
-        setPositionType(flexNode.getPositionType());
-        setWidth(flexNode.getWidth());
-        setHeight(flexNode.getHeight());
-        setX(flexNode.getX());
-        setY(flexNode.getY());
+    public void setFrom(final FlexNode node) {
+        setDirection(node.getDirection());
+        setOverflow(node.getOverflow());
+        setSelfAlignment(node.getSelfAlignment());
+        setItemAlignment(node.getItemAlignment());
+        setContentAlignment(node.getContentAlignment());
+        setContentJustification(node.getContentJustification());
+        setWrap(node.getWrap());
+        setMargin(node.getMargin());
+        setPadding(node.getPadding());
+        setPositionType(node.getPositionType());
+        setWidth(node.getWidth());
+        setHeight(node.getHeight());
+        setX(node.getX());
+        setY(node.getY());
+    }
+
+    // Wrap
+
+    @Override
+    public void setWrap(final FlexWrap wrap) {
+        Yoga.YGNodeStyleSetFlexWrap(address, FlexUtils.getWrap(wrap));
+    }
+
+    @Override
+    public FlexWrap getWrap() {
+        return FlexUtils.getWrap(Yoga.YGNodeStyleGetFlexWrap(address));
     }
 
     // Direction
@@ -175,6 +185,35 @@ public final class ClientFlexNode implements FlexNode, Disposable {
     @Override
     public void setContentJustification(final FlexJustify justify) {
         Yoga.YGNodeStyleSetJustifyContent(address, FlexUtils.getJustify(justify));
+    }
+
+    // Border
+
+    public void setBorder(final FlexEdge edge, final FlexValue value) {
+        if (Objects.requireNonNull(value.getType()) != FlexValueType.PIXEL) {
+            throw new UnsupportedOperationException();
+        }
+        Yoga.YGNodeStyleSetBorder(address, edge.getValue(), value.get());
+    }
+
+    public FlexValue getBorder(final FlexEdge edge) {
+        return FlexValue.pixel((int) Yoga.YGNodeStyleGetBorder(address, edge.getValue()));
+    }
+
+    @Override
+    public FlexBorder getBorder() {
+        return FlexBorder.of(getBorder(FlexEdge.LEFT),
+            getBorder(FlexEdge.RIGHT),
+            getBorder(FlexEdge.TOP),
+            getMargin(FlexEdge.BOTTOM));
+    }
+
+    @Override
+    public void setBorder(final FlexBorder margin) {
+        setBorder(FlexEdge.LEFT, margin.getLeft());
+        setBorder(FlexEdge.RIGHT, margin.getRight());
+        setBorder(FlexEdge.TOP, margin.getTop());
+        setBorder(FlexEdge.BOTTOM, margin.getBottom());
     }
 
     // Margin
@@ -358,13 +397,19 @@ public final class ClientFlexNode implements FlexNode, Disposable {
         if (isDisposed) {
             return;
         }
-        // We do not recursively dispose our children here since the node handler takes care of that
+        for (final var child : children) {
+            if (!(child instanceof Disposable disposable)) {
+                continue;
+            }
+            disposable.dispose();
+        }
+        PDAMod.LOGGER.debug("Freeing flex node at {}", String.format("0x%08X", address));
         Yoga.YGNodeFree(address);
         isDisposed = true;
     }
 
     @Override
-    public void computeLayout(final int width, final int height) {
-        Yoga.YGNodeCalculateLayout(address, width, height, Yoga.YGDirectionLTR);
+    public void computeLayout() {
+        Yoga.YGNodeCalculateLayout(address, Yoga.YGUndefined, Yoga.YGUndefined, Yoga.YGDirectionLTR);
     }
 }

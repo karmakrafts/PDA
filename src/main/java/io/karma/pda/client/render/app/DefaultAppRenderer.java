@@ -10,6 +10,7 @@ import io.karma.pda.api.client.render.gfx.GFX;
 import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.component.Container;
+import io.karma.pda.api.common.flex.FlexValue;
 import io.karma.pda.client.flex.ClientFlexNodeHandler;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -26,12 +27,16 @@ public final class DefaultAppRenderer<A extends App> implements AppRenderer<A> {
         final var gfxContext = graphics.getContext();
         final var container = app.getView().getContainer();
         final var flexNode = ClientFlexNodeHandler.INSTANCE.getOrCreateNodeRecursive(container);
-        flexNode.computeLayout(gfxContext.getWidth(), gfxContext.getHeight());
+        final var width = gfxContext.getWidth();
+        final var height = gfxContext.getHeight();
+        flexNode.setWidth(FlexValue.pixel(width));
+        flexNode.setHeight(FlexValue.pixel(height));
+        flexNode.computeLayout();
         ComponentRenderers.get((ComponentType<Container>) container.getType()).render(container, flexNode, graphics);
     }
 
     @Override
     public void cleanup(final A app) {
-        ClientFlexNodeHandler.INSTANCE.removeNodeRecursively(app.getView().getContainer());
+        ClientFlexNodeHandler.INSTANCE.removeNode(app.getView().getContainer());
     }
 }

@@ -17,20 +17,6 @@ import java.util.Objects;
  * @since 10/04/2024
  */
 public final class DefaultFlexNode implements FlexNode {
-    private static final DefaultFlexNode DEFAULTS = new DefaultFlexNode(FlexDirection.ROW,
-        FlexOverflow.VISIBLE,
-        FlexPositionType.RELATIVE,
-        FlexAlignment.CENTER,
-        FlexAlignment.CENTER,
-        FlexAlignment.CENTER,
-        FlexJustify.CENTER,
-        FlexValue.auto(),
-        FlexValue.auto(),
-        FlexValue.auto(),
-        FlexValue.auto(),
-        FlexBorder.empty(),
-        FlexBorder.empty());
-
     private final ArrayList<FlexNode> children = new ArrayList<>();
     private FlexDirection direction;
     private FlexOverflow overflow;
@@ -39,23 +25,21 @@ public final class DefaultFlexNode implements FlexNode {
     private FlexAlignment itemAlignment;
     private FlexAlignment contentAlignment;
     private FlexJustify contentJustification;
+    private FlexWrap wrap;
     private FlexValue x;
     private FlexValue y;
     private FlexValue width;
     private FlexValue height;
+    private FlexBorder border;
     private FlexBorder margin;
     private FlexBorder padding;
-
-    public DefaultFlexNode() {
-        setFrom(DEFAULTS);
-    }
 
     private DefaultFlexNode(final FlexDirection direction, final FlexOverflow overflow,
                             final FlexPositionType positionType, final FlexAlignment selfAlignment,
                             final FlexAlignment itemAlignment, final FlexAlignment contentAlignment,
-                            final FlexJustify contentJustification, final FlexValue x, final FlexValue y,
-                            final FlexValue width, final FlexValue height, final FlexBorder margin,
-                            final FlexBorder padding) {
+                            final FlexJustify contentJustification, final FlexWrap wrap, final FlexValue x,
+                            final FlexValue y, final FlexValue width, final FlexValue height, final FlexBorder border,
+                            final FlexBorder margin, final FlexBorder padding) {
         this.direction = direction;
         this.overflow = overflow;
         this.positionType = positionType;
@@ -63,16 +47,18 @@ public final class DefaultFlexNode implements FlexNode {
         this.itemAlignment = itemAlignment;
         this.contentAlignment = contentAlignment;
         this.contentJustification = contentJustification;
+        this.wrap = wrap;
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
+        this.border = border;
         this.margin = margin;
         this.padding = padding;
     }
 
     public static DefaultFlexNode defaults() {
-        return DEFAULTS;
+        return builder().build();
     }
 
     public static Builder builder() {
@@ -88,10 +74,12 @@ public final class DefaultFlexNode implements FlexNode {
         itemAlignment = flexNode.getItemAlignment();
         contentAlignment = flexNode.getContentAlignment();
         contentJustification = flexNode.getContentJustification();
+        wrap = flexNode.getWrap();
         x = flexNode.getX();
         y = flexNode.getY();
         width = flexNode.getWidth();
         height = flexNode.getHeight();
+        border = flexNode.getBorder();
         margin = flexNode.getMargin();
         padding = flexNode.getPadding();
     }
@@ -171,6 +159,26 @@ public final class DefaultFlexNode implements FlexNode {
     @Override
     public void setContentJustification(final FlexJustify contentJustification) {
         this.contentJustification = contentJustification;
+    }
+
+    @Override
+    public void setWrap(final FlexWrap wrap) {
+        this.wrap = wrap;
+    }
+
+    @Override
+    public FlexWrap getWrap() {
+        return wrap;
+    }
+
+    @Override
+    public void setBorder(final FlexBorder border) {
+        this.border = border;
+    }
+
+    @Override
+    public FlexBorder getBorder() {
+        return border;
     }
 
     @Override
@@ -289,7 +297,7 @@ public final class DefaultFlexNode implements FlexNode {
     }
 
     @Override
-    public void computeLayout(final int width, final int height) {
+    public void computeLayout() {
     }
 
     @Override
@@ -305,10 +313,12 @@ public final class DefaultFlexNode implements FlexNode {
             && itemAlignment == node.getItemAlignment()
             && contentAlignment == node.getContentAlignment()
             && contentJustification == node.getContentJustification()
+            && wrap == node.getWrap()
             && x.equals(node.getX())
             && y.equals(node.getY())
             && width.equals(node.getWidth())
             && height.equals(node.getHeight())
+            && border.equals(node.getBorder())
             && margin.equals(node.getMargin())
             && padding.equals(node.getPadding());
         // @formatter:on
@@ -323,26 +333,30 @@ public final class DefaultFlexNode implements FlexNode {
             itemAlignment,
             contentAlignment,
             contentJustification,
+            wrap,
             x,
             y,
             width,
             height,
+            border,
             margin,
             padding);
     }
 
     public static class Builder {
-        private FlexDirection direction = FlexDirection.ROW;
-        private FlexOverflow overflow = FlexOverflow.HIDDEN;
+        private FlexDirection direction = FlexDirection.COLUMN;
+        private FlexOverflow overflow = FlexOverflow.VISIBLE;
         private FlexPositionType positionType = FlexPositionType.RELATIVE;
         private FlexAlignment selfAlignment = FlexAlignment.AUTO;
-        private FlexAlignment itemAlignment = FlexAlignment.AUTO;
-        private FlexAlignment contentAlignment = FlexAlignment.AUTO;
-        private FlexJustify contentJustification = FlexJustify.CENTER;
+        private FlexAlignment itemAlignment = FlexAlignment.STRETCH;
+        private FlexAlignment contentAlignment = FlexAlignment.FLEX_START;
+        private FlexJustify contentJustification = FlexJustify.FLEX_START;
+        private FlexWrap wrap = FlexWrap.NONE;
         private FlexValue x = FlexValue.auto();
         private FlexValue y = FlexValue.auto();
         private FlexValue width = FlexValue.auto();
         private FlexValue height = FlexValue.auto();
+        private FlexBorder border = FlexBorder.empty();
         private FlexBorder margin = FlexBorder.empty();
         private FlexBorder padding = FlexBorder.empty();
 
@@ -358,12 +372,23 @@ public final class DefaultFlexNode implements FlexNode {
             itemAlignment = node.getItemAlignment();
             contentAlignment = node.getContentAlignment();
             contentJustification = node.getContentJustification();
+            wrap = node.getWrap();
             x = node.getX();
             y = node.getY();
             width = node.getWidth();
             height = node.getHeight();
             margin = node.getMargin();
             padding = node.getPadding();
+            return this;
+        }
+
+        public Builder border(final FlexBorder border) {
+            this.border = border;
+            return this;
+        }
+
+        public Builder wrap(final FlexWrap wrap) {
+            this.wrap = wrap;
             return this;
         }
 
@@ -440,10 +465,12 @@ public final class DefaultFlexNode implements FlexNode {
                 itemAlignment,
                 contentAlignment,
                 contentJustification,
+                wrap,
                 x,
                 y,
                 width,
                 height,
+                border,
                 margin,
                 padding);
         }

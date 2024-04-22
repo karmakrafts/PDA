@@ -72,6 +72,7 @@ public final class ClientPacketHandler extends CommonPacketHandler {
             for (final var view : packet.getViews()) {
                 app.addView(view.getName(), view);
             }
+            app.init();
             ((ClientLauncher) session.getLauncher()).addPendingApp(app);
         }
         // TODO: implement external sessions

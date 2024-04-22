@@ -11,6 +11,7 @@ import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.api.common.util.DisplayType;
+import io.karma.pda.api.common.util.Exceptions;
 import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.client.render.gfx.DefaultGFX;
 import io.karma.pda.client.render.gfx.DefaultGFXContext;
@@ -179,7 +180,7 @@ public final class DisplayRenderer {
             });
         }
         catch (Throwable error) {
-            error.fillInStackTrace().printStackTrace();
+            PDAMod.LOGGER.error("Could not register shader: {}", Exceptions.toFancyString(error));
         }
     }
 
@@ -249,10 +250,10 @@ public final class DisplayRenderer {
         // Use an immediate buffer to blit the FBO onto the baked model
         final var matrix = poseStack.last().pose();
         final var buffer = blitBufferSource.getBuffer(getBlitRenderType(type));
-        buffer.vertex(matrix, MIN_X, MIN_Y, OFFSET_Z).uv(0F, 0F).color(0xFFFFFFFF).endVertex();
-        buffer.vertex(matrix, MAX_X, MIN_Y, OFFSET_Z).uv(1F, 0F).color(0xFFFFFFFF).endVertex();
-        buffer.vertex(matrix, MAX_X, MAX_Y, OFFSET_Z).uv(1F, 1F).color(0xFFFFFFFF).endVertex();
-        buffer.vertex(matrix, MIN_X, MAX_Y, OFFSET_Z).uv(0F, 1F).color(0xFFFFFFFF).endVertex();
+        buffer.vertex(matrix, MIN_X, MIN_Y, OFFSET_Z).uv(0F, 0F).color(-1).endVertex();
+        buffer.vertex(matrix, MAX_X, MIN_Y, OFFSET_Z).uv(1F, 0F).color(-1).endVertex();
+        buffer.vertex(matrix, MAX_X, MAX_Y, OFFSET_Z).uv(1F, 1F).color(-1).endVertex();
+        buffer.vertex(matrix, MIN_X, MAX_Y, OFFSET_Z).uv(0F, 1F).color(-1).endVertex();
         blitBufferSource.endBatch(); // Flush buffer data
     }
 }

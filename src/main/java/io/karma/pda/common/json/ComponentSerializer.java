@@ -32,7 +32,7 @@ public final class ComponentSerializer extends StdSerializer<Component> {
         if (component instanceof Container container) {
             generator.writeArrayFieldStart("children");
             for (final var child : container.getChildren()) {
-                generator.writeObject(child);
+                serialize(child, generator, serializerProvider);
             }
             generator.writeEndArray();
         }

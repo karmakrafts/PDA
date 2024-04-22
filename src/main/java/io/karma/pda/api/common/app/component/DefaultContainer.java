@@ -7,7 +7,8 @@ package io.karma.pda.api.common.app.component;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -15,7 +16,7 @@ import java.util.UUID;
  * @since 08/02/2024
  */
 public class DefaultContainer extends AbstractComponent implements Container {
-    protected final HashMap<UUID, Component> children = new HashMap<>();
+    protected final LinkedHashMap<UUID, Component> children = new LinkedHashMap<>();
 
     public DefaultContainer(final ComponentType<?> type, final UUID id) {
         super(type, id);
@@ -35,23 +36,32 @@ public class DefaultContainer extends AbstractComponent implements Container {
     public void addChild(final Component child) {
         children.put(child.getId(), child);
         child.setParent(this);
+        flexNode.addChild(child.getFlexNode());
     }
 
     @Override
     public void removeChild(final Component child) {
         children.remove(child.getId());
         child.setParent(null);
+        flexNode.removeChild(child.getFlexNode());
     }
 
     @Override
-    public void dispose() {
-        for (final var child : children.values()) {
-            child.dispose();
+    public boolean equals(final Object obj) {
+        if (!(obj instanceof Container container)) {
+            return false;
         }
-        super.dispose();
+        for (final var childId : children.keySet()) {
+            if (container.findChild(childId) != null) {
+                continue;
+            }
+            return false;
+        }
+        return id.equals(container.getId());
     }
 
-    public void clear() {
-        children.clear();
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, children);
     }
 }

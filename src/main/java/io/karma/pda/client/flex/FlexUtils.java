@@ -28,6 +28,22 @@ public final class FlexUtils {
         }; // @formatter:on
     }
 
+    public static int getWrap(final FlexWrap wrap) {
+        return switch(wrap) { // @formatter:off
+            case WRAP         -> Yoga.YGWrapWrap;
+            case WRAP_REVERSE -> Yoga.YGWrapReverse;
+            default           -> Yoga.YGWrapNoWrap;
+        }; // @formatter:on
+    }
+
+    public static FlexWrap getWrap(final int value) {
+        return switch(value) { // @formatter:off
+            case Yoga.YGWrapWrap    -> FlexWrap.WRAP;
+            case Yoga.YGWrapReverse -> FlexWrap.WRAP_REVERSE;
+            default                 -> FlexWrap.NONE;
+        }; // @formatter:on
+    }
+
     public static FlexAlignment getAlignment(final int value) {
         return switch (value) { // @formatter:off
             case Yoga.YGAlignAuto          -> FlexAlignment.AUTO;

@@ -12,6 +12,7 @@ import io.karma.pda.api.common.sync.Synchronizer;
 import io.karma.pda.client.app.ClientLauncher;
 import io.karma.pda.client.sync.ClientSynchronizer;
 import io.karma.pda.common.session.DefaultSession;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -40,7 +41,7 @@ public final class ClientSession extends DefaultSession {
     public void onTermination() {
         // Invoke cleanup callback for all active/suspended app renderers
         for (final var app : launcher.getOpenApps()) {
-            AppRenderers.get((AppType<App>) app.getType()).cleanup(app);
+            Minecraft.getInstance().execute(() -> AppRenderers.get((AppType<App>) app.getType()).cleanup(app));
         }
     }
 }

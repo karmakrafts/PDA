@@ -55,11 +55,6 @@ public abstract class AbstractComponent implements Component {
     }
 
     @Override
-    public void dispose() {
-        API.getLogger().debug("Disposing component {} of type {}", id, type.getName());
-    }
-
-    @Override
     public UUID getId() {
         return id;
     }

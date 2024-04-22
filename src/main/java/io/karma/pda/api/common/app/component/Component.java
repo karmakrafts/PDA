@@ -17,9 +17,6 @@ import java.util.function.Consumer;
  * @since 08/02/2024
  */
 public interface Component extends Identifiable {
-    default void dispose() {
-    }
-
     ComponentType<?> getType();
 
     @Nullable

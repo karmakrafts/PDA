@@ -19,8 +19,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public final class LabelRenderer extends AbstractComponentRenderer<Label> {
     @Override
     public void render(final Label component, final FlexNode flexNode, final GFX graphics) {
-        final var width = flexNode.getAbsoluteWidth();
-        final var height = flexNode.getAbsoluteHeight();
         super.render(component, flexNode, graphics);
     }
 }

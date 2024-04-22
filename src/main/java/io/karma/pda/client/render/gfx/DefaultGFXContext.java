@@ -6,6 +6,7 @@ package io.karma.pda.client.render.gfx;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.karma.pda.api.client.render.gfx.GFXContext;
+import io.karma.pda.common.PDAMod;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -47,5 +48,10 @@ public final class DefaultGFXContext implements GFXContext {
     @Override
     public int getHeight() {
         return height;
+    }
+
+    @Override
+    public boolean isDebugMode() {
+        return PDAMod.IS_DEV_ENV;
     }
 }

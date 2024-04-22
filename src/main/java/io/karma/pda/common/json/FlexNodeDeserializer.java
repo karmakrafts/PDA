@@ -36,10 +36,12 @@ public final class FlexNodeDeserializer extends StdDeserializer<FlexNode> {
             .alignItems(FlexAlignment.values()[((IntNode)node.get("item_alignment")).intValue()])
             .alignContent(FlexAlignment.values()[((IntNode)node.get("content_alignment")).intValue()])
             .justify(FlexJustify.values()[((IntNode)node.get("content_justification")).intValue()])
+            .wrap(FlexWrap.values()[((IntNode)node.get("wrap")).intValue()])
             .x(mapper.treeToValue(node.get("x"), FlexValue.class))
             .y(mapper.treeToValue(node.get("y"), FlexValue.class))
             .width(mapper.treeToValue(node.get("w"), FlexValue.class))
             .height(mapper.treeToValue(node.get("h"), FlexValue.class))
+            .border(mapper.treeToValue(node.get("border"), FlexBorder.class))
             .padding(mapper.treeToValue(node.get("padding"), FlexBorder.class))
             .margin(mapper.treeToValue(node.get("margin"), FlexBorder.class))
             .build();

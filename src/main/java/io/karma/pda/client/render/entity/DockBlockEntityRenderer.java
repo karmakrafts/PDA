@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 @OnlyIn(Dist.CLIENT)
 public final class DockBlockEntityRenderer implements BlockEntityRenderer<DockBlockEntity> {
     public DockBlockEntityRenderer(final BlockEntityRendererProvider.Context context) {
+
     }
 
     @Override
@@ -57,8 +58,7 @@ public final class DockBlockEntityRenderer implements BlockEntityRenderer<DockBl
         poseStack.mulPose(TransformationHelper.quatFromXYZ(0F, angle, 0F, true));
         poseStack.translate(-0.5F, -0.5F, -0.5F);
         poseStack.translate(0F, 3F / 16F, 0F);
-        final var displayRenderer = DisplayRenderer.getInstance();
-        displayRenderer.renderDisplay(stack, bufferSource, poseStack, displayType);
+        DisplayRenderer.getInstance().renderDisplay(stack, bufferSource, poseStack, displayType);
         poseStack.popPose();
     }
 }
