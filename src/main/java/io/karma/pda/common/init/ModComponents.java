@@ -36,6 +36,7 @@ public final class ModComponents {
         register("recipe_image", RecipeImage.class, RecipeImage::new);
         register("player_image", PlayerImage.class, PlayerImage::new);
         register("spinner", Spinner.class, Spinner::new);
+        register("panel", Panel.class, Panel::new);
     }
 
     private static <C extends Component> void register(final String name, final Class<C> type,

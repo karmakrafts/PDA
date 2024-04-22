@@ -103,12 +103,18 @@ public final class DefaultGFX implements GFX {
 
     @Override
     public void point(final int x, final int y) {
+        if (!brush.isVisible()) {
+            return;
+        }
         final var color = brush.getColor(0);
         fillRect(x, y, 1, 1, color, color, color, color);
     }
 
     @Override
     public void hLine(final int startX, final int endX, final int y) {
+        if (!brush.isVisible()) {
+            return;
+        }
         final var color0 = brush.getColor(0);
         final var color1 = brush.getColor(1);
         fillRect(startX, y, endX - startX, 1, color0, color1, color0, color1);
@@ -116,6 +122,9 @@ public final class DefaultGFX implements GFX {
 
     @Override
     public void vLine(final int x, final int startY, final int endY) {
+        if (!brush.isVisible()) {
+            return;
+        }
         final var color0 = brush.getColor(0);
         final var color1 = brush.getColor(1);
         fillRect(x, startY, 1, endY - startY, color0, color0, color1, color1);
@@ -123,6 +132,9 @@ public final class DefaultGFX implements GFX {
 
     @Override
     public void line(final int startX, final int startY, final int endX, final int endY) {
+        if (!brush.isVisible()) {
+            return;
+        }
         if (startX == endX) {
             vLine(startX, startY, endY);
             return;
@@ -135,6 +147,9 @@ public final class DefaultGFX implements GFX {
 
     @Override
     public void drawRect(final int x, final int y, final int width, final int height) {
+        if (!brush.isVisible()) {
+            return;
+        }
         hLine(x, x + width, y);
         hLine(x, x + width, y + height - 1);
         vLine(x, y, y + height);
@@ -143,6 +158,9 @@ public final class DefaultGFX implements GFX {
 
     @Override
     public void fillRect(final int x, final int y, final int width, final int height) {
+        if (!brush.isVisible()) {
+            return;
+        }
         fillRect(x, y, width, height, brush.getColor(0), brush.getColor(1), brush.getColor(2), brush.getColor(3));
     }
 

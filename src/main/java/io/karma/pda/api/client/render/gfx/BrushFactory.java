@@ -18,6 +18,8 @@ import java.util.function.Supplier;
  */
 @OnlyIn(Dist.CLIENT)
 public interface BrushFactory {
+    Brush createInvisible();
+
     Brush createDebugBrush(final Identifiable identifiable);
 
     Brush create(final Color color);

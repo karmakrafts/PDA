@@ -21,5 +21,7 @@ public interface Brush {
     @Nullable
     ResourceLocation getTexture();
 
-    void apply(final GFX graphics);
+    default boolean isVisible() {
+        return true;
+    }
 }

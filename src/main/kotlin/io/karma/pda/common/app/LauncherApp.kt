@@ -18,25 +18,30 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
         defaultView {
             PDAMod.LOGGER.debug("Composing default view")
 
-            label({
-                width(25.percent)
-                height(20.pixels)
-            }) {}
-
-            label({
-                width(50.percent)
-                height(20.pixels)
-            }) {}
-
-            label({
-                width(75.percent)
-                height(20.pixels)
-            }) {}
-
-            label({
+            panel({
                 width(100.percent)
-                height(20.pixels)
-            }) {}
+                height(100.percent)
+            }) {
+                label({
+                    width(25.percent)
+                    height(20.pixels)
+                }) {}
+
+                label({
+                    width(50.percent)
+                    height(20.pixels)
+                }) {}
+
+                label({
+                    width(75.percent)
+                    height(20.pixels)
+                }) {}
+
+                label({
+                    width(100.percent)
+                    height(20.pixels)
+                }) {}
+            }
         }
     }
 }

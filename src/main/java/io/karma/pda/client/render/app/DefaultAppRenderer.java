@@ -27,10 +27,8 @@ public final class DefaultAppRenderer<A extends App> implements AppRenderer<A> {
         final var gfxContext = graphics.getContext();
         final var container = app.getView().getContainer();
         final var flexNode = ClientFlexNodeHandler.INSTANCE.getOrCreateNodeRecursive(container);
-        final var width = gfxContext.getWidth();
-        final var height = gfxContext.getHeight();
-        flexNode.setWidth(FlexValue.pixel(width));
-        flexNode.setHeight(FlexValue.pixel(height));
+        flexNode.setWidth(FlexValue.pixel(gfxContext.getWidth()));
+        flexNode.setHeight(FlexValue.pixel(gfxContext.getHeight()));
         flexNode.computeLayout();
         ComponentRenderers.get((ComponentType<Container>) container.getType()).render(container, flexNode, graphics);
     }

@@ -35,9 +35,4 @@ public final class ColorTextureBrush implements Brush {
     public @Nullable ResourceLocation getTexture() {
         return texture;
     }
-
-    @Override
-    public void apply(final GFX graphics) {
-
-    }
 }

@@ -30,20 +30,31 @@ public final class DefaultBrushFactory implements BrushFactory {
     // @formatter:on
 
     @Override
+    public Brush createInvisible() {
+        return InvisibleBrush.INSTANCE;
+    }
+
+    @Override
     public Brush createDebugBrush(final Identifiable identifiable) {
         final var id = identifiable.getId();
         return create(Color.unpackRGBA(MurmurHash3.hash32(id.getLeastSignificantBits(),
-            id.getMostSignificantBits()) | 0xFF));
+            id.getMostSignificantBits()) | (0xFF << 24)));
     }
 
     @Override
     public Brush create(final Color color) {
+        if (color.equals(Color.NONE)) {
+            return InvisibleBrush.INSTANCE;
+        }
         return brushes.computeIfAbsent(new BrushKey(GFXRenderTypes.COLOR_TRIS.name, color, null),
             key -> new ColorBrush(color));
     }
 
     @Override
     public Brush create(final ResourceLocation texture, final Color color) {
+        if (color.equals(Color.NONE)) {
+            return InvisibleBrush.INSTANCE;
+        }
         return brushes.computeIfAbsent(new BrushKey(GFXRenderTypes.COLOR_TEXTURE_TRIS.name, color, texture),
             key -> new ColorTextureBrush(color, texture));
     }

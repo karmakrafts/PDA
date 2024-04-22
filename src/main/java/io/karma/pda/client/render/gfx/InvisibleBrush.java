@@ -5,32 +5,33 @@
 package io.karma.pda.client.render.gfx;
 
 import io.karma.pda.api.client.render.gfx.Brush;
-import io.karma.pda.api.client.render.gfx.GFX;
 import io.karma.pda.api.common.util.Color;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Alexander Hinze
- * @since 11/04/2024
+ * @since 23/04/2024
  */
-@OnlyIn(Dist.CLIENT)
-public final class ColorBrush implements Brush {
-    private final Color color;
+public class InvisibleBrush implements Brush {
+    public static final InvisibleBrush INSTANCE = new InvisibleBrush();
 
-    public ColorBrush(final Color color) {
-        this.color = color;
-    }
+    // @formatter:off
+    private InvisibleBrush() {}
+    // @formatter:on
 
     @Override
     public Color getColor(final int vertexIndex) {
-        return color;
+        return Color.NONE;
     }
 
     @Override
     public @Nullable ResourceLocation getTexture() {
         return null;
+    }
+
+    @Override
+    public boolean isVisible() {
+        return false;
     }
 }

@@ -36,6 +36,8 @@ public final class DefaultComponents {
     public static final ComponentType<PlayerImage> PLAYER_IMAGE = ComponentType.nullType();
     @ObjectHolder(value = Constants.MODID + ":spinner", registryName = REGISTRY_NAME)
     public static final ComponentType<Spinner> SPINNER = ComponentType.nullType();
+    @ObjectHolder(value = Constants.MODID + ":panel", registryName = REGISTRY_NAME)
+    public static final ComponentType<Panel> PANEL = ComponentType.nullType();
 
     // @formatter:off
     private DefaultComponents() {}

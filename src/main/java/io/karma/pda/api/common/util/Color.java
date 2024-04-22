@@ -9,12 +9,15 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Objects;
+
 /**
  * @author Alexander Hinze
  * @since 11/04/2024
  */
 public final class Color {
     // @formatter:off
+    public static final Color NONE       = new Color(0F, 0F, 0F, 0F);
     public static final Color BLACK      = new Color(0F, 0F, 0F);
     public static final Color WHITE      = new Color(1F, 1F, 1F);
     public static final Color RED        = new Color(1F, 0F, 0F);
@@ -95,5 +98,23 @@ public final class Color {
     @JsonIgnore
     public int packARGB() {
         return (int) (a * 255F) << 24 | (int) (r * 255F) << 16 | (int) (g * 255F) << 8 | (int) (b * 255F);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(r, g, b, a);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (!(obj instanceof Color color)) {
+            return false;
+        }
+        return r == color.r && g == color.g && b == color.b && a == color.a;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Color[%.2f,%.2f,%.2f,%.2f]", r, g, b, a);
     }
 }

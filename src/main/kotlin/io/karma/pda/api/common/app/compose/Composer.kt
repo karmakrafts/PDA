@@ -39,6 +39,10 @@ value class Composer<C : Container>(val container: C) {
         crossinline props: ComponentProps, scope: Composer<DefaultContainer>.() -> Unit
     ) = container(DefaultComponents.CONTAINER, props, scope)
 
+    inline fun panel(
+        crossinline props: ComponentProps, scope: Composer<Panel>.() -> Unit
+    ) = container(DefaultComponents.PANEL, props, scope)
+
     inline fun label(
         crossinline props: ComponentProps, scope: Label.() -> Unit
     ) = component(DefaultComponents.LABEL, props, scope)
