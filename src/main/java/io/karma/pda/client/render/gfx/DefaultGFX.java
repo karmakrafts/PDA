@@ -20,6 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public final class DefaultGFX implements GFX {
     private final GFXContext context;
     private int zIndex = 0;
+    private float lineWidth = 1F;
     private Brush brush = DefaultBrushFactory.INSTANCE.create(Color.WHITE);
 
     public DefaultGFX(final GFXContext context) {
@@ -49,6 +50,16 @@ public final class DefaultGFX implements GFX {
     @Override
     public int getZIndex() {
         return zIndex;
+    }
+
+    @Override
+    public void setLineWidth(final float lineWidth) {
+        this.lineWidth = lineWidth;
+    }
+
+    @Override
+    public float getLineWidth() {
+        return lineWidth;
     }
 
     @Override

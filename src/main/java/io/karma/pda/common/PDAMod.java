@@ -4,6 +4,7 @@
 
 package io.karma.pda.common;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.karma.pda.api.client.ClientAPI;
 import io.karma.pda.api.common.API;
@@ -130,8 +131,6 @@ public class PDAMod {
         }
         catch (Throwable error) { /* IGNORE */ }
 
-        JSONCodecs.setup();
-
         ModBlockEntities.register(BLOCK_ENTITIES);
         ModBlocks.register(BLOCKS);
         ModItems.register(ITEMS);
@@ -196,6 +195,7 @@ public class PDAMod {
 
     private void onCommonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            JSONCodecs.setup();
             CommonPacketHandler.INSTANCE.registerPackets();
             ClientPacketHandler.INSTANCE.registerPackets();
         });
@@ -203,6 +203,7 @@ public class PDAMod {
 
     private void initAPI() {
         API.setLogger(LOGGER);
+        API.setObjectMapper(new ObjectMapper());
         API.setExecutorService(EXECUTOR_SERVICE);
         API.setSessionHandler(DefaultSessionHandler.INSTANCE);
         API.setComponentTypeRegistry(() -> RegistryUtils.getRegistry(Constants.COMPONENT_REGISTRY_NAME));

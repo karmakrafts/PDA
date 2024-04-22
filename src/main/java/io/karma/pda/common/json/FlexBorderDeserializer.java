@@ -7,9 +7,9 @@ package io.karma.pda.common.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.flex.FlexBorder;
 import io.karma.pda.api.common.flex.FlexValue;
-import io.karma.pda.api.common.util.JSONUtils;
 
 import java.io.IOException;
 
@@ -26,7 +26,7 @@ public final class FlexBorderDeserializer extends StdDeserializer<FlexBorder> {
     public FlexBorder deserialize(final JsonParser parser,
                                   final DeserializationContext deserializationContext) throws IOException {
         final var node = parser.getCodec().readTree(parser);
-        final var mapper = JSONUtils.MAPPER;
+        final var mapper = API.getObjectMapper();
         final var left = mapper.treeToValue(node.get(0), FlexValue.class);
         final var top = mapper.treeToValue(node.get(1), FlexValue.class);
         final var right = mapper.treeToValue(node.get(2), FlexValue.class);

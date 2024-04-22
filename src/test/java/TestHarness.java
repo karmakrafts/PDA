@@ -2,10 +2,12 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.app.component.AbstractComponent;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.component.DefaultContainer;
+import io.karma.pda.common.json.JSONCodecs;
 import io.karma.pda.common.session.DefaultSessionHandler;
 import mock.MockForgeRegistry;
 import net.minecraft.resources.ResourceLocation;
@@ -43,9 +45,9 @@ public final class TestHarness {
         "components"));
 
     public static final ComponentType<TestComponent> COMPONENT = new ComponentType<>(new ResourceLocation("test",
-        "component"), TestComponent::new);
+        "component"), TestComponent.class, TestComponent::new);
     public static final ComponentType<TestContainer> CONTAINER = new ComponentType<>(new ResourceLocation("test",
-        "container"), TestContainer::new);
+        "container"), TestContainer.class, TestContainer::new);
 
     public static void init() {
         if (isInitialized) {
@@ -62,10 +64,13 @@ public final class TestHarness {
 
             // Mock the API lazily
             API.setLogger(logger);
+            API.setObjectMapper(new ObjectMapper());
             API.setExecutorService(executor);
             API.setSessionHandler(DefaultSessionHandler.INSTANCE);
             API.setComponentTypeRegistry(() -> COMPONENT_REGISTRY);
             API.init();
+            // Manually register all codecs
+            JSONCodecs.setup();
         }
 
         isInitialized = true;

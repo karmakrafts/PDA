@@ -8,8 +8,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.IntNode;
+import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.flex.*;
-import io.karma.pda.api.common.util.JSONUtils;
 
 import java.io.IOException;
 
@@ -26,6 +26,7 @@ public final class FlexNodeDeserializer extends StdDeserializer<FlexNode> {
     public FlexNode deserialize(final JsonParser parser,
                                 final DeserializationContext deserializationContext) throws IOException {
         final var node = parser.getCodec().readTree(parser);
+        final var mapper = API.getObjectMapper();
         // @formatter:off
         return DefaultFlexNode.builder()
             .direction(FlexDirection.values()[((IntNode)node.get("direction")).intValue()])
@@ -35,12 +36,12 @@ public final class FlexNodeDeserializer extends StdDeserializer<FlexNode> {
             .alignItems(FlexAlignment.values()[((IntNode)node.get("item_alignment")).intValue()])
             .alignContent(FlexAlignment.values()[((IntNode)node.get("content_alignment")).intValue()])
             .justify(FlexJustify.values()[((IntNode)node.get("content_justification")).intValue()])
-            .x(JSONUtils.MAPPER.treeToValue(node.get("x"), FlexValue.class))
-            .y(JSONUtils.MAPPER.treeToValue(node.get("y"), FlexValue.class))
-            .width(JSONUtils.MAPPER.treeToValue(node.get("w"), FlexValue.class))
-            .height(JSONUtils.MAPPER.treeToValue(node.get("h"), FlexValue.class))
-            .padding(JSONUtils.MAPPER.treeToValue(node.get("padding"), FlexBorder.class))
-            .margin(JSONUtils.MAPPER.treeToValue(node.get("margin"), FlexBorder.class))
+            .x(mapper.treeToValue(node.get("x"), FlexValue.class))
+            .y(mapper.treeToValue(node.get("y"), FlexValue.class))
+            .width(mapper.treeToValue(node.get("w"), FlexValue.class))
+            .height(mapper.treeToValue(node.get("h"), FlexValue.class))
+            .padding(mapper.treeToValue(node.get("padding"), FlexBorder.class))
+            .margin(mapper.treeToValue(node.get("margin"), FlexBorder.class))
             .build();
         // @formatter:on
     }

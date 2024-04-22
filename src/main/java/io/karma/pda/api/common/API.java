@@ -4,6 +4,7 @@
 
 package io.karma.pda.api.common;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.theme.Theme;
@@ -30,6 +31,7 @@ public class API {
     private static Logger logger;
     private static ExecutorService executorService;
     private static SessionHandler sessionHandler;
+    private static ObjectMapper objectMapper;
     private static Supplier<IForgeRegistry<ComponentType<?>>> componentTypeRegistry;
     private static Supplier<IForgeRegistry<AppType<?>>> appTypeRegistry;
     private static Supplier<IForgeRegistry<Theme>> themeRegistry;
@@ -65,6 +67,11 @@ public class API {
     }
 
     @ApiStatus.Internal
+    public static void setObjectMapper(final ObjectMapper objectMapper) {
+        API.objectMapper = objectMapper;
+    }
+
+    @ApiStatus.Internal
     public static void setExecutorService(final ExecutorService executorService) {
         API.executorService = executorService;
     }
@@ -94,6 +101,11 @@ public class API {
     public static Logger getLogger() {
         assertInitialized();
         return logger;
+    }
+
+    public static ObjectMapper getObjectMapper() {
+        assertInitialized();
+        return objectMapper;
     }
 
     public static ResourceManager getResourceManager() {

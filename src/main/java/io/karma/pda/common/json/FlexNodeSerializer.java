@@ -25,6 +25,7 @@ public final class FlexNodeSerializer extends StdSerializer<FlexNode> {
                           final SerializerProvider serializerProvider) throws IOException {
         generator.writeStartObject();
         generator.writeNumberField("direction", flexNode.getDirection().ordinal());
+        generator.writeNumberField("overflow", flexNode.getOverflow().ordinal());
         generator.writeNumberField("position_type", flexNode.getPositionType().ordinal());
         generator.writeNumberField("self_alignment", flexNode.getSelfAlignment().ordinal());
         generator.writeNumberField("item_alignment", flexNode.getItemAlignment().ordinal());

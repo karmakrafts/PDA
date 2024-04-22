@@ -27,6 +27,10 @@ public interface GFX {
 
     int getZIndex();
 
+    void setLineWidth(final float lineWidth);
+
+    float getLineWidth();
+
     void point(final int x, final int y);
 
     void line(final int startX, final int startY, final int endX, final int endY);

@@ -5,14 +5,15 @@
 package io.karma.pda.common.json;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.app.component.Component;
+import io.karma.pda.api.common.app.component.Container;
 import io.karma.pda.api.common.app.view.AppView;
 import io.karma.pda.api.common.flex.FlexBorder;
 import io.karma.pda.api.common.flex.FlexNode;
 import io.karma.pda.api.common.flex.FlexValue;
 import io.karma.pda.api.common.util.Constants;
-import io.karma.pda.api.common.util.JSONUtils;
-import io.karma.pda.common.PDAMod;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * @author Alexander Hinze
@@ -25,9 +26,9 @@ public final class JSONCodecs {
     private JSONCodecs() {}
     // @formatter:on
 
+    @SuppressWarnings("unchecked")
+    @ApiStatus.Internal
     public static void setup() {
-        PDAMod.LOGGER.debug("Initializing JSON codecs");
-
         MODULE.addSerializer(FlexValue.class, new FlexValueSerializer());
         MODULE.addSerializer(FlexBorder.class, new FlexBorderSerializer());
         MODULE.addSerializer(FlexNode.class, new FlexNodeSerializer());
@@ -37,9 +38,17 @@ public final class JSONCodecs {
         MODULE.addDeserializer(FlexValue.class, new FlexValueDeserializer());
         MODULE.addDeserializer(FlexBorder.class, new FlexBorderDeserializer());
         MODULE.addDeserializer(FlexNode.class, new FlexNodeDeserializer());
-        MODULE.addDeserializer(Component.class, new ComponentDeserializer());
+        MODULE.addDeserializer(Component.class, new ComponentDeserializer<>(Component.class));
+        MODULE.addDeserializer(Container.class, new ComponentDeserializer<>(Container.class));
         MODULE.addDeserializer(AppView.class, new AppViewDeserializer());
 
-        JSONUtils.MAPPER.registerModule(MODULE);
+        final var components = API.getComponentTypes();
+        for (final var component : components) {
+            final var type = (Class<Component>) component.getType();
+            MODULE.addSerializer(type, new ComponentSerializer());
+            MODULE.addDeserializer(type, new ComponentDeserializer<>(type));
+        }
+
+        API.getObjectMapper().registerModule(MODULE);
     }
 }

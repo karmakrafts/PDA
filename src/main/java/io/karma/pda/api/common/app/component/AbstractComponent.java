@@ -103,4 +103,22 @@ public abstract class AbstractComponent implements Component {
     public void onMouseExit(final Consumer<MouseMoveEvent> callback) {
         mouseExitEventConsumer = mouseExitEventConsumer.andThen(callback);
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s[%s]", type.getName(), id);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (!(obj instanceof Component component)) {
+            return false;
+        }
+        return id.equals(component.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }

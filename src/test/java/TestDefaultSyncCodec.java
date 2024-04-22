@@ -4,8 +4,8 @@
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.sync.DefaultSyncCodec;
-import io.karma.pda.api.common.util.JSONUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -44,7 +44,7 @@ public final class TestDefaultSyncCodec {
         final var codec = new DefaultSyncCodec();
 
         final var object = new TestClass("foo", "bar");
-        final var node = JSONUtils.MAPPER.createObjectNode();
+        final var node = API.getObjectMapper().createObjectNode();
         codec.encode("test", object, node);
         Assertions.assertFalse(node.isEmpty());
         TestHarness.logger.info("Encoded synchronized value:\n{}\n", node.toPrettyString());

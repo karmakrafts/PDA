@@ -5,7 +5,7 @@
 package io.karma.pda.common.network.cb;
 
 import io.karma.pda.api.common.app.view.AppView;
-import io.karma.pda.common.network.AppViewCodec;
+import io.karma.pda.api.common.util.JSONUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -49,14 +49,6 @@ public final class CPacketOpenApp {
     }
 
     public static void encode(final CPacketOpenApp packet, final FriendlyByteBuf buffer) {
-        final var viewDataArrays = new ArrayList<byte[]>();
-        for (final var view : packet.views) {
-            final var viewData = AppViewCodec.encode(view);
-            if (viewData.length == 0) {
-                continue; // TODO: warn?
-            }
-            viewDataArrays.add(viewData);
-        }
         buffer.writeUUID(packet.sessionId);
         final var playerId = packet.playerId;
         if (playerId != null) {
@@ -67,10 +59,9 @@ public final class CPacketOpenApp {
             buffer.writeBoolean(false);
         }
         buffer.writeResourceLocation(packet.getName());
-        buffer.writeInt(viewDataArrays.size());
-        for (final var viewData : viewDataArrays) {
-            buffer.writeByteArray(viewData);
-        }
+        final var compressedViews = packet.views.stream().map(JSONUtils::compressRaw).toList();
+        buffer.writeInt(compressedViews.size());
+        compressedViews.forEach(buffer::writeByteArray);
     }
 
     public static CPacketOpenApp decode(final FriendlyByteBuf buffer) {
@@ -78,13 +69,9 @@ public final class CPacketOpenApp {
         final var playerId = buffer.readBoolean() ? buffer.readUUID() : null;
         final var name = buffer.readResourceLocation();
         final var numViews = buffer.readInt();
-        final var views = new ArrayList<AppView>();
+        final var views = new ArrayList<AppView>(numViews);
         for (var i = 0; i < numViews; i++) {
-            final var view = AppViewCodec.decode(buffer.readByteArray());
-            if (view == null) {
-                continue; // TODO: warn?
-            }
-            views.add(view);
+            views.add(JSONUtils.decompressRaw(buffer.readByteArray(), AppView.class));
         }
         return new CPacketOpenApp(sessionId, playerId, name, views);
     }

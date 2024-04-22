@@ -16,18 +16,25 @@ import java.util.function.Consumer;
  * @since 18/02/2024
  */
 public final class ComponentType<C extends Component> {
-    private static final ComponentType<?> NULL = new ComponentType<>(null, null);
+    private static final ComponentType<?> NULL = new ComponentType<>(null, null, null);
 
     private final ResourceLocation name;
+    private final Class<C> type;
     private final BiFunction<ComponentType<C>, UUID, C> factory;
 
-    public ComponentType(final ResourceLocation name, final BiFunction<ComponentType<C>, UUID, C> factory) {
+    public ComponentType(final ResourceLocation name, final Class<C> type,
+                         final BiFunction<ComponentType<C>, UUID, C> factory) {
         this.name = name;
+        this.type = type;
         this.factory = factory;
     }
 
     public ResourceLocation getName() {
         return name;
+    }
+
+    public Class<C> getType() {
+        return type;
     }
 
     public C create(final UUID uuid, final Consumer<DefaultFlexNode.Builder> props) {

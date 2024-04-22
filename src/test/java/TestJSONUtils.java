@@ -3,6 +3,7 @@
  */
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.util.JSONUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,9 @@ import org.junit.jupiter.api.TestInstance;
 public final class TestJSONUtils {
     @Test
     void testCompressDecompress() {
-        final var node = JSONUtils.MAPPER.createObjectNode();
+        TestHarness.init();
+
+        final var node = API.getObjectMapper().createObjectNode();
         node.put("value", "HELLO WORLD!");
 
         final var data = JSONUtils.compressRaw(node);
@@ -27,5 +30,7 @@ public final class TestJSONUtils {
         final var subNode = reconstructed.get("value");
         Assertions.assertTrue(subNode.isTextual());
         Assertions.assertEquals("HELLO WORLD!", subNode.asText());
+
+        TestHarness.dispose();
     }
 }

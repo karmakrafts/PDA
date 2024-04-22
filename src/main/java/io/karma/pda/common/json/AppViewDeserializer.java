@@ -4,15 +4,14 @@
 
 package io.karma.pda.common.json;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.TextNode;
+import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.app.component.Container;
 import io.karma.pda.api.common.app.view.AppView;
 import io.karma.pda.api.common.app.view.DefaultView;
-import io.karma.pda.api.common.util.JSONUtils;
 
 import java.io.IOException;
 
@@ -30,7 +29,7 @@ public final class AppViewDeserializer extends StdDeserializer<AppView> {
                                final DeserializationContext deserializationContext) throws IOException {
         final var node = parser.getCodec().readTree(parser);
         final var name = ((TextNode) node.get("name")).asText();
-        final var container = JSONUtils.MAPPER.treeToValue(node.get("container"), Container.class);
+        final var container = API.getObjectMapper().treeToValue(node.get("container"), Container.class);
         return new DefaultView(name, container);
     }
 }

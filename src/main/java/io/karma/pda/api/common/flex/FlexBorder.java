@@ -10,27 +10,7 @@ package io.karma.pda.api.common.flex;
  */
 public interface FlexBorder {
     static FlexBorder of(final FlexValue left, final FlexValue right, final FlexValue top, final FlexValue bottom) {
-        return new FlexBorder() {
-            @Override
-            public FlexValue getLeft() {
-                return left;
-            }
-
-            @Override
-            public FlexValue getRight() {
-                return right;
-            }
-
-            @Override
-            public FlexValue getTop() {
-                return top;
-            }
-
-            @Override
-            public FlexValue getBottom() {
-                return bottom;
-            }
-        };
+        return new DefaultFlexBorder(left, right, top, bottom);
     }
 
     static FlexBorder of(final FlexValue width) {

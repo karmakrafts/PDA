@@ -13,7 +13,6 @@ import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.app.component.Component;
 import io.karma.pda.api.common.app.component.Container;
 import io.karma.pda.api.common.flex.FlexNode;
-import io.karma.pda.api.common.util.JSONUtils;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
@@ -23,14 +22,15 @@ import java.util.UUID;
  * @author Alexander Hinze
  * @since 21/04/2024
  */
-public final class ComponentDeserializer extends StdDeserializer<Component> {
-    public ComponentDeserializer() {
-        super(Component.class);
+public final class ComponentDeserializer<C extends Component> extends StdDeserializer<C> {
+    public ComponentDeserializer(final Class<C> type) {
+        super(type);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Component deserialize(final JsonParser parser,
-                                 final DeserializationContext deserializationContext) throws IOException {
+    public C deserialize(final JsonParser parser,
+                         final DeserializationContext deserializationContext) throws IOException {
         final var node = parser.getCodec().readTree(parser);
 
         final var typeName = ResourceLocation.tryParse(((TextNode) node.get("type")).asText());
@@ -44,16 +44,17 @@ public final class ComponentDeserializer extends StdDeserializer<Component> {
         }
 
         final var id = UUID.fromString(((TextNode) node.get("id")).asText());
-        final var constraints = JSONUtils.MAPPER.treeToValue(node.get("constraints"), FlexNode.class);
+        final var mapper = API.getObjectMapper();
+        final var constraints = mapper.treeToValue(node.get("constraints"), FlexNode.class);
         final var component = type.create(id, props -> props.from(constraints));
 
         if (component instanceof Container container) {
             final var childNodes = (ArrayNode) node.get("children");
             for (final var childNode : childNodes) {
-                container.addChild(JSONUtils.MAPPER.treeToValue(childNode, Component.class));
+                container.addChild(mapper.treeToValue(childNode, Component.class));
             }
         }
 
-        return component;
+        return (C) component;
     }
 }

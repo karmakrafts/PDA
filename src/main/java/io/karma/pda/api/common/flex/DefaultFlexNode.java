@@ -4,15 +4,13 @@
 
 package io.karma.pda.api.common.flex;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import io.karma.pda.api.common.dispose.Disposable;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Alexander Hinze
@@ -292,6 +290,45 @@ public final class DefaultFlexNode implements FlexNode {
 
     @Override
     public void computeLayout(final int width, final int height) {
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (!(obj instanceof FlexNode node)) {
+            return false;
+        }
+        // @formatter:off
+        return direction == node.getDirection()
+            && overflow == node.getOverflow()
+            && positionType == node.getPositionType()
+            && selfAlignment == node.getSelfAlignment()
+            && itemAlignment == node.getItemAlignment()
+            && contentAlignment == node.getContentAlignment()
+            && contentJustification == node.getContentJustification()
+            && x.equals(node.getX())
+            && y.equals(node.getY())
+            && width.equals(node.getWidth())
+            && height.equals(node.getHeight())
+            && margin.equals(node.getMargin())
+            && padding.equals(node.getPadding());
+        // @formatter:on
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(direction,
+            overflow,
+            positionType,
+            selfAlignment,
+            itemAlignment,
+            contentAlignment,
+            contentJustification,
+            x,
+            y,
+            width,
+            height,
+            margin,
+            padding);
     }
 
     public static class Builder {
