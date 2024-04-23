@@ -28,7 +28,7 @@ import java.util.function.Predicate;
  */
 @OnlyIn(Dist.CLIENT)
 public final class ClientSynchronizer implements Synchronizer {
-    private static final ConcurrentHashMap<Class<?>, List<VarHandle>> FIELD_CACHE = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Class<?>, List<Pair<Field, VarHandle>>> FIELD_HANDLE_CACHE = new ConcurrentHashMap<>();
     private final UUID sessionId;
     private final ConcurrentHashMap<UUID, Pair<Sync, Synced<?>>> fields = new ConcurrentHashMap<>();
     private final ConcurrentLinkedDeque<UUID> queue = new ConcurrentLinkedDeque<>();
@@ -41,19 +41,36 @@ public final class ClientSynchronizer implements Synchronizer {
         return Synced.class.isAssignableFrom(field.getType()) && field.isAnnotationPresent(Sync.class);
     }
 
-    private static List<VarHandle> findFields(final Class<?> type) throws IllegalAccessException {
-        return FIELD_CACHE.computeIfAbsent(type, t -> {
+    private static Pair<Sync, Synced<?>> getFieldPair(final Object instance, final Pair<Field, VarHandle> pair) {
+        final var field = pair.getLeft();
+        try {
+            PDAMod.LOGGER.debug("Reflecting synced property '{}' in {}",
+                field.getName(),
+                field.getDeclaringClass().getName());
+            return Pair.of(field.getAnnotation(Sync.class), (Synced<?>) pair.getRight().get(instance));
+        }
+        catch (Throwable error) {
+            PDAMod.LOGGER.error("Could not retrieve field pair for '{}' in {}: {}",
+                field.getName(),
+                field.getDeclaringClass().getName(),
+                Exceptions.toFancyString(error));
+            return null;
+        }
+    }
+
+    private static List<Pair<Field, VarHandle>> findFields(final Object instance) {
+        return FIELD_HANDLE_CACHE.computeIfAbsent(instance.getClass(), type -> {
             try {
-                final var lookup = MethodHandles.privateLookupIn(t, MethodHandles.lookup());
                 // @formatter:off
-                return Arrays.stream(t.getDeclaredFields())
+                return Arrays.stream(type.getDeclaredFields())
                     .filter(ClientSynchronizer::isSyncedField)
                     .map(field -> {
                         try {
-                            return lookup.unreflectVarHandle(field);
+                            field.setAccessible(true);
+                            return Pair.of(field, MethodHandles.lookup().unreflectVarHandle(field));
                         }
                         catch (Throwable error) {
-                            PDAMod.LOGGER.error("Could not unreflect field {} in {}: {}", field.getName(), t,
+                            PDAMod.LOGGER.error("Could not unreflect field {} in {}: {}", field.getName(), type,
                                 Exceptions.toFancyString(error));
                             return null;
                         }
@@ -63,10 +80,20 @@ public final class ClientSynchronizer implements Synchronizer {
                 // @formatter:on
             }
             catch (Throwable error) {
-                PDAMod.LOGGER.error("Could not find syncable fields in {}: {}", type, Exceptions.toFancyString(error));
+                PDAMod.LOGGER.error("Could not reflect fields in {}: {}",
+                    type.getName(),
+                    Exceptions.toFancyString(error));
                 return Collections.emptyList();
             }
         });
+    }
+
+    private static List<Pair<Sync, Synced<?>>> getFields(final Object instance) {
+        // @formatter:off
+        return findFields(instance).stream()
+            .map(p -> getFieldPair(instance, p))
+            .toList();
+        // @formatter:on
     }
 
     @Override
@@ -80,7 +107,7 @@ public final class ClientSynchronizer implements Synchronizer {
     }
 
     @Override
-    public void register(final Synced<?> value) {
+    public void register(final Synced<?> value, final boolean isPersistent) {
         value.setCallback((prop, newValue) -> {
             final var oldValue = prop.get();
             if (oldValue.equals(newValue)) {
@@ -92,12 +119,15 @@ public final class ClientSynchronizer implements Synchronizer {
             }
             queue.add(id);
         });
+        PDAMod.LOGGER.debug("Registered synced property {}", value.getId());
     }
 
     @Override
     public void register(final Object instance) {
         try {
-            final var fields = findFields(instance.getClass());
+            for (final var pair : getFields(instance)) {
+                register(pair.getRight(), pair.getLeft().persistent());
+            }
         }
         catch (Throwable error) {
             PDAMod.LOGGER.error("Could not register object {} to synchronizer: {}",
@@ -109,10 +139,20 @@ public final class ClientSynchronizer implements Synchronizer {
     @Override
     public void unregister(final Synced<?> value) {
         value.setCallback(null);
+        PDAMod.LOGGER.debug("Unregistered synced property {}", value.getId());
     }
 
     @Override
     public void unregister(final Object instance) {
-
+        try {
+            for (final var pair : getFields(instance)) {
+                unregister(pair.getRight());
+            }
+        }
+        catch (Throwable error) {
+            PDAMod.LOGGER.error("Could not unregister object {} from synchronizer: {}",
+                instance,
+                Exceptions.toFancyString(error));
+        }
     }
 }

@@ -22,9 +22,20 @@ public interface Synchronizer {
      * instance and record every value change to be
      * sent to the server.
      *
+     * @param value        The property to be registered.
+     * @param isPersistent True if the property should be saved to NBT snapshots.
+     */
+    void register(final Synced<?> value, final boolean isPersistent);
+
+    /**
+     * Same as {@link #register(Synced, boolean)}, except the property
+     * is always marked as persistent.
+     *
      * @param value The property to be registered.
      */
-    void register(final Synced<?> value);
+    default void register(final Synced<?> value) {
+        register(value, true);
+    }
 
     /**
      * Register the given object instance to this synchronizer

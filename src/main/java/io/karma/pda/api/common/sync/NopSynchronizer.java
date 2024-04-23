@@ -19,7 +19,7 @@ public final class NopSynchronizer implements Synchronizer {
     // @formatter:on
 
     @Override
-    public void register(final Synced<?> value) {
+    public void register(final Synced<?> value, final boolean isPersistent) {
 
     }
 
