@@ -46,9 +46,4 @@ public class DefaultSession implements Session {
     public Launcher getLauncher() {
         return launcher;
     }
-
-    @Override
-    public void onTerminated() {
-
-    }
 }
