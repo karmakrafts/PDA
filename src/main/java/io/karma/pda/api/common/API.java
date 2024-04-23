@@ -9,6 +9,8 @@ import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.theme.Theme;
 import io.karma.pda.api.common.session.SessionHandler;
+import io.karma.pda.api.common.sync.NopSynchronizer;
+import io.karma.pda.api.common.sync.Synchronizer;
 import io.karma.pda.api.common.util.Constants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -113,14 +115,25 @@ public class API {
             () -> () -> ServerLifecycleHooks.getCurrentServer().getResourceManager());
     }
 
-    public static ExecutorService getExecutorService() {
+    public static Synchronizer getSynchronizer() {
         assertInitialized();
-        return executorService;
+        return DistExecutor.unsafeRunForDist(() -> {
+            final var session = sessionHandler.getActiveSession();
+            if (session == null) {
+                return () -> NopSynchronizer.INSTANCE;
+            }
+            return session::getSynchronizer;
+        }, () -> () -> NopSynchronizer.INSTANCE);
     }
 
     public static SessionHandler getSessionHandler() {
         assertInitialized();
         return sessionHandler;
+    }
+
+    public static ExecutorService getExecutorService() {
+        assertInitialized();
+        return executorService;
     }
 
     public static DeferredRegister<ComponentType<?>> makeDeferredComponentTypeRegister(final String modId) {

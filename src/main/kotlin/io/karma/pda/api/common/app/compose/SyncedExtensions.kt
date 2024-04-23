@@ -30,3 +30,7 @@ inline fun <reified T> syncedOf(value: T? = null): Synced<T?> {
     return if (value == null) Synced.ofNull(T::class.java)
     else Synced.of(value)
 }
+
+inline fun <reified T> syncedBy(crossinline function: () -> T?): Synced<T?> {
+    return Synced.by(T::class.java) { function() }
+}

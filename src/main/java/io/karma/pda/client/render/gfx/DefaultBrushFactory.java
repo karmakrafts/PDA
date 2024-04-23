@@ -37,8 +37,11 @@ public final class DefaultBrushFactory implements BrushFactory {
     @Override
     public Brush createDebugBrush(final Identifiable identifiable) {
         final var id = identifiable.getId();
-        return create(Color.unpackRGBA(MurmurHash3.hash32(id.getLeastSignificantBits(),
-            id.getMostSignificantBits()) | (0xFF << 24)));
+        final var lsb = id.getLeastSignificantBits();
+        final var msb = id.getMostSignificantBits();
+        final var data1 = ((lsb & 0xFFFF_FFFFL) << 32) | (msb >> 32) & 0xFFFF_FFFFL;
+        final var data2 = ((msb & 0xFFFF_FFFFL) << 32) | (lsb >> 32) & 0xFFFF_FFFFL;
+        return create(Color.unpackRGBA(MurmurHash3.hash32(data1, data2) | 0xFF));
     }
 
     @Override

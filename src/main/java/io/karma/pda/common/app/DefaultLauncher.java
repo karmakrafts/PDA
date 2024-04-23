@@ -7,6 +7,7 @@ package io.karma.pda.common.app;
 import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.Launcher;
+import io.karma.pda.api.common.app.LauncherSettings;
 import io.karma.pda.api.common.session.Session;
 import io.karma.pda.api.common.util.LogMarkers;
 import io.karma.pda.common.PDAMod;
@@ -25,9 +26,11 @@ public class DefaultLauncher implements Launcher {
     protected final Session session;
     protected final Stack<App> appStack = new Stack<>();
     protected final Object appStackLock = new Object();
+    protected final LauncherSettings settings = new LauncherSettings();
 
     public DefaultLauncher(final Session session) {
         this.session = session;
+        session.getSynchronizer().register(settings);
     }
 
     @SuppressWarnings("unchecked")
@@ -102,5 +105,10 @@ public class DefaultLauncher implements Launcher {
         synchronized (appStackLock) {
             return Collections.unmodifiableList(appStack);
         }
+    }
+
+    @Override
+    public LauncherSettings getSettings() {
+        return settings;
     }
 }

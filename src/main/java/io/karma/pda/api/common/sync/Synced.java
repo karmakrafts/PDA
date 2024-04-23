@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 /**
  * An instance of this interface may behave like a regular property;
@@ -50,6 +51,21 @@ public interface Synced<T> extends TypedValue<T> {
     @SuppressWarnings("unchecked")
     static <T> Synced<T> of(final T value) {
         return new DefaultSynced<>(UUID.randomUUID(), (Class<T>) value.getClass(), value);
+    }
+
+    /**
+     * Creates a new synchronized property instance whose instance
+     * is provided by the given supplier function. The property created
+     * by this function is immutable and cannot be set directly.
+     * A call to {@link Synced#set(Object)} will throw an {@link UnsupportedOperationException}.
+     *
+     * @param type     The type of the property to create.
+     * @param delegate The function which to call when retrieving the value of the property.
+     * @param <T>      The type of the newly created property.
+     * @return A new synchronized property instance with the given delegate function.
+     */
+    static <T> Synced<T> by(final Class<T> type, final Supplier<T> delegate) {
+        return new DelegateSynced<>(UUID.randomUUID(), type, delegate);
     }
 
     /**

@@ -25,6 +25,8 @@ public interface Launcher {
 
     List<App> getOpenApps();
 
+    LauncherSettings getSettings();
+
     default CompletableFuture<@Nullable App> closeApp() {
         final var apps = getOpenApps();
         if (apps.isEmpty()) {

@@ -23,8 +23,8 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                 height(100.percent)
             }) {
                 label({
-                    width(25.percent)
-                    height(20.pixels)
+                    width(100.percent)
+                    height(40.pixels)
                 }) {}
 
                 label({

@@ -34,12 +34,12 @@ public final class PanelRenderer extends AbstractComponentRenderer<Panel> {
         graphics.setBrush(brushFactory.create(component.foreground.get()));
         graphics.drawRect(x, y, w, h);
 
+        super.render(component, flexNode, graphics); // Draw debug overlay between container and children
+
         final var children = component.getChildren();
         for (final var child : children) {
             final var childFlexNode = ClientFlexNodeHandler.INSTANCE.getNode(child.getId());
             ComponentRenderers.get((ComponentType<Component>) child.getType()).render(child, childFlexNode, graphics);
         }
-
-        super.render(component, flexNode, graphics);
     }
 }
