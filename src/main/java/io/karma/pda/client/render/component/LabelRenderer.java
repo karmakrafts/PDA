@@ -5,7 +5,7 @@
 package io.karma.pda.client.render.component;
 
 import io.karma.pda.api.client.render.component.AbstractComponentRenderer;
-import io.karma.pda.api.client.render.gfx.GFX;
+import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.common.app.component.Label;
 import io.karma.pda.api.common.flex.FlexNode;
 import net.minecraftforge.api.distmarker.Dist;
@@ -18,7 +18,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public final class LabelRenderer extends AbstractComponentRenderer<Label> {
     @Override
-    public void render(final Label component, final FlexNode flexNode, final GFX graphics) {
+    public void render(final Label component, final FlexNode flexNode, final Graphics graphics) {
         super.render(component, flexNode, graphics);
     }
 }

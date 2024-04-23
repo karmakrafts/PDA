@@ -2,12 +2,12 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.client.render.gfx;
+package io.karma.pda.client.render.graphics;
 
-import io.karma.pda.api.client.render.gfx.Brush;
-import io.karma.pda.api.client.render.gfx.BrushFactory;
-import io.karma.pda.api.client.render.gfx.GFX;
-import io.karma.pda.api.client.render.gfx.GFXContext;
+import io.karma.pda.api.client.render.graphics.Brush;
+import io.karma.pda.api.client.render.graphics.BrushFactory;
+import io.karma.pda.api.client.render.graphics.Graphics;
+import io.karma.pda.api.client.render.graphics.GraphicsContext;
 import io.karma.pda.api.common.util.Color;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -19,14 +19,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  * @since 11/04/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class DefaultGFX implements GFX {
-    private final GFXContext context;
+public final class DefaultGraphics implements Graphics {
+    private GraphicsContext context;
     private int zIndex = 0;
     private float lineWidth = 1F;
     private boolean hasTextShadow = false;
-    private Brush brush = DefaultBrushFactory.INSTANCE.create(Color.WHITE);
+    private Brush brush = DefaultBrushFactory.INSTANCE.createInvisible();
 
-    public DefaultGFX(final GFXContext context) {
+    public void setContext(final GraphicsContext context) {
         this.context = context;
     }
 
@@ -36,18 +36,19 @@ public final class DefaultGFX implements GFX {
     }
 
     @Override
-    public GFXContext getContext() {
+    public GraphicsContext getContext() {
         return context;
     }
 
     @Override
-    public GFX copy() {
+    public Graphics copy() {
         return copyWithContext(context);
     }
 
     @Override
-    public GFX copyWithContext(GFXContext context) {
-        final var gfx = new DefaultGFX(context);
+    public Graphics copyWithContext(final GraphicsContext context) {
+        final var gfx = new DefaultGraphics();
+        gfx.setContext(context);
         gfx.zIndex = zIndex;
         gfx.lineWidth = lineWidth;
         gfx.hasTextShadow = hasTextShadow;
@@ -102,7 +103,7 @@ public final class DefaultGFX implements GFX {
         final var maxX = x + width;
         final var maxY = y + height;
         if (texture != null) {
-            final var buffer = context.getBufferSource().getBuffer(GFXRenderTypes.COLOR_TEXTURE_TRIS);
+            final var buffer = context.getBufferSource().getBuffer(GraphicsRenderTypes.COLOR_TEXTURE_TRIS);
             // First triangle
             buffer.vertex(matrix, x, y, zIndex).color(colorTL.packARGB()).uv(0F, 0F).endVertex();
             buffer.vertex(matrix, maxX, y, zIndex).color(colorTR.packARGB()).uv(1F, 0F).endVertex();
@@ -113,7 +114,7 @@ public final class DefaultGFX implements GFX {
             buffer.vertex(matrix, x, maxY, zIndex).color(colorBL.packARGB()).uv(0F, 1F).endVertex();
             return;
         }
-        final var buffer = context.getBufferSource().getBuffer(GFXRenderTypes.COLOR_TRIS);
+        final var buffer = context.getBufferSource().getBuffer(GraphicsRenderTypes.COLOR_TRIS);
         // First triangle
         buffer.vertex(matrix, x, y, zIndex).color(colorTL.packARGB()).endVertex();
         buffer.vertex(matrix, maxX, y, zIndex).color(colorTR.packARGB()).endVertex();

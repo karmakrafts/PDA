@@ -20,7 +20,7 @@ import io.karma.pda.client.flex.ClientFlexNodeHandler;
 import io.karma.pda.client.interaction.DockInteractionHandler;
 import io.karma.pda.client.interaction.PDAInteractionHandler;
 import io.karma.pda.client.render.display.DisplayRenderer;
-import io.karma.pda.client.render.gfx.GFXRenderTypes;
+import io.karma.pda.client.render.graphics.GraphicsRenderTypes;
 import io.karma.pda.client.render.item.PDAItemRenderer;
 import io.karma.pda.client.screen.DockStorageScreen;
 import io.karma.pda.client.screen.PDAStorageScreen;
@@ -219,7 +219,7 @@ public class PDAMod {
         PDAInteractionHandler.INSTANCE.setup();
         PDAItemRenderer.INSTANCE.setup();
         DisplayRenderer.getInstance().setupEarly();
-        GFXRenderTypes.INSTANCE.setupEarly();
+        GraphicsRenderTypes.INSTANCE.setupEarly();
         initClientAPI();
     }
 

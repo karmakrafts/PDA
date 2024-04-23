@@ -13,9 +13,9 @@ import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.api.common.util.DisplayType;
 import io.karma.pda.api.common.util.Exceptions;
 import io.karma.pda.client.ClientEventHandler;
-import io.karma.pda.client.render.gfx.DefaultGFX;
-import io.karma.pda.client.render.gfx.DefaultGFXContext;
-import io.karma.pda.client.render.gfx.GFXRenderTypes;
+import io.karma.pda.client.render.graphics.DefaultGraphics;
+import io.karma.pda.client.render.graphics.DefaultGraphicsContext;
+import io.karma.pda.client.render.graphics.GraphicsRenderTypes;
 import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -76,6 +76,8 @@ public final class DisplayRenderer {
         displayBuilder);
     private final int[] prevViewport = new int[4]; // Viewport position/size from last frame
     private final PoseStack displayPoseStack = new PoseStack();
+    private final DefaultGraphicsContext graphicsContext = new DefaultGraphicsContext();
+    private final DefaultGraphics graphics = new DefaultGraphics();
     private DisplayFramebuffer framebuffer;
     private Matrix4f prevProjectionMatrix;
     private VertexSorting prevVertexSorting;
@@ -216,14 +218,15 @@ public final class DisplayRenderer {
             final var launcher = session.getLauncher();
             final var app = launcher.getCurrentApp();
             if (app != null) {
+                graphicsContext.setup(displayPoseStack, displayBufferSource, RES_X, RES_Y);
+                graphics.setContext(graphicsContext);
                 final var appRenderer = AppRenderers.get((AppType<App>) app.getType());
-                appRenderer.render(app,
-                    new DefaultGFX(new DefaultGFXContext(displayPoseStack, displayBufferSource, RES_X, RES_Y)));
+                appRenderer.render(app, graphics);
             }
             session.getSynchronizer().flush(); // Flush the synchronizer after each frame
         }
         else {
-            final var buffer = displayBufferSource.getBuffer(GFXRenderTypes.COLOR_TRIS);
+            final var buffer = displayBufferSource.getBuffer(GraphicsRenderTypes.COLOR_TRIS);
             // First triangle
             buffer.vertex(matrix, 0F, 0F, 0F).color(0).endVertex();
             buffer.vertex(matrix, RES_X, 0F, 0F).color(0).endVertex();

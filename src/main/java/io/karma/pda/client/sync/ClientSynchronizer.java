@@ -11,9 +11,11 @@ import io.karma.pda.api.common.util.Exceptions;
 import io.karma.pda.common.PDAMod;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,26 +30,30 @@ import java.util.function.Predicate;
 public final class ClientSynchronizer implements Synchronizer {
     private static final ConcurrentHashMap<Class<?>, List<VarHandle>> FIELD_CACHE = new ConcurrentHashMap<>();
     private final UUID sessionId;
-    private final ConcurrentHashMap<UUID, Synced<?>> fields = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, Pair<Sync, Synced<?>>> fields = new ConcurrentHashMap<>();
     private final ConcurrentLinkedDeque<UUID> queue = new ConcurrentLinkedDeque<>();
 
     public ClientSynchronizer(final UUID sessionId) {
         this.sessionId = sessionId;
     }
 
+    private static boolean isSyncedField(final Field field) {
+        return Synced.class.isAssignableFrom(field.getType()) && field.isAnnotationPresent(Sync.class);
+    }
+
     private static List<VarHandle> findFields(final Class<?> type) throws IllegalAccessException {
         return FIELD_CACHE.computeIfAbsent(type, t -> {
             try {
-                final var lookup = MethodHandles.privateLookupIn(type, MethodHandles.lookup());
+                final var lookup = MethodHandles.privateLookupIn(t, MethodHandles.lookup());
                 // @formatter:off
-                return Arrays.stream(type.getDeclaredFields())
-                    .filter(field -> field.isAnnotationPresent(Sync.class))
+                return Arrays.stream(t.getDeclaredFields())
+                    .filter(ClientSynchronizer::isSyncedField)
                     .map(field -> {
                         try {
                             return lookup.unreflectVarHandle(field);
                         }
                         catch (Throwable error) {
-                            PDAMod.LOGGER.error("Could not unreflect field {} in {}: {}", field.getName(), type,
+                            PDAMod.LOGGER.error("Could not unreflect field {} in {}: {}", field.getName(), t,
                                 Exceptions.toFancyString(error));
                             return null;
                         }
@@ -90,7 +96,14 @@ public final class ClientSynchronizer implements Synchronizer {
 
     @Override
     public void register(final Object instance) {
-
+        try {
+            final var fields = findFields(instance.getClass());
+        }
+        catch (Throwable error) {
+            PDAMod.LOGGER.error("Could not register object {} to synchronizer: {}",
+                instance,
+                Exceptions.toFancyString(error));
+        }
     }
 
     @Override

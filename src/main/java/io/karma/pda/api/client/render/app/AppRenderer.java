@@ -4,7 +4,7 @@
 
 package io.karma.pda.api.client.render.app;
 
-import io.karma.pda.api.client.render.gfx.GFX;
+import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.common.app.App;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -15,7 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  */
 @OnlyIn(Dist.CLIENT)
 public interface AppRenderer<A extends App> {
-    void render(final A app, final GFX graphics);
+    void render(final A app, final Graphics graphics);
 
     default void cleanup(final A app) {
     }

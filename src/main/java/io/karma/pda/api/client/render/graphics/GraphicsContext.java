@@ -2,7 +2,7 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.api.client.render.gfx;
+package io.karma.pda.api.client.render.graphics;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -17,7 +17,7 @@ import org.joml.Matrix4f;
  * @since 11/04/2024
  */
 @OnlyIn(Dist.CLIENT)
-public interface GFXContext {
+public interface GraphicsContext {
     PoseStack getPoseStack();
 
     MultiBufferSource getBufferSource();
@@ -28,7 +28,7 @@ public interface GFXContext {
 
     boolean isDebugMode();
 
-    GFXContext derive(final int width, final int height);
+    GraphicsContext derive(final int width, final int height);
 
     default Matrix4f getTransform() {
         return getPoseStack().last().pose();

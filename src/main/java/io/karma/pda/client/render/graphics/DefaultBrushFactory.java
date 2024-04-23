@@ -2,10 +2,10 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.client.render.gfx;
+package io.karma.pda.client.render.graphics;
 
-import io.karma.pda.api.client.render.gfx.Brush;
-import io.karma.pda.api.client.render.gfx.BrushFactory;
+import io.karma.pda.api.client.render.graphics.Brush;
+import io.karma.pda.api.client.render.graphics.BrushFactory;
 import io.karma.pda.api.common.util.Color;
 import io.karma.pda.api.common.util.Identifiable;
 import net.minecraft.resources.ResourceLocation;
@@ -49,7 +49,7 @@ public final class DefaultBrushFactory implements BrushFactory {
         if (color.equals(Color.NONE)) {
             return InvisibleBrush.INSTANCE;
         }
-        return brushes.computeIfAbsent(new BrushKey(GFXRenderTypes.COLOR_TRIS.name, color, null),
+        return brushes.computeIfAbsent(new BrushKey(GraphicsRenderTypes.COLOR_TRIS.name, color, null),
             key -> new ColorBrush(color));
     }
 
@@ -58,7 +58,7 @@ public final class DefaultBrushFactory implements BrushFactory {
         if (color.equals(Color.NONE)) {
             return InvisibleBrush.INSTANCE;
         }
-        return brushes.computeIfAbsent(new BrushKey(GFXRenderTypes.COLOR_TEXTURE_TRIS.name, color, texture),
+        return brushes.computeIfAbsent(new BrushKey(GraphicsRenderTypes.COLOR_TEXTURE_TRIS.name, color, texture),
             key -> new ColorTextureBrush(color, texture));
     }
 

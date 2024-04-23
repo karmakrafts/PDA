@@ -2,7 +2,7 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.api.client.render.gfx;
+package io.karma.pda.api.client.render.graphics;
 
 import io.karma.pda.api.common.util.Color;
 import net.minecraft.resources.ResourceLocation;

@@ -2,7 +2,7 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.api.client.render.gfx;
+package io.karma.pda.api.client.render.graphics;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -12,14 +12,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  * @since 11/04/2024
  */
 @OnlyIn(Dist.CLIENT)
-public interface GFX {
-    GFXContext getContext();
+public interface Graphics {
+    GraphicsContext getContext();
 
     BrushFactory getBrushFactory();
 
-    GFX copy();
+    Graphics copy();
 
-    GFX copyWithContext(final GFXContext context);
+    Graphics copyWithContext(final GraphicsContext context);
 
     void setBrush(final Brush brush);
 

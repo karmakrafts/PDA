@@ -6,7 +6,7 @@ package io.karma.pda.client.render.component;
 
 import io.karma.pda.api.client.render.component.AbstractComponentRenderer;
 import io.karma.pda.api.client.render.component.ComponentRenderers;
-import io.karma.pda.api.client.render.gfx.GFX;
+import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.common.app.component.Component;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.component.Panel;
@@ -23,15 +23,15 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public final class PanelRenderer extends AbstractComponentRenderer<Panel> {
     @SuppressWarnings("unchecked")
     @Override
-    public void render(final Panel component, final FlexNode flexNode, final GFX graphics) {
+    public void render(final Panel component, final FlexNode flexNode, final Graphics graphics) {
         final var x = flexNode.getAbsoluteX();
         final var y = flexNode.getAbsoluteY();
         final var w = flexNode.getAbsoluteWidth();
         final var h = flexNode.getAbsoluteHeight();
         final var brushFactory = graphics.getBrushFactory();
-        graphics.setBrush(brushFactory.create(component.background.get()));
+        graphics.setBrush(brushFactory.create(component.background));
         graphics.fillRect(x, y, w, h);
-        graphics.setBrush(brushFactory.create(component.foreground.get()));
+        graphics.setBrush(brushFactory.create(component.foreground));
         graphics.drawRect(x, y, w, h);
 
         super.render(component, flexNode, graphics); // Draw debug overlay between container and children

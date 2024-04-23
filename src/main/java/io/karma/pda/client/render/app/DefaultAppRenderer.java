@@ -6,7 +6,7 @@ package io.karma.pda.client.render.app;
 
 import io.karma.pda.api.client.render.app.AppRenderer;
 import io.karma.pda.api.client.render.component.ComponentRenderers;
-import io.karma.pda.api.client.render.gfx.GFX;
+import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.component.Container;
@@ -23,7 +23,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public final class DefaultAppRenderer<A extends App> implements AppRenderer<A> {
     @SuppressWarnings("unchecked")
     @Override
-    public void render(final A app, final GFX graphics) {
+    public void render(final A app, final Graphics graphics) {
         final var gfxContext = graphics.getContext();
         final var container = app.getView().getContainer();
         final var flexNode = ClientFlexNodeHandler.INSTANCE.getOrCreateNodeRecursive(container);
@@ -35,6 +35,6 @@ public final class DefaultAppRenderer<A extends App> implements AppRenderer<A> {
 
     @Override
     public void cleanup(final A app) {
-        ClientFlexNodeHandler.INSTANCE.removeNode(app.getView().getContainer());
+        ClientFlexNodeHandler.INSTANCE.removeNodeRecursively(app.getView().getContainer());
     }
 }

@@ -2,10 +2,10 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.client.render.gfx;
+package io.karma.pda.client.render.graphics;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.karma.pda.api.client.render.gfx.GFXContext;
+import io.karma.pda.api.client.render.graphics.GraphicsContext;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -17,14 +17,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  * @since 11/04/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class DefaultGFXContext implements GFXContext {
-    private final PoseStack poseStack;
-    private final MultiBufferSource bufferSource;
-    private final int width;
-    private final int height;
+public final class DefaultGraphicsContext implements GraphicsContext {
+    private PoseStack poseStack;
+    private MultiBufferSource bufferSource;
+    private int width;
+    private int height;
 
-    public DefaultGFXContext(final PoseStack poseStack, final MultiBufferSource bufferSource, final int width,
-                             final int height) {
+    public void setup(final PoseStack poseStack, final MultiBufferSource bufferSource, final int width,
+                      final int height) {
         this.poseStack = poseStack;
         this.bufferSource = bufferSource;
         this.width = width;
@@ -32,8 +32,10 @@ public final class DefaultGFXContext implements GFXContext {
     }
 
     @Override
-    public GFXContext derive(final int width, final int height) {
-        return new DefaultGFXContext(poseStack, bufferSource, width, height);
+    public GraphicsContext derive(final int width, final int height) {
+        final var context = new DefaultGraphicsContext();
+        context.setup(poseStack, bufferSource, width, height);
+        return context;
     }
 
     @Override

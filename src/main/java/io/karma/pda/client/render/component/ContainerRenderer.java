@@ -6,7 +6,7 @@ package io.karma.pda.client.render.component;
 
 import io.karma.pda.api.client.render.component.AbstractComponentRenderer;
 import io.karma.pda.api.client.render.component.ComponentRenderers;
-import io.karma.pda.api.client.render.gfx.GFX;
+import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.common.app.component.Component;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.component.DefaultContainer;
@@ -23,7 +23,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public final class ContainerRenderer extends AbstractComponentRenderer<DefaultContainer> {
     @SuppressWarnings("unchecked")
     @Override
-    public void render(final DefaultContainer component, final FlexNode flexNode, final GFX graphics) {
+    public void render(final DefaultContainer component, final FlexNode flexNode, final Graphics graphics) {
         final var children = component.getChildren();
         for (final var child : children) {
             final var childFlexNode = ClientFlexNodeHandler.INSTANCE.getNode(child);

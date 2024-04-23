@@ -2,7 +2,7 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.client.render.gfx;
+package io.karma.pda.client.render.graphics;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -24,21 +24,12 @@ import org.jetbrains.annotations.ApiStatus;
  * @since 11/04/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class GFXRenderTypes {
-    public static final GFXRenderTypes INSTANCE = new GFXRenderTypes();
+public final class GraphicsRenderTypes {
+    public static final GraphicsRenderTypes INSTANCE = new GraphicsRenderTypes();
     private ShaderInstance colorShader;
     private ShaderInstance colorTextureShader;
 
     // @formatter:off
-    public static final RenderType COLOR_LINES = RenderType.create("pda_display_color_lines",
-        DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES, 256, false, false,
-        RenderType.CompositeState.builder()
-            .setCullState(RenderStateShard.NO_CULL)
-            .setShaderState(new RenderStateShard.ShaderStateShard(INSTANCE::getColorShader))
-            .setOutputState(DisplayRenderer.DISPLAY_OUTPUT)
-            .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-            .createCompositeState(false));
-
     public static final RenderType COLOR_TRIS = RenderType.create("pda_display_color_tris",
         DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
         RenderType.CompositeState.builder()
@@ -57,7 +48,7 @@ public final class GFXRenderTypes {
             .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
             .createCompositeState(false));
 
-    private GFXRenderTypes() {}
+    private GraphicsRenderTypes() {}
     // @formatter:on
 
     @ApiStatus.Internal

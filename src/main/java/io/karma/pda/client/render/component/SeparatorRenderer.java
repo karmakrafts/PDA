@@ -5,7 +5,7 @@
 package io.karma.pda.client.render.component;
 
 import io.karma.pda.api.client.render.component.AbstractComponentRenderer;
-import io.karma.pda.api.client.render.gfx.GFX;
+import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.common.app.component.Separator;
 import io.karma.pda.api.common.flex.FlexNode;
 
@@ -15,7 +15,7 @@ import io.karma.pda.api.common.flex.FlexNode;
  */
 public final class SeparatorRenderer extends AbstractComponentRenderer<Separator> {
     @Override
-    public void render(final Separator component, final FlexNode flexNode, final GFX graphics) {
+    public void render(final Separator component, final FlexNode flexNode, final Graphics graphics) {
         super.render(component, flexNode, graphics);
     }
 }
