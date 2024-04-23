@@ -11,6 +11,8 @@ import io.karma.pda.common.json.JSONCodecs;
 import io.karma.pda.common.session.DefaultSessionHandler;
 import mock.MockForgeRegistry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

@@ -30,7 +30,6 @@ public class DefaultLauncher implements Launcher {
 
     public DefaultLauncher(final Session session) {
         this.session = session;
-        session.getSynchronizer().register(settings);
     }
 
     @SuppressWarnings("unchecked")

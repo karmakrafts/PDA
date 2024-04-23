@@ -5,7 +5,7 @@
 package io.karma.pda.common.app
 
 import io.karma.pda.api.common.app.AppType
-import io.karma.pda.api.common.app.compose.*
+import io.karma.pda.api.common.app.compose.ComposableApp
 
 /**
  * @author Alexander Hinze

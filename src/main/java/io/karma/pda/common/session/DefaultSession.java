@@ -48,7 +48,7 @@ public class DefaultSession implements Session {
     }
 
     @Override
-    public void onTermination() {
+    public void onTerminated() {
 
     }
 }

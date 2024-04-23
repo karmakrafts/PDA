@@ -6,6 +6,8 @@ package io.karma.pda.client.app;
 
 import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.AppType;
+import io.karma.pda.api.common.app.component.Component;
+import io.karma.pda.api.common.app.component.Container;
 import io.karma.pda.api.common.session.Session;
 import io.karma.pda.api.common.util.LogMarkers;
 import io.karma.pda.common.PDAMod;
@@ -34,6 +36,25 @@ public class ClientLauncher extends DefaultLauncher {
 
     public ClientLauncher(final Session session) {
         super(session);
+    }
+
+    private void registerSyncedComponents(final Component component) {
+        final var synchronizer = session.getSynchronizer();
+        synchronizer.register(component);
+        if (component instanceof Container container) {
+            for (final var child : container.getChildren()) {
+                registerSyncedComponents(child);
+            }
+        }
+    }
+
+    private void registerSyncedFields(final App app) {
+        final var synchronizer = session.getSynchronizer();
+        synchronizer.register(app);
+        for (final var view : app.getViews()) {
+            synchronizer.register(view);
+            registerSyncedComponents(view.getContainer());
+        }
     }
 
     @ApiStatus.Internal
@@ -97,6 +118,7 @@ public class ClientLauncher extends DefaultLauncher {
                 synchronized (appStackLock) {
                     appStack.push(app);
                 }
+                registerSyncedFields(app);
                 PDAMod.LOGGER.debug("Opened app {}", name);
                 return (A) app;
             });

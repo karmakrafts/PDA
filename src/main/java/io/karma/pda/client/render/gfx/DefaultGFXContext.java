@@ -32,6 +32,11 @@ public final class DefaultGFXContext implements GFXContext {
     }
 
     @Override
+    public GFXContext derive(final int width, final int height) {
+        return new DefaultGFXContext(poseStack, bufferSource, width, height);
+    }
+
+    @Override
     public PoseStack getPoseStack() {
         return poseStack;
     }

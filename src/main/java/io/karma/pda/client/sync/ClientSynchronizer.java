@@ -14,10 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -61,15 +58,17 @@ public final class ClientSynchronizer implements Synchronizer {
             }
             catch (Throwable error) {
                 PDAMod.LOGGER.error("Could not find syncable fields in {}: {}", type, Exceptions.toFancyString(error));
+                return Collections.emptyList();
             }
         });
     }
 
     @Override
     public CompletableFuture<Void> flush(final Predicate<Synced<?>> filter) {
-        // Offload the sync serialization to our executor service to utilize full CPU
+        if (queue.isEmpty()) {
+            return CompletableFuture.completedFuture(null);
+        }
         return CompletableFuture.supplyAsync(() -> {
-
             return null;
         }, PDAMod.EXECUTOR_SERVICE);
     }

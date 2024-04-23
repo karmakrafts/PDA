@@ -9,6 +9,8 @@ import io.karma.pda.api.client.render.gfx.BrushFactory;
 import io.karma.pda.api.client.render.gfx.GFX;
 import io.karma.pda.api.client.render.gfx.GFXContext;
 import io.karma.pda.api.common.util.Color;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -21,6 +23,7 @@ public final class DefaultGFX implements GFX {
     private final GFXContext context;
     private int zIndex = 0;
     private float lineWidth = 1F;
+    private boolean hasTextShadow = false;
     private Brush brush = DefaultBrushFactory.INSTANCE.create(Color.WHITE);
 
     public DefaultGFX(final GFXContext context) {
@@ -39,7 +42,17 @@ public final class DefaultGFX implements GFX {
 
     @Override
     public GFX copy() {
-        return new DefaultGFX(context);
+        return copyWithContext(context);
+    }
+
+    @Override
+    public GFX copyWithContext(GFXContext context) {
+        final var gfx = new DefaultGFX(context);
+        gfx.zIndex = zIndex;
+        gfx.lineWidth = lineWidth;
+        gfx.hasTextShadow = hasTextShadow;
+        gfx.brush = brush;
+        return gfx;
     }
 
     @Override
@@ -60,6 +73,16 @@ public final class DefaultGFX implements GFX {
     @Override
     public float getLineWidth() {
         return lineWidth;
+    }
+
+    @Override
+    public void setHasTextShadow(final boolean hasTextShadow) {
+        this.hasTextShadow = hasTextShadow;
+    }
+
+    @Override
+    public boolean hasTextShadow() {
+        return hasTextShadow;
     }
 
     @Override
@@ -196,7 +219,19 @@ public final class DefaultGFX implements GFX {
 
     @Override
     public void text(final int x, final int y, final String text, final int maxLength, final String delimiter) {
-        // TODO: ...
+        if (!brush.isVisible()) {
+            return;
+        }
+        context.getFont().drawInBatch(text,
+            x,
+            y,
+            brush.getColor(0).packARGB(),
+            hasTextShadow,
+            context.getTransform(),
+            context.getBufferSource(),
+            Font.DisplayMode.NORMAL,
+            0,
+            OverlayTexture.NO_OVERLAY);
     }
 
     @Override

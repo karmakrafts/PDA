@@ -9,8 +9,10 @@ import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.session.SessionContext;
 import io.karma.pda.api.common.sync.Synchronizer;
+import io.karma.pda.api.common.util.LogMarkers;
 import io.karma.pda.client.app.ClientLauncher;
 import io.karma.pda.client.sync.ClientSynchronizer;
+import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.session.DefaultSession;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
@@ -36,12 +38,19 @@ public final class ClientSession extends DefaultSession {
         return synchronizer;
     }
 
+    @Override
+    public void onEstablished() {
+        PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Established session {} on client", id);
+        synchronizer.register(launcher.getSettings());
+    }
+
     @SuppressWarnings("unchecked")
     @Override
-    public void onTermination() {
+    public void onTerminated() {
         // Invoke cleanup callback for all active/suspended app renderers
         for (final var app : launcher.getOpenApps()) {
             Minecraft.getInstance().execute(() -> AppRenderers.get((AppType<App>) app.getType()).cleanup(app));
         }
+        PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Terminated session {} on client", id);
     }
 }

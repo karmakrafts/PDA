@@ -80,6 +80,7 @@ public final class ClientSessionHandler extends AbstractSessionHandler {
                 PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Received session ID {} from server", sessionId);
                 final var session = new ClientSession(sessionId, context);
                 addActiveSession(sessionId, session);
+                session.onEstablished();
                 return (Session) session;
             });
         // @formatter:on
@@ -125,7 +126,7 @@ public final class ClientSessionHandler extends AbstractSessionHandler {
                     PDAMod.LOGGER.warn(LogMarkers.PROTOCOL, "Server didn't send acknowledgement back in time, ignoring");
                     return;
                 }
-                sess.onTermination();
+                sess.onTerminated();
                 removeActiveSession(sessionId);
             });
         // @formatter:on

@@ -42,7 +42,6 @@ public abstract class AbstractComponent implements Component {
         this.type = type;
         this.id = id;
         API.getLogger().debug("Creating component {} of type {}", id, type.getName());
-        API.getSynchronizer().register(this); // Inject every component into the synchronizer
     }
 
     @Override

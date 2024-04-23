@@ -31,6 +31,7 @@ public class DefaultSessionHandler extends AbstractSessionHandler {
         final var id = UUID.randomUUID();
         final var session = new DefaultSession(id, context);
         activeSessions.put(id, session);
+        session.onEstablished();
         return CompletableFuture.completedFuture(session);
     }
 
@@ -46,7 +47,7 @@ public class DefaultSessionHandler extends AbstractSessionHandler {
         if (!activeSessions.containsKey(id)) {
             return CompletableFuture.failedFuture(new IllegalArgumentException("Session not found"));
         }
-        session.onTermination();
+        session.onTerminated();
         activeSessions.remove(id);
         return CompletableFuture.completedFuture(null);
     }

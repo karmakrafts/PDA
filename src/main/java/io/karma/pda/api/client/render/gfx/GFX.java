@@ -19,6 +19,8 @@ public interface GFX {
 
     GFX copy();
 
+    GFX copyWithContext(final GFXContext context);
+
     void setBrush(final Brush brush);
 
     Brush getBrush();
@@ -30,6 +32,10 @@ public interface GFX {
     void setLineWidth(final float lineWidth);
 
     float getLineWidth();
+
+    void setHasTextShadow(final boolean hasTextShadow);
+
+    boolean hasTextShadow();
 
     void point(final int x, final int y);
 

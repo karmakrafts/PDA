@@ -5,6 +5,8 @@
 package io.karma.pda.api.client.render.gfx;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -26,7 +28,13 @@ public interface GFXContext {
 
     boolean isDebugMode();
 
+    GFXContext derive(final int width, final int height);
+
     default Matrix4f getTransform() {
         return getPoseStack().last().pose();
+    }
+
+    default Font getFont() {
+        return Minecraft.getInstance().font;
     }
 }

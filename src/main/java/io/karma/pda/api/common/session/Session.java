@@ -46,8 +46,14 @@ public interface Session extends Identifiable {
     }
 
     /**
+     * Called when the session is fully established by the underlying session handler.
+     */
+    default void onEstablished() {
+    }
+
+    /**
      * Called when the session is terminated by the underlying session handler.
      */
-    default void onTermination() {
+    default void onTerminated() {
     }
 }
