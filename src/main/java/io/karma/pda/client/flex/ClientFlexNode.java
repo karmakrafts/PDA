@@ -28,6 +28,7 @@ import java.util.Objects;
 public final class ClientFlexNode implements FlexNode, Disposable {
     private final long address;
     private final ArrayList<FlexNode> children = new ArrayList<>();
+    private FlexNode parent;
     private boolean isDisposed;
 
     public ClientFlexNode() {
@@ -36,6 +37,11 @@ public final class ClientFlexNode implements FlexNode, Disposable {
             throw new IllegalStateException("Could not allocate layout node");
         }
         PDAMod.LOGGER.debug("Allocated flex node at {}", String.format("0x%08X", address));
+    }
+
+    @Override
+    public @Nullable FlexNode getParent() {
+        return parent;
     }
 
     @Override
@@ -68,6 +74,7 @@ public final class ClientFlexNode implements FlexNode, Disposable {
             return;
         }
         if (child instanceof ClientFlexNode defaultNode) {
+            defaultNode.parent = this;
             Yoga.YGNodeInsertChild(address, defaultNode.address, children.size());
         }
         children.add(child);
@@ -80,6 +87,7 @@ public final class ClientFlexNode implements FlexNode, Disposable {
         }
         if (child instanceof ClientFlexNode defaultNode) {
             Yoga.YGNodeRemoveChild(address, defaultNode.address);
+            defaultNode.parent = null;
         }
         children.remove(child);
     }
@@ -105,6 +113,53 @@ public final class ClientFlexNode implements FlexNode, Disposable {
         setHeight(node.getHeight());
         setX(node.getX());
         setY(node.getY());
+        setGrowWeight(node.getGrowWeight());
+        setShrinkWeight(node.getShrinkWeight());
+        setBasis(node.getBasis());
+    }
+
+    // Grow
+
+    @Override
+    public void setGrowWeight(final float growWeight) {
+        Yoga.YGNodeStyleSetFlexGrow(address, growWeight);
+    }
+
+    @Override
+    public float getGrowWeight() {
+        return Yoga.YGNodeStyleGetFlexGrow(address);
+    }
+
+    // Shrink
+
+    @Override
+    public void setShrinkWeight(final float shrinkWeight) {
+        Yoga.YGNodeStyleSetFlexShrink(address, shrinkWeight);
+    }
+
+    @Override
+    public float getShrinkWeight() {
+        return Yoga.YGNodeStyleGetFlexShrink(address);
+    }
+
+    // Base
+
+    @Override
+    public void setBasis(final FlexValue basis) {
+        switch(basis.getType()) { // @formatter:off
+            case PIXEL   -> Yoga.YGNodeStyleSetFlexBasis(address, basis.get());
+            case PERCENT -> Yoga.YGNodeStyleSetFlexBasisPercent(address, basis.get());
+            default      -> Yoga.YGNodeStyleSetFlexBasisAuto(address);
+        } // @formatter:on
+    }
+
+    @Override
+    public FlexValue getBasis() {
+        try (final var stack = MemoryStack.stackPush()) {
+            final var value = YGValue.malloc(stack);
+            Yoga.YGNodeStyleGetFlexBasis(address, value);
+            return FlexUtils.getValue(value);
+        }
     }
 
     // Wrap
@@ -336,20 +391,18 @@ public final class ClientFlexNode implements FlexNode, Disposable {
 
     @Override
     public int getAbsoluteX() {
-        final var parentAddress = Yoga.YGNodeGetParent(address);
         final var x = (int) Yoga.YGNodeLayoutGetLeft(address);
-        if (parentAddress != MemoryUtil.NULL) {
-            return x + (int) Yoga.YGNodeLayoutGetLeft(parentAddress);
+        if (parent != null) {
+            return x + parent.getAbsoluteX();
         }
         return x;
     }
 
     @Override
     public int getAbsoluteY() {
-        final var parentAddress = Yoga.YGNodeGetParent(address);
         final var y = (int) Yoga.YGNodeLayoutGetTop(address);
-        if (parentAddress != MemoryUtil.NULL) {
-            return y + (int) Yoga.YGNodeLayoutGetTop(parentAddress);
+        if (parent != null) {
+            return y + parent.getAbsoluteY();
         }
         return y;
     }

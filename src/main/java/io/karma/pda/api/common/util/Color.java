@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.minecraft.util.Mth;
 
 import java.util.Objects;
 
@@ -83,6 +84,11 @@ public final class Color {
             (byte) ((value >> 16) & 0xFF),
             (byte) ((value >> 8) & 0xFF),
             (byte) ((value >> 24) & 0xFF));
+    }
+
+    @JsonIgnore
+    public float getLuminance() {
+        return Mth.clamp(r * 0.21F + g * 0.71F + b * 0.07F, 0F, 1F);
     }
 
     @JsonIgnore

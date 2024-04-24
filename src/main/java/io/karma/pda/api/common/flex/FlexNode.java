@@ -12,6 +12,9 @@ import java.util.List;
  * @since 10/04/2024
  */
 public interface FlexNode {
+    @Nullable
+    FlexNode getParent();
+
     void setFrom(final FlexNode flexNode);
 
     List<FlexNode> getChildren();
@@ -26,6 +29,18 @@ public interface FlexNode {
     FlexNode getChild(final int index);
 
     void clearChildren();
+
+    void setGrowWeight(final float growWeight);
+
+    float getGrowWeight();
+
+    void setShrinkWeight(final float shrinkWeight);
+
+    float getShrinkWeight();
+
+    void setBasis(final FlexValue basis);
+
+    FlexValue getBasis();
 
     void setDirection(final FlexDirection direction);
 

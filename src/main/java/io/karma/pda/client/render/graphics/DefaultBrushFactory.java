@@ -41,7 +41,9 @@ public final class DefaultBrushFactory implements BrushFactory {
         final var msb = id.getMostSignificantBits();
         final var data1 = ((lsb & 0xFFFF_FFFFL) << 32) | (msb >> 32) & 0xFFFF_FFFFL;
         final var data2 = ((msb & 0xFFFF_FFFFL) << 32) | (lsb >> 32) & 0xFFFF_FFFFL;
-        return create(Color.unpackRGBA(MurmurHash3.hash32(data1, data2) | 0xFF));
+        final var color1 = Color.unpackRGBA(MurmurHash3.hash32(lsb, msb) | 0xFF);
+        final var color2 = Color.unpackRGBA(MurmurHash3.hash32(data1, data2) | 0xFF);
+        return create(color1.getLuminance() > color2.getLuminance() ? color1 : color2);
     }
 
     @Override
