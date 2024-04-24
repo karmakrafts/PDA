@@ -26,7 +26,6 @@ import io.karma.pda.client.screen.DockStorageScreen;
 import io.karma.pda.client.screen.PDAStorageScreen;
 import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.init.*;
-import io.karma.pda.common.json.JSONCodecs;
 import io.karma.pda.common.menu.DockStorageMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import io.karma.pda.common.network.ClientPacketHandler;
@@ -195,7 +194,6 @@ public class PDAMod {
 
     private void onCommonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            JSONCodecs.setup();
             CommonPacketHandler.INSTANCE.registerPackets();
             ClientPacketHandler.INSTANCE.registerPackets();
         });

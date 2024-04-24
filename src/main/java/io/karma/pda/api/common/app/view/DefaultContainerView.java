@@ -4,8 +4,6 @@
 
 package io.karma.pda.api.common.app.view;
 
-import io.karma.pda.api.common.API;
-import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.component.Container;
 import io.karma.pda.api.common.app.component.DefaultComponents;
 import io.karma.pda.api.common.app.component.DefaultContainer;
@@ -23,11 +21,10 @@ public class DefaultContainerView implements AppView {
         .positionType(FlexPositionType.ABSOLUTE));
     // @formatter:on
     private final String name;
-    private final Consumer<DefaultContainer> callback;
 
     public DefaultContainerView(final String name, final Consumer<DefaultContainer> callback) {
         this.name = name;
-        this.callback = callback;
+        callback.accept(container);
     }
 
     @Override
@@ -38,11 +35,5 @@ public class DefaultContainerView implements AppView {
     @Override
     public Container getContainer() {
         return container;
-    }
-
-    @Override
-    public void build(final App app) {
-        API.getLogger().debug("Building view '{}'", name);
-        callback.accept(container);
     }
 }

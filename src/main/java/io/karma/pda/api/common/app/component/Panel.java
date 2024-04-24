@@ -16,7 +16,7 @@ import java.util.UUID;
  */
 public class Panel extends DefaultContainer {
     @Sync
-    public final Synced<Color> background = Synced.of(Color.WHITE);
+    public final Synced<Color> background = Synced.of(Color.BLACK);
     @Sync
     public final Synced<Color> foreground = Synced.of(Color.NONE);
 

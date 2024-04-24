@@ -6,6 +6,7 @@ package io.karma.pda.client.render.graphics;
 
 import io.karma.pda.api.client.render.graphics.Brush;
 import io.karma.pda.api.common.util.Color;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -21,6 +22,11 @@ public final class ColorBrush implements Brush {
 
     public ColorBrush(final Color color) {
         this.color = color;
+    }
+
+    @Override
+    public RenderType getRenderType() {
+        return GraphicsRenderTypes.COLOR_TRIS;
     }
 
     @Override

@@ -5,6 +5,9 @@
 package io.karma.pda.common.network;
 
 import io.karma.pda.api.common.API;
+import io.karma.pda.api.common.app.component.Component;
+import io.karma.pda.api.common.app.component.Container;
+import io.karma.pda.api.common.util.Exceptions;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.network.cb.CPacketCloseApp;
 import io.karma.pda.common.network.cb.CPacketCreateSession;
@@ -14,6 +17,7 @@ import io.karma.pda.common.network.sb.*;
 import io.karma.pda.common.session.DefaultSessionHandler;
 import io.karma.pda.common.session.DockedSessionContext;
 import io.karma.pda.common.session.HandheldSessionContext;
+import io.karma.pda.common.util.TreeGraph;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkDirection;
@@ -21,8 +25,9 @@ import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -52,12 +57,6 @@ public class CommonPacketHandler {
         registerPacket(PacketIDs.SB_CLOSE_APP,
             SPacketCloseApp.class, SPacketCloseApp::encode, SPacketCloseApp::decode,
             this::onCloseApp);
-        registerPacket(PacketIDs.SB_ADD_SYNC_VALUE,
-            SPacketAddSyncValue.class, SPacketAddSyncValue::encode, SPacketAddSyncValue::decode,
-            this::onAddSyncValue);
-        registerPacket(PacketIDs.SB_REMOVE_SYNC_VALUE,
-            SPacketRemoveSyncValue.class, SPacketRemoveSyncValue::encode, SPacketRemoveSyncValue::decode,
-            this::onRemoveSyncValue);
         registerPacket(PacketIDs.SB_SYNC_VALUES,
             SPacketSyncValues.class, SPacketSyncValues::encode, SPacketSyncValues::decode,
             this::onSyncValues);
@@ -66,6 +65,10 @@ public class CommonPacketHandler {
     private static PacketDistributor<ServerPlayer> allMatching(final Predicate<ServerPlayer> predicate) {
         return new PacketDistributor<>((distributor, supplier) -> {
             final var player = supplier.get();
+            if (player == null) {
+                return packet -> { // TODO: probably broken
+                };
+            }
             return packet -> {
                 if (packet.isSkippable() && !predicate.test(player)) {
                     return;
@@ -85,7 +88,14 @@ public class CommonPacketHandler {
                                         final BiConsumer<MSG, NetworkEvent.Context> handler) {
         PDAMod.CHANNEL.registerMessage(id, type, encoder, decoder, (packet, contextGetter) -> {
             final var context = contextGetter.get();
-            context.enqueueWork(() -> handler.accept(packet, context));
+            context.enqueueWork(() -> {
+                try {
+                    handler.accept(packet, context);
+                }
+                catch (Throwable error) {
+                    PDAMod.LOGGER.error("Could not handle packet {}: {}", packet, Exceptions.toFancyString(error));
+                }
+            });
             context.setPacketHandled(true);
         });
     }
@@ -124,17 +134,42 @@ public class CommonPacketHandler {
         final var sessionHandler = DefaultSessionHandler.INSTANCE;
         final var session = sessionHandler.findById(packet.getSessionId());
         if (session == null) {
-            return;
+            return; // TODO: warn?
         }
-        final var app = session.getLauncher().openApp(API.getAppTypeRegistry().getValue(packet.getName())).join();
-        final var typeName = app.getType().getName();
+
+        final var name = packet.getName();
         final var sessionId = session.getId();
+        final var mappings = new HashMap<UUID, UUID>();
+
+        final var appType = API.getAppTypeRegistry().getValue(name);
+        final var app = session.getLauncher().openApp(appType).join();
+        if (app == null) {
+            return; // TODO: warn?
+        }
+
+        for (final var view : app.getViews()) {
+            final var oldIds = packet.getOldIds().get(view.getName());
+            if (oldIds == null) {
+                continue; // TODO: warn?
+            }
+            // @formatter:off
+            final var newIds = TreeGraph.from(view.getContainer(),
+                Container.class, Container::getChildren, Component::getId).flatten();
+            // @formatter:on
+            final var numIds = oldIds.size();
+            if (numIds != newIds.size()) {
+                continue; // TODO: warn?
+            }
+            for (var i = 0; i < numIds; i++) {
+                mappings.put(oldIds.get(i), newIds.get(i));
+            }
+        }
+
         // Reply to sender client with compressed app layout
-        PDAMod.CHANNEL.reply(new CPacketOpenApp(sessionId, null, typeName, new ArrayList<>(app.getViews())), context);
+        PDAMod.CHANNEL.reply(new CPacketOpenApp(sessionId, null, name, mappings), context);
         // Broadcast compressed app layout to all remaining clients
         final var player = Objects.requireNonNull(context.getSender());
-        sendToAllExcept(player,
-            new CPacketOpenApp(sessionId, player.getUUID(), typeName, new ArrayList<>(app.getViews())));
+        sendToAllExcept(player, new CPacketOpenApp(sessionId, player.getUUID(), name, mappings));
     }
 
     private void onCloseApp(final SPacketCloseApp packet, final NetworkEvent.Context context) {
@@ -155,14 +190,6 @@ public class CommonPacketHandler {
         // Broadcast close acknowledgement to remaining clients
         final var player = Objects.requireNonNull(context.getSender());
         sendToAllExcept(player, new CPacketCloseApp(sessionId, player.getUUID(), typeName));
-    }
-
-    private void onAddSyncValue(final SPacketAddSyncValue packet, final NetworkEvent.Context context) {
-        // TODO: ...
-    }
-
-    private void onRemoveSyncValue(final SPacketRemoveSyncValue packet, final NetworkEvent.Context context) {
-        // TODO: ...
     }
 
     private void onSyncValues(final SPacketSyncValues packet, final NetworkEvent.Context context) {

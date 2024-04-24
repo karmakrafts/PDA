@@ -4,9 +4,10 @@
 
 package io.karma.pda.common.network.sb;
 
-import io.karma.pda.api.common.util.TypedValue;
+import io.karma.pda.api.common.sync.Synced;
 import net.minecraft.network.FriendlyByteBuf;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -17,9 +18,9 @@ import java.util.UUID;
  */
 public final class SPacketSyncValues {
     private final UUID sessionId;
-    private final Map<UUID, TypedValue<?>> values;
+    private final Map<UUID, Synced<?>> values;
 
-    public SPacketSyncValues(final UUID sessionId, final Map<UUID, TypedValue<?>> values) {
+    public SPacketSyncValues(final UUID sessionId, final Map<UUID, Synced<?>> values) {
         this.sessionId = sessionId;
         this.values = values;
     }
@@ -32,15 +33,18 @@ public final class SPacketSyncValues {
         return sessionId;
     }
 
-    public Map<UUID, TypedValue<?>> getValues() {
+    public Map<UUID, Synced<?>> getValues() {
         return values;
     }
 
     public static void encode(final SPacketSyncValues packet, final FriendlyByteBuf buffer) {
-
+        buffer.writeUUID(packet.sessionId);
+        // TODO: ...
     }
 
     public static SPacketSyncValues decode(final FriendlyByteBuf buffer) {
-        return null;
+        final var sessionId = buffer.readUUID();
+        // TODO: ...
+        return new SPacketSyncValues(sessionId, Collections.emptyMap());
     }
 }

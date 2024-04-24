@@ -103,7 +103,7 @@ public final class DefaultGraphics implements Graphics {
         final var maxX = x + width;
         final var maxY = y + height;
         if (texture != null) {
-            final var buffer = context.getBufferSource().getBuffer(GraphicsRenderTypes.COLOR_TEXTURE_TRIS);
+            final var buffer = getBuffer();
             // First triangle
             buffer.vertex(matrix, x, y, zIndex).color(colorTL.packARGB()).uv(0F, 0F).endVertex();
             buffer.vertex(matrix, maxX, y, zIndex).color(colorTR.packARGB()).uv(1F, 0F).endVertex();
@@ -114,7 +114,7 @@ public final class DefaultGraphics implements Graphics {
             buffer.vertex(matrix, x, maxY, zIndex).color(colorBL.packARGB()).uv(0F, 1F).endVertex();
             return;
         }
-        final var buffer = context.getBufferSource().getBuffer(GraphicsRenderTypes.COLOR_TRIS);
+        final var buffer = getBuffer();
         // First triangle
         buffer.vertex(matrix, x, y, zIndex).color(colorTL.packARGB()).endVertex();
         buffer.vertex(matrix, maxX, y, zIndex).color(colorTR.packARGB()).endVertex();

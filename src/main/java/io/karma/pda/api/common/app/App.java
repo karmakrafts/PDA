@@ -19,6 +19,10 @@ import java.util.function.Consumer;
 public interface App {
     String DEFAULT_VIEW = "default";
 
+    boolean isInitialized();
+
+    void setInitialized(final boolean isInitialized);
+
     /**
      * Called to compose the actual layout of the app.
      * This function may be called multiple times as needed,
@@ -29,7 +33,8 @@ public interface App {
     /**
      * Called to initialize the app after it has been composed.
      */
-    void init();
+    default void init() {
+    }
 
     /**
      * Called when the app is closed.

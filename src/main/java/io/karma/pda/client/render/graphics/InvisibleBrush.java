@@ -6,6 +6,7 @@ package io.karma.pda.client.render.graphics;
 
 import io.karma.pda.api.client.render.graphics.Brush;
 import io.karma.pda.api.common.util.Color;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,6 +20,11 @@ public class InvisibleBrush implements Brush {
     // @formatter:off
     private InvisibleBrush() {}
     // @formatter:on
+
+    @Override
+    public RenderType getRenderType() {
+        return GraphicsRenderTypes.COLOR_TRIS;
+    }
 
     @Override
     public Color getColor(final int vertexIndex) {

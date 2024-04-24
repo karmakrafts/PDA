@@ -8,7 +8,8 @@ import io.karma.pda.api.common.app.AppType
 import io.karma.pda.api.common.app.compose.ComposableApp
 import io.karma.pda.api.common.app.compose.percent
 import io.karma.pda.api.common.app.compose.pixels
-import io.karma.pda.common.PDAMod
+import io.karma.pda.api.common.flex.FlexBorder
+import io.karma.pda.api.common.flex.FlexDirection
 
 /**
  * @author Alexander Hinze
@@ -16,10 +17,7 @@ import io.karma.pda.common.PDAMod
  */
 class LauncherApp(type: AppType<*>) : ComposableApp(type) {
     override fun compose() {
-        PDAMod.LOGGER.debug("Composing launcher app")
         defaultView {
-            PDAMod.LOGGER.debug("Composing default view")
-
             panel({
                 width(100.percent)
                 height(100.percent)
@@ -39,10 +37,36 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                     height(20.pixels)
                 }) {}
 
-                label({
+                panel({
                     width(100.percent)
-                    height(20.pixels)
-                }) {}
+                    height(100.percent)
+                    padding(FlexBorder.of(8.pixels))
+                    direction(FlexDirection.ROW)
+                }) {
+                    label({
+                        width(32.pixels)
+                        height(32.pixels)
+                        margin(FlexBorder.of(2.pixels))
+                    }) {}
+
+                    label({
+                        width(32.pixels)
+                        height(32.pixels)
+                        margin(FlexBorder.of(4.pixels))
+                    }) {}
+
+                    label({
+                        width(32.pixels)
+                        height(32.pixels)
+                        margin(FlexBorder.of(6.pixels))
+                    }) {}
+
+                    label({
+                        width(32.pixels)
+                        height(32.pixels)
+                        margin(FlexBorder.of(8.pixels))
+                    }) {}
+                }
             }
         }
     }

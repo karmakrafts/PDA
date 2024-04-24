@@ -4,6 +4,7 @@
 
 package io.karma.pda.common.network.sb;
 
+import io.karma.pda.common.util.PacketUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
@@ -33,23 +34,12 @@ public final class SPacketCloseApp {
 
     public static void encode(final SPacketCloseApp packet, final FriendlyByteBuf buffer) {
         buffer.writeUUID(packet.sessionId);
-        final var name = packet.name;
-        if (name != null) {
-            buffer.writeBoolean(true);
-            buffer.writeResourceLocation(name);
-        }
-        else {
-            buffer.writeBoolean(false);
-        }
+        PacketUtils.writeNullable(packet.name, FriendlyByteBuf::writeResourceLocation, buffer);
     }
 
     public static SPacketCloseApp decode(final FriendlyByteBuf buffer) {
-        final UUID sessionId = buffer.readUUID();
-        // @formatter:off
-        final ResourceLocation name = buffer.readBoolean()
-            ? buffer.readResourceLocation()
-            : null;
-        // @formatter:on
+        final var sessionId = buffer.readUUID();
+        final var name = PacketUtils.readNullable(buffer, FriendlyByteBuf::readResourceLocation);
         return new SPacketCloseApp(sessionId, name);
     }
 }

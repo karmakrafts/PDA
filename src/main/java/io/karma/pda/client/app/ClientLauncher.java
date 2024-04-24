@@ -15,15 +15,18 @@ import io.karma.pda.common.app.DefaultLauncher;
 import io.karma.pda.common.network.sb.SPacketCloseApp;
 import io.karma.pda.common.network.sb.SPacketOpenApp;
 import io.karma.pda.common.util.BlockingHashMap;
+import io.karma.pda.common.util.TreeGraph;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author Alexander Hinze
@@ -107,26 +110,45 @@ public class ClientLauncher extends DefaultLauncher {
     @Override
     public <A extends App> CompletableFuture<@Nullable A> openApp(final AppType<A> type) {
         final var name = type.getName();
+        final var game = Minecraft.getInstance();
+        final var app = type.create();
+        app.compose(); // Compose app locally to generate temporary component IDs
+        synchronized (appStackLock) {
+            appStack.push(app); // Push app when composed initially
+        }
         // @formatter:off
         final var future = pendingApps.removeLater(name, 30, TimeUnit.SECONDS, PDAMod.EXECUTOR_SERVICE)
-            .thenApply(app -> {
-                if(app == null) {
-                    PDAMod.LOGGER.warn("Server didn't respond in time to open app {}, ignoring", name);
+            .thenApply(theApp -> {
+                if(theApp == null) {
+                    synchronized (appStackLock) {
+                        appStack.remove(appStack.stream()
+                            .filter(a -> a.getType() == type)
+                            .findFirst()
+                            .orElseThrow());
+                    }
+                    PDAMod.LOGGER.error("Server didn't respond in time to open app {}, ignoring", name);
                     return null;
                 }
-                app.init(); // Only initialize, don't compose on the client
-                synchronized (appStackLock) {
-                    appStack.push(app);
-                }
-                registerSyncedFields(app);
-                PDAMod.LOGGER.debug("Opened app {}", name);
-                return (A) app;
+                theApp.init();
+                return (A)theApp;
             });
         // @formatter:on
-        Minecraft.getInstance().execute(() -> {
+        game.execute(() -> {
             final var sessionId = session.getId();
             PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Requesting app {} to open for session {}", name, sessionId);
-            PDAMod.CHANNEL.sendToServer(new SPacketOpenApp(sessionId, name));
+            synchronized (appStackLock) {
+                // @formatter:off
+                PDAMod.CHANNEL.sendToServer(new SPacketOpenApp(sessionId, name, appStack.stream()
+                    .filter(a -> a.getType() == type)
+                    .findFirst()
+                    .orElseThrow()
+                    .getViews()
+                    .stream()
+                    .map(view -> Pair.of(view.getName(),
+                        TreeGraph.from(view.getContainer(), Container.class, Container::getChildren, Component::getId).flatten()))
+                    .collect(Collectors.toMap(Pair::getLeft, Pair::getRight))));
+                // @formatter:on
+            }
         });
         return future;
     }

@@ -217,13 +217,13 @@ public final class DisplayRenderer {
         if (session != null) {
             final var launcher = session.getLauncher();
             final var app = launcher.getCurrentApp();
-            if (app != null) {
+            if (app != null && app.isInitialized()) {
                 graphicsContext.setup(displayPoseStack, displayBufferSource, RES_X, RES_Y);
                 graphics.setContext(graphicsContext);
                 final var appRenderer = AppRenderers.get((AppType<App>) app.getType());
                 appRenderer.render(app, graphics);
+                session.getSynchronizer().flush(); // Flush the synchronizer after each frame
             }
-            session.getSynchronizer().flush(); // Flush the synchronizer after each frame
         }
         else {
             final var buffer = displayBufferSource.getBuffer(GraphicsRenderTypes.COLOR_TRIS);

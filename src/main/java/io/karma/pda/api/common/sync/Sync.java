@@ -23,19 +23,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Sync {
     /**
-     * Retrieves the type of codec to use for en- and decoding
-     * the data for the annotated property field.
-     *
-     * @return The type of codec to use for en- and decoding the data for
-     * the annotated property field.
-     */
-    Class<? extends SyncCodec<?>> value() default DefaultSyncCodec.class;
-
-    /**
      * Determines whether the annotated property is loaded from
      * and/or saved from/to the NBT snapshot when the session is established/terminated.
      *
      * @return True if the annotated property should be persistent between sessions.
      */
-    boolean persistent() default true;
+    boolean value() default true;
 }

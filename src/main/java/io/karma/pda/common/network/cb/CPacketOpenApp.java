@@ -4,14 +4,12 @@
 
 package io.karma.pda.common.network.cb;
 
-import io.karma.pda.api.common.app.view.AppView;
-import io.karma.pda.api.common.util.JSONUtils;
+import io.karma.pda.common.util.PacketUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -22,14 +20,14 @@ public final class CPacketOpenApp {
     private final UUID sessionId;
     private final UUID playerId;
     private final ResourceLocation name;
-    private final List<AppView> views;
+    private final Map<UUID, UUID> newIds;
 
     public CPacketOpenApp(final UUID sessionId, final @Nullable UUID playerId, final ResourceLocation name,
-                          final List<AppView> views) {
+                          final Map<UUID, UUID> newIds) {
         this.sessionId = sessionId;
         this.playerId = playerId;
         this.name = name;
-        this.views = views;
+        this.newIds = newIds;
     }
 
     public UUID getSessionId() {
@@ -44,35 +42,22 @@ public final class CPacketOpenApp {
         return name;
     }
 
-    public List<AppView> getViews() {
-        return views;
+    public Map<UUID, UUID> getNewIds() {
+        return newIds;
     }
 
     public static void encode(final CPacketOpenApp packet, final FriendlyByteBuf buffer) {
         buffer.writeUUID(packet.sessionId);
-        final var playerId = packet.playerId;
-        if (playerId != null) {
-            buffer.writeBoolean(true);
-            buffer.writeUUID(playerId);
-        }
-        else {
-            buffer.writeBoolean(false);
-        }
-        buffer.writeResourceLocation(packet.getName());
-        final var compressedViews = packet.views.stream().map(JSONUtils::compressRaw).toList();
-        buffer.writeInt(compressedViews.size());
-        compressedViews.forEach(buffer::writeByteArray);
+        buffer.writeResourceLocation(packet.name);
+        PacketUtils.writeNullable(packet.playerId, FriendlyByteBuf::writeUUID, buffer);
+        PacketUtils.writeMap(packet.newIds, FriendlyByteBuf::writeUUID, FriendlyByteBuf::writeUUID, buffer);
     }
 
     public static CPacketOpenApp decode(final FriendlyByteBuf buffer) {
         final var sessionId = buffer.readUUID();
-        final var playerId = buffer.readBoolean() ? buffer.readUUID() : null;
         final var name = buffer.readResourceLocation();
-        final var numViews = buffer.readInt();
-        final var views = new ArrayList<AppView>(numViews);
-        for (var i = 0; i < numViews; i++) {
-            views.add(JSONUtils.decompressRaw(buffer.readByteArray(), AppView.class));
-        }
-        return new CPacketOpenApp(sessionId, playerId, name, views);
+        final var playerId = PacketUtils.readNullable(buffer, FriendlyByteBuf::readUUID);
+        final var newIds = PacketUtils.readMap(buffer, FriendlyByteBuf::readUUID, FriendlyByteBuf::readUUID);
+        return new CPacketOpenApp(sessionId, playerId, name, newIds);
     }
 }

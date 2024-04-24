@@ -4,9 +4,12 @@
 
 package io.karma.pda.common.network.sb;
 
+import io.karma.pda.common.util.PacketUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -16,10 +19,12 @@ import java.util.UUID;
 public final class SPacketOpenApp {
     private final UUID sessionId;
     private final ResourceLocation name;
+    private final Map<String, List<UUID>> oldIds;
 
-    public SPacketOpenApp(final UUID sessionId, final ResourceLocation name) {
+    public SPacketOpenApp(final UUID sessionId, final ResourceLocation name, final Map<String, List<UUID>> oldIds) {
         this.sessionId = sessionId;
         this.name = name;
+        this.oldIds = oldIds;
     }
 
     public UUID getSessionId() {
@@ -30,14 +35,26 @@ public final class SPacketOpenApp {
         return name;
     }
 
+    public Map<String, List<UUID>> getOldIds() {
+        return oldIds;
+    }
+
     public static void encode(final SPacketOpenApp packet, final FriendlyByteBuf buffer) {
         buffer.writeUUID(packet.sessionId);
         buffer.writeResourceLocation(packet.name);
+        // @formatter:off
+        PacketUtils.writeMap(packet.oldIds, FriendlyByteBuf::writeUtf,
+            (buf, val) -> PacketUtils.writeList(val, FriendlyByteBuf::writeUUID, buf), buffer);
+        // @formatter:on
     }
 
     public static SPacketOpenApp decode(final FriendlyByteBuf buffer) {
         final var sessionId = buffer.readUUID();
         final var name = buffer.readResourceLocation();
-        return new SPacketOpenApp(sessionId, name);
+        // @formatter:off
+        final var oldIds = PacketUtils.readMap(buffer, FriendlyByteBuf::readUtf,
+            buf -> PacketUtils.readList(buf, FriendlyByteBuf::readUUID));
+        // @formatter:on
+        return new SPacketOpenApp(sessionId, name, oldIds);
     }
 }

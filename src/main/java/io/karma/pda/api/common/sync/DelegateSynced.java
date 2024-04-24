@@ -7,6 +7,7 @@ package io.karma.pda.api.common.sync;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -16,18 +17,28 @@ import java.util.function.Supplier;
  * @since 23/04/2024
  */
 final class DelegateSynced<T> implements Synced<T> {
-    private final AtomicReference<UUID> id = new AtomicReference<>();
     private final Class<T> type;
+    private final AtomicReference<UUID> id = new AtomicReference<>();
     private final AtomicReference<Supplier<@Nullable T>> delegate = new AtomicReference<>();
     private final AtomicReference<BiConsumer<Synced<T>, T>> callback = new AtomicReference<>();
-    private final AtomicReference<SyncCodec<T>> codec = new AtomicReference<>();
     private final AtomicReference<T> lastValue = new AtomicReference<>();
+    private final AtomicBoolean isPersistent = new AtomicBoolean(true);
 
     DelegateSynced(final UUID id, final Class<T> type, final Supplier<@Nullable T> delegate) {
         this.id.set(id);
         this.type = type;
         this.delegate.set(delegate);
         lastValue.set(delegate.get()); // Setup initial value
+    }
+
+    @Override
+    public boolean isPersistent() {
+        return isPersistent.get();
+    }
+
+    @Override
+    public void setPersistent(final boolean isPersistent) {
+        this.isPersistent.set(isPersistent);
     }
 
     @Override
@@ -43,16 +54,6 @@ final class DelegateSynced<T> implements Synced<T> {
     @Override
     public @Nullable BiConsumer<Synced<T>, T> getCallback() {
         return callback.get();
-    }
-
-    @Override
-    public SyncCodec<T> getCodec() {
-        return codec.get();
-    }
-
-    @Override
-    public void setCodec(final SyncCodec<T> codec) {
-        this.codec.set(codec);
     }
 
     @Override

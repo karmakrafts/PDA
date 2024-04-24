@@ -123,12 +123,12 @@ public final class ClientFlexNode implements FlexNode, Disposable {
 
     @Override
     public FlexDirection getDirection() {
-        return FlexUtils.getDirection(Yoga.YGNodeStyleGetDirection(address));
+        return FlexUtils.getDirection(Yoga.YGNodeStyleGetFlexDirection(address));
     }
 
     @Override
     public void setDirection(final FlexDirection direction) {
-        Yoga.YGNodeStyleSetDirection(address, FlexUtils.getDirection(direction));
+        Yoga.YGNodeStyleSetFlexDirection(address, FlexUtils.getDirection(direction));
     }
 
     // Overflow
@@ -336,12 +336,22 @@ public final class ClientFlexNode implements FlexNode, Disposable {
 
     @Override
     public int getAbsoluteX() {
-        return (int) Yoga.YGNodeLayoutGetLeft(address);
+        final var parentAddress = Yoga.YGNodeGetParent(address);
+        final var x = (int) Yoga.YGNodeLayoutGetLeft(address);
+        if (parentAddress != MemoryUtil.NULL) {
+            return x + (int) Yoga.YGNodeLayoutGetLeft(parentAddress);
+        }
+        return x;
     }
 
     @Override
     public int getAbsoluteY() {
-        return (int) Yoga.YGNodeLayoutGetTop(address);
+        final var parentAddress = Yoga.YGNodeGetParent(address);
+        final var y = (int) Yoga.YGNodeLayoutGetTop(address);
+        if (parentAddress != MemoryUtil.NULL) {
+            return y + (int) Yoga.YGNodeLayoutGetTop(parentAddress);
+        }
+        return y;
     }
 
     // Size

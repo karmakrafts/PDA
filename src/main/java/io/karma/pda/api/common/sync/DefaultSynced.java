@@ -7,6 +7,7 @@ package io.karma.pda.api.common.sync;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
@@ -18,13 +19,23 @@ final class DefaultSynced<T> implements Synced<T> {
     private final Class<T> type;
     private final AtomicReference<UUID> id = new AtomicReference<>();
     private final AtomicReference<T> value = new AtomicReference<>();
-    private final AtomicReference<SyncCodec<T>> codec = new AtomicReference<>();
     private final AtomicReference<BiConsumer<Synced<T>, T>> callback = new AtomicReference<>();
+    private final AtomicBoolean isPersistent = new AtomicBoolean(true);
 
     DefaultSynced(final UUID id, final Class<T> type, final @Nullable T initial) {
         this.id.set(id);
         this.type = type;
         value.set(initial);
+    }
+
+    @Override
+    public boolean isPersistent() {
+        return isPersistent.get();
+    }
+
+    @Override
+    public void setPersistent(final boolean isPersistent) {
+        this.isPersistent.set(isPersistent);
     }
 
     @Override
@@ -64,15 +75,5 @@ final class DefaultSynced<T> implements Synced<T> {
     @Override
     public T get() {
         return value.get();
-    }
-
-    @Override
-    public SyncCodec<T> getCodec() {
-        return codec.get();
-    }
-
-    @Override
-    public void setCodec(final SyncCodec<T> codec) {
-        this.codec.set(codec);
     }
 }

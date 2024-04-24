@@ -4,7 +4,6 @@
 
 package io.karma.pda.api.common.app.view;
 
-import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.component.Container;
 
 /**
@@ -13,8 +12,6 @@ import io.karma.pda.api.common.app.component.Container;
  */
 public interface AppView {
     String getName();
-
-    void build(final App app);
 
     Container getContainer();
 

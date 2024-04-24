@@ -4,6 +4,7 @@
 
 package io.karma.pda.api.client.render.graphics;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -72,4 +73,8 @@ public interface Graphics {
     }
 
     void wrappedText(final int x, final int y, final String text, final int maxLength);
+
+    default VertexConsumer getBuffer() {
+        return getContext().getBufferSource().getBuffer(getBrush().getRenderType());
+    }
 }

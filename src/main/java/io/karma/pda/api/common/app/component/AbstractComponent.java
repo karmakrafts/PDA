@@ -14,6 +14,7 @@ import io.karma.pda.api.common.sync.Synced;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
@@ -22,7 +23,7 @@ import java.util.function.Consumer;
  */
 public abstract class AbstractComponent implements Component {
     protected final ComponentType<?> type;
-    protected final UUID id;
+    protected final AtomicReference<UUID> id = new AtomicReference<>();
     protected final FlexNode flexNode = DefaultFlexNode.defaults();
     protected Component parent;
     protected Consumer<ClickEvent> clickEventConsumer = event -> {
@@ -40,8 +41,13 @@ public abstract class AbstractComponent implements Component {
 
     protected AbstractComponent(final ComponentType<?> type, final UUID id) {
         this.type = type;
-        this.id = id;
+        this.id.set(id);
         API.getLogger().debug("Creating component {} of type {}", id, type.getName());
+    }
+
+    @Override
+    public void setId(final UUID id) {
+        this.id.set(id);
     }
 
     @Override
@@ -56,7 +62,7 @@ public abstract class AbstractComponent implements Component {
 
     @Override
     public UUID getId() {
-        return id;
+        return id.get();
     }
 
     @Override
@@ -109,11 +115,11 @@ public abstract class AbstractComponent implements Component {
         if (!(obj instanceof Component component)) {
             return false;
         }
-        return id.equals(component.getId());
+        return id.get().equals(component.getId());
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return id.get().hashCode();
     }
 }

@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -22,21 +23,32 @@ public abstract class AbstractApp implements App {
     protected final AppState state = new AppState();
     protected final HashMap<String, AppView> views = new HashMap<>();
     protected final AtomicReference<String> currentView = new AtomicReference<>(DEFAULT_VIEW);
+    protected final AtomicBoolean isInitialized = new AtomicBoolean(false);
 
     public AbstractApp(final AppType<?> type) {
         this.type = type;
     }
 
     @Override
-    public AppState getState() {
-        return state;
+    public void init() {
+        if (!isInitialized.compareAndSet(false, true)) {
+            throw new IllegalStateException("Already initialized");
+        }
     }
 
     @Override
-    public void init() {
-        for (final var view : views.values()) {
-            view.build(this);
-        }
+    public boolean isInitialized() {
+        return isInitialized.get();
+    }
+
+    @Override
+    public void setInitialized(final boolean isInitialized) {
+        this.isInitialized.set(isInitialized);
+    }
+
+    @Override
+    public AppState getState() {
+        return state;
     }
 
     @Override

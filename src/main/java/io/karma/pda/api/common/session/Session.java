@@ -5,7 +5,6 @@
 package io.karma.pda.api.common.session;
 
 import io.karma.pda.api.common.app.Launcher;
-import io.karma.pda.api.common.sync.NopSynchronizer;
 import io.karma.pda.api.common.sync.Synchronizer;
 import io.karma.pda.api.common.util.Identifiable;
 
@@ -41,9 +40,7 @@ public interface Session extends Identifiable {
      * @return The synchronizer instance associated with this
      * session by its UUID.
      */
-    default Synchronizer getSynchronizer() {
-        return NopSynchronizer.INSTANCE;
-    }
+    Synchronizer getSynchronizer();
 
     /**
      * Called when the session is fully established by the underlying session handler.

@@ -7,12 +7,9 @@ import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.app.component.AbstractComponent;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.component.DefaultContainer;
-import io.karma.pda.common.json.JSONCodecs;
 import io.karma.pda.common.session.DefaultSessionHandler;
 import mock.MockForgeRegistry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -71,8 +68,6 @@ public final class TestHarness {
             API.setSessionHandler(DefaultSessionHandler.INSTANCE);
             API.setComponentTypeRegistry(() -> COMPONENT_REGISTRY);
             API.init();
-            // Manually register all codecs
-            JSONCodecs.setup();
         }
 
         isInitialized = true;

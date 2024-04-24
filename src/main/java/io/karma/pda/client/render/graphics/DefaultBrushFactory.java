@@ -58,8 +58,9 @@ public final class DefaultBrushFactory implements BrushFactory {
         if (color.equals(Color.NONE)) {
             return InvisibleBrush.INSTANCE;
         }
-        return brushes.computeIfAbsent(new BrushKey(GraphicsRenderTypes.COLOR_TEXTURE_TRIS.name, color, texture),
-            key -> new ColorTextureBrush(color, texture));
+        return brushes.computeIfAbsent(new BrushKey(GraphicsRenderTypes.createColorTextureTris(texture).name,
+            color,
+            texture), key -> new ColorTextureBrush(color, texture));
     }
 
     private record BrushKey(String renderTypeName, Color color, @Nullable ResourceLocation texture) {

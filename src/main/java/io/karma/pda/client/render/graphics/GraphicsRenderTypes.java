@@ -4,6 +4,7 @@
 
 package io.karma.pda.client.render.graphics;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import io.karma.pda.api.common.util.Constants;
@@ -19,12 +20,15 @@ import net.minecraftforge.client.event.RegisterShadersEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.HashMap;
+
 /**
  * @author Alexander Hinze
  * @since 11/04/2024
  */
 @OnlyIn(Dist.CLIENT)
 public final class GraphicsRenderTypes {
+    private static final HashMap<ResourceLocation, RenderType> COLOR_TEXTURE_CACHE = new HashMap<>();
     public static final GraphicsRenderTypes INSTANCE = new GraphicsRenderTypes();
     private ShaderInstance colorShader;
     private ShaderInstance colorTextureShader;
@@ -39,17 +43,26 @@ public final class GraphicsRenderTypes {
             .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
             .createCompositeState(false));
 
-    public static final RenderType COLOR_TEXTURE_TRIS = RenderType.create("pda_display_color_tex_tris",
-        DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
-        RenderType.CompositeState.builder()
-            .setCullState(RenderStateShard.NO_CULL)
-            .setShaderState(new RenderStateShard.ShaderStateShard(INSTANCE::getColorTextureShader))
-            .setOutputState(DisplayRenderer.DISPLAY_OUTPUT)
-            .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-            .createCompositeState(false));
-
     private GraphicsRenderTypes() {}
     // @formatter:on
+
+    public static RenderType createColorTextureTris(final ResourceLocation texture) {
+        // @formatter:off
+        return COLOR_TEXTURE_CACHE.computeIfAbsent(texture, t -> RenderType.create(String.format("pda_display_color_tex_tris__%s_%s", texture.getNamespace(), texture.getPath()),
+            DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
+            RenderType.CompositeState.builder()
+                .setCullState(RenderStateShard.NO_CULL)
+                .setShaderState(new RenderStateShard.ShaderStateShard(INSTANCE::getColorTextureShader))
+                .setOutputState(DisplayRenderer.DISPLAY_OUTPUT)
+                .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+                .setTexturingState(RenderStateShard.DEFAULT_TEXTURING)
+                .setTextureState(new RenderStateShard.EmptyTextureStateShard(
+                    () -> RenderSystem.setShaderTexture(0, texture),
+                    () -> {}
+                ))
+                .createCompositeState(false)));
+        // @formatter:on
+    }
 
     @ApiStatus.Internal
     public void setupEarly() {

@@ -5,13 +5,17 @@
 package io.karma.pda.common.network;
 
 import io.karma.pda.api.common.API;
+import io.karma.pda.api.common.app.component.Component;
+import io.karma.pda.api.common.app.component.Container;
 import io.karma.pda.client.app.ClientLauncher;
 import io.karma.pda.client.session.ClientSessionHandler;
+import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.network.cb.*;
 import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.Objects;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Alexander Hinze
@@ -39,12 +43,6 @@ public final class ClientPacketHandler extends CommonPacketHandler {
         registerPacket(PacketIDs.CB_CLOSE_APP,
             CPacketCloseApp.class, CPacketCloseApp::encode, CPacketCloseApp::decode,
             this::onCloseApp);
-        registerPacket(PacketIDs.CB_ADD_SYNC_VALUE,
-            CPacketAddSyncValue.class, CPacketAddSyncValue::encode, CPacketAddSyncValue::decode,
-            this::onAddSyncValue);
-        registerPacket(PacketIDs.CB_REMOVE_SYNC_VALUE,
-            CPacketRemoveSyncValue.class, CPacketRemoveSyncValue::encode, CPacketRemoveSyncValue::decode,
-            this::onRemoveSyncValue);
         registerPacket(PacketIDs.CB_SYNC_VALUES,
             CPacketSyncValues.class, CPacketSyncValues::encode, CPacketSyncValues::decode,
             this::onSyncValues);
@@ -60,6 +58,18 @@ public final class ClientPacketHandler extends CommonPacketHandler {
         // TODO: implement external sessions
     }
 
+    private static void remapIds(final Component component, final Map<UUID, UUID> ids) {
+        final var oldId = component.getId();
+        final var newId = ids.get(oldId);
+        component.setId(newId);
+        PDAMod.LOGGER.debug("Remapped component ID {} -> {}", oldId, newId);
+        if (component instanceof Container container) {
+            for (final var child : container.getChildren()) {
+                remapIds(child, ids);
+            }
+        }
+    }
+
     private void onOpenApp(final CPacketOpenApp packet, final NetworkEvent.Context context) {
         final var playerId = packet.getPlayerId();
         if (playerId == null) {
@@ -67,12 +77,19 @@ public final class ClientPacketHandler extends CommonPacketHandler {
             if (session == null) {
                 return; // TODO: warn?
             }
-            final var app = Objects.requireNonNull(API.getAppTypeRegistry().getValue(packet.getName())).create();
-            app.clearViews(); // We reconstruct the views from packet data
-            for (final var view : packet.getViews()) {
-                app.addView(view.getName(), view);
+
+            final var appType = API.getAppTypeRegistry().getValue(packet.getName());
+            final var app = session.getLauncher().getOpenApp(appType);
+            if (app == null) {
+                return; // TODO: warn?
             }
-            app.init();
+
+            // Update all component IDs accordingly
+            final var mappings = packet.getNewIds();
+            for (final var view : app.getViews()) {
+                remapIds(view.getContainer(), mappings);
+            }
+
             ((ClientLauncher) session.getLauncher()).addPendingApp(app);
         }
         // TODO: implement external sessions
@@ -102,14 +119,6 @@ public final class ClientPacketHandler extends CommonPacketHandler {
             launcher.addTerminatedApp(app);
         }
         // TODO: implement external sessions
-    }
-
-    private void onAddSyncValue(final CPacketAddSyncValue packet, final NetworkEvent.Context context) {
-        // TODO: ...
-    }
-
-    private void onRemoveSyncValue(final CPacketRemoveSyncValue packet, final NetworkEvent.Context context) {
-        // TODO: ...
     }
 
     private void onSyncValues(final CPacketSyncValues packet, final NetworkEvent.Context context) {

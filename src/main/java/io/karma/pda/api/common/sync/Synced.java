@@ -92,22 +92,20 @@ public interface Synced<T> extends TypedValue<T> {
     BiConsumer<Synced<T>, T> getCallback();
 
     /**
-     * Retrieves the codec instance used to en- and decode
-     * data by this property in the given {@link Synchronizer}.
+     * Retrieves whether this property is saved to NBT or not.
      *
-     * @return The codec instance used to en- and decode data by this property.
+     * @return True if this property is saved to NBT.
      */
-    SyncCodec<T> getCodec();
+    boolean isPersistent();
 
     /**
-     * Sets the codec instance used to en- and decode data
-     * by this property in the given {@link Synchronizer}.
+     * Sets a flag which determines whether to save this
+     * property to the NBT snapshot once the session is
+     * terminated or not.
      *
-     * @param codec The codec instance used to en- and decode data
-     *              by this property.
+     * @param isPersistent True if the property should be saved to NBT for persistence.
      */
-    @ApiStatus.Internal
-    void setCodec(final SyncCodec<T> codec);
+    void setPersistent(final boolean isPersistent);
 
     /**
      * Sets the callback invoked by this property upon

@@ -10,6 +10,7 @@ import io.karma.pda.api.common.flex.FlexNode;
 import io.karma.pda.api.common.util.Identifiable;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
@@ -18,6 +19,8 @@ import java.util.function.Consumer;
  */
 public interface Component extends Identifiable {
     ComponentType<?> getType();
+
+    void setId(final UUID id);
 
     @Nullable
     Component getParent();
