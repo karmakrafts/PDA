@@ -8,6 +8,8 @@ import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.Launcher;
 import io.karma.pda.api.common.app.LauncherSettings;
+import io.karma.pda.api.common.app.component.Component;
+import io.karma.pda.api.common.app.component.Container;
 import io.karma.pda.api.common.session.Session;
 import io.karma.pda.api.common.util.LogMarkers;
 import io.karma.pda.common.PDAMod;
@@ -32,6 +34,44 @@ public class DefaultLauncher implements Launcher {
         this.session = session;
     }
 
+    protected void registerSyncedComponents(final Component component) {
+        final var synchronizer = session.getSynchronizer();
+        synchronizer.register(component);
+        if (component instanceof Container container) {
+            for (final var child : container.getChildren()) {
+                registerSyncedComponents(child);
+            }
+        }
+    }
+
+    protected void registerSyncedFields(final App app) {
+        final var synchronizer = session.getSynchronizer();
+        synchronizer.register(app);
+        for (final var view : app.getViews()) {
+            synchronizer.register(view);
+            registerSyncedComponents(view.getContainer());
+        }
+    }
+
+    protected void unregisterSyncedComponents(final Component component) {
+        final var synchronizer = session.getSynchronizer();
+        synchronizer.register(component);
+        if (component instanceof Container container) {
+            for (final var child : container.getChildren()) {
+                unregisterSyncedComponents(child);
+            }
+        }
+    }
+
+    protected void unregisterSyncedFields(final App app) {
+        final var synchronizer = session.getSynchronizer();
+        synchronizer.register(app);
+        for (final var view : app.getViews()) {
+            synchronizer.register(view);
+            unregisterSyncedComponents(view.getContainer());
+        }
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public <A extends App> CompletableFuture<@Nullable A> closeApp(final AppType<A> type) {
@@ -51,6 +91,7 @@ public class DefaultLauncher implements Launcher {
             if (toRemove == null) {
                 return CompletableFuture.completedFuture(null);
             }
+            unregisterSyncedFields(toRemove);
             toRemove.dispose();
             appStack.remove(toRemove);
             return CompletableFuture.completedFuture((A) toRemove);
@@ -70,6 +111,7 @@ public class DefaultLauncher implements Launcher {
             final var app = type.create();
             app.compose();
             app.init();
+            registerSyncedFields(app);
             appStack.push(app);
             return CompletableFuture.completedFuture(app);
         }

@@ -41,25 +41,6 @@ public class ClientLauncher extends DefaultLauncher {
         super(session);
     }
 
-    private void registerSyncedComponents(final Component component) {
-        final var synchronizer = session.getSynchronizer();
-        synchronizer.register(component);
-        if (component instanceof Container container) {
-            for (final var child : container.getChildren()) {
-                registerSyncedComponents(child);
-            }
-        }
-    }
-
-    private void registerSyncedFields(final App app) {
-        final var synchronizer = session.getSynchronizer();
-        synchronizer.register(app);
-        for (final var view : app.getViews()) {
-            synchronizer.register(view);
-            registerSyncedComponents(view.getContainer());
-        }
-    }
-
     @ApiStatus.Internal
     public void addPendingApp(final App app) {
         final var name = app.getType().getName();
@@ -91,9 +72,11 @@ public class ClientLauncher extends DefaultLauncher {
                     PDAMod.LOGGER.warn("Server didn't respond in time to close app {}, ignoring", name);
                     return null;
                 }
+                unregisterSyncedFields(app);
                 synchronized (appStackLock) {
                     appStack.remove(app);
                 }
+                app.dispose();
                 PDAMod.LOGGER.debug("Closed app {}", name);
                 return (A) app;
             });
@@ -129,6 +112,7 @@ public class ClientLauncher extends DefaultLauncher {
                     PDAMod.LOGGER.error("Server didn't respond in time to open app {}, ignoring", name);
                     return null;
                 }
+                registerSyncedFields(theApp);
                 theApp.init();
                 return (A)theApp;
             });

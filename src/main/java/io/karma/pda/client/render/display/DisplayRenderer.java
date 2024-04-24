@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.*;
 import io.karma.pda.api.client.render.app.AppRenderers;
 import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.AppType;
+import io.karma.pda.api.common.session.MuxedSession;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.api.common.util.DisplayType;
 import io.karma.pda.api.common.util.Exceptions;
@@ -23,6 +24,7 @@ import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -215,6 +217,13 @@ public final class DisplayRenderer {
         final var matrix = displayPoseStack.last().pose();
 
         if (session != null) {
+            // Set mux selector accordingly if we are running a muxed session
+            if (session instanceof MuxedSession<?> mux) {
+                final var hand = session.getContext().getHand();
+                if (hand != null) {
+                    ((MuxedSession<InteractionHand>) mux).setSelector(hand);
+                }
+            }
             final var launcher = session.getLauncher();
             final var app = launcher.getCurrentApp();
             if (app != null && app.isInitialized()) {

@@ -117,7 +117,10 @@ public final class PDAItem extends Item implements TabItemProvider {
         ClientSessionHandler.INSTANCE.createSession(hands.stream()
             .map(hand -> new HandheldSessionContext(player, hand))
             .toList(), defaultHand).thenAccept(session -> {
-                session.getLauncher().openApp(DefaultApps.LAUNCHER).join();
+                for(final var hand : hands) { // Launch app for both hands
+                    session.setSelector(hand);
+                    session.getLauncher().openApp(DefaultApps.LAUNCHER).join();
+                }
                 ClientSessionHandler.INSTANCE.setActiveSession(session);
                 Minecraft.getInstance().execute(() -> {
                     Minecraft.getInstance().setScreen(new PDAScreen(hands,

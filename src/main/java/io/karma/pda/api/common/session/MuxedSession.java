@@ -9,6 +9,7 @@ import io.karma.pda.api.common.sync.Synchronizer;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
@@ -54,6 +55,10 @@ public final class MuxedSession<S> implements Session {
 
     public Collection<Session> getTargets() {
         return sessions.values();
+    }
+
+    public Set<S> getSelectors() {
+        return sessions.keySet();
     }
 
     @Override
