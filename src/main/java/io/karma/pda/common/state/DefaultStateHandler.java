@@ -4,47 +4,44 @@
 
 package io.karma.pda.common.state;
 
-import io.karma.pda.api.common.event.RegisterStateReflectorsEvent;
 import io.karma.pda.api.common.session.Session;
-import io.karma.pda.api.common.state.MutableState;
-import io.karma.pda.api.common.state.State;
-import io.karma.pda.api.common.state.StateHandler;
-import io.karma.pda.api.common.state.StateReflector;
+import io.karma.pda.api.common.state.*;
 import io.karma.pda.api.common.util.Identifiable;
-import net.minecraftforge.common.MinecraftForge;
+import io.karma.pda.common.PDAMod;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.lang.annotation.Annotation;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @author Alexander Hinze
  * @since 24/04/2024
  */
 public class DefaultStateHandler implements StateHandler {
+    // @formatter:off
+    protected static final Map<Class<? extends Annotation>, StateReflector> REFLECTORS = PDAMod.STATE_REFLECTORS.stream()
+        .map(p -> {
+            final var reflector = p.get();
+            final var reflectorType = reflector.getClass();
+            if(!reflectorType.isAnnotationPresent(Reflector.class)) {
+                throw new IllegalStateException("Missing @Reflector annotation");
+            }
+            final var annotation = reflectorType.getAnnotation(Reflector.class);
+            PDAMod.LOGGER.debug("Initialized state reflector {} for @{}", reflector, annotation.annotationType().getName());
+            return Pair.of(annotation.value(), reflector);
+        })
+        .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+    // @formatter:on
+
     protected final ConcurrentHashMap<String, ConcurrentHashMap<String, MutableState<?>>> fields = new ConcurrentHashMap<>();
-    protected final ConcurrentHashMap<Class<? extends Annotation>, StateReflector> reflectors = new ConcurrentHashMap<>();
     protected final Session session;
 
     public DefaultStateHandler(final Session session) {
         this.session = session;
-        MinecraftForge.EVENT_BUS.post(new RegisterStateReflectorsEvent(this));
-    }
-
-    @Override
-    public void registerReflector(final Class<? extends Annotation> annotationType, final StateReflector reflector) {
-        if (reflectors.containsKey(annotationType)) {
-            throw new IllegalArgumentException("Reflector type already exists");
-        }
-        reflectors.put(annotationType, reflector);
-    }
-
-    @Override
-    public void unregisterReflector(final Class<? extends Annotation> annotationType) {
-        if (reflectors.remove(annotationType) == null) {
-            throw new IllegalArgumentException("Reflector type doesn't exist");
-        }
     }
 
     @Override
@@ -87,7 +84,7 @@ public class DefaultStateHandler implements StateHandler {
     protected StateReflector getReflector(final Class<?> type) {
         final var annotations = type.getAnnotations();
         for (final var annotation : annotations) {
-            final var reflector = reflectors.get(annotation.annotationType());
+            final var reflector = REFLECTORS.get(annotation.annotationType());
             if (reflector == null) {
                 continue;
             }

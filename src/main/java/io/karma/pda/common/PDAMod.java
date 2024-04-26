@@ -6,6 +6,8 @@ package io.karma.pda.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mojang.blaze3d.systems.RenderSystem;
+import cpw.mods.cl.ModuleClassLoader;
+import cpw.mods.modlauncher.Launcher;
 import io.karma.pda.api.client.ClientAPI;
 import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.app.AppType;
@@ -13,6 +15,7 @@ import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.theme.Theme;
 import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.pda.api.common.dispose.DispositionHandler;
+import io.karma.pda.api.common.state.StateReflector;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.api.common.util.RegistryUtils;
 import io.karma.pda.client.ClientEventHandler;
@@ -55,6 +58,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 import net.minecraftforge.registries.DeferredRegister;
@@ -63,6 +67,7 @@ import net.minecraftforge.registries.RegistryObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ServiceLoader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -121,6 +126,7 @@ public class PDAMod {
     public static final DeferredRegister<Theme> THEMES = API.makeThemeRegister(Constants.MODID);
     // @formatter:on
 
+    public static final ServiceLoader<StateReflector> STATE_REFLECTORS = ServiceLoader.load(StateReflector.class);
     public static boolean IS_DEV_ENV;
 
     static {
@@ -158,7 +164,7 @@ public class PDAMod {
 
         MinecraftForge.EVENT_BUS.addListener(this::onGameShutdown);
         initAPI();
-        ComposableStateReflector.INSTANCE.setup$pda_1_20_1();
+        STATE_REFLECTORS.forEach(StateReflector::init);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             onClientEarlySetup();

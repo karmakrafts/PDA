@@ -6,7 +6,6 @@ package io.karma.pda.api.common.state;
 
 import io.karma.pda.api.common.util.Identifiable;
 
-import java.lang.annotation.Annotation;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
@@ -20,12 +19,6 @@ import java.util.function.Predicate;
  * @since 11/04/2024
  */
 public interface StateHandler {
-    // TODO: document
-    void registerReflector(final Class<? extends Annotation> annotationType, final StateReflector reflector);
-
-    // TODO: document
-    void unregisterReflector(final Class<? extends Annotation> annotationType);
-
     // TODO: document
     void register(final String owner, final Object instance);
 
