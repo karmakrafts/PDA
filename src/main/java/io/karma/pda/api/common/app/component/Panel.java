@@ -4,8 +4,8 @@
 
 package io.karma.pda.api.common.app.component;
 
-import io.karma.pda.api.common.sync.Sync;
-import io.karma.pda.api.common.sync.Synced;
+import io.karma.pda.api.common.state.MutableState;
+import io.karma.pda.api.common.state.Synchronize;
 import io.karma.pda.api.common.util.Color;
 
 import java.util.UUID;
@@ -15,10 +15,10 @@ import java.util.UUID;
  * @since 23/04/2024
  */
 public class Panel extends DefaultContainer {
-    @Sync
-    public final Synced<Color> background = Synced.of(Color.BLACK);
-    @Sync
-    public final Synced<Color> foreground = Synced.of(Color.NONE);
+    @Synchronize
+    public final MutableState<Color> background = MutableState.of(Color.BLACK);
+    @Synchronize
+    public final MutableState<Color> foreground = MutableState.of(Color.NONE);
 
     public Panel(ComponentType<?> type, UUID id) {
         super(type, id);

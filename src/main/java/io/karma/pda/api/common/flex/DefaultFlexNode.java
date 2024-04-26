@@ -37,6 +37,7 @@ public final class DefaultFlexNode implements FlexNode {
     private float growWeight;
     private float shrinkWeight;
     private FlexValue basis;
+    private FlexNodeType type;
 
     private DefaultFlexNode(final FlexDirection direction, final FlexOverflow overflow,
                             final FlexPositionType positionType, final FlexAlignment selfAlignment,
@@ -44,7 +45,7 @@ public final class DefaultFlexNode implements FlexNode {
                             final FlexJustify contentJustification, final FlexWrap wrap, final FlexValue x,
                             final FlexValue y, final FlexValue width, final FlexValue height, final FlexBorder border,
                             final FlexBorder margin, final FlexBorder padding, final float growWeight,
-                            final float shrinkWeight, final FlexValue basis) {
+                            final float shrinkWeight, final FlexValue basis, final FlexNodeType type) {
         this.direction = direction;
         this.overflow = overflow;
         this.positionType = positionType;
@@ -63,6 +64,7 @@ public final class DefaultFlexNode implements FlexNode {
         this.growWeight = growWeight;
         this.shrinkWeight = shrinkWeight;
         this.basis = basis;
+        this.type = type;
     }
 
     public static DefaultFlexNode defaults() {
@@ -71,6 +73,16 @@ public final class DefaultFlexNode implements FlexNode {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    @Override
+    public void setType(final FlexNodeType type) {
+        this.type = type;
+    }
+
+    @Override
+    public FlexNodeType getType() {
+        return type;
     }
 
     @Override
@@ -128,6 +140,7 @@ public final class DefaultFlexNode implements FlexNode {
         shrinkWeight = flexNode.getShrinkWeight();
         growWeight = flexNode.getGrowWeight();
         basis = flexNode.getBasis();
+        type = flexNode.getType();
     }
 
     @Override
@@ -376,7 +389,8 @@ public final class DefaultFlexNode implements FlexNode {
             && padding.equals(node.getPadding())
             && growWeight == node.getGrowWeight()
             && shrinkWeight == node.getShrinkWeight()
-            && basis.equals(node.getBasis());
+            && basis.equals(node.getBasis())
+            && type.equals(node.getType());
         // @formatter:on
     }
 
@@ -399,7 +413,8 @@ public final class DefaultFlexNode implements FlexNode {
             padding,
             growWeight,
             shrinkWeight,
-            basis);
+            basis,
+            type);
     }
 
     public static class Builder {
@@ -421,6 +436,7 @@ public final class DefaultFlexNode implements FlexNode {
         private float growWeight = 0F;
         private float shrinkWeight = 0F;
         private FlexValue basis = FlexValue.auto();
+        private FlexNodeType type = FlexNodeType.DEFAULT;
 
         // @formatter:off
         protected Builder() {}
@@ -444,6 +460,12 @@ public final class DefaultFlexNode implements FlexNode {
             growWeight = node.getGrowWeight();
             shrinkWeight = node.getShrinkWeight();
             basis = node.getBasis();
+            type = node.getType();
+            return this;
+        }
+
+        public Builder type(final FlexNodeType type) {
+            this.type = type;
             return this;
         }
 
@@ -555,7 +577,8 @@ public final class DefaultFlexNode implements FlexNode {
                 padding,
                 growWeight,
                 shrinkWeight,
-                basis);
+                basis,
+                type);
         }
     }
 }

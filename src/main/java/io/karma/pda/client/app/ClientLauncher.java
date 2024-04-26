@@ -113,7 +113,7 @@ public class ClientLauncher extends DefaultLauncher {
                     return null;
                 }
                 registerSyncedFields(theApp);
-                theApp.init();
+                theApp.init(session);
                 return (A)theApp;
             });
         // @formatter:on

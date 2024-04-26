@@ -2,11 +2,10 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.api.common.sync;
+package io.karma.pda.api.common.state;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -15,17 +14,30 @@ import java.util.function.BiConsumer;
  * @author Alexander Hinze
  * @since 11/04/2024
  */
-final class DefaultSynced<T> implements Synced<T> {
+final class DefaultState<T> implements MutableState<T> {
     private final Class<T> type;
-    private final AtomicReference<UUID> id = new AtomicReference<>();
     private final AtomicReference<T> value = new AtomicReference<>();
-    private final AtomicReference<BiConsumer<Synced<T>, T>> callback = new AtomicReference<>();
+    private final AtomicReference<BiConsumer<State<T>, T>> callback = new AtomicReference<>();
+    private final AtomicReference<String> name = new AtomicReference<>();
     private final AtomicBoolean isPersistent = new AtomicBoolean(true);
 
-    DefaultSynced(final UUID id, final Class<T> type, final @Nullable T initial) {
-        this.id.set(id);
+    DefaultState(final Class<T> type, final @Nullable T initial) {
         this.type = type;
         value.set(initial);
+    }
+
+    @Override
+    public void setName(final String name) {
+        this.name.set(name);
+    }
+
+    @Override
+    public String getName() {
+        final var name = this.name.get();
+        if (name == null) {
+            throw new IllegalStateException("Name not set");
+        }
+        return name;
     }
 
     @Override
@@ -53,22 +65,12 @@ final class DefaultSynced<T> implements Synced<T> {
     }
 
     @Override
-    public UUID getId() {
-        return id.get();
-    }
-
-    @Override
-    public void setId(final UUID id) {
-        this.id.set(id);
-    }
-
-    @Override
-    public void setCallback(final @Nullable BiConsumer<Synced<T>, T> callback) {
+    public void setCallback(final @Nullable BiConsumer<State<T>, T> callback) {
         this.callback.set(callback);
     }
 
     @Override
-    public @Nullable BiConsumer<Synced<T>, T> getCallback() {
+    public @Nullable BiConsumer<State<T>, T> getCallback() {
         return callback.get();
     }
 

@@ -2,8 +2,11 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.api.common.sync;
+package io.karma.pda.api.common.state;
 
+import io.karma.pda.api.common.util.Identifiable;
+
+import java.lang.annotation.Annotation;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
@@ -16,18 +19,18 @@ import java.util.function.Predicate;
  * @author Alexander Hinze
  * @since 11/04/2024
  */
-public interface Synchronizer {
-    /**
-     * Register the given value to this synchronizer
-     * instance and record every value change to be
-     * sent to the server.
-     *
-     * @param value The property to be registered.
-     */
-    void register(final Synced<?> value);
+public interface StateHandler {
+    // TODO: document
+    void registerReflector(final Class<? extends Annotation> annotationType, final StateReflector reflector);
+
+    // TODO: document
+    void unregisterReflector(final Class<? extends Annotation> annotationType);
+
+    // TODO: document
+    void register(final String owner, final Object instance);
 
     /**
-     * Register the given object instance to this synchronizer
+     * Register the given object instance to this state handler
      * instance and record every value change of every
      * Synced field within the instance to be sent to the server.
      * <p>
@@ -38,15 +41,10 @@ public interface Synchronizer {
      *
      * @param instance The instance to register.
      */
-    void register(final Object instance);
+    void register(final Identifiable instance);
 
-    /**
-     * Unregister the given value from this synchronizer
-     * instance and stop recording every change of the given property.
-     *
-     * @param value The property to be unregistered.
-     */
-    void unregister(final Synced<?> value);
+    // TODO: document
+    void unregister(final String owner, final Object instance);
 
     /**
      * Unregister the given object instance from this
@@ -55,7 +53,7 @@ public interface Synchronizer {
      *
      * @param instance The instance to unregister.
      */
-    void unregister(final Object instance);
+    void unregister(final Identifiable instance);
 
     /**
      * Dequeues all accumulated values in need of synchronization
@@ -67,7 +65,7 @@ public interface Synchronizer {
      *               or retain before compiling the packet data.
      * @return A future which completes after the updates were broadcast.
      */
-    CompletableFuture<Void> flush(final Predicate<Synced<?>> filter);
+    CompletableFuture<Void> flush(final Predicate<State<?>> filter);
 
     /**
      * Same as {@link #flush(Predicate)} except

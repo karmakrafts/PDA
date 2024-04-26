@@ -4,8 +4,8 @@
 
 package io.karma.pda.api.common.app.component;
 
-import io.karma.pda.api.common.sync.Sync;
-import io.karma.pda.api.common.sync.Synced;
+import io.karma.pda.api.common.state.MutableState;
+import io.karma.pda.api.common.state.Synchronize;
 
 import java.util.UUID;
 
@@ -14,8 +14,8 @@ import java.util.UUID;
  * @since 13/04/2024
  */
 public class PlayerImage extends AbstractComponent {
-    @Sync
-    public final Synced<UUID> player = Synced.ofNull(UUID.class);
+    @Synchronize
+    public final MutableState<UUID> player = MutableState.ofNull(UUID.class);
 
     public PlayerImage(final ComponentType<?> type, final UUID id) {
         super(type, id);

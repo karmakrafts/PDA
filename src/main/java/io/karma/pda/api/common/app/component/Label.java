@@ -4,8 +4,8 @@
 
 package io.karma.pda.api.common.app.component;
 
-import io.karma.pda.api.common.sync.Sync;
-import io.karma.pda.api.common.sync.Synced;
+import io.karma.pda.api.common.state.MutableState;
+import io.karma.pda.api.common.state.Synchronize;
 import io.karma.pda.api.common.util.Color;
 
 import java.util.UUID;
@@ -15,10 +15,10 @@ import java.util.UUID;
  * @since 08/02/2024
  */
 public class Label extends AbstractComponent {
-    @Sync
-    public final Synced<String> text = Synced.of("");
-    @Sync
-    public final Synced<Color> color = Synced.of(Color.WHITE);
+    @Synchronize
+    public final MutableState<String> text = MutableState.of("");
+    @Synchronize
+    public final MutableState<Color> color = MutableState.of(Color.WHITE);
 
     public Label(final ComponentType<?> type, final UUID uuid) {
         super(type, uuid);

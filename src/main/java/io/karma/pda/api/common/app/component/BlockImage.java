@@ -4,8 +4,8 @@
 
 package io.karma.pda.api.common.app.component;
 
-import io.karma.pda.api.common.sync.Sync;
-import io.karma.pda.api.common.sync.Synced;
+import io.karma.pda.api.common.state.MutableState;
+import io.karma.pda.api.common.state.Synchronize;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
@@ -15,8 +15,8 @@ import java.util.UUID;
  * @since 13/04/2024
  */
 public class BlockImage extends AbstractComponent {
-    @Sync
-    public final Synced<ResourceLocation> block = Synced.of(new ResourceLocation("dirt"));
+    @Synchronize
+    public final MutableState<ResourceLocation> block = MutableState.of(new ResourceLocation("dirt"));
 
     public BlockImage(final ComponentType<?> type, final UUID id) {
         super(type, id);

@@ -5,7 +5,7 @@
 package io.karma.pda.api.common.session;
 
 import io.karma.pda.api.common.app.Launcher;
-import io.karma.pda.api.common.sync.Synchronizer;
+import io.karma.pda.api.common.state.StateHandler;
 import io.karma.pda.api.common.util.Identifiable;
 
 /**
@@ -37,10 +37,10 @@ public interface Session extends Identifiable {
     SessionContext getContext();
 
     /**
-     * @return The synchronizer instance associated with this
+     * @return The state handler instance associated with this
      * session by its UUID.
      */
-    Synchronizer getSynchronizer();
+    StateHandler getStateHandler();
 
     /**
      * Called when the session is fully established by the underlying session handler.

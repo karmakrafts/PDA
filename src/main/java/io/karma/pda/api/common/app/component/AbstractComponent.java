@@ -9,8 +9,9 @@ import io.karma.pda.api.common.app.event.ClickEvent;
 import io.karma.pda.api.common.app.event.MouseMoveEvent;
 import io.karma.pda.api.common.flex.DefaultFlexNode;
 import io.karma.pda.api.common.flex.FlexNode;
-import io.karma.pda.api.common.sync.Sync;
-import io.karma.pda.api.common.sync.Synced;
+import io.karma.pda.api.common.state.MutableState;
+import io.karma.pda.api.common.state.Persistent;
+import io.karma.pda.api.common.state.Synchronize;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -36,8 +37,9 @@ public abstract class AbstractComponent implements Component {
     };
 
     // Internal synchronized property for tracking visibility state
-    @Sync
-    protected final Synced<Boolean> isVisible = Synced.of(true);
+    @Synchronize
+    @Persistent
+    protected final MutableState<Boolean> isVisible = MutableState.of(true);
 
     protected AbstractComponent(final ComponentType<?> type, final UUID id) {
         this.type = type;

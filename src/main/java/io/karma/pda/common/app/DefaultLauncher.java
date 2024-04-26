@@ -7,7 +7,6 @@ package io.karma.pda.common.app;
 import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.Launcher;
-import io.karma.pda.api.common.app.LauncherSettings;
 import io.karma.pda.api.common.app.component.Component;
 import io.karma.pda.api.common.app.component.Container;
 import io.karma.pda.api.common.session.Session;
@@ -28,15 +27,14 @@ public class DefaultLauncher implements Launcher {
     protected final Session session;
     protected final Stack<App> appStack = new Stack<>();
     protected final Object appStackLock = new Object();
-    protected final LauncherSettings settings = new LauncherSettings();
 
     public DefaultLauncher(final Session session) {
         this.session = session;
     }
 
     protected void registerSyncedComponents(final Component component) {
-        final var synchronizer = session.getSynchronizer();
-        synchronizer.register(component);
+        final var stateHandler = session.getStateHandler();
+        stateHandler.register(component);
         if (component instanceof Container container) {
             for (final var child : container.getChildren()) {
                 registerSyncedComponents(child);
@@ -45,17 +43,19 @@ public class DefaultLauncher implements Launcher {
     }
 
     protected void registerSyncedFields(final App app) {
-        final var synchronizer = session.getSynchronizer();
-        synchronizer.register(app);
+        final var stateHandler = session.getStateHandler();
+        final var appOwnerName = String.format("%s:%s", session.getId(), app.getType().getName());
+        stateHandler.register(appOwnerName, app);
         for (final var view : app.getViews()) {
-            synchronizer.register(view);
+            final var viewOwnerName = String.format("%s:%s", appOwnerName, view.getName());
+            stateHandler.register(viewOwnerName, view);
             registerSyncedComponents(view.getContainer());
         }
     }
 
     protected void unregisterSyncedComponents(final Component component) {
-        final var synchronizer = session.getSynchronizer();
-        synchronizer.register(component);
+        final var stateHandler = session.getStateHandler();
+        stateHandler.unregister(component);
         if (component instanceof Container container) {
             for (final var child : container.getChildren()) {
                 unregisterSyncedComponents(child);
@@ -64,10 +64,12 @@ public class DefaultLauncher implements Launcher {
     }
 
     protected void unregisterSyncedFields(final App app) {
-        final var synchronizer = session.getSynchronizer();
-        synchronizer.register(app);
+        final var stateHandler = session.getStateHandler();
+        final var appOwnerName = String.format("%s:%s", session.getId(), app.getType().getName());
+        stateHandler.unregister(appOwnerName, app);
         for (final var view : app.getViews()) {
-            synchronizer.register(view);
+            final var viewOwnerName = String.format("%s:%s", appOwnerName, view.getName());
+            stateHandler.unregister(viewOwnerName, view);
             unregisterSyncedComponents(view.getContainer());
         }
     }
@@ -110,7 +112,7 @@ public class DefaultLauncher implements Launcher {
             PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Opening app {}", type.getName());
             final var app = type.create();
             app.compose();
-            app.init();
+            app.init(session);
             registerSyncedFields(app);
             appStack.push(app);
             return CompletableFuture.completedFuture(app);
@@ -146,10 +148,5 @@ public class DefaultLauncher implements Launcher {
         synchronized (appStackLock) {
             return Collections.unmodifiableList(appStack);
         }
-    }
-
-    @Override
-    public LauncherSettings getSettings() {
-        return settings;
     }
 }

@@ -8,12 +8,20 @@ import io.karma.pda.api.common.app.AppType
 import io.karma.pda.api.common.app.compose.*
 import io.karma.pda.api.common.flex.FlexBorder
 import io.karma.pda.api.common.flex.FlexDirection
+import io.karma.pda.api.common.state.MutableState
+import io.karma.pda.api.common.state.Persistent
+import io.karma.pda.api.common.state.Synchronize
 
 /**
  * @author Alexander Hinze
  * @since 13/04/2024
  */
+@Composable
 class LauncherApp(type: AppType<*>) : ComposableApp(type) {
+    @Synchronize
+    @Persistent
+    private val someSetting: MutableState<Boolean?> = mutableStateOf(true)
+
     override fun compose() {
         defaultView {
             panel({
@@ -57,7 +65,7 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                     }) {
                         label({
                             width(32.pixels)
-                            height(32.pixels)
+                            height(64.pixels)
                             margin(FlexBorder.of(4.pixels))
                         }) {
                             text("A")
@@ -65,28 +73,35 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
 
                         label({
                             width(32.pixels)
-                            height(32.pixels)
-                            margin(FlexBorder.of(8.pixels))
+                            height(64.pixels)
+                            margin(FlexBorder.of(4.pixels))
                         }) {
                             text("B")
                         }
 
                         label({
                             width(32.pixels)
-                            height(32.pixels)
-                            margin(FlexBorder.of(12.pixels))
+                            height(64.pixels)
+                            margin(FlexBorder.of(4.pixels))
                         }) {
                             text("C")
                         }
 
                         label({
                             width(32.pixels)
-                            height(32.pixels)
-                            margin(FlexBorder.of(16.pixels))
+                            height(64.pixels)
+                            margin(FlexBorder.of(4.pixels))
                         }) {
                             text("D")
                         }
                     }
+                }
+
+                label({
+                    width(100.percent)
+                    height(20.pixels)
+                }) {
+                    text("Testing 4")
                 }
             }
         }

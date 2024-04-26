@@ -5,7 +5,7 @@
 package io.karma.pda.api.common.session;
 
 import io.karma.pda.api.common.app.Launcher;
-import io.karma.pda.api.common.sync.Synchronizer;
+import io.karma.pda.api.common.state.StateHandler;
 
 import java.util.Collection;
 import java.util.Map;
@@ -77,7 +77,7 @@ public final class MuxedSession<S> implements Session {
     }
 
     @Override
-    public Synchronizer getSynchronizer() {
-        return getTarget().getSynchronizer();
+    public StateHandler getStateHandler() {
+        return getTarget().getStateHandler();
     }
 }

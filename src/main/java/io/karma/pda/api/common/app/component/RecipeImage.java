@@ -4,8 +4,8 @@
 
 package io.karma.pda.api.common.app.component;
 
-import io.karma.pda.api.common.sync.Sync;
-import io.karma.pda.api.common.sync.Synced;
+import io.karma.pda.api.common.state.MutableState;
+import io.karma.pda.api.common.state.Synchronize;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
@@ -15,8 +15,8 @@ import java.util.UUID;
  * @since 13/04/2024
  */
 public class RecipeImage extends AbstractComponent {
-    @Sync
-    public final Synced<ResourceLocation> recipe = Synced.of(new ResourceLocation("bucket"));
+    @Synchronize
+    public final MutableState<ResourceLocation> recipe = MutableState.of(new ResourceLocation("bucket"));
 
     public RecipeImage(final ComponentType<?> type, final UUID id) {
         super(type, id);

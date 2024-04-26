@@ -31,6 +31,7 @@ import io.karma.pda.common.menu.PDAStorageMenu;
 import io.karma.pda.common.network.ClientPacketHandler;
 import io.karma.pda.common.network.CommonPacketHandler;
 import io.karma.pda.common.session.DefaultSessionHandler;
+import io.karma.pda.common.state.ComposableStateReflector;
 import io.karma.pda.common.util.TabItemProvider;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.NonNullList;
@@ -157,6 +158,7 @@ public class PDAMod {
 
         MinecraftForge.EVENT_BUS.addListener(this::onGameShutdown);
         initAPI();
+        ComposableStateReflector.INSTANCE.setup$pda_1_20_1();
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             onClientEarlySetup();

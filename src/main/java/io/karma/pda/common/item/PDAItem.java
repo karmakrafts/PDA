@@ -90,6 +90,7 @@ public final class PDAItem extends Item implements TabItemProvider {
         final var stack = player.getItemInHand(hand);
         if (player.isShiftKeyDown()) {
             PlayerUtils.openMenu(player, hand, PDAStorageMenu::new);
+            return InteractionResultHolder.success(stack);
         }
         else {
             final var hands = EnumSet.of(hand);
@@ -103,8 +104,8 @@ public final class PDAItem extends Item implements TabItemProvider {
             stack.getOrCreateTag().putBoolean(TAG_IS_ON, true);
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
                 () -> () -> openScreen(player, hands.size() == 1 ? hand : InteractionHand.MAIN_HAND, hands));
+            return InteractionResultHolder.pass(stack);
         }
-        return InteractionResultHolder.pass(stack);
     }
 
     @OnlyIn(Dist.CLIENT)

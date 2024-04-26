@@ -2,31 +2,27 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.api.common.sync;
+package io.karma.pda.api.common.state;
 
-import io.karma.pda.api.common.util.TypedValue;
-import org.jetbrains.annotations.ApiStatus;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 /**
- * An instance of this interface may behave like a regular property;
- * its value can be set and get. But it also provides a unique ID, a
- * way to override said unique ID when needed, an accessor for the underlying
- * value type and a callback mechanism.
- * <p>
- * The callback mechanism allows instances of {@link Synchronizer} to
- * inject itself into existing and most-importantly final fields which
- * are to be synchronized from client to server, and from server to
- * all remaining clients.
- *
  * @author Alexander Hinze
- * @since 11/04/2024
+ * @since 26/04/2024
  */
-public interface Synced<T> extends TypedValue<T> {
+public interface MutableState<T> extends State<T> {
+    static <T> MutableState<T> fromPair(final Pair<Class<T>, T> pair) {
+        final var value = pair.getRight();
+        if (value == null) {
+            return ofNull(pair.getLeft());
+        }
+        return of(value);
+    }
+
     /**
      * Creates a new synchronized property instance with an initial value of null and the given type.
      * The ID for this property will be generated randomly and synchronized automatically.
@@ -35,8 +31,8 @@ public interface Synced<T> extends TypedValue<T> {
      * @param <T>  The type of the newly created property.
      * @return A new synchronized property instance with the given type.
      */
-    static <T> Synced<T> ofNull(final Class<T> type) {
-        return new DefaultSynced<>(UUID.randomUUID(), type, null);
+    static <T> MutableState<T> ofNull(final Class<T> type) {
+        return new DefaultState<>(type, null);
     }
 
     /**
@@ -49,23 +45,23 @@ public interface Synced<T> extends TypedValue<T> {
      * @return A new synchronized property instance with the given initial value.
      */
     @SuppressWarnings("unchecked")
-    static <T> Synced<T> of(final T value) {
-        return new DefaultSynced<>(UUID.randomUUID(), (Class<T>) value.getClass(), value);
+    static <T> MutableState<T> of(final T value) {
+        return new DefaultState<>((Class<T>) value.getClass(), value);
     }
 
     /**
      * Creates a new synchronized property instance whose instance
      * is provided by the given supplier function. The property created
      * by this function is immutable and cannot be set directly.
-     * A call to {@link Synced#set(Object)} will throw an {@link UnsupportedOperationException}.
+     * A call to {@link MutableState#set(Object)} will throw an {@link UnsupportedOperationException}.
      *
      * @param type     The type of the property to create.
      * @param delegate The function which to call when retrieving the value of the property.
      * @param <T>      The type of the newly created property.
      * @return A new synchronized property instance with the given delegate function.
      */
-    static <T> Synced<T> by(final Class<T> type, final Supplier<T> delegate) {
-        return new DelegateSynced<>(UUID.randomUUID(), type, delegate);
+    static <T> MutableState<T> by(final Class<T> type, final Supplier<T> delegate) {
+        return new DelegateState<>(type, delegate);
     }
 
     /**
@@ -76,27 +72,11 @@ public interface Synced<T> extends TypedValue<T> {
     void set(final @Nullable T value);
 
     /**
-     * Retrieves the unique ID of this property.
+     * Sets the name of this property.
      *
-     * @return The unique ID of this property.
+     * @param name The name of this property.
      */
-    UUID getId();
-
-    /**
-     * Retrieves the callback invoked by this property
-     * upon being set if present.
-     *
-     * @return The callback invoke by this property upon being set if present.
-     */
-    @Nullable
-    BiConsumer<Synced<T>, T> getCallback();
-
-    /**
-     * Retrieves whether this property is saved to NBT or not.
-     *
-     * @return True if this property is saved to NBT.
-     */
-    boolean isPersistent();
+    void setName(final String name);
 
     /**
      * Sets a flag which determines whether to save this
@@ -113,16 +93,5 @@ public interface Synced<T> extends TypedValue<T> {
      *
      * @param callback The callback invoked by this property upon being set.
      */
-    @ApiStatus.Internal
-    void setCallback(final @Nullable BiConsumer<Synced<T>, T> callback);
-
-    /**
-     * Sets the unique ID of this property to the given ID.
-     * Should not be changed manually as it is synchronized
-     * between client and server.
-     *
-     * @param id The new unique ID of this property.
-     */
-    @ApiStatus.Internal
-    void setId(final UUID id);
+    void setCallback(final @Nullable BiConsumer<State<T>, T> callback);
 }

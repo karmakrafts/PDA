@@ -20,6 +20,20 @@ public final class FlexUtils {
     private FlexUtils() {}
     // @formatter:on
 
+    public static int getType(final FlexNodeType type) {
+        return switch(type) { // @formatter:off
+            case TEXT -> Yoga.YGNodeTypeText;
+            default   -> Yoga.YGNodeTypeDefault;
+        }; // @formatter:on
+    }
+
+    public static FlexNodeType getType(final int value) {
+        return switch(value) { // @formatter:off
+            case Yoga.YGNodeTypeText -> FlexNodeType.TEXT;
+            default                  -> FlexNodeType.DEFAULT;
+        }; // @formatter:on
+    }
+
     public static FlexValue getValue(final YGValue value) {
         return switch (value.unit()) { // @formatter:off
             case Yoga.YGUnitPoint   -> FlexValue.pixel((int) value.value());

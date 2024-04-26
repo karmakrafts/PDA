@@ -5,6 +5,9 @@
 package io.karma.pda.api.common.app;
 
 import io.karma.pda.api.common.app.view.AppView;
+import io.karma.pda.api.common.session.Session;
+import io.karma.pda.api.common.state.MutableState;
+import io.karma.pda.api.common.state.Synchronize;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -12,7 +15,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Alexander Hinze
@@ -20,17 +22,20 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public abstract class AbstractApp implements App {
     protected final AppType<?> type;
-    protected final AppState state = new AppState();
     protected final HashMap<String, AppView> views = new HashMap<>();
-    protected final AtomicReference<String> currentView = new AtomicReference<>(DEFAULT_VIEW);
     protected final AtomicBoolean isInitialized = new AtomicBoolean(false);
+
+    @Synchronize
+    protected final MutableState<String> currentView = MutableState.of(DEFAULT_VIEW);
+    @Synchronize
+    protected final MutableState<AppState> state = MutableState.of(new AppState());
 
     public AbstractApp(final AppType<?> type) {
         this.type = type;
     }
 
     @Override
-    public void init() {
+    public void init(final Session session) {
         if (!isInitialized.compareAndSet(false, true)) {
             throw new IllegalStateException("Already initialized");
         }
@@ -42,13 +47,8 @@ public abstract class AbstractApp implements App {
     }
 
     @Override
-    public void setInitialized(final boolean isInitialized) {
-        this.isInitialized.set(isInitialized);
-    }
-
-    @Override
     public AppState getState() {
-        return state;
+        return state.get();
     }
 
     @Override

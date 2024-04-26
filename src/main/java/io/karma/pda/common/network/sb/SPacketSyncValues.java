@@ -4,12 +4,15 @@
 
 package io.karma.pda.common.network.sb;
 
-import io.karma.pda.api.common.sync.Synced;
+import io.karma.pda.api.common.state.MutableState;
+import io.karma.pda.api.common.state.State;
+import io.karma.pda.api.common.util.JSONUtils;
+import io.karma.pda.common.util.PacketUtils;
 import net.minecraft.network.FriendlyByteBuf;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -18,9 +21,10 @@ import java.util.UUID;
  */
 public final class SPacketSyncValues {
     private final UUID sessionId;
-    private final Map<UUID, Synced<?>> values;
+    private final Map<String, ? extends Map<String, ? extends State<?>>> values;
 
-    public SPacketSyncValues(final UUID sessionId, final Map<UUID, Synced<?>> values) {
+    public SPacketSyncValues(final UUID sessionId,
+                             final Map<String, ? extends Map<String, ? extends State<?>>> values) {
         this.sessionId = sessionId;
         this.values = values;
     }
@@ -33,18 +37,26 @@ public final class SPacketSyncValues {
         return sessionId;
     }
 
-    public Map<UUID, Synced<?>> getValues() {
+    public Map<String, ? extends Map<String, ? extends State<?>>> getValues() {
         return values;
     }
 
     public static void encode(final SPacketSyncValues packet, final FriendlyByteBuf buffer) {
         buffer.writeUUID(packet.sessionId);
-        // TODO: ...
+        // @formatter:off
+        PacketUtils.writeMap(packet.values, FriendlyByteBuf::writeUtf,
+            (b, map) -> PacketUtils.writeMap(map, FriendlyByteBuf::writeUtf,
+                (buf, state) -> buf.writeByteArray(JSONUtils.compress(state.get())), b), buffer);
+        // @formatter:on
     }
 
     public static SPacketSyncValues decode(final FriendlyByteBuf buffer) {
         final var sessionId = buffer.readUUID();
-        // TODO: ...
-        return new SPacketSyncValues(sessionId, Collections.emptyMap());
+        // @formatter:off
+        final var values = PacketUtils.readMap(buffer, FriendlyByteBuf::readUtf,
+            b -> PacketUtils.readMap(b, FriendlyByteBuf::readUtf,
+                buf -> MutableState.fromPair(Objects.requireNonNull(JSONUtils.decompress(buf.readByteArray())))));
+        // @formatter:on
+        return new SPacketSyncValues(sessionId, values);
     }
 }

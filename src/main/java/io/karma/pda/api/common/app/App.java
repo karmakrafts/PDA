@@ -7,6 +7,7 @@ package io.karma.pda.api.common.app;
 import io.karma.pda.api.common.app.component.DefaultContainer;
 import io.karma.pda.api.common.app.view.AppView;
 import io.karma.pda.api.common.app.view.DefaultContainerView;
+import io.karma.pda.api.common.session.Session;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -21,19 +22,19 @@ public interface App {
 
     boolean isInitialized();
 
-    void setInitialized(final boolean isInitialized);
-
     /**
      * Called to compose the actual layout of the app.
      * This function may be called multiple times as needed,
-     * so initialization logic should exclusively go into {@link #init()}.
+     * so initialization logic should exclusively go into {@link #init(Session)}.
      */
     void compose();
 
     /**
      * Called to initialize the app after it has been composed.
+     *
+     * @param session The session for which this app was opened for.
      */
-    default void init() {
+    default void init(final Session session) {
     }
 
     /**

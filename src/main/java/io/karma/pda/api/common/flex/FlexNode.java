@@ -30,6 +30,10 @@ public interface FlexNode {
 
     void clearChildren();
 
+    void setType(final FlexNodeType type);
+
+    FlexNodeType getType();
+
     void setGrowWeight(final float growWeight);
 
     float getGrowWeight();

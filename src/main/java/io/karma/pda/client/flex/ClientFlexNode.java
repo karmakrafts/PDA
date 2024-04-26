@@ -116,6 +116,19 @@ public final class ClientFlexNode implements FlexNode, Disposable {
         setGrowWeight(node.getGrowWeight());
         setShrinkWeight(node.getShrinkWeight());
         setBasis(node.getBasis());
+        setType(node.getType());
+    }
+
+    // Type
+
+    @Override
+    public void setType(final FlexNodeType type) {
+        Yoga.YGNodeSetNodeType(address, FlexUtils.getType(type));
+    }
+
+    @Override
+    public FlexNodeType getType() {
+        return FlexUtils.getType(Yoga.YGNodeGetNodeType(address));
     }
 
     // Grow

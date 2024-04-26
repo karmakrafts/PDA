@@ -13,6 +13,7 @@ import io.karma.pda.api.common.app.view.DefaultContainerView
  * @author Alexander Hinze
  * @since 13/04/2024
  */
+@Composable
 abstract class ComposableApp(type: AppType<*>) : AbstractApp(type) {
     protected inline fun view(name: String, crossinline scope: Composer<DefaultContainer>.() -> Unit) {
         addView(name, DefaultContainerView(name) { container ->
