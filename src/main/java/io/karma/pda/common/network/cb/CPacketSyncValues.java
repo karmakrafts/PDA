@@ -4,11 +4,15 @@
 
 package io.karma.pda.common.network.cb;
 
-import io.karma.pda.api.common.util.TypedValue;
+import io.karma.pda.api.common.state.MutableState;
+import io.karma.pda.api.common.state.State;
+import io.karma.pda.api.common.util.JSONUtils;
+import io.karma.pda.common.util.PacketUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -18,10 +22,10 @@ import java.util.UUID;
 public final class CPacketSyncValues {
     private final UUID sessionId;
     private final UUID playerId;
-    private final Map<UUID, TypedValue<?>> values;
+    private final Map<String, ? extends Map<String, ? extends State<?>>> values;
 
     public CPacketSyncValues(final UUID sessionId, final @Nullable UUID playerId,
-                             final Map<UUID, TypedValue<?>> values) {
+                             final Map<String, ? extends Map<String, ? extends State<?>>> values) {
         this.sessionId = sessionId;
         this.playerId = playerId;
         this.values = values;
@@ -35,15 +39,28 @@ public final class CPacketSyncValues {
         return playerId;
     }
 
-    public Map<UUID, TypedValue<?>> getValues() {
+    public Map<String, ? extends Map<String, ? extends State<?>>> getValues() {
         return values;
     }
 
     public static void encode(final CPacketSyncValues packet, final FriendlyByteBuf buffer) {
-
+        buffer.writeUUID(packet.sessionId);
+        PacketUtils.writeNullable(packet.playerId, FriendlyByteBuf::writeUUID, buffer);
+        // @formatter:off
+        PacketUtils.writeMap(packet.values, FriendlyByteBuf::writeUtf,
+            (b, map) -> PacketUtils.writeMap(map, FriendlyByteBuf::writeUtf,
+                (buf, state) -> buf.writeByteArray(JSONUtils.compress(state.get())), b), buffer);
+        // @formatter:on
     }
 
     public static CPacketSyncValues decode(final FriendlyByteBuf buffer) {
-        return null;
+        final var sessionId = buffer.readUUID();
+        final var playerId = PacketUtils.readNullable(buffer, FriendlyByteBuf::readUUID);
+        // @formatter:off
+        final var values = PacketUtils.readMap(buffer, FriendlyByteBuf::readUtf,
+            b -> PacketUtils.readMap(b, FriendlyByteBuf::readUtf,
+                buf -> MutableState.fromPair(Objects.requireNonNull(JSONUtils.decompress(buf.readByteArray())))));
+        // @formatter:on
+        return new CPacketSyncValues(sessionId, playerId, values);
     }
 }

@@ -192,15 +192,17 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
 
     @OnlyIn(Dist.CLIENT)
     private void openScreen(final Player player, final BlockPos pos) {
-        if (!Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+        final var game = Minecraft.getInstance();
+        if (game.player != player || !game.options.getCameraType().isFirstPerson()) {
             return;
         }
+        final var sessionHandler = ClientSessionHandler.INSTANCE;
         // @formatter:off
-        ClientSessionHandler.INSTANCE.createSession(new DockedSessionContext(player, pos)).thenAccept(session -> {
+        sessionHandler.createSession(new DockedSessionContext(player, pos)).thenAccept(session -> {
             session.getLauncher().openApp(DefaultApps.LAUNCHER).join();
-            ClientSessionHandler.INSTANCE.setActiveSession(session);
-            Minecraft.getInstance().execute(() -> {
-                Minecraft.getInstance().setScreen(new DockScreen(pos, ClientSessionHandler.INSTANCE.getActiveSession()));
+            sessionHandler.setActiveSession(session);
+            game.execute(() -> {
+                game.setScreen(new DockScreen(pos, sessionHandler.getActiveSession()));
                 Objects.requireNonNull(player.level()).playSound(
                     player, pos, SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, SoundSource.AMBIENT, 0.3F, 1.75F);
             });

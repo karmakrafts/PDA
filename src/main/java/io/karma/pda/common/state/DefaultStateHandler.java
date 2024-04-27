@@ -31,7 +31,7 @@ public class DefaultStateHandler implements StateHandler {
                 throw new IllegalStateException("Missing @Reflector annotation");
             }
             final var annotation = reflectorType.getAnnotation(Reflector.class);
-            PDAMod.LOGGER.debug("Initialized state reflector {} for @{}", reflector, annotation.annotationType().getName());
+            PDAMod.LOGGER.debug("Initialized state reflector {} for @{}", reflector, annotation.value().getName());
             return Pair.of(annotation.value(), reflector);
         })
         .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));

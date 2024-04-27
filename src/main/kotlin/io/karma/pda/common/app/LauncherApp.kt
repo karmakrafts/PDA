@@ -54,14 +54,12 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                     width(100.percent)
                     height(auto)
                     padding(FlexBorder.of(4.pixels))
-                    grow(1F)
                 }) {
                     panel({
                         width(100.percent)
                         height(auto)
                         direction(FlexDirection.ROW)
                         padding(FlexBorder.of(4.pixels))
-                        grow(1F)
                     }) {
                         label({
                             width(32.pixels)
@@ -99,7 +97,7 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
 
                 label({
                     width(100.percent)
-                    height(20.pixels)
+                    grow(1F)
                 }) {
                     text("Testing 4")
                 }

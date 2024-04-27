@@ -111,21 +111,23 @@ public final class PDAItem extends Item implements TabItemProvider {
     @OnlyIn(Dist.CLIENT)
     private void openScreen(final Player player, final InteractionHand defaultHand,
                             final EnumSet<InteractionHand> hands) {
-        if (isScreenOpen || !Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+        final var game = Minecraft.getInstance();
+        if (isScreenOpen || game.player != player || !game.options.getCameraType().isFirstPerson()) {
             return;
         }
+        final var sessionHandler = ClientSessionHandler.INSTANCE;
         // @formatter:off
-        ClientSessionHandler.INSTANCE.createSession(hands.stream()
+        sessionHandler.createSession(hands.stream()
             .map(hand -> new HandheldSessionContext(player, hand))
             .toList(), defaultHand).thenAccept(session -> {
                 for(final var hand : hands) { // Launch app for both hands
                     session.setSelector(hand);
                     session.getLauncher().openApp(DefaultApps.LAUNCHER).join();
                 }
-                ClientSessionHandler.INSTANCE.setActiveSession(session);
-                Minecraft.getInstance().execute(() -> {
-                    Minecraft.getInstance().setScreen(new PDAScreen(hands,
-                        ClientSessionHandler.INSTANCE.getActiveSession()));
+                sessionHandler.setActiveSession(session);
+                game.execute(() -> {
+                    game.setScreen(new PDAScreen(hands,
+                        sessionHandler.getActiveSession()));
                     player.playSound(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, 0.3F, 1.75F);
                 });
             });

@@ -7,7 +7,6 @@ package io.karma.pda.common.network.cb;
 import io.karma.pda.common.util.PacketUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.UUID;
@@ -22,7 +21,7 @@ public final class CPacketOpenApp {
     private final ResourceLocation name;
     private final Map<UUID, UUID> newIds;
 
-    public CPacketOpenApp(final UUID sessionId, final @Nullable UUID playerId, final ResourceLocation name,
+    public CPacketOpenApp(final UUID sessionId, final UUID playerId, final ResourceLocation name,
                           final Map<UUID, UUID> newIds) {
         this.sessionId = sessionId;
         this.playerId = playerId;
@@ -34,7 +33,7 @@ public final class CPacketOpenApp {
         return sessionId;
     }
 
-    public @Nullable UUID getPlayerId() {
+    public UUID getPlayerId() {
         return playerId;
     }
 
@@ -49,14 +48,14 @@ public final class CPacketOpenApp {
     public static void encode(final CPacketOpenApp packet, final FriendlyByteBuf buffer) {
         buffer.writeUUID(packet.sessionId);
         buffer.writeResourceLocation(packet.name);
-        PacketUtils.writeNullable(packet.playerId, FriendlyByteBuf::writeUUID, buffer);
+        buffer.writeUUID(packet.playerId);
         PacketUtils.writeMap(packet.newIds, FriendlyByteBuf::writeUUID, FriendlyByteBuf::writeUUID, buffer);
     }
 
     public static CPacketOpenApp decode(final FriendlyByteBuf buffer) {
         final var sessionId = buffer.readUUID();
         final var name = buffer.readResourceLocation();
-        final var playerId = PacketUtils.readNullable(buffer, FriendlyByteBuf::readUUID);
+        final var playerId = buffer.readUUID();
         final var newIds = PacketUtils.readMap(buffer, FriendlyByteBuf::readUUID, FriendlyByteBuf::readUUID);
         return new CPacketOpenApp(sessionId, playerId, name, newIds);
     }

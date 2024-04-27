@@ -5,7 +5,6 @@
 package io.karma.pda.common.network.cb;
 
 import io.karma.pda.api.common.session.SessionType;
-import io.karma.pda.common.util.PacketUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.InteractionHand;
@@ -24,8 +23,8 @@ public final class CPacketCreateSession {
     private final UUID playerId;
     private final Object context;
 
-    public CPacketCreateSession(final SessionType type, final UUID requestId, final UUID sessionId,
-                                final @Nullable UUID playerId, final Object context) {
+    public CPacketCreateSession(final SessionType type, final UUID requestId, final UUID sessionId, final UUID playerId,
+                                final Object context) {
         this.requestId = requestId;
         this.sessionId = sessionId;
         this.playerId = playerId;
@@ -41,7 +40,7 @@ public final class CPacketCreateSession {
         return sessionId;
     }
 
-    public @Nullable UUID getPlayerId() {
+    public UUID getPlayerId() {
         return playerId;
     }
 
@@ -72,7 +71,7 @@ public final class CPacketCreateSession {
         buffer.writeEnum(type);
         buffer.writeUUID(packet.requestId);
         buffer.writeUUID(packet.sessionId);
-        PacketUtils.writeNullable(packet.playerId, FriendlyByteBuf::writeUUID, buffer);
+        buffer.writeUUID(packet.playerId);
         if (type == SessionType.DOCKED) {
             buffer.writeBlockPos((BlockPos) packet.context);
             return;
@@ -84,7 +83,7 @@ public final class CPacketCreateSession {
         final var type = buffer.readEnum(SessionType.class);
         final var requestId = buffer.readUUID();
         final var sessionId = buffer.readUUID();
-        final var playerId = PacketUtils.readNullable(buffer, FriendlyByteBuf::readUUID);
+        final var playerId = buffer.readUUID();
         if (type == SessionType.DOCKED) {
             return new CPacketCreateSession(type, requestId, sessionId, playerId, buffer.readBlockPos());
         }

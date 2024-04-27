@@ -30,21 +30,6 @@ minecraft {
     accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
     copyIdeResources = true
     runs {
-        configureEach {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'PDAAPI,PDAPRO'
-            property 'forge.logging.console.level', 'debug'
-            property 'mixin.debug', 'true'
-            property 'mixin.debug.dumpTargetOnFailure', 'true'
-            property 'mixin.debug.verbose', 'true'
-            property 'mixin.hotSwap', 'true'
-            mods {
-                "${mod_id}" {
-                    source sourceSets.main
-                }
-            }
-            jvmArgs '-XX:+AllowEnhancedClassRedefinition', '-XX:HotswapAgent=core'
-        }
         client {
             property 'forge.enabledGameTestNamespaces', mod_id
         }
@@ -59,8 +44,29 @@ minecraft {
             workingDirectory project.file('run-data')
             args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
         }
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'PDAAPI,PDAPRO'
+            property 'forge.logging.console.level', 'debug'
+            property 'mixin.debug', 'true'
+            property 'mixin.debug.dumpTargetOnFailure', 'true'
+            property 'mixin.debug.verbose', 'true'
+            property 'mixin.hotSwap', 'true'
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+            }
+            jvmArgs '-Xms512M', '-Xmx4G', '-XX:+UnlockExperimentalVMOptions', '-XX:+AllowEnhancedClassRedefinition', '-XX:HotswapAgent=core'
+        }
+        clientAlt {
+            parent runs.client
+            args '--username', 'Dev2'
+        }
     }
 }
+
+// Run this task to launch both clients at the same time
 
 sourceSets {
     main {
