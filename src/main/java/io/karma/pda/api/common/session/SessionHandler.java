@@ -4,10 +4,12 @@
 
 package io.karma.pda.api.common.session;
 
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -28,6 +30,8 @@ public interface SessionHandler {
 
     @Nullable
     Session findByDevice(final ItemStack stack);
+
+    List<Session> findByPlayer(final Player player);
 
     void setActiveSession(final @Nullable Session session);
 
