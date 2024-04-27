@@ -12,8 +12,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class AbstractApp implements App {
     protected final AppType<?> type;
-    protected final HashMap<String, AppView> views = new HashMap<>();
+    protected final ConcurrentHashMap<String, AppView> views = new ConcurrentHashMap<>();
     protected final AtomicBoolean isInitialized = new AtomicBoolean(false);
 
     @Synchronize

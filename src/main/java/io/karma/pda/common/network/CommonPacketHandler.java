@@ -23,6 +23,7 @@ import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
@@ -112,16 +113,17 @@ public class CommonPacketHandler {
 
         final var name = packet.getName();
         final var sessionId = session.getId();
-        final var mappings = new HashMap<UUID, UUID>();
 
         final var appType = API.getAppTypeRegistry().getValue(name);
         final var app = session.getLauncher().openApp(appType).join();
+        final var mappings = new HashMap<String, ArrayList<UUID>>();
 
         if (app == null) {
             return; // TODO: warn?
         }
         for (final var view : app.getViews()) {
-            final var oldIds = packet.getOldIds().get(view.getName());
+            final var viewName = view.getName();
+            final var oldIds = packet.getOldIds().get(viewName);
             if (oldIds == null) {
                 continue; // TODO: warn?
             }
@@ -129,13 +131,10 @@ public class CommonPacketHandler {
             final var newIds = TreeGraph.from(view.getContainer(),
                 Container.class, Container::getChildren, Component::getId).flatten();
             // @formatter:on
-            final var numIds = oldIds.size();
-            if (numIds != newIds.size()) {
+            if (oldIds.size() != newIds.size()) {
                 continue; // TODO: warn?
             }
-            for (var i = 0; i < numIds; i++) {
-                mappings.put(oldIds.get(i), newIds.get(i));
-            }
+            mappings.put(viewName, newIds);
         }
 
         final var playerId = Objects.requireNonNull(context.getSender()).getUUID();

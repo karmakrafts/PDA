@@ -35,6 +35,18 @@ public final class TreeGraph<T> {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
+    public static <X, T extends X> TreeGraph<X> from(final X value, final Class<T> subType,
+                                                        final Function<T, ? extends Collection<? extends X>> selector) {
+        final var result = new TreeGraph<>(value);
+        if (subType.isAssignableFrom(value.getClass())) {
+            for (final var child : selector.apply((T) value)) {
+                result.addChild(from(child, subType, selector));
+            }
+        }
+        return result;
+    }
+
     public void addChild(final TreeGraph<T> child) {
         children.add(child);
     }
@@ -58,7 +70,7 @@ public final class TreeGraph<T> {
         }
     }
 
-    public List<T> flatten() {
+    public ArrayList<T> flatten() {
         final var result = new ArrayList<T>();
         flattenRecursively(this, result);
         return result;

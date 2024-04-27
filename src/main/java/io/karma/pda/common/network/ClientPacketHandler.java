@@ -14,6 +14,7 @@ import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.network.cb.*;
 import io.karma.pda.common.session.DockedSessionContext;
 import io.karma.pda.common.session.HandheldSessionContext;
+import io.karma.pda.common.util.TreeGraph;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -22,7 +23,7 @@ import net.minecraftforge.network.NetworkEvent;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -96,44 +97,52 @@ public final class ClientPacketHandler extends CommonPacketHandler {
             new ClientSession(sessionId, new HandheldSessionContext(extPlayer, (InteractionHand) contextObj)));
     }
 
-    private static void remapComponentIds(final Component component, final Map<UUID, UUID> ids) {
-        final var oldId = component.getId();
-        final var newId = ids.get(oldId);
-        component.setId(newId);
-        PDAMod.LOGGER.debug("Remapped component ID {} -> {}", oldId, newId);
-        if (component instanceof Container container) {
-            for (final var child : container.getChildren()) {
-                remapComponentIds(child, ids);
-            }
+    private static void remapComponentIds(final Component component, final List<UUID> ids) {
+        final var components = TreeGraph.from(component, Container.class, Container::getChildren).flatten();
+        final var numComponents = components.size();
+        if (numComponents != ids.size()) {
+            return; // TODO: warn?
+        }
+        for (var i = 0; i < numComponents; i++) {
+            final var comp = components.get(i);
+            final var oldId = comp.getId();
+            final var newId = ids.get(i);
+            comp.setId(newId);
+            PDAMod.LOGGER.debug("Remapped component ID {} -> {}", oldId, newId);
         }
     }
 
     private void onOpenApp(final CPacketOpenApp packet, final NetworkEvent.Context context) {
         final var playerId = packet.getPlayerId();
         final var sessionId = packet.getSessionId();
-        if (isLocalPlayer(playerId)) {
-            PDAMod.EXECUTOR_SERVICE.submit(() -> {
-                final var session = ClientSessionHandler.INSTANCE.findById(sessionId);
-                if (session == null) {
-                    PDAMod.LOGGER.warn("Could not find active session {}", sessionId);
-                    return;
-                }
-                final var appType = Objects.requireNonNull(API.getAppTypeRegistry().getValue(packet.getName()));
-                final var app = session.getLauncher().getOpenApp(appType);
-                if (app == null) {
-                    PDAMod.LOGGER.warn("No open app of type {} found for session {}", appType.getName(), sessionId);
-                    return;
-                }
-
-                // Update all component IDs accordingly
-                final var mappings = packet.getNewIds();
-                for (final var view : app.getViews()) {
-                    remapComponentIds(view.getContainer(), mappings);
-                }
-                ((ClientLauncher) session.getLauncher()).addPendingApp(app);
-            });
+        final var session = ClientSessionHandler.INSTANCE.findById(sessionId);
+        if (session == null) {
+            PDAMod.LOGGER.warn("Could not find active session {}", sessionId);
+            return;
         }
-        // TODO: implement external sessions
+        final var launcher = (ClientLauncher) session.getLauncher();
+        final var appType = Objects.requireNonNull(API.getAppTypeRegistry().getValue(packet.getName()));
+        final var mappings = packet.getNewIds();
+        // If this is the local player, we are waiting for the app to open
+        if (isLocalPlayer(playerId)) {
+            final var app = session.getLauncher().getOpenApp(appType);
+            if (app == null) {
+                PDAMod.LOGGER.warn("Could not find open app {}", appType.getName());
+                return;
+            }
+            for (final var view : app.getViews()) {
+                remapComponentIds(view.getContainer(), mappings.get(view.getName()));
+            }
+            launcher.addPendingApp(app);
+            return;
+        }
+        // Otherwise we create an app instance lazily for external sessions
+        final var app = launcher.openNow(appType);
+        for (final var view : app.getViews()) {
+            remapComponentIds(view.getContainer(), mappings.get(view.getName()));
+        }
+        app.init(session); // Init after remapping as openNow leaves app uninitialized
+        launcher.addOpenApp(app);
     }
 
     private void onTerminateSession(final CPacketTerminateSession packet, final NetworkEvent.Context context) {
@@ -153,24 +162,23 @@ public final class ClientPacketHandler extends CommonPacketHandler {
     private void onCloseApp(final CPacketCloseApp packet, final NetworkEvent.Context context) {
         final var playerId = packet.getPlayerId();
         final var sessionId = packet.getSessionId();
-        if (isLocalPlayer(playerId)) {
-            PDAMod.EXECUTOR_SERVICE.submit(() -> {
-                final var session = ClientSessionHandler.INSTANCE.findById(sessionId);
-                if (session == null) {
-                    PDAMod.LOGGER.warn("Could not find active session {}", sessionId);
-                    return;
-                }
-                final var launcher = (ClientLauncher) session.getLauncher();
-                final var type = API.getAppTypeRegistry().getValue(packet.getName());
-                final var app = launcher.getOpenApp(type);
-                if (app == null) {
-                    PDAMod.LOGGER.warn("No open app of type {} found for session {}", type.getName(), sessionId);
-                    return;
-                }
-                launcher.addTerminatedApp(app);
-            });
+        final var session = ClientSessionHandler.INSTANCE.findById(sessionId);
+        if (session == null) {
+            PDAMod.LOGGER.warn("Could not find active session {}", sessionId);
+            return;
         }
-        // TODO: ...
+        final var launcher = (ClientLauncher) session.getLauncher();
+        final var type = Objects.requireNonNull(API.getAppTypeRegistry().getValue(packet.getName()));
+        final var app = launcher.getOpenApp(type);
+        if (app == null) {
+            PDAMod.LOGGER.warn("No open app of type {} found for session {}", type.getName(), sessionId);
+            return;
+        }
+        if (isLocalPlayer(playerId)) {
+            launcher.addTerminatedApp(app);
+            return;
+        }
+        launcher.removeOpenApp(app);
     }
 
     private void onSyncValues(final CPacketSyncValues packet, final NetworkEvent.Context context) {

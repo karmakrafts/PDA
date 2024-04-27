@@ -12,6 +12,7 @@ import io.karma.pda.api.common.app.component.Container;
 import io.karma.pda.api.common.session.Session;
 import io.karma.pda.api.common.util.LogMarkers;
 import io.karma.pda.common.PDAMod;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -30,6 +31,31 @@ public class DefaultLauncher implements Launcher {
 
     public DefaultLauncher(final Session session) {
         this.session = session;
+    }
+
+    @ApiStatus.Internal
+    public <A extends App> A openNow(final AppType<A> type) {
+        final var app = type.create();
+        app.compose(); // Compose app locally to generate temporary component IDs
+        synchronized (appStackLock) {
+            appStack.push(app); // Push app when composed initially
+        }
+        registerSyncedFields(app);
+        return app;
+    }
+
+    @ApiStatus.Internal
+    public void addOpenApp(final App app) {
+        synchronized (appStackLock) {
+            appStack.push(app);
+        }
+    }
+
+    @ApiStatus.Internal
+    public void removeOpenApp(final App app) {
+        synchronized (appStackLock) {
+            appStack.remove(app);
+        }
     }
 
     protected void registerSyncedComponents(final Component component) {

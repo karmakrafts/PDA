@@ -8,6 +8,7 @@ import io.karma.pda.common.util.PacketUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -19,10 +20,10 @@ public final class CPacketOpenApp {
     private final UUID sessionId;
     private final UUID playerId;
     private final ResourceLocation name;
-    private final Map<UUID, UUID> newIds;
+    private final Map<String, ? extends List<UUID>> newIds;
 
     public CPacketOpenApp(final UUID sessionId, final UUID playerId, final ResourceLocation name,
-                          final Map<UUID, UUID> newIds) {
+                          final Map<String, ? extends List<UUID>> newIds) {
         this.sessionId = sessionId;
         this.playerId = playerId;
         this.name = name;
@@ -41,7 +42,7 @@ public final class CPacketOpenApp {
         return name;
     }
 
-    public Map<UUID, UUID> getNewIds() {
+    public Map<String, ? extends List<UUID>> getNewIds() {
         return newIds;
     }
 
@@ -49,14 +50,20 @@ public final class CPacketOpenApp {
         buffer.writeUUID(packet.sessionId);
         buffer.writeResourceLocation(packet.name);
         buffer.writeUUID(packet.playerId);
-        PacketUtils.writeMap(packet.newIds, FriendlyByteBuf::writeUUID, FriendlyByteBuf::writeUUID, buffer);
+        // @formatter:off
+        PacketUtils.writeMap(packet.newIds, FriendlyByteBuf::writeUtf,
+            (buf, val) -> PacketUtils.writeList(val, FriendlyByteBuf::writeUUID, buf), buffer);
+        // @formatter:on
     }
 
     public static CPacketOpenApp decode(final FriendlyByteBuf buffer) {
         final var sessionId = buffer.readUUID();
         final var name = buffer.readResourceLocation();
         final var playerId = buffer.readUUID();
-        final var newIds = PacketUtils.readMap(buffer, FriendlyByteBuf::readUUID, FriendlyByteBuf::readUUID);
+        // @formatter:off
+        final var newIds = PacketUtils.readMap(buffer, FriendlyByteBuf::readUtf,
+            buf -> PacketUtils.readList(buf, FriendlyByteBuf::readUUID));
+        // @formatter:on
         return new CPacketOpenApp(sessionId, playerId, name, newIds);
     }
 }
