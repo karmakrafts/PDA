@@ -27,6 +27,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -57,6 +58,7 @@ public final class ClientEventHandler {
         modBus.addListener(this::onRegisterAdditionalModels);
         forgeBus.addListener(this::onRenderTick);
         forgeBus.addListener(this::onClientTick);
+        forgeBus.addListener(this::onRegisterClientCommands);
     }
 
     @SuppressWarnings("all")
@@ -86,6 +88,10 @@ public final class ClientEventHandler {
         forgeBus.post(new RegisterAppRenderersEvent(
             (type, renderer) -> AppRenderers.register((AppType<App>)type, (AppRenderer<App>) renderer)));
         // @formatter:on
+    }
+
+    private void onRegisterClientCommands(final RegisterClientCommandsEvent event) {
+
     }
 
     private void onClientTick(final TickEvent.ClientTickEvent event) {

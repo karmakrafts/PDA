@@ -24,16 +24,17 @@ public final class ContainerRenderer extends AbstractComponentRenderer<DefaultCo
     @SuppressWarnings("unchecked")
     @Override
     public void render(final DefaultContainer component, final FlexNode flexNode, final Graphics graphics) {
-        final var children = component.getChildren();
-        for (final var child : children) {
-            final var childFlexNode = ClientFlexNodeHandler.INSTANCE.getNode(child);
-            if (childFlexNode == null) {
-                continue;
+        if (component.isVisible()) {
+            for (final var child : component.getChildren()) {
+                final var childFlexNode = ClientFlexNodeHandler.INSTANCE.getNode(child);
+                if (childFlexNode == null) {
+                    continue;
+                }
+                ComponentRenderers.get((ComponentType<Component>) child.getType()).render(child,
+                    childFlexNode,
+                    graphics.copyWithContext(graphics.getContext().derive(childFlexNode.getAbsoluteWidth(),
+                        childFlexNode.getAbsoluteHeight())));
             }
-            ComponentRenderers.get((ComponentType<Component>) child.getType()).render(child,
-                childFlexNode,
-                graphics.copyWithContext(graphics.getContext().derive(childFlexNode.getAbsoluteWidth(),
-                    childFlexNode.getAbsoluteHeight())));
         }
         super.render(component, flexNode, graphics);
     }

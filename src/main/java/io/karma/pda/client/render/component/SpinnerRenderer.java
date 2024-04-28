@@ -20,12 +20,17 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public final class SpinnerRenderer extends AbstractComponentRenderer<Spinner> {
     @Override
     public void render(final Spinner component, final FlexNode flexNode, final Graphics graphics) {
-        try (final var state = graphics.pushState()) {
-            state.setBrush(graphics.getBrushFactory().create(GraphicsRenderTypes.SPINNER, component.color.get(), null));
-            state.setForceUVs(true);
-            final var width = flexNode.getAbsoluteWidth();
-            final var height = flexNode.getAbsoluteHeight();
-            graphics.fillRect(flexNode.getAbsoluteX(), flexNode.getAbsoluteY(), width, height);
+        if (component.isVisible()) {
+            try (final var state = graphics.pushState()) {
+                state.setBrush(graphics.getBrushFactory().create(GraphicsRenderTypes.SPINNER,
+                    component.color.get(),
+                    null));
+                state.setForceUVs(true);
+                graphics.fillRect(flexNode.getAbsoluteX(),
+                    flexNode.getAbsoluteY(),
+                    flexNode.getAbsoluteWidth(),
+                    flexNode.getAbsoluteHeight());
+            }
         }
         super.render(component, flexNode, graphics);
     }

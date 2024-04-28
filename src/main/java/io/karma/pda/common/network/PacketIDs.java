@@ -22,6 +22,7 @@ public final class PacketIDs {
     public static final int CB_OPEN_APP = getNextId();
     public static final int CB_CLOSE_APP = getNextId();
     public static final int CB_SYNC_VALUES = getNextId();
+    public static final int CB_CANCEL_INTERACTION = getNextId();
 
     // @formatter:off
     private PacketIDs() {}

@@ -7,6 +7,7 @@ package io.karma.pda.client.render.graphics;
 import io.karma.pda.api.client.render.graphics.Brush;
 import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.client.render.graphics.GraphicsState;
+import io.karma.pda.api.common.app.theme.font.FontFamily;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -18,6 +19,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public final class DefaultGraphicsState implements GraphicsState {
     private final Graphics graphics;
     private Brush brush;
+    private FontFamily fontFamily;
     private float lineWidth;
     private boolean hasTextShadows;
     private int zIndex;
@@ -25,6 +27,16 @@ public final class DefaultGraphicsState implements GraphicsState {
 
     DefaultGraphicsState(final Graphics graphics) {
         this.graphics = graphics;
+    }
+
+    @Override
+    public void setFontFamily(final FontFamily fontFamily) {
+        this.fontFamily = fontFamily;
+    }
+
+    @Override
+    public FontFamily getFontFamily() {
+        return fontFamily;
     }
 
     @Override

@@ -8,6 +8,8 @@ import io.karma.pda.api.common.app.Launcher;
 import io.karma.pda.api.common.state.StateHandler;
 import io.karma.pda.api.common.util.Identifiable;
 
+import java.time.Instant;
+
 /**
  * A session describes a temporary pipe between client and server
  * that is used to exchange mutable display data in realtime to reduce
@@ -41,6 +43,13 @@ public interface Session extends Identifiable {
      * session by its UUID.
      */
     StateHandler getStateHandler();
+
+    /**
+     * Retrieves the instant in which this session was created.
+     *
+     * @return The instant in which this session was created.
+     */
+    Instant getCreationTime();
 
     /**
      * Called when the session is fully established by the underlying session handler.

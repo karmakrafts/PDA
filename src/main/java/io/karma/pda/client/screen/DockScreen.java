@@ -33,6 +33,19 @@ public final class DockScreen extends Screen {
     }
 
     @Override
+    public boolean keyPressed(final int keyCode, final int scanCode, final int modifiers) {
+        // Allow to manually toggle mouse grabbing using CTRL+ESC
+        if ((modifiers & GLFW.GLFW_MOD_CONTROL) != 0 && keyCode == GLFW.GLFW_KEY_ESCAPE) {
+            final var isGrabbed = GLFW.glfwGetInputMode(window, GLFW.GLFW_CURSOR) == GLFW.GLFW_CURSOR_DISABLED;
+            GLFW.glfwSetInputMode(window,
+                GLFW.GLFW_CURSOR,
+                isGrabbed ? GLFW.GLFW_CURSOR_NORMAL : GLFW.GLFW_CURSOR_DISABLED);
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
     protected void init() {
         super.init();
         previousInputMode = GLFW.glfwGetInputMode(window, GLFW.GLFW_CURSOR);

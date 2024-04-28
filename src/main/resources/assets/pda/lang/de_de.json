@@ -1,10 +1,21 @@
 {
   "itemGroup.pda": "PDA",
+
   "block.pda.dock": "Dock",
+
   "item.pda.pda": "PDA",
   "item.pda.memory_card": "Speicherkarte",
+
   "screen.pda.pda": "PDA",
   "screen.pda.pda_storage": "Speicher",
   "screen.pda.dock": "Dock",
-  "tooltip.pda.owner": "Besitzer: %s"
+
+  "tooltip.pda.owner": "Besitzer: %s",
+
+  "message.pda.command.no_memory_card": "Keine Speicherkarte in der Haupt-Hand",
+  "message.pda.command.active_sessions": "%d aktive Sitzungen",
+  "message.pda.command.session": "§bSitzung %s",
+  "message.pda.command.session_owner": "Besitzer: %s",
+  "message.pda.command.session_creation_time": "Erstellungszeit: %s",
+  "message.pda.command.session_app": "Aktuelle App: %s"
 }

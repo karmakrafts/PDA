@@ -5,6 +5,7 @@
 package io.karma.pda.api.common.app.theme;
 
 import io.karma.material.dynamiccolor.DynamicScheme;
+import io.karma.pda.api.common.app.theme.font.FontSet;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -15,6 +16,8 @@ public interface Theme {
     ResourceLocation getName();
 
     DynamicScheme getScheme();
+
+    FontSet getFontSet();
 
     // Helper for declaring registry object holder fields
     static Theme nullType() {

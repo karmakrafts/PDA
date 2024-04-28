@@ -7,11 +7,9 @@ package io.karma.pda.api.common.app.theme;
 import io.karma.material.dynamiccolor.DynamicScheme;
 import io.karma.material.hct.Hct;
 import io.karma.material.scheme.SchemeNeutral;
+import io.karma.pda.api.common.app.theme.font.FontSet;
 import io.karma.pda.api.common.util.Color;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
 
 /**
  * @author Alexander Hinze
@@ -19,31 +17,27 @@ import java.util.function.Supplier;
  */
 public class DynamicTheme implements Theme {
     private final ResourceLocation name;
-    private final Supplier<Color> colorSupplier;
-    private final BooleanSupplier darkModeSupplier;
     private Color lastColor;
     private boolean lastDarkMode;
     private SchemeNeutral scheme;
+    private FontSet fontSet;
 
-    public DynamicTheme(final ResourceLocation name, final Supplier<Color> colorSupplier,
-                        final BooleanSupplier darkModeSupplier) {
+    public DynamicTheme(final ResourceLocation name) {
         this.name = name;
-        this.colorSupplier = colorSupplier;
-        this.darkModeSupplier = darkModeSupplier;
-        lastColor = colorSupplier.get();
-        lastDarkMode = darkModeSupplier.getAsBoolean();
-        updateSchemeIfNeeded();
     }
 
-    private void updateSchemeIfNeeded() {
-        final var color = colorSupplier.get();
-        final var darkMode = darkModeSupplier.getAsBoolean();
-        if (color.equals(lastColor) && darkMode == lastDarkMode) {
+    public void update(final Color color, final boolean isDark) {
+        if (color.equals(lastColor) && isDark == lastDarkMode) {
             return;
         }
         lastColor = Color.unpackARGB(scheme.sourceColorArgb);
         lastDarkMode = scheme.isDark;
-        scheme = new SchemeNeutral(Hct.fromInt(color.packARGB()), darkMode, 1.0D);
+        scheme = new SchemeNeutral(Hct.fromInt(color.packARGB()), isDark, 1.0D);
+    }
+
+    @Override
+    public FontSet getFontSet() {
+        return fontSet;
     }
 
     @Override
@@ -53,7 +47,6 @@ public class DynamicTheme implements Theme {
 
     @Override
     public DynamicScheme getScheme() {
-        updateSchemeIfNeeded();
         return scheme;
     }
 }

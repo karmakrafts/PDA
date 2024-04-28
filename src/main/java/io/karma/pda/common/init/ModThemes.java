@@ -7,7 +7,6 @@ package io.karma.pda.common.init;
 import io.karma.pda.api.common.app.theme.DarkTheme;
 import io.karma.pda.api.common.app.theme.LightTheme;
 import io.karma.pda.api.common.app.theme.Theme;
-import io.karma.pda.api.common.util.Color;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.resources.ResourceLocation;
@@ -25,8 +24,8 @@ public final class ModThemes {
 
     public static void register() {
         PDAMod.LOGGER.info("Registering themes");
-        register("default_dark", name -> new DarkTheme(name, Color.WHITE));
-        register("default_light", name -> new LightTheme(name, Color.BLACK));
+        register("default_dark", DarkTheme::new);
+        register("default_light", LightTheme::new);
     }
 
     private static void register(final String name, final Function<ResourceLocation, Theme> factory) {

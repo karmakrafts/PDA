@@ -8,6 +8,8 @@ import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.app.component.Component;
 import io.karma.pda.api.common.app.component.Container;
 import io.karma.pda.client.app.ClientLauncher;
+import io.karma.pda.client.screen.DockScreen;
+import io.karma.pda.client.screen.PDAScreen;
 import io.karma.pda.client.session.ClientSession;
 import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.PDAMod;
@@ -56,6 +58,9 @@ public final class ClientPacketHandler extends CommonPacketHandler {
         registerPacket(PacketIDs.CB_SYNC_VALUES,
             CPacketSyncValues.class, CPacketSyncValues::encode, CPacketSyncValues::decode,
             this::onSyncValues);
+        registerPacket(PacketIDs.CB_CANCEL_INTERACTION,
+            CPacketCancelInteraction.class, CPacketCancelInteraction::encode, CPacketCancelInteraction::decode,
+            this::onCancelInteraction);
     } // @formatter:on
 
     private static @Nullable Player getPlayerById(final UUID id) {
@@ -66,12 +71,17 @@ public final class ClientPacketHandler extends CommonPacketHandler {
         return level.getPlayerByUUID(id);
     }
 
-    private static boolean isLocalPlayer(final @Nullable UUID id) {
-        if (id == null) {
-            return false;
-        }
+    private static boolean isLocalPlayer(final UUID id) {
         final var player = Minecraft.getInstance().player;
         return player != null && player.getUUID().equals(id);
+    }
+
+    private void onCancelInteraction(final CPacketCancelInteraction packet, final NetworkEvent.Context context) {
+        final var game = Minecraft.getInstance();
+        final var screen = game.screen;
+        if (screen instanceof DockScreen || screen instanceof PDAScreen) {
+            game.popGuiLayer(); // Just close the current GUI layer
+        }
     }
 
     private void onCreateSession(final CPacketCreateSession packet, final NetworkEvent.Context context) {

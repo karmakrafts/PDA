@@ -7,6 +7,7 @@ package io.karma.pda.api.common.session;
 import io.karma.pda.api.common.app.Launcher;
 import io.karma.pda.api.common.state.StateHandler;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -59,6 +60,11 @@ public final class MuxedSession<S> implements Session {
 
     public Set<S> getSelectors() {
         return sessions.keySet();
+    }
+
+    @Override
+    public Instant getCreationTime() {
+        return getTarget().getCreationTime();
     }
 
     @Override

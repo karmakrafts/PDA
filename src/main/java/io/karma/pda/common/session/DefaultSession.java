@@ -11,6 +11,7 @@ import io.karma.pda.api.common.state.StateHandler;
 import io.karma.pda.common.app.DefaultLauncher;
 import io.karma.pda.common.state.DefaultStateHandler;
 
+import java.time.Instant;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -23,6 +24,7 @@ public class DefaultSession implements Session {
     protected final SessionContext context;
     protected final StateHandler stateHandler;
     protected final Launcher launcher;
+    protected final Instant creationTime;
 
     public DefaultSession(final UUID id, final SessionContext context,
                           final Function<Session, StateHandler> synchronizerFactory,
@@ -31,10 +33,16 @@ public class DefaultSession implements Session {
         this.context = context;
         stateHandler = synchronizerFactory.apply(this);
         launcher = launcherFactory.apply(this);
+        creationTime = Instant.now();
     }
 
     public DefaultSession(final UUID id, final SessionContext context) {
         this(id, context, DefaultStateHandler::new, DefaultLauncher::new);
+    }
+
+    @Override
+    public Instant getCreationTime() {
+        return creationTime;
     }
 
     @Override
