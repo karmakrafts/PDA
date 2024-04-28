@@ -14,21 +14,23 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Alexander Hinze
- * @since 11/04/2024
+ * @since 27/04/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class ColorTextureBrush implements Brush {
+public final class DefaultBrush implements Brush {
+    private final RenderType renderType;
     private final Color color;
     private final ResourceLocation texture;
 
-    public ColorTextureBrush(final Color color, final ResourceLocation texture) {
+    public DefaultBrush(final RenderType renderType, final Color color, final ResourceLocation texture) {
+        this.renderType = renderType;
         this.color = color;
         this.texture = texture;
     }
 
     @Override
     public RenderType getRenderType() {
-        return GraphicsRenderTypes.createColorTextureTris(texture);
+        return renderType;
     }
 
     @Override

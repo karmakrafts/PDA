@@ -37,10 +37,10 @@ public final class ComponentType<C extends Component> {
         return type;
     }
 
-    public C create(final UUID uuid, final Consumer<DefaultFlexNode.Builder> props) {
+    public C create(final UUID id, final Consumer<DefaultFlexNode.Builder> props) {
         final var builder = DefaultFlexNode.builder();
         props.accept(builder);
-        final var component = factory.apply(this, uuid);
+        final var component = factory.apply(this, id);
         component.getFlexNode().setFrom(builder.build());
         return component;
     }

@@ -70,10 +70,11 @@ public final class DisplayRenderer {
     private final BufferBuilder blitBuilder = new BufferBuilder(48);
     private final MultiBufferSource.BufferSource blitBufferSource = MultiBufferSource.immediate(blitBuilder);
     private final HashMap<RenderType, BufferBuilder> displayBuilders = new HashMap<>();
-    private final BufferBuilder displayBuilder = new BufferBuilder(1000);
+    private final BufferBuilder displayBuilder = new BufferBuilder(10000);
     private final MultiBufferSource.BufferSource displayBufferSource = MultiBufferSource.immediateWithBuffers(
         displayBuilders,
         displayBuilder);
+    private int prevFrontFace;
     private final int[] prevViewport = new int[4]; // Viewport position/size from last frame
     private final PoseStack displayPoseStack = new PoseStack();
     private final DefaultGraphicsContext graphicsContext = new DefaultGraphicsContext();
@@ -197,11 +198,12 @@ public final class DisplayRenderer {
 
         GL11.glGetIntegerv(GL11.GL_VIEWPORT, prevViewport);
         GL11.glViewport(0, 0, RES_X, RES_Y);
-        GL11.glClearColor(0F, 0F, 0F, 1F);
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        prevFrontFace = GL11.glGetInteger(GL11.GL_FRONT_FACE);
+        GL11.glFrontFace(GL11.GL_CW);
     }
 
     private void resetDisplayOutput() {
+        GL11.glFrontFace(prevFrontFace);
         GL11.glViewport(prevViewport[0], prevViewport[1], prevViewport[2], prevViewport[3]);
         RenderSystem.setProjectionMatrix(prevProjectionMatrix, prevVertexSorting);
         RenderSystem.modelViewMatrix = prevModelViewMatrix;
@@ -210,15 +212,20 @@ public final class DisplayRenderer {
 
     @SuppressWarnings("unchecked")
     private void renderIntoDisplayBuffer(final ItemStack stack) {
+        // Clear display framebuffer
+        framebuffer.bind();
+        GL11.glClearColor(0F, 0F, 0F, 1F);
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        framebuffer.unbind();
+
         final var session = ClientSessionHandler.INSTANCE.findByDevice(stack);
         displayPoseStack.pushPose();
-        final var matrix = displayPoseStack.last().pose();
 
         if (session != null) {
             final var launcher = session.getLauncher();
             final var app = launcher.getCurrentApp();
             if (app != null) {
-                graphicsContext.setup(displayPoseStack, displayBufferSource, RES_X, RES_Y);
+                graphicsContext.setup(displayPoseStack, displayBufferSource, RES_X, RES_Y, 0);
                 graphics.setContext(graphicsContext);
                 final var appRenderer = AppRenderers.get((AppType<App>) app.getType());
                 appRenderer.render(app, graphics);
@@ -227,6 +234,7 @@ public final class DisplayRenderer {
         }
         else {
             final var buffer = displayBufferSource.getBuffer(GraphicsRenderTypes.COLOR_TRIS);
+            final var matrix = displayPoseStack.last().pose();
             // First triangle
             buffer.vertex(matrix, 0F, 0F, 0F).color(0).endVertex();
             buffer.vertex(matrix, RES_X, 0F, 0F).color(0).endVertex();
@@ -237,11 +245,7 @@ public final class DisplayRenderer {
             buffer.vertex(matrix, 0F, RES_Y, 0F).color(0).endVertex();
         }
 
-        final var prevFrontFace = GL11.glGetInteger(GL11.GL_FRONT_FACE);
-        GL11.glFrontFace(GL11.GL_CW);
         displayBufferSource.endBatch();
-        GL11.glFrontFace(prevFrontFace);
-
         displayPoseStack.popPose();
     }
 

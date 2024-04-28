@@ -4,10 +4,11 @@
     "srcrgb": "srcalpha",
     "dstrgb": "1-srcalpha"
   },
-  "vertex": "pda:display_color",
-  "fragment": "pda:display_color",
+  "vertex": "pda:display_spinner",
+  "fragment": "pda:display_spinner",
   "attributes": [
     "Position",
+    "UV0",
     "Color"
   ],
   "samplers": [
@@ -60,15 +61,10 @@
       ]
     },
     {
-      "name": "ColorModulator",
+      "name": "Time",
       "type": "float",
-      "count": 4,
-      "values": [
-        1.0,
-        1.0,
-        1.0,
-        1.0
-      ]
+      "count": 1,
+      "values": [0.0]
     }
   ]
 }

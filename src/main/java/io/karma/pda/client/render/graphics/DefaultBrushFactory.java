@@ -8,6 +8,7 @@ import io.karma.pda.api.client.render.graphics.Brush;
 import io.karma.pda.api.client.render.graphics.BrushFactory;
 import io.karma.pda.api.common.util.Color;
 import io.karma.pda.api.common.util.Identifiable;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -30,12 +31,12 @@ public final class DefaultBrushFactory implements BrushFactory {
     // @formatter:on
 
     @Override
-    public Brush createInvisible() {
+    public Brush getInvisible() {
         return InvisibleBrush.INSTANCE;
     }
 
     @Override
-    public Brush createDebugBrush(final Identifiable identifiable) {
+    public Brush createDebugColor(final Identifiable identifiable) {
         final var id = identifiable.getId();
         final var lsb = id.getLeastSignificantBits();
         final var msb = id.getMostSignificantBits();
@@ -43,26 +44,26 @@ public final class DefaultBrushFactory implements BrushFactory {
         final var data2 = ((msb & 0xFFFF_FFFFL) << 32) | (lsb >> 32) & 0xFFFF_FFFFL;
         final var color1 = Color.unpackRGBA(MurmurHash3.hash32(lsb, msb) | 0xFF);
         final var color2 = Color.unpackRGBA(MurmurHash3.hash32(data1, data2) | 0xFF);
-        return create(color1.getLuminance() > color2.getLuminance() ? color1 : color2);
+        return createColor(color1.getLuminance() > color2.getLuminance() ? color1 : color2);
     }
 
     @Override
-    public Brush create(final Color color) {
-        if (color.equals(Color.NONE)) {
-            return InvisibleBrush.INSTANCE;
-        }
-        return brushes.computeIfAbsent(new BrushKey(GraphicsRenderTypes.COLOR_TRIS.name, color, null),
-            key -> new ColorBrush(color));
+    public Brush createColor(final Color color) {
+        return create(GraphicsRenderTypes.COLOR_TRIS, color, null);
     }
 
     @Override
-    public Brush create(final ResourceLocation texture, final Color color) {
+    public Brush createTexture(final Color color, final ResourceLocation texture) {
+        return create(GraphicsRenderTypes.COLOR_TEXTURE_TRIS.apply(texture), color, texture);
+    }
+
+    @Override
+    public Brush create(final RenderType renderType, final Color color, final ResourceLocation texture) {
         if (color.equals(Color.NONE)) {
             return InvisibleBrush.INSTANCE;
         }
-        return brushes.computeIfAbsent(new BrushKey(GraphicsRenderTypes.createColorTextureTris(texture).name,
-            color,
-            texture), key -> new ColorTextureBrush(color, texture));
+        return brushes.computeIfAbsent(new BrushKey(renderType.name, color, texture),
+            key -> new DefaultBrush(renderType, color, texture));
     }
 
     private record BrushKey(String renderTypeName, Color color, @Nullable ResourceLocation texture) {

@@ -11,6 +11,7 @@ import io.karma.pda.api.common.flex.FlexDirection
 import io.karma.pda.api.common.state.MutableState
 import io.karma.pda.api.common.state.Persistent
 import io.karma.pda.api.common.state.Synchronize
+import io.karma.pda.api.common.util.Color
 
 /**
  * @author Alexander Hinze
@@ -63,7 +64,7 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                     }) {
                         label({
                             width(32.pixels)
-                            height(64.pixels)
+                            height(32.pixels)
                             margin(FlexBorder.of(4.pixels))
                         }) {
                             text("A")
@@ -71,7 +72,7 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
 
                         label({
                             width(32.pixels)
-                            height(64.pixels)
+                            height(32.pixels)
                             margin(FlexBorder.of(4.pixels))
                         }) {
                             text("B")
@@ -79,20 +80,22 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
 
                         label({
                             width(32.pixels)
-                            height(64.pixels)
+                            height(32.pixels)
                             margin(FlexBorder.of(4.pixels))
                         }) {
                             text("C")
                         }
 
-                        label({
+                        spinner({
                             width(32.pixels)
-                            height(64.pixels)
+                            height(32.pixels)
                             margin(FlexBorder.of(4.pixels))
-                        }) {
-                            text("D")
-                        }
+                        })
+                    }.apply {
+                        background(Color(0.6F, 0.6F, 0.6F, 1F))
                     }
+                }.apply {
+                    background(Color(0.4F, 0.4F, 0.4F, 1F))
                 }
 
                 label({

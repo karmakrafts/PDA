@@ -29,12 +29,14 @@ public final class DefaultAppRenderer<A extends App> implements AppRenderer<A> {
         final var width = gfxContext.getWidth();
         final var height = gfxContext.getHeight();
         if (!app.isInitialized()) {
-            final var brushFactory = graphics.getBrushFactory();
-            graphics.setBrush(brushFactory.create(Color.BLACK));
-            graphics.fillRect(0, 0, width, height);
-            graphics.setBrush(brushFactory.create(Color.WHITE));
-            graphics.setHasTextShadow(false);
-            graphics.text(10, 10, "Loading..");
+            try (final var state = graphics.pushState()) {
+                final var brushFactory = graphics.getBrushFactory();
+                state.setBrush(brushFactory.createColor(Color.BLACK));
+                graphics.fillRect(0, 0, width, height);
+                state.setBrush(brushFactory.createColor(Color.WHITE));
+                state.setHasTextShadows(false);
+                graphics.text(10, 10, "Loading..");
+            }
             return;
         }
         final var container = app.getView().getContainer();

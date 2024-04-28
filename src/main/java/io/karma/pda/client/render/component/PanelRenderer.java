@@ -24,22 +24,29 @@ public final class PanelRenderer extends AbstractComponentRenderer<Panel> {
     @SuppressWarnings("unchecked")
     @Override
     public void render(final Panel component, final FlexNode flexNode, final Graphics graphics) {
-        final var x = flexNode.getAbsoluteX();
-        final var y = flexNode.getAbsoluteY();
-        final var w = flexNode.getAbsoluteWidth();
-        final var h = flexNode.getAbsoluteHeight();
-        final var brushFactory = graphics.getBrushFactory();
-        graphics.setBrush(brushFactory.create(component.background));
-        graphics.fillRect(x, y, w, h);
-        graphics.setBrush(brushFactory.create(component.foreground));
-        graphics.drawRect(x, y, w, h);
-
-        super.render(component, flexNode, graphics); // Draw debug overlay between container and children
-
+        try (final var state = graphics.pushState()) {
+            final var x = flexNode.getAbsoluteX();
+            final var y = flexNode.getAbsoluteY();
+            final var w = flexNode.getAbsoluteWidth();
+            final var h = flexNode.getAbsoluteHeight();
+            final var brushFactory = graphics.getBrushFactory();
+            state.setBrush(brushFactory.createColor(component.background.get()));
+            graphics.fillRect(x, y, w, h);
+            state.setBrush(brushFactory.createColor(component.foreground.get()));
+            graphics.drawRect(x, y, w, h);
+        }
         final var children = component.getChildren();
         for (final var child : children) {
-            final var childFlexNode = ClientFlexNodeHandler.INSTANCE.getNode(child.getId());
-            ComponentRenderers.get((ComponentType<Component>) child.getType()).render(child, childFlexNode, graphics);
+            final var childFlexNode = ClientFlexNodeHandler.INSTANCE.getNode(child);
+            if (childFlexNode == null) {
+                continue;
+            }
+            ComponentRenderers.get((ComponentType<Component>) child.getType()).render(child,
+                childFlexNode,
+                graphics.copyWithContext(graphics.getContext().derive(childFlexNode.getAbsoluteWidth(),
+                    childFlexNode.getAbsoluteHeight())));
         }
+
+        super.render(component, flexNode, graphics);
     }
 }

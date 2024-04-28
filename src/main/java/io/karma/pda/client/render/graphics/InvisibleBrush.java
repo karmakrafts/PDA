@@ -8,13 +8,16 @@ import io.karma.pda.api.client.render.graphics.Brush;
 import io.karma.pda.api.common.util.Color;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Alexander Hinze
  * @since 23/04/2024
  */
-public class InvisibleBrush implements Brush {
+@OnlyIn(Dist.CLIENT)
+public final class InvisibleBrush implements Brush {
     public static final InvisibleBrush INSTANCE = new InvisibleBrush();
 
     // @formatter:off

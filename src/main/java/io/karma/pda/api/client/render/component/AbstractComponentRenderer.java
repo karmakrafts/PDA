@@ -19,11 +19,13 @@ public abstract class AbstractComponentRenderer<C extends Component> implements 
     @Override
     public void render(final C component, final FlexNode flexNode, final Graphics graphics) {
         if (graphics.getContext().isDebugMode()) {
-            graphics.setBrush(graphics.getBrushFactory().createDebugBrush(component));
-            graphics.drawRect(flexNode.getAbsoluteX(),
-                flexNode.getAbsoluteY(),
-                flexNode.getAbsoluteWidth(),
-                flexNode.getAbsoluteHeight());
+            try (final var state = graphics.pushState()) {
+                state.setBrush(graphics.getBrushFactory().createDebugColor(component));
+                graphics.drawRect(flexNode.getAbsoluteX(),
+                    flexNode.getAbsoluteY(),
+                    flexNode.getAbsoluteWidth(),
+                    flexNode.getAbsoluteHeight());
+            }
         }
     }
 }

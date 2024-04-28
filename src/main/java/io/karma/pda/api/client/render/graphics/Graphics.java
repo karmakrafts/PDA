@@ -14,29 +14,23 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  */
 @OnlyIn(Dist.CLIENT)
 public interface Graphics {
+    void flush();
+
     GraphicsContext getContext();
 
     BrushFactory getBrushFactory();
 
-    Graphics copy();
-
     Graphics copyWithContext(final GraphicsContext context);
 
-    void setBrush(final Brush brush);
+    default Graphics copy() {
+        return copyWithContext(getContext());
+    }
 
-    Brush getBrush();
+    GraphicsState getState();
 
-    void setZIndex(final int index);
+    GraphicsState pushState();
 
-    int getZIndex();
-
-    void setLineWidth(final float lineWidth);
-
-    float getLineWidth();
-
-    void setHasTextShadow(final boolean hasTextShadow);
-
-    boolean hasTextShadow();
+    void popState();
 
     void point(final int x, final int y);
 
@@ -75,6 +69,6 @@ public interface Graphics {
     void wrappedText(final int x, final int y, final String text, final int maxLength);
 
     default VertexConsumer getBuffer() {
-        return getContext().getBufferSource().getBuffer(getBrush().getRenderType());
+        return getContext().getBufferSource().getBuffer(getState().getBrush().getRenderType());
     }
 }

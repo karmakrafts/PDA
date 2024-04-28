@@ -18,6 +18,8 @@ import org.joml.Matrix4f;
  */
 @OnlyIn(Dist.CLIENT)
 public interface GraphicsContext {
+    int getDefaultZIndex();
+
     PoseStack getPoseStack();
 
     MultiBufferSource getBufferSource();

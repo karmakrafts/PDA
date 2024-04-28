@@ -4,15 +4,17 @@
 
 package io.karma.pda.client.render.graphics;
 
-import io.karma.pda.api.client.render.graphics.Brush;
 import io.karma.pda.api.client.render.graphics.BrushFactory;
 import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.client.render.graphics.GraphicsContext;
+import io.karma.pda.api.client.render.graphics.GraphicsState;
 import io.karma.pda.api.common.util.Color;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import java.util.Objects;
+import java.util.Stack;
 
 /**
  * @author Alexander Hinze
@@ -21,13 +23,35 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public final class DefaultGraphics implements Graphics {
     private GraphicsContext context;
-    private int zIndex = 0;
-    private float lineWidth = 1F;
-    private boolean hasTextShadow = false;
-    private Brush brush = DefaultBrushFactory.INSTANCE.createInvisible();
+    private final Stack<GraphicsState> stateStack = new Stack<>();
+
+    public DefaultGraphics() {
+        stateStack.push(new DefaultGraphicsState(this));
+    }
 
     public void setContext(final GraphicsContext context) {
         this.context = context;
+        Objects.requireNonNull(stateStack.peek()).setZIndex(context.getDefaultZIndex());
+    }
+
+    @Override
+    public GraphicsState getState() {
+        return stateStack.peek();
+    }
+
+    @Override
+    public GraphicsState pushState() {
+        return stateStack.push(new DefaultGraphicsState(this));
+    }
+
+    @Override
+    public void popState() {
+        stateStack.pop();
+    }
+
+    @Override
+    public void flush() {
+        ((MultiBufferSource.BufferSource) context.getBufferSource()).endBatch(getState().getBrush().getRenderType());
     }
 
     @Override
@@ -49,84 +73,43 @@ public final class DefaultGraphics implements Graphics {
     public Graphics copyWithContext(final GraphicsContext context) {
         final var gfx = new DefaultGraphics();
         gfx.setContext(context);
-        gfx.zIndex = zIndex;
-        gfx.lineWidth = lineWidth;
-        gfx.hasTextShadow = hasTextShadow;
-        gfx.brush = brush;
         return gfx;
-    }
-
-    @Override
-    public void setZIndex(final int index) {
-        zIndex = index;
-    }
-
-    @Override
-    public int getZIndex() {
-        return zIndex;
-    }
-
-    @Override
-    public void setLineWidth(final float lineWidth) {
-        this.lineWidth = lineWidth;
-    }
-
-    @Override
-    public float getLineWidth() {
-        return lineWidth;
-    }
-
-    @Override
-    public void setHasTextShadow(final boolean hasTextShadow) {
-        this.hasTextShadow = hasTextShadow;
-    }
-
-    @Override
-    public boolean hasTextShadow() {
-        return hasTextShadow;
-    }
-
-    @Override
-    public void setBrush(final Brush brush) {
-        this.brush = brush;
-    }
-
-    @Override
-    public Brush getBrush() {
-        return brush;
     }
 
     private void fillRect(final int x, final int y, final int width, final int height, final Color colorTL,
                           final Color colorTR, final Color colorBL, final Color colorBR) {
         final var matrix = context.getTransform();
-        final var texture = brush.getTexture();
+        final var state = getState();
+        final var texture = state.getBrush().getTexture();
         final var maxX = x + width;
         final var maxY = y + height;
-        if (texture != null) {
+        final var z = (float) state.getZIndex();
+        if (state.shouldForceUVs() || texture != null) {
             final var buffer = getBuffer();
             // First triangle
-            buffer.vertex(matrix, x, y, zIndex).color(colorTL.packARGB()).uv(0F, 0F).endVertex();
-            buffer.vertex(matrix, maxX, y, zIndex).color(colorTR.packARGB()).uv(1F, 0F).endVertex();
-            buffer.vertex(matrix, x, maxY, zIndex).color(colorBL.packARGB()).uv(0F, 1F).endVertex();
+            buffer.vertex(matrix, x, y, z).uv(0F, 0F).color(colorTL.packARGB()).endVertex();
+            buffer.vertex(matrix, maxX, y, z).uv(1F, 0F).color(colorTR.packARGB()).endVertex();
+            buffer.vertex(matrix, x, maxY, z).uv(0F, 1F).color(colorBL.packARGB()).endVertex();
             // Second triangle
-            buffer.vertex(matrix, maxX, y, zIndex).color(colorTR.packARGB()).uv(1F, 0F).endVertex();
-            buffer.vertex(matrix, maxX, maxY, zIndex).color(colorBR.packARGB()).uv(1F, 1F).endVertex();
-            buffer.vertex(matrix, x, maxY, zIndex).color(colorBL.packARGB()).uv(0F, 1F).endVertex();
+            buffer.vertex(matrix, maxX, y, z).uv(1F, 0F).color(colorTR.packARGB()).endVertex();
+            buffer.vertex(matrix, maxX, maxY, z).uv(1F, 1F).color(colorBR.packARGB()).endVertex();
+            buffer.vertex(matrix, x, maxY, z).uv(0F, 1F).color(colorBL.packARGB()).endVertex();
             return;
         }
         final var buffer = getBuffer();
         // First triangle
-        buffer.vertex(matrix, x, y, zIndex).color(colorTL.packARGB()).endVertex();
-        buffer.vertex(matrix, maxX, y, zIndex).color(colorTR.packARGB()).endVertex();
-        buffer.vertex(matrix, x, maxY, zIndex).color(colorBL.packARGB()).endVertex();
+        buffer.vertex(matrix, x, y, z).color(colorTL.packARGB()).endVertex();
+        buffer.vertex(matrix, maxX, y, z).color(colorTR.packARGB()).endVertex();
+        buffer.vertex(matrix, x, maxY, z).color(colorBL.packARGB()).endVertex();
         // Second triangle
-        buffer.vertex(matrix, maxX, y, zIndex).color(colorTR.packARGB()).endVertex();
-        buffer.vertex(matrix, maxX, maxY, zIndex).color(colorBR.packARGB()).endVertex();
-        buffer.vertex(matrix, x, maxY, zIndex).color(colorBL.packARGB()).endVertex();
+        buffer.vertex(matrix, maxX, y, z).color(colorTR.packARGB()).endVertex();
+        buffer.vertex(matrix, maxX, maxY, z).color(colorBR.packARGB()).endVertex();
+        buffer.vertex(matrix, x, maxY, z).color(colorBL.packARGB()).endVertex();
     }
 
     @Override
     public void point(final int x, final int y) {
+        final var brush = getState().getBrush();
         if (!brush.isVisible()) {
             return;
         }
@@ -136,6 +119,7 @@ public final class DefaultGraphics implements Graphics {
 
     @Override
     public void hLine(final int startX, final int endX, final int y) {
+        final var brush = getState().getBrush();
         if (!brush.isVisible()) {
             return;
         }
@@ -146,6 +130,7 @@ public final class DefaultGraphics implements Graphics {
 
     @Override
     public void vLine(final int x, final int startY, final int endY) {
+        final var brush = getState().getBrush();
         if (!brush.isVisible()) {
             return;
         }
@@ -156,6 +141,7 @@ public final class DefaultGraphics implements Graphics {
 
     @Override
     public void line(final int startX, final int startY, final int endX, final int endY) {
+        final var brush = getState().getBrush();
         if (!brush.isVisible()) {
             return;
         }
@@ -171,6 +157,7 @@ public final class DefaultGraphics implements Graphics {
 
     @Override
     public void drawRect(final int x, final int y, final int width, final int height) {
+        final var brush = getState().getBrush();
         if (!brush.isVisible()) {
             return;
         }
@@ -182,6 +169,7 @@ public final class DefaultGraphics implements Graphics {
 
     @Override
     public void fillRect(final int x, final int y, final int width, final int height) {
+        final var brush = getState().getBrush();
         if (!brush.isVisible()) {
             return;
         }
@@ -220,19 +208,7 @@ public final class DefaultGraphics implements Graphics {
 
     @Override
     public void text(final int x, final int y, final String text, final int maxLength, final String delimiter) {
-        if (!brush.isVisible()) {
-            return;
-        }
-        context.getFont().drawInBatch(text,
-            x,
-            y,
-            brush.getColor(0).packARGB(),
-            hasTextShadow,
-            context.getTransform(),
-            context.getBufferSource(),
-            Font.DisplayMode.NORMAL,
-            0,
-            OverlayTexture.NO_OVERLAY);
+        // TODO: ...
     }
 
     @Override

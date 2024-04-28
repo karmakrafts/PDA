@@ -22,19 +22,26 @@ public final class DefaultGraphicsContext implements GraphicsContext {
     private MultiBufferSource bufferSource;
     private int width;
     private int height;
+    private int defaultZIndex;
 
     public void setup(final PoseStack poseStack, final MultiBufferSource bufferSource, final int width,
-                      final int height) {
+                      final int height, final int defaultZIndex) {
         this.poseStack = poseStack;
         this.bufferSource = bufferSource;
         this.width = width;
         this.height = height;
+        this.defaultZIndex = defaultZIndex;
+    }
+
+    @Override
+    public int getDefaultZIndex() {
+        return defaultZIndex;
     }
 
     @Override
     public GraphicsContext derive(final int width, final int height) {
         final var context = new DefaultGraphicsContext();
-        context.setup(poseStack, bufferSource, width, height);
+        context.setup(poseStack, bufferSource, width, height, defaultZIndex + 1);
         return context;
     }
 

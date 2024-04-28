@@ -16,7 +16,7 @@ import java.util.UUID;
  */
 public class Panel extends DefaultContainer {
     @Synchronize
-    public final MutableState<Color> background = MutableState.of(Color.BLACK);
+    public final MutableState<Color> background = MutableState.of(Color.NONE);
     @Synchronize
     public final MutableState<Color> foreground = MutableState.of(Color.NONE);
 

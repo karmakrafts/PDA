@@ -30,7 +30,10 @@ public final class ContainerRenderer extends AbstractComponentRenderer<DefaultCo
             if (childFlexNode == null) {
                 continue;
             }
-            ComponentRenderers.get((ComponentType<Component>) child.getType()).render(child, childFlexNode, graphics);
+            ComponentRenderers.get((ComponentType<Component>) child.getType()).render(child,
+                childFlexNode,
+                graphics.copyWithContext(graphics.getContext().derive(childFlexNode.getAbsoluteWidth(),
+                    childFlexNode.getAbsoluteHeight())));
         }
         super.render(component, flexNode, graphics);
     }
