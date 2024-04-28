@@ -15,10 +15,12 @@ import java.util.UUID;
 public final class CPacketTerminateSession {
     private final UUID sessionId;
     private final UUID playerId;
+    private final boolean isPending;
 
-    public CPacketTerminateSession(final UUID sessionId, final UUID playerId) {
+    public CPacketTerminateSession(final UUID sessionId, final UUID playerId, final boolean isPending) {
         this.sessionId = sessionId;
         this.playerId = playerId;
+        this.isPending = isPending;
     }
 
     public UUID getSessionId() {
@@ -29,14 +31,20 @@ public final class CPacketTerminateSession {
         return playerId;
     }
 
+    public boolean isPending() {
+        return isPending;
+    }
+
     public static void encode(final CPacketTerminateSession packet, final FriendlyByteBuf buffer) {
         buffer.writeUUID(packet.sessionId);
         buffer.writeUUID(packet.playerId);
+        buffer.writeBoolean(packet.isPending);
     }
 
     public static CPacketTerminateSession decode(final FriendlyByteBuf buffer) {
         final var sessionId = buffer.readUUID();
         final var playerId = buffer.readUUID();
-        return new CPacketTerminateSession(sessionId, playerId);
+        final var isPending = buffer.readBoolean();
+        return new CPacketTerminateSession(sessionId, playerId, isPending);
     }
 }

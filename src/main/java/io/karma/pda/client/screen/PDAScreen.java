@@ -35,6 +35,10 @@ public final class PDAScreen extends Screen {
         hands.forEach(hand -> PDAInteractionHandler.INSTANCE.setEngaged(hand, true));
     }
 
+    public EnumSet<InteractionHand> getHands() {
+        return hands;
+    }
+
     @Override
     public void onClose() {
         // Terminate session

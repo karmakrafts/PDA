@@ -8,6 +8,8 @@ import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.app.component.Component;
 import io.karma.pda.api.common.app.component.Container;
 import io.karma.pda.client.app.ClientLauncher;
+import io.karma.pda.client.interaction.DockInteractionHandler;
+import io.karma.pda.client.interaction.PDAInteractionHandler;
 import io.karma.pda.client.screen.DockScreen;
 import io.karma.pda.client.screen.PDAScreen;
 import io.karma.pda.client.session.ClientSession;
@@ -78,10 +80,19 @@ public final class ClientPacketHandler extends CommonPacketHandler {
 
     private void onCancelInteraction(final CPacketCancelInteraction packet, final NetworkEvent.Context context) {
         final var game = Minecraft.getInstance();
-        final var screen = game.screen;
-        if (screen instanceof DockScreen || screen instanceof PDAScreen) {
-            game.popGuiLayer(); // Just close the current GUI layer
-        }
+        game.execute(() -> {
+            final var screen = game.screen;
+            if (screen instanceof DockScreen) {
+                DockInteractionHandler.INSTANCE.disengage();
+                game.popGuiLayer();
+            }
+            if (screen instanceof PDAScreen pdaScreen) {
+                for (final var hand : pdaScreen.getHands()) {
+                    PDAInteractionHandler.INSTANCE.setEngaged(hand, false);
+                }
+                game.popGuiLayer();
+            }
+        });
     }
 
     private void onCreateSession(final CPacketCreateSession packet, final NetworkEvent.Context context) {
@@ -157,8 +168,14 @@ public final class ClientPacketHandler extends CommonPacketHandler {
 
     private void onTerminateSession(final CPacketTerminateSession packet, final NetworkEvent.Context context) {
         final var playerId = packet.getPlayerId();
+        final var sessionHandler = ClientSessionHandler.INSTANCE;
         if (isLocalPlayer(playerId)) {
-            ClientSessionHandler.INSTANCE.addTerminatedSession(packet.getSessionId());
+            if (packet.isPending()) {
+                sessionHandler.addTerminatedSession(packet.getSessionId());
+                return;
+            }
+            sessionHandler.removeActiveSession(packet.getSessionId());
+            sessionHandler.setActiveSession(null);
             return;
         }
         final var extPlayer = getPlayerById(playerId);
@@ -166,7 +183,7 @@ public final class ClientPacketHandler extends CommonPacketHandler {
             PDAMod.LOGGER.warn("Could not find player with ID {}", playerId);
             return;
         }
-        ClientSessionHandler.INSTANCE.removeActiveSession(packet.getSessionId());
+        sessionHandler.removeActiveSession(packet.getSessionId());
     }
 
     private void onCloseApp(final CPacketCloseApp packet, final NetworkEvent.Context context) {

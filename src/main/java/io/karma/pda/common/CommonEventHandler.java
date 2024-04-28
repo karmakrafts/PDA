@@ -238,7 +238,7 @@ public final class CommonEventHandler {
 
     private int onSessionTerminateCommand(final CommandContext<CommandSourceStack> context) {
         final var entity = context.getSource().getEntity();
-        if (!(entity instanceof ServerPlayer)) {
+        if (!(entity instanceof ServerPlayer serverPlayer)) {
             return Command.SINGLE_SUCCESS;
         }
         final var sessionId = context.getArgument("id", UUID.class);
@@ -248,13 +248,14 @@ public final class CommonEventHandler {
             return Command.SINGLE_SUCCESS;
         }
         // Broadcast terminate packet to all clients and terminate on server
-        final var player = session.getContext().getPlayer();
-        if (!(player instanceof ServerPlayer serverPlayer)) {
+        final var sessionPlayer = session.getContext().getPlayer();
+        if (!(sessionPlayer instanceof ServerPlayer sessServerPlayer)) {
             return Command.SINGLE_SUCCESS;
         }
-        final var playerId = player.getUUID();
-        PDAMod.CHANNEL.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new CPacketCancelInteraction());
-        PDAMod.CHANNEL.send(PacketDistributor.ALL.noArg(), new CPacketTerminateSession(sessionId, playerId));
+        final var playerId = sessionPlayer.getUUID();
+        PDAMod.CHANNEL.send(PacketDistributor.PLAYER.with(() -> sessServerPlayer),
+            new CPacketCancelInteraction(serverPlayer.getUUID()));
+        PDAMod.CHANNEL.send(PacketDistributor.ALL.noArg(), new CPacketTerminateSession(sessionId, playerId, false));
         sessionHandler.terminateSession(session);
 
         return Command.SINGLE_SUCCESS;
@@ -262,18 +263,20 @@ public final class CommonEventHandler {
 
     private int onSessionTerminateForCommand(final CommandContext<CommandSourceStack> context) {
         final var entity = context.getSource().getEntity();
-        if (!(entity instanceof ServerPlayer)) {
+        if (!(entity instanceof ServerPlayer serverPlayer)) {
             return Command.SINGLE_SUCCESS;
         }
         try {
-            final var player = context.getArgument("name", EntitySelector.class).findSinglePlayer(context.getSource());
-            final var playerId = player.getUUID();
+            final var sessionPlayer = context.getArgument("player",
+                EntitySelector.class).findSinglePlayer(context.getSource());
+            final var playerId = sessionPlayer.getUUID();
             final var sessionHandler = DefaultSessionHandler.INSTANCE;
             // Broadcast terminate packet to all clients and terminate on server
-            for (final var session : sessionHandler.findByPlayer(player)) {
-                PDAMod.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new CPacketCancelInteraction());
+            for (final var session : sessionHandler.findByPlayer(sessionPlayer)) {
+                PDAMod.CHANNEL.send(PacketDistributor.PLAYER.with(() -> sessionPlayer),
+                    new CPacketCancelInteraction(serverPlayer.getUUID()));
                 PDAMod.CHANNEL.send(PacketDistributor.ALL.noArg(),
-                    new CPacketTerminateSession(session.getId(), playerId));
+                    new CPacketTerminateSession(session.getId(), playerId, false));
                 sessionHandler.terminateSession(session);
             }
         }
