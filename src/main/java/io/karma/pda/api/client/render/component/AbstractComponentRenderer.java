@@ -20,7 +20,7 @@ public abstract class AbstractComponentRenderer<C extends Component> implements 
     public void render(final C component, final FlexNode flexNode, final Graphics graphics) {
         if (graphics.getContext().isDebugMode()) {
             try (final var state = graphics.pushState()) {
-                state.setBrush(graphics.getBrushFactory().createDebugColor(component));
+                state.setBrush(graphics.getBrushFactory().createDebug(component));
                 graphics.drawRect(flexNode.getAbsoluteX(),
                     flexNode.getAbsoluteY(),
                     flexNode.getAbsoluteWidth(),

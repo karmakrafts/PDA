@@ -159,6 +159,7 @@ public final class CommonEventHandler {
         event.create(RegistryBuilder.of(Constants.APP_REGISTRY_NAME));
         event.create(RegistryBuilder.of(Constants.THEME_REGISTRY_NAME));
         event.create(RegistryBuilder.of(Constants.FONT_FAMILY_REGISTRY_NAME));
+        event.create(RegistryBuilder.of(Constants.GRADIENT_FUNCTION_REGISTRY_NAME));
     }
 
     private void onRightClickBlock(final PlayerInteractEvent.RightClickBlock event) {

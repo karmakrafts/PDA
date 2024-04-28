@@ -10,8 +10,8 @@ import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.component.Container;
+import io.karma.pda.api.common.color.Color;
 import io.karma.pda.api.common.flex.FlexValue;
-import io.karma.pda.api.common.util.Color;
 import io.karma.pda.client.flex.ClientFlexNodeHandler;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -31,9 +31,9 @@ public final class DefaultAppRenderer<A extends App> implements AppRenderer<A> {
         if (!app.isInitialized()) {
             try (final var state = graphics.pushState()) {
                 final var brushFactory = graphics.getBrushFactory();
-                state.setBrush(brushFactory.createColor(Color.BLACK));
+                state.setBrush(brushFactory.create(Color.BLACK));
                 graphics.fillRect(0, 0, width, height);
-                state.setBrush(brushFactory.createColor(Color.WHITE));
+                state.setBrush(brushFactory.create(Color.WHITE));
                 state.setHasTextShadows(false);
                 graphics.text(10, 10, "Loading..");
             }

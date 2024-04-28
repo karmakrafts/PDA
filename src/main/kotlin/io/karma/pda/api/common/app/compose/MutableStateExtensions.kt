@@ -7,8 +7,8 @@
 
 package io.karma.pda.api.common.app.compose
 
+import io.karma.pda.api.common.color.Color
 import io.karma.pda.api.common.state.MutableState
-import io.karma.pda.api.common.util.Color
 
 /**
  * @author Alexander Hinze

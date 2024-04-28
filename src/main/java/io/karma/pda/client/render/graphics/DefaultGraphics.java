@@ -8,7 +8,8 @@ import io.karma.pda.api.client.render.graphics.BrushFactory;
 import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.client.render.graphics.GraphicsContext;
 import io.karma.pda.api.client.render.graphics.GraphicsState;
-import io.karma.pda.api.common.util.Color;
+import io.karma.pda.api.common.color.Color;
+import io.karma.pda.api.common.util.RectangleCorner;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -71,9 +72,9 @@ public final class DefaultGraphics implements Graphics {
 
     @Override
     public Graphics copyWithContext(final GraphicsContext context) {
-        final var gfx = new DefaultGraphics();
-        gfx.setContext(context);
-        return gfx;
+        final var graphics = new DefaultGraphics();
+        graphics.setContext(context);
+        return graphics;
     }
 
     private void fillRect(final int x, final int y, final int width, final int height, final Color colorTL,
@@ -109,33 +110,38 @@ public final class DefaultGraphics implements Graphics {
 
     @Override
     public void point(final int x, final int y) {
-        final var brush = getState().getBrush();
+        final var state = getState();
+        final var brush = state.getBrush();
         if (!brush.isVisible()) {
             return;
         }
-        final var color = brush.getColor(0);
+        final var color = brush.getColor(state.shouldFlipLineColors() ? RectangleCorner.TOP_RIGHT : RectangleCorner.TOP_LEFT);
         fillRect(x, y, 1, 1, color, color, color, color);
     }
 
     @Override
     public void hLine(final int startX, final int endX, final int y) {
-        final var brush = getState().getBrush();
+        final var state = getState();
+        final var brush = state.getBrush();
         if (!brush.isVisible()) {
             return;
         }
-        final var color0 = brush.getColor(0);
-        final var color1 = brush.getColor(1);
+        final var flipColors = state.shouldFlipLineColors();
+        final var color0 = brush.getColor(flipColors ? RectangleCorner.BOTTOM_LEFT : RectangleCorner.TOP_LEFT);
+        final var color1 = brush.getColor(flipColors ? RectangleCorner.BOTTOM_RIGHT : RectangleCorner.TOP_RIGHT);
         fillRect(startX, y, endX - startX, 1, color0, color1, color0, color1);
     }
 
     @Override
     public void vLine(final int x, final int startY, final int endY) {
-        final var brush = getState().getBrush();
+        final var state = getState();
+        final var brush = state.getBrush();
         if (!brush.isVisible()) {
             return;
         }
-        final var color0 = brush.getColor(0);
-        final var color1 = brush.getColor(1);
+        final var flipColors = state.shouldFlipLineColors();
+        final var color0 = brush.getColor(flipColors ? RectangleCorner.TOP_RIGHT : RectangleCorner.TOP_LEFT);
+        final var color1 = brush.getColor(flipColors ? RectangleCorner.BOTTOM_RIGHT : RectangleCorner.BOTTOM_LEFT);
         fillRect(x, startY, 1, endY - startY, color0, color0, color1, color1);
     }
 
@@ -157,14 +163,19 @@ public final class DefaultGraphics implements Graphics {
 
     @Override
     public void drawRect(final int x, final int y, final int width, final int height) {
-        final var brush = getState().getBrush();
+        final var state = getState();
+        final var brush = state.getBrush();
         if (!brush.isVisible()) {
             return;
         }
         hLine(x, x + width, y);
+        state.setFlipLineColors(true);
         hLine(x, x + width, y + height - 1);
+        state.setFlipLineColors(false);
         vLine(x, y, y + height);
+        state.setFlipLineColors(true);
         vLine(x + width - 1, y, y + height);
+        state.setFlipLineColors(false);
     }
 
     @Override
@@ -173,7 +184,12 @@ public final class DefaultGraphics implements Graphics {
         if (!brush.isVisible()) {
             return;
         }
-        fillRect(x, y, width, height, brush.getColor(0), brush.getColor(1), brush.getColor(2), brush.getColor(3));
+        // @formatter:off
+        fillRect(x, y, width, height, brush.getColor(RectangleCorner.TOP_LEFT),
+            brush.getColor(RectangleCorner.TOP_RIGHT),
+            brush.getColor(RectangleCorner.BOTTOM_LEFT),
+            brush.getColor(RectangleCorner.BOTTOM_RIGHT));
+        // @formatter:on
     }
 
     @Override
@@ -187,23 +203,38 @@ public final class DefaultGraphics implements Graphics {
     }
 
     @Override
-    public void drawRoundedRect(final int x, final int y, final int width, final int height, final float rounding) {
-        // TODO: ...
-    }
-
-    @Override
-    public void fillRoundedRect(final int x, final int y, final int width, final int height, final float rounding) {
-        // TODO: ...
-    }
-
-    @Override
     public void drawTriangle(final int x1, final int y1, final int x2, final int y2, final int x3, final int y3) {
-        // TODO: ...
+        final var brush = getState().getBrush();
+        if (!brush.isVisible()) {
+            return;
+        }
+        line(x1, y1, x2, y2);
+        line(x2, y2, x3, y3);
+        line(x3, y3, x1, y1);
     }
 
     @Override
     public void fillTriangle(final int x1, final int y1, final int x2, final int y2, final int x3, final int y3) {
-        // TODO: ...
+        final var state = getState();
+        final var brush = state.getBrush();
+        if (!brush.isVisible()) {
+            return;
+        }
+        final var buffer = getBuffer();
+        final var z = (float) state.getZIndex();
+        final var matrix = context.getTransform();
+        if (state.shouldForceUVs() || brush.getTexture() != null) {
+            buffer.vertex(matrix, x1, y1, z).uv(0F,
+                0F).color(brush.getColor(RectangleCorner.TOP_LEFT).packARGB()).endVertex();
+            buffer.vertex(matrix, x2, y2, z).uv(1F,
+                0F).color(brush.getColor(RectangleCorner.BOTTOM_LEFT).packARGB()).endVertex();
+            buffer.vertex(matrix, x3, y3, z).uv(0F,
+                1F).color(brush.getColor(RectangleCorner.TOP_RIGHT).packARGB()).endVertex();
+            return;
+        }
+        buffer.vertex(matrix, x1, y1, z).color(brush.getColor(RectangleCorner.TOP_LEFT).packARGB()).endVertex();
+        buffer.vertex(matrix, x2, y2, z).color(brush.getColor(RectangleCorner.BOTTOM_LEFT).packARGB()).endVertex();
+        buffer.vertex(matrix, x3, y3, z).color(brush.getColor(RectangleCorner.TOP_RIGHT).packARGB()).endVertex();
     }
 
     @Override

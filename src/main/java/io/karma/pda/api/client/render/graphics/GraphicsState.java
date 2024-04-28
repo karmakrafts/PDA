@@ -4,7 +4,7 @@
 
 package io.karma.pda.api.client.render.graphics;
 
-import io.karma.pda.api.common.app.theme.font.FontFamily;
+import io.karma.pda.api.common.app.theme.font.Font;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -16,7 +16,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public interface GraphicsState extends AutoCloseable {
     void setBrush(final Brush brush);
 
-    void setFontFamily(final FontFamily fontFamily);
+    void setFont(final Font font);
 
     void setLineWidth(final float lineWidth);
 
@@ -26,9 +26,11 @@ public interface GraphicsState extends AutoCloseable {
 
     void setForceUVs(final boolean forceUVs);
 
+    void setFlipLineColors(final boolean flipLineColors);
+
     Brush getBrush();
 
-    FontFamily getFontFamily();
+    Font getFont();
 
     float getLineWidth();
 
@@ -37,6 +39,8 @@ public interface GraphicsState extends AutoCloseable {
     int getZIndex();
 
     boolean shouldForceUVs();
+
+    boolean shouldFlipLineColors();
 
     @Override
     void close();

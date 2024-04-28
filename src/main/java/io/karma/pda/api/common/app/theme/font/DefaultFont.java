@@ -2,11 +2,8 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.common.app.theme.font;
+package io.karma.pda.api.common.app.theme.font;
 
-import io.karma.pda.api.common.app.theme.font.Font;
-import io.karma.pda.api.common.app.theme.font.FontFamily;
-import io.karma.pda.api.common.app.theme.font.FontStyle;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -15,13 +12,13 @@ import net.minecraft.resources.ResourceLocation;
  */
 public final class DefaultFont implements Font {
     private final FontFamily family;
-    private final ResourceLocation name;
+    private final ResourceLocation location;
     private final FontStyle style;
     private final float size;
 
-    DefaultFont(final FontFamily family, final ResourceLocation name, final FontStyle style, final float size) {
+    DefaultFont(final FontFamily family, final ResourceLocation location, final FontStyle style, final float size) {
         this.family = family;
-        this.name = name;
+        this.location = location;
         this.style = style;
         this.size = size;
     }
@@ -32,8 +29,8 @@ public final class DefaultFont implements Font {
     }
 
     @Override
-    public ResourceLocation getName() {
-        return name;
+    public ResourceLocation getLocation() {
+        return location;
     }
 
     @Override

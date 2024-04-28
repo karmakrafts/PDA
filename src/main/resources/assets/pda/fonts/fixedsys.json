@@ -1,9 +1,10 @@
 {
   "version": 1,
   "name": "Fixedsys",
+  "default_size": 12.0,
   "variants": {
-    "REGULAR": "pda:FSEX302.ttf",
-    "BOLD": "pda:FSEX302.ttf",
-    "ITALIC": "pda:FSEX302.ttf"
+    "REGULAR": "pda:fonts/fixedsys.ttf",
+    "BOLD": "pda:fonts/fixedsys.ttf",
+    "ITALIC": "pda:fonts/fixedsys.ttf"
   }
 }

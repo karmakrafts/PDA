@@ -7,12 +7,13 @@ package io.karma.pda.common.app
 import io.karma.pda.api.common.app.AppType
 import io.karma.pda.api.common.app.component.Separator
 import io.karma.pda.api.common.app.compose.*
+import io.karma.pda.api.common.color.Color
+import io.karma.pda.api.common.color.GradientType
 import io.karma.pda.api.common.flex.FlexBorder
 import io.karma.pda.api.common.flex.FlexDirection
 import io.karma.pda.api.common.state.MutableState
 import io.karma.pda.api.common.state.Persistent
 import io.karma.pda.api.common.state.Synchronize
-import io.karma.pda.api.common.util.Color
 
 /**
  * @author Alexander Hinze
@@ -75,7 +76,6 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                             width(20.pixels)
                         }) {
                             orientation(Separator.Orientation.VERTICAL)
-                            width(3)
                         }
 
                         label({
@@ -90,7 +90,6 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                             width(20.pixels)
                         }) {
                             orientation(Separator.Orientation.VERTICAL)
-                            width(3)
                         }
 
                         label({
@@ -105,7 +104,6 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                             width(20.pixels)
                         }) {
                             orientation(Separator.Orientation.VERTICAL)
-                            width(3)
                         }
 
                         spinner({
@@ -113,13 +111,13 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                             height(32.pixels)
                             margin(FlexBorder.of(4.pixels))
                         }) {
-                            color(Color.RED)
+                            color((Color.RED..Color.WHITE).gradient(GradientType.HORIZONTAL))
                         }
                     }.apply {
-                        background(0x141414.rgb)
+                        background(0x141414.rgb.solid)
                     }
                 }.apply {
-                    background(0x0A0A0A.rgb)
+                    background(0x0A0A0A.rgb.solid)
                 }
 
                 label({

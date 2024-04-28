@@ -8,7 +8,7 @@ import io.karma.material.dynamiccolor.DynamicScheme;
 import io.karma.material.hct.Hct;
 import io.karma.material.scheme.SchemeNeutral;
 import io.karma.pda.api.common.app.theme.font.FontSet;
-import io.karma.pda.api.common.util.Color;
+import io.karma.pda.api.common.color.Color;
 import net.minecraft.resources.ResourceLocation;
 
 /**

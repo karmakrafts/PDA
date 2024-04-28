@@ -9,11 +9,23 @@ package io.karma.pda.api.common.app.theme.font;
  * @since 28/04/2024
  */
 public interface FontSet {
-    FontFamily getHeading1();
+    static FontSet of(final Font heading1, final Font heading2, final Font heading3, final Font text) {
+        return new DefaultFontSet(heading1, heading2, heading3, text);
+    }
 
-    FontFamily getHeading2();
+    static FontSet of(final Font headings, final Font text) {
+        return new DefaultFontSet(headings, headings, headings, text);
+    }
 
-    FontFamily getHeading3();
+    static FontSet of(final Font font) {
+        return new DefaultFontSet(font, font, font, font);
+    }
 
-    FontFamily getText();
+    Font getHeading1();
+
+    Font getHeading2();
+
+    Font getHeading3();
+
+    Font getText();
 }

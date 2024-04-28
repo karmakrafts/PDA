@@ -7,7 +7,8 @@
 
 package io.karma.pda.api.common.app.compose
 
-import io.karma.pda.api.common.util.Color
+import io.karma.pda.api.common.color.Color
+import io.karma.pda.api.common.color.Gradient
 
 /**
  * @author Alexander Hinze
@@ -28,12 +29,8 @@ inline val UInt.rgba: Color
 inline val UInt.argb: Color
     get() = Color.unpackARGB(toInt())
 
-// Int conversions
-fun Int.unpackRGB(): Color = Color.unpackRGB(this)
-fun Int.unpackRGBA(): Color = Color.unpackRGBA(this)
-fun Int.unpackARGB(): Color = Color.unpackARGB(this)
+inline val Color.solid: Gradient
+    get() = Gradient.solid(this)
 
-// UInt conversions
-fun UInt.unpackRGB(): Color = Color.unpackRGB(toInt())
-fun UInt.unpackRGBA(): Color = Color.unpackRGBA(toInt())
-fun UInt.unpackARGB(): Color = Color.unpackARGB(toInt())
+operator fun Color.rangeTo(other: Color): ColorRange = ColorRange(this, other)
+operator fun Color.rangeUntil(other: Color): ColorRange = ColorRange(other, this)

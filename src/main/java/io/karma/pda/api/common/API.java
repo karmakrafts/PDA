@@ -9,6 +9,7 @@ import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.theme.Theme;
 import io.karma.pda.api.common.app.theme.font.FontFamily;
+import io.karma.pda.api.common.color.GradientFunction;
 import io.karma.pda.api.common.session.SessionHandler;
 import io.karma.pda.api.common.util.Constants;
 import net.minecraft.client.Minecraft;
@@ -37,6 +38,7 @@ public class API {
     private static Supplier<IForgeRegistry<AppType<?>>> appTypeRegistry;
     private static Supplier<IForgeRegistry<Theme>> themeRegistry;
     private static Supplier<IForgeRegistry<FontFamily>> fontFamilyRegistry;
+    private static Supplier<IForgeRegistry<GradientFunction>> gradientFunctionRegistry;
     private static boolean isInitialized;
 
     // @formatter:off
@@ -105,6 +107,12 @@ public class API {
     }
 
     @ApiStatus.Internal
+    public static void setGradientFunctionRegistry(
+        final Supplier<IForgeRegistry<GradientFunction>> gradientFunctionRegistry) {
+        API.gradientFunctionRegistry = gradientFunctionRegistry;
+    }
+
+    @ApiStatus.Internal
     public static Logger getLogger() {
         assertInitialized();
         return logger;
@@ -146,6 +154,10 @@ public class API {
         return DeferredRegister.create(Constants.FONT_FAMILY_REGISTRY_NAME, modId);
     }
 
+    public static DeferredRegister<GradientFunction> makeGradientFunctionRegister(final String modId) {
+        return DeferredRegister.create(Constants.GRADIENT_FUNCTION_REGISTRY_NAME, modId);
+    }
+
     @SuppressWarnings("all")
     public static IForgeRegistry<ComponentType<?>> getComponentTypeRegistry() {
         assertInitialized();
@@ -162,9 +174,14 @@ public class API {
         return themeRegistry.get();
     }
 
-    public static Supplier<IForgeRegistry<FontFamily>> getFontFamilyRegistry() {
+    public static IForgeRegistry<FontFamily> getFontFamilyRegistry() {
         assertInitialized();
-        return fontFamilyRegistry;
+        return fontFamilyRegistry.get();
+    }
+
+    public static IForgeRegistry<GradientFunction> getGradientFunctionRegistry() {
+        assertInitialized();
+        return gradientFunctionRegistry.get();
     }
 
     @SuppressWarnings("all")
@@ -187,5 +204,10 @@ public class API {
     public static Collection<FontFamily> getFontFamilies() {
         assertInitialized();
         return fontFamilyRegistry.get().getValues();
+    }
+
+    public static Collection<GradientFunction> getGradientFunctions() {
+        assertInitialized();
+        return gradientFunctionRegistry.get().getValues();
     }
 }

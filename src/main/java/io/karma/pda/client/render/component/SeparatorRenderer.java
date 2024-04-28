@@ -37,7 +37,7 @@ public final class SeparatorRenderer extends AbstractComponentRenderer<Separator
                     rw = sepWidth;
                     rh = height;
                 }
-                state.setBrush(graphics.getBrushFactory().createColor(component.color.get()));
+                state.setBrush(graphics.getBrushFactory().create(component.color.get()));
                 graphics.fillRect(x, y, rw, rh);
             }
         }

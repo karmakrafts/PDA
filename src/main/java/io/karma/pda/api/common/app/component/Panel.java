@@ -4,9 +4,10 @@
 
 package io.karma.pda.api.common.app.component;
 
+import io.karma.pda.api.common.color.Color;
+import io.karma.pda.api.common.color.Gradient;
 import io.karma.pda.api.common.state.MutableState;
 import io.karma.pda.api.common.state.Synchronize;
-import io.karma.pda.api.common.util.Color;
 
 import java.util.UUID;
 
@@ -16,9 +17,9 @@ import java.util.UUID;
  */
 public class Panel extends DefaultContainer {
     @Synchronize
-    public final MutableState<Color> background = MutableState.of(Color.NONE);
+    public final MutableState<Gradient> background = MutableState.of(Gradient.solid(Color.NONE));
     @Synchronize
-    public final MutableState<Color> foreground = MutableState.of(Color.NONE);
+    public final MutableState<Gradient> foreground = MutableState.of(Gradient.solid(Color.NONE));
 
     public Panel(ComponentType<?> type, UUID id) {
         super(type, id);

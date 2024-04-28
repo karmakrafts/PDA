@@ -9,7 +9,7 @@ import io.karma.pda.api.common.API;
 import io.karma.pda.common.PDAMod;
 import net.jpountz.lz4.LZ4BlockInputStream;
 import net.jpountz.lz4.LZ4BlockOutputStream;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,15 +21,14 @@ import java.io.ByteArrayOutputStream;
  * @since 12/02/2024
  */
 public final class JSONUtils {
-    public static <T> @Nullable T read(final ResourceLocation location, final Class<T> type) {
+    public static <T> @Nullable T read(final Resource resource, final Class<T> type) {
         try {
-            final var path = String.format("/assets/%s/%s", location.getNamespace(), location.getPath());
-            try (final var stream = JSONUtils.class.getResourceAsStream(path)) {
+            try (final var stream = resource.open()) {
                 return API.getObjectMapper().readValue(stream, type);
             }
         }
         catch (Throwable error) {
-            PDAMod.LOGGER.error("Could not read JSON file {}: {}", location, Exceptions.toFancyString(error));
+            PDAMod.LOGGER.error("Could not read JSON resource: {}", Exceptions.toFancyString(error));
             return null;
         }
     }

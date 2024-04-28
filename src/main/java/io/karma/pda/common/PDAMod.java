@@ -12,6 +12,7 @@ import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.theme.Theme;
 import io.karma.pda.api.common.app.theme.font.FontFamily;
+import io.karma.pda.api.common.color.GradientFunction;
 import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.pda.api.common.dispose.DispositionHandler;
 import io.karma.pda.api.common.state.StateReflector;
@@ -28,6 +29,7 @@ import io.karma.pda.client.screen.DockStorageScreen;
 import io.karma.pda.client.screen.PDAStorageScreen;
 import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.init.*;
+import io.karma.pda.common.json.JSONCodecs;
 import io.karma.pda.common.menu.DockStorageMenu;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import io.karma.pda.common.network.ClientPacketHandler;
@@ -122,6 +124,7 @@ public class PDAMod {
     public static final DeferredRegister<AppType<?>> APPS = API.makeDeferredAppTypeRegister(Constants.MODID);
     public static final DeferredRegister<Theme> THEMES = API.makeThemeRegister(Constants.MODID);
     public static final DeferredRegister<FontFamily> FONT_FAMILIES = API.makeFontFamilyRegister(Constants.MODID);
+    public static final DeferredRegister<GradientFunction> GRADIENT_FUNCTIONS = API.makeGradientFunctionRegister(Constants.MODID);
     // @formatter:on
 
     public static final ServiceLoader<StateReflector> STATE_REFLECTORS = ServiceLoader.load(StateReflector.class);
@@ -143,6 +146,7 @@ public class PDAMod {
         ModApps.register();
         ModThemes.register();
         ModFontFamilies.register();
+        ModGradientFunctions.register();
     }
 
     public PDAMod() {
@@ -161,9 +165,11 @@ public class PDAMod {
         APPS.register(modBus);
         THEMES.register(modBus);
         FONT_FAMILIES.register(modBus);
+        GRADIENT_FUNCTIONS.register(modBus);
 
         MinecraftForge.EVENT_BUS.addListener(this::onGameShutdown);
         initAPI();
+        JSONCodecs.register();
         STATE_REFLECTORS.forEach(StateReflector::init);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
@@ -216,6 +222,7 @@ public class PDAMod {
         API.setAppTypeRegistry(() -> RegistryUtils.getRegistry(Constants.APP_REGISTRY_NAME));
         API.setThemeRegistry(() -> RegistryUtils.getRegistry(Constants.THEME_REGISTRY_NAME));
         API.setFontFamilyRegistry(() -> RegistryUtils.getRegistry(Constants.FONT_FAMILY_REGISTRY_NAME));
+        API.setGradientFunctionRegistry(() -> RegistryUtils.getRegistry(Constants.GRADIENT_FUNCTION_REGISTRY_NAME));
         API.init();
     }
 

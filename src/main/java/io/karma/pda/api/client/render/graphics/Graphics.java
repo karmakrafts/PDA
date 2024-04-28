@@ -48,10 +48,6 @@ public interface Graphics {
 
     void fillCircle(final int x, final int y, final int radius);
 
-    void drawRoundedRect(final int x, final int y, final int width, final int height, final float rounding);
-
-    void fillRoundedRect(final int x, final int y, final int width, final int height, final float rounding);
-
     void drawTriangle(final int x1, final int y1, final int x2, final int y2, final int x3, final int y3);
 
     void fillTriangle(final int x1, final int y1, final int x2, final int y2, final int x3, final int y3);

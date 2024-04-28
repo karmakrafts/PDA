@@ -4,9 +4,9 @@
 
 package io.karma.pda.api.common.app.component;
 
+import io.karma.pda.api.common.color.Color;
 import io.karma.pda.api.common.state.MutableState;
 import io.karma.pda.api.common.state.Synchronize;
-import io.karma.pda.api.common.util.Color;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;

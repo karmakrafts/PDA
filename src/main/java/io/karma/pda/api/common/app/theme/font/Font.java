@@ -11,9 +11,11 @@ import net.minecraft.resources.ResourceLocation;
  * @since 28/04/2024
  */
 public interface Font {
+    float DEFAULT_SIZE = 12F;
+
     FontFamily getFamily();
 
-    ResourceLocation getName();
+    ResourceLocation getLocation();
 
     FontStyle getStyle();
 

@@ -7,7 +7,7 @@ package io.karma.pda.client.render.graphics;
 import io.karma.pda.api.client.render.graphics.Brush;
 import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.client.render.graphics.GraphicsState;
-import io.karma.pda.api.common.app.theme.font.FontFamily;
+import io.karma.pda.api.common.app.theme.font.Font;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -18,25 +18,36 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public final class DefaultGraphicsState implements GraphicsState {
     private final Graphics graphics;
-    private Brush brush;
-    private FontFamily fontFamily;
-    private float lineWidth;
+    private Brush brush = InvisibleBrush.INSTANCE;
+    private Font font;
+    private float lineWidth = 1F;
     private boolean hasTextShadows;
-    private int zIndex;
+    private int zIndex = 0;
     private boolean forceUVs;
+    private boolean flipLineColors;
 
     DefaultGraphicsState(final Graphics graphics) {
         this.graphics = graphics;
     }
 
     @Override
-    public void setFontFamily(final FontFamily fontFamily) {
-        this.fontFamily = fontFamily;
+    public void setFlipLineColors(final boolean flipLineColors) {
+        this.flipLineColors = flipLineColors;
     }
 
     @Override
-    public FontFamily getFontFamily() {
-        return fontFamily;
+    public boolean shouldFlipLineColors() {
+        return flipLineColors;
+    }
+
+    @Override
+    public void setFont(final Font font) {
+        this.font = font;
+    }
+
+    @Override
+    public Font getFont() {
+        return font;
     }
 
     @Override
