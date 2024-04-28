@@ -11,6 +11,7 @@ import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.theme.Theme;
+import io.karma.pda.api.common.app.theme.font.FontFamily;
 import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.pda.api.common.dispose.DispositionHandler;
 import io.karma.pda.api.common.state.StateReflector;
@@ -120,6 +121,7 @@ public class PDAMod {
     public static final DeferredRegister<ComponentType<?>> COMPONENTS = API.makeDeferredComponentTypeRegister(Constants.MODID);
     public static final DeferredRegister<AppType<?>> APPS = API.makeDeferredAppTypeRegister(Constants.MODID);
     public static final DeferredRegister<Theme> THEMES = API.makeThemeRegister(Constants.MODID);
+    public static final DeferredRegister<FontFamily> FONT_FAMILIES = API.makeFontFamilyRegister(Constants.MODID);
     // @formatter:on
 
     public static final ServiceLoader<StateReflector> STATE_REFLECTORS = ServiceLoader.load(StateReflector.class);
@@ -140,6 +142,7 @@ public class PDAMod {
         ModComponents.register();
         ModApps.register();
         ModThemes.register();
+        ModFontFamilies.register();
     }
 
     public PDAMod() {
@@ -157,6 +160,7 @@ public class PDAMod {
         COMPONENTS.register(modBus);
         APPS.register(modBus);
         THEMES.register(modBus);
+        FONT_FAMILIES.register(modBus);
 
         MinecraftForge.EVENT_BUS.addListener(this::onGameShutdown);
         initAPI();
@@ -211,6 +215,7 @@ public class PDAMod {
         API.setComponentTypeRegistry(() -> RegistryUtils.getRegistry(Constants.COMPONENT_REGISTRY_NAME));
         API.setAppTypeRegistry(() -> RegistryUtils.getRegistry(Constants.APP_REGISTRY_NAME));
         API.setThemeRegistry(() -> RegistryUtils.getRegistry(Constants.THEME_REGISTRY_NAME));
+        API.setFontFamilyRegistry(() -> RegistryUtils.getRegistry(Constants.FONT_FAMILY_REGISTRY_NAME));
         API.init();
     }
 

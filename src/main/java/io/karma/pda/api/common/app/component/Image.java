@@ -4,6 +4,10 @@
 
 package io.karma.pda.api.common.app.component;
 
+import io.karma.pda.api.common.state.MutableState;
+import io.karma.pda.api.common.state.Synchronize;
+import net.minecraft.resources.ResourceLocation;
+
 import java.util.UUID;
 
 /**
@@ -11,6 +15,9 @@ import java.util.UUID;
  * @since 13/04/2024
  */
 public class Image extends AbstractComponent {
+    @Synchronize
+    public final MutableState<ResourceLocation> image = MutableState.of(new ResourceLocation("pack.png"));
+
     public Image(final ComponentType<?> type, final UUID id) {
         super(type, id);
     }

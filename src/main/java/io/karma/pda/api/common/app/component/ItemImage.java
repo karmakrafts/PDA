@@ -6,6 +6,7 @@ package io.karma.pda.api.common.app.component;
 
 import io.karma.pda.api.common.state.MutableState;
 import io.karma.pda.api.common.state.Synchronize;
+import io.karma.pda.api.common.util.Color;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
@@ -17,6 +18,10 @@ import java.util.UUID;
 public class ItemImage extends AbstractComponent {
     @Synchronize
     public final MutableState<ResourceLocation> item = MutableState.of(new ResourceLocation("apple"));
+    @Synchronize
+    public final MutableState<Color> background = MutableState.of(Color.NONE);
+    @Synchronize
+    public final MutableState<Color> foreground = MutableState.of(Color.NONE);
 
     public ItemImage(final ComponentType<?> type, final UUID id) {
         super(type, id);

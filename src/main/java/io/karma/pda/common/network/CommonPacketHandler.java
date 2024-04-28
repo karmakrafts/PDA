@@ -101,7 +101,8 @@ public class CommonPacketHandler {
         final var sessionId = session.getId();
 
         final var player = Objects.requireNonNull(context.getSender());
-        PDAMod.CHANNEL.send(PacketDistributor.ALL.noArg(), new CPacketTerminateSession(sessionId, player.getUUID(), true));
+        PDAMod.CHANNEL.send(PacketDistributor.ALL.noArg(),
+            new CPacketTerminateSession(sessionId, player.getUUID(), true));
     }
 
     private void onOpenApp(final SPacketOpenApp packet, final NetworkEvent.Context context) {

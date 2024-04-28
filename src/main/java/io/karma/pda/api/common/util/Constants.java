@@ -16,6 +16,7 @@ public final class Constants {
     public static final ResourceLocation COMPONENT_REGISTRY_NAME = new ResourceLocation(MODID, "components");
     public static final ResourceLocation APP_REGISTRY_NAME = new ResourceLocation(MODID, "apps");
     public static final ResourceLocation THEME_REGISTRY_NAME = new ResourceLocation(MODID, "themes");
+    public static final ResourceLocation FONT_FAMILY_REGISTRY_NAME = new ResourceLocation(MODID, "font_families");
 
     // @formatter:off
     private Constants() {}

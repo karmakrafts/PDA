@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.karma.pda.api.common.app.AppType;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.theme.Theme;
+import io.karma.pda.api.common.app.theme.font.FontFamily;
 import io.karma.pda.api.common.session.SessionHandler;
 import io.karma.pda.api.common.util.Constants;
 import net.minecraft.client.Minecraft;
@@ -35,6 +36,7 @@ public class API {
     private static Supplier<IForgeRegistry<ComponentType<?>>> componentTypeRegistry;
     private static Supplier<IForgeRegistry<AppType<?>>> appTypeRegistry;
     private static Supplier<IForgeRegistry<Theme>> themeRegistry;
+    private static Supplier<IForgeRegistry<FontFamily>> fontFamilyRegistry;
     private static boolean isInitialized;
 
     // @formatter:off
@@ -98,6 +100,11 @@ public class API {
     }
 
     @ApiStatus.Internal
+    public static void setFontFamilyRegistry(final Supplier<IForgeRegistry<FontFamily>> fontFamilyRegistry) {
+        API.fontFamilyRegistry = fontFamilyRegistry;
+    }
+
+    @ApiStatus.Internal
     public static Logger getLogger() {
         assertInitialized();
         return logger;
@@ -135,6 +142,10 @@ public class API {
         return DeferredRegister.create(Constants.THEME_REGISTRY_NAME, modId);
     }
 
+    public static DeferredRegister<FontFamily> makeFontFamilyRegister(final String modId) {
+        return DeferredRegister.create(Constants.FONT_FAMILY_REGISTRY_NAME, modId);
+    }
+
     @SuppressWarnings("all")
     public static IForgeRegistry<ComponentType<?>> getComponentTypeRegistry() {
         assertInitialized();
@@ -149,6 +160,11 @@ public class API {
     public static IForgeRegistry<Theme> getThemeRegistry() {
         assertInitialized();
         return themeRegistry.get();
+    }
+
+    public static Supplier<IForgeRegistry<FontFamily>> getFontFamilyRegistry() {
+        assertInitialized();
+        return fontFamilyRegistry;
     }
 
     @SuppressWarnings("all")
@@ -166,5 +182,10 @@ public class API {
     public static Collection<Theme> getThemes() {
         assertInitialized();
         return themeRegistry.get().getValues();
+    }
+
+    public static Collection<FontFamily> getFontFamilies() {
+        assertInitialized();
+        return fontFamilyRegistry.get().getValues();
     }
 }

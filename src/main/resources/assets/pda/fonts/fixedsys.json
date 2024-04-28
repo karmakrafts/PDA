@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "Fixedsys",
+  "variants": {
+    "REGULAR": "pda:FSEX302.ttf",
+    "BOLD": "pda:FSEX302.ttf",
+    "ITALIC": "pda:FSEX302.ttf"
+  }
+}

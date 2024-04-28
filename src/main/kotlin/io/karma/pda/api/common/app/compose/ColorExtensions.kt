@@ -14,6 +14,20 @@ import io.karma.pda.api.common.util.Color
  * @since 13/04/2024
  */
 
+inline val Int.rgb: Color
+    get() = Color.unpackRGB(toInt())
+inline val Int.rgba: Color
+    get() = Color.unpackRGBA(toInt())
+inline val Int.argb: Color
+    get() = Color.unpackARGB(toInt())
+
+inline val UInt.rgb: Color
+    get() = Color.unpackRGB(toInt())
+inline val UInt.rgba: Color
+    get() = Color.unpackRGBA(toInt())
+inline val UInt.argb: Color
+    get() = Color.unpackARGB(toInt())
+
 // Int conversions
 fun Int.unpackRGB(): Color = Color.unpackRGB(this)
 fun Int.unpackRGBA(): Color = Color.unpackRGBA(this)

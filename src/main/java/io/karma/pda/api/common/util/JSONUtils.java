@@ -6,8 +6,10 @@ package io.karma.pda.api.common.util;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.karma.pda.api.common.API;
+import io.karma.pda.common.PDAMod;
 import net.jpountz.lz4.LZ4BlockInputStream;
 import net.jpountz.lz4.LZ4BlockOutputStream;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,6 +21,19 @@ import java.io.ByteArrayOutputStream;
  * @since 12/02/2024
  */
 public final class JSONUtils {
+    public static <T> @Nullable T read(final ResourceLocation location, final Class<T> type) {
+        try {
+            final var path = String.format("/assets/%s/%s", location.getNamespace(), location.getPath());
+            try (final var stream = JSONUtils.class.getResourceAsStream(path)) {
+                return API.getObjectMapper().readValue(stream, type);
+            }
+        }
+        catch (Throwable error) {
+            PDAMod.LOGGER.error("Could not read JSON file {}: {}", location, Exceptions.toFancyString(error));
+            return null;
+        }
+    }
+
     public static <T> ObjectNode encodeObject(final Class<T> type, final @Nullable T value) {
         final var mapper = API.getObjectMapper();
         final var node = mapper.createObjectNode();

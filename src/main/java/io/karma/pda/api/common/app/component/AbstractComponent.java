@@ -10,7 +10,6 @@ import io.karma.pda.api.common.app.event.MouseMoveEvent;
 import io.karma.pda.api.common.flex.DefaultFlexNode;
 import io.karma.pda.api.common.flex.FlexNode;
 import io.karma.pda.api.common.state.MutableState;
-import io.karma.pda.api.common.state.Persistent;
 import io.karma.pda.api.common.state.Synchronize;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,7 +37,6 @@ public abstract class AbstractComponent implements Component {
 
     // Internal synchronized property for tracking visibility state
     @Synchronize
-    @Persistent
     protected final MutableState<Boolean> isVisible = MutableState.of(true);
 
     protected AbstractComponent(final ComponentType<?> type, final UUID id) {

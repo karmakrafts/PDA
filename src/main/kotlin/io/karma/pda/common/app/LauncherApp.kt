@@ -5,6 +5,7 @@
 package io.karma.pda.common.app
 
 import io.karma.pda.api.common.app.AppType
+import io.karma.pda.api.common.app.component.Separator
 import io.karma.pda.api.common.app.compose.*
 import io.karma.pda.api.common.flex.FlexBorder
 import io.karma.pda.api.common.flex.FlexDirection
@@ -70,12 +71,26 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                             text("A")
                         }
 
+                        separator({
+                            width(20.pixels)
+                        }) {
+                            orientation(Separator.Orientation.VERTICAL)
+                            width(3)
+                        }
+
                         label({
                             width(32.pixels)
                             height(32.pixels)
                             margin(FlexBorder.of(4.pixels))
                         }) {
                             text("B")
+                        }
+
+                        separator({
+                            width(20.pixels)
+                        }) {
+                            orientation(Separator.Orientation.VERTICAL)
+                            width(3)
                         }
 
                         label({
@@ -86,16 +101,25 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                             text("C")
                         }
 
+                        separator({
+                            width(20.pixels)
+                        }) {
+                            orientation(Separator.Orientation.VERTICAL)
+                            width(3)
+                        }
+
                         spinner({
                             width(32.pixels)
                             height(32.pixels)
                             margin(FlexBorder.of(4.pixels))
-                        })
+                        }) {
+                            color(Color.RED)
+                        }
                     }.apply {
-                        background(Color(0.6F, 0.6F, 0.6F, 1F))
+                        background(0x141414.rgb)
                     }
                 }.apply {
-                    background(Color(0.4F, 0.4F, 0.4F, 1F))
+                    background(0x0A0A0A.rgb)
                 }
 
                 label({

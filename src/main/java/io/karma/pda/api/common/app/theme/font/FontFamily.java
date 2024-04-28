@@ -6,7 +6,7 @@ package io.karma.pda.api.common.app.theme.font;
 
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * @author Alexander Hinze
@@ -15,7 +15,9 @@ import java.util.EnumSet;
 public interface FontFamily {
     ResourceLocation getName();
 
-    EnumSet<FontStyle> getStyles();
+    String getDisplayName();
 
-    Font getFont(final FontStyle style);
+    Set<FontStyle> getStyles();
+
+    Font getFont(final FontStyle style, final float size);
 }
