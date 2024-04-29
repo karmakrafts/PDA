@@ -6,6 +6,7 @@ package io.karma.pda.common.json;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.karma.pda.api.common.API;
+import io.karma.pda.api.common.app.theme.Theme;
 import io.karma.pda.api.common.color.GradientFunction;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.common.PDAMod;
@@ -31,19 +32,18 @@ public final class JSONCodecs {
         PDAMod.LOGGER.debug("Registering JSON codecs");
         final var module = new SimpleModule(Constants.MODID);
 
-        module.addSerializer(GradientFunction.class,
-            new RegistrySerializer<>(GradientFunction.class, API::getGradientFunctionRegistry));
+        module.addSerializer(new RegistrySerializer<>(GradientFunction.class, API::getGradientFunctionRegistry));
+        module.addSerializer(new RegistrySerializer<>(Theme.class, API::getThemeRegistry));
         module.addSerializer(new RegistrySerializer<>(Item.class, () -> ForgeRegistries.ITEMS));
         module.addSerializer(new RegistrySerializer<>(Block.class, () -> ForgeRegistries.BLOCKS));
-        module.addSerializer(new RegistrySerializer<EntityType<?>>(EntityType.class,
-            () -> ForgeRegistries.ENTITY_TYPES));
-        module.addSerializer(new RegistrySerializer<BlockEntityType<?>>(BlockEntityType.class,
-            () -> ForgeRegistries.BLOCK_ENTITY_TYPES));
+        module.addSerializer(new RegistrySerializer<>(EntityType.class, () -> ForgeRegistries.ENTITY_TYPES));
+        module.addSerializer(new RegistrySerializer<>(BlockEntityType.class, () -> ForgeRegistries.BLOCK_ENTITY_TYPES));
         module.addSerializer(new ResourceLocationSerializer());
         module.addSerializer(new ItemStackSerializer());
 
         module.addDeserializer(GradientFunction.class,
             new RegistryDeserializer<>(GradientFunction.class, API::getGradientFunctionRegistry));
+        module.addDeserializer(Theme.class, new RegistryDeserializer<>(Theme.class, API::getThemeRegistry));
         module.addDeserializer(Item.class, new RegistryDeserializer<>(Item.class, () -> ForgeRegistries.ITEMS));
         module.addDeserializer(Block.class, new RegistryDeserializer<>(Block.class, () -> ForgeRegistries.BLOCKS));
         module.addDeserializer(EntityType.class,
