@@ -8,7 +8,6 @@
 package io.karma.pda.api.common.app.compose
 
 import io.karma.pda.api.common.color.Color
-import io.karma.pda.api.common.color.Gradient
 
 /**
  * @author Alexander Hinze

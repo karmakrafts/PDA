@@ -7,7 +7,7 @@ package io.karma.pda.common.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import io.karma.pda.api.common.color.GradientFunction;
+import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
 
@@ -15,14 +15,14 @@ import java.io.IOException;
  * @author Alexander Hinze
  * @since 29/04/2024
  */
-public final class GradientFunctionSerializer extends StdSerializer<GradientFunction> {
-    public GradientFunctionSerializer() {
-        super(GradientFunction.class);
+public final class ResourceLocationSerializer extends StdSerializer<ResourceLocation> {
+    public ResourceLocationSerializer() {
+        super(ResourceLocation.class);
     }
 
     @Override
-    public void serialize(final GradientFunction gradientFunction, final JsonGenerator generator,
+    public void serialize(final ResourceLocation location, final JsonGenerator generator,
                           final SerializerProvider serializerProvider) throws IOException {
-        generator.writeString(gradientFunction.getName().toString());
+        generator.writeString(location.toString());
     }
 }
