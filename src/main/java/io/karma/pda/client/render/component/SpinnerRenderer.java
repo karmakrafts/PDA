@@ -22,7 +22,7 @@ public final class SpinnerRenderer extends AbstractComponentRenderer<Spinner> {
     public void render(final Spinner component, final FlexNode flexNode, final Graphics graphics) {
         if (component.isVisible()) {
             try (final var state = graphics.pushState()) {
-                state.setBrush(graphics.getBrushFactory().createGradient(GraphicsRenderTypes.SPINNER,
+                state.setBrush(graphics.getBrushFactory().create(GraphicsRenderTypes.SPINNER,
                     component.color.get(),
                     null));
                 state.setForceUVs(true);

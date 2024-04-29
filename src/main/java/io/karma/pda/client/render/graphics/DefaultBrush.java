@@ -5,7 +5,7 @@
 package io.karma.pda.client.render.graphics;
 
 import io.karma.pda.api.client.render.graphics.Brush;
-import io.karma.pda.api.common.color.Color;
+import io.karma.pda.api.common.color.ColorProvider;
 import io.karma.pda.api.common.util.RectangleCorner;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -20,10 +20,10 @@ import org.jetbrains.annotations.Nullable;
 @OnlyIn(Dist.CLIENT)
 public final class DefaultBrush implements Brush {
     private final RenderType renderType;
-    private final Color color;
+    private final ColorProvider color;
     private final ResourceLocation texture;
 
-    public DefaultBrush(final RenderType renderType, final Color color, final ResourceLocation texture) {
+    public DefaultBrush(final RenderType renderType, final ColorProvider color, final ResourceLocation texture) {
         this.renderType = renderType;
         this.color = color;
         this.texture = texture;
@@ -35,8 +35,8 @@ public final class DefaultBrush implements Brush {
     }
 
     @Override
-    public Color getColor(final RectangleCorner corner) {
-        return color;
+    public int getColor(final RectangleCorner corner) {
+        return color.getColor(corner);
     }
 
     @Override

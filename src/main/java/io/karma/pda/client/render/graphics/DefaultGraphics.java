@@ -8,7 +8,6 @@ import io.karma.pda.api.client.render.graphics.BrushFactory;
 import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.client.render.graphics.GraphicsContext;
 import io.karma.pda.api.client.render.graphics.GraphicsState;
-import io.karma.pda.api.common.color.Color;
 import io.karma.pda.api.common.util.RectangleCorner;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraftforge.api.distmarker.Dist;
@@ -77,8 +76,8 @@ public final class DefaultGraphics implements Graphics {
         return graphics;
     }
 
-    private void fillRect(final int x, final int y, final int width, final int height, final Color colorTL,
-                          final Color colorTR, final Color colorBL, final Color colorBR) {
+    private void fillRect(final int x, final int y, final int width, final int height, final int colorTL,
+                          final int colorTR, final int colorBL, final int colorBR) {
         final var matrix = context.getTransform();
         final var state = getState();
         final var texture = state.getBrush().getTexture();
@@ -88,24 +87,24 @@ public final class DefaultGraphics implements Graphics {
         if (state.shouldForceUVs() || texture != null) {
             final var buffer = getBuffer();
             // First triangle
-            buffer.vertex(matrix, x, y, z).uv(0F, 0F).color(colorTL.packARGB()).endVertex();
-            buffer.vertex(matrix, maxX, y, z).uv(1F, 0F).color(colorTR.packARGB()).endVertex();
-            buffer.vertex(matrix, x, maxY, z).uv(0F, 1F).color(colorBL.packARGB()).endVertex();
+            buffer.vertex(matrix, x, y, z).uv(0F, 0F).color(colorTL).endVertex();
+            buffer.vertex(matrix, maxX, y, z).uv(1F, 0F).color(colorTR).endVertex();
+            buffer.vertex(matrix, x, maxY, z).uv(0F, 1F).color(colorBL).endVertex();
             // Second triangle
-            buffer.vertex(matrix, maxX, y, z).uv(1F, 0F).color(colorTR.packARGB()).endVertex();
-            buffer.vertex(matrix, maxX, maxY, z).uv(1F, 1F).color(colorBR.packARGB()).endVertex();
-            buffer.vertex(matrix, x, maxY, z).uv(0F, 1F).color(colorBL.packARGB()).endVertex();
+            buffer.vertex(matrix, maxX, y, z).uv(1F, 0F).color(colorTR).endVertex();
+            buffer.vertex(matrix, maxX, maxY, z).uv(1F, 1F).color(colorBR).endVertex();
+            buffer.vertex(matrix, x, maxY, z).uv(0F, 1F).color(colorBL).endVertex();
             return;
         }
         final var buffer = getBuffer();
         // First triangle
-        buffer.vertex(matrix, x, y, z).color(colorTL.packARGB()).endVertex();
-        buffer.vertex(matrix, maxX, y, z).color(colorTR.packARGB()).endVertex();
-        buffer.vertex(matrix, x, maxY, z).color(colorBL.packARGB()).endVertex();
+        buffer.vertex(matrix, x, y, z).color(colorTL).endVertex();
+        buffer.vertex(matrix, maxX, y, z).color(colorTR).endVertex();
+        buffer.vertex(matrix, x, maxY, z).color(colorBL).endVertex();
         // Second triangle
-        buffer.vertex(matrix, maxX, y, z).color(colorTR.packARGB()).endVertex();
-        buffer.vertex(matrix, maxX, maxY, z).color(colorBR.packARGB()).endVertex();
-        buffer.vertex(matrix, x, maxY, z).color(colorBL.packARGB()).endVertex();
+        buffer.vertex(matrix, maxX, y, z).color(colorTR).endVertex();
+        buffer.vertex(matrix, maxX, maxY, z).color(colorBR).endVertex();
+        buffer.vertex(matrix, x, maxY, z).color(colorBL).endVertex();
     }
 
     @Override
@@ -224,17 +223,14 @@ public final class DefaultGraphics implements Graphics {
         final var z = (float) state.getZIndex();
         final var matrix = context.getTransform();
         if (state.shouldForceUVs() || brush.getTexture() != null) {
-            buffer.vertex(matrix, x1, y1, z).uv(0F,
-                0F).color(brush.getColor(RectangleCorner.TOP_LEFT).packARGB()).endVertex();
-            buffer.vertex(matrix, x2, y2, z).uv(1F,
-                0F).color(brush.getColor(RectangleCorner.BOTTOM_LEFT).packARGB()).endVertex();
-            buffer.vertex(matrix, x3, y3, z).uv(0F,
-                1F).color(brush.getColor(RectangleCorner.TOP_RIGHT).packARGB()).endVertex();
+            buffer.vertex(matrix, x1, y1, z).uv(0F, 0F).color(brush.getColor(RectangleCorner.TOP_LEFT)).endVertex();
+            buffer.vertex(matrix, x2, y2, z).uv(1F, 0F).color(brush.getColor(RectangleCorner.BOTTOM_LEFT)).endVertex();
+            buffer.vertex(matrix, x3, y3, z).uv(0F, 1F).color(brush.getColor(RectangleCorner.TOP_RIGHT)).endVertex();
             return;
         }
-        buffer.vertex(matrix, x1, y1, z).color(brush.getColor(RectangleCorner.TOP_LEFT).packARGB()).endVertex();
-        buffer.vertex(matrix, x2, y2, z).color(brush.getColor(RectangleCorner.BOTTOM_LEFT).packARGB()).endVertex();
-        buffer.vertex(matrix, x3, y3, z).color(brush.getColor(RectangleCorner.TOP_RIGHT).packARGB()).endVertex();
+        buffer.vertex(matrix, x1, y1, z).color(brush.getColor(RectangleCorner.TOP_LEFT)).endVertex();
+        buffer.vertex(matrix, x2, y2, z).color(brush.getColor(RectangleCorner.BOTTOM_LEFT)).endVertex();
+        buffer.vertex(matrix, x3, y3, z).color(brush.getColor(RectangleCorner.TOP_RIGHT)).endVertex();
     }
 
     @Override

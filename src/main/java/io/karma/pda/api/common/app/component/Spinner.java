@@ -5,7 +5,7 @@
 package io.karma.pda.api.common.app.component;
 
 import io.karma.pda.api.common.color.Color;
-import io.karma.pda.api.common.color.Gradient;
+import io.karma.pda.api.common.color.ColorProvider;
 import io.karma.pda.api.common.state.MutableState;
 import io.karma.pda.api.common.state.Synchronize;
 
@@ -17,7 +17,7 @@ import java.util.UUID;
  */
 public class Spinner extends AbstractComponent {
     @Synchronize
-    public final MutableState<Gradient> color = MutableState.of(Gradient.solid(Color.WHITE));
+    public final MutableState<ColorProvider> color = MutableState.of(Color.WHITE);
 
     public Spinner(final ComponentType<?> type, final UUID id) {
         super(type, id);

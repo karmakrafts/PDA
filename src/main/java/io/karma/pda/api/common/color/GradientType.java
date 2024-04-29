@@ -14,7 +14,6 @@ import net.minecraft.resources.ResourceLocation;
  */
 public enum GradientType implements GradientFunction {
     // @formatter:off
-    NONE          ((color1, color2, corner) -> color1),
     HORIZONTAL    (GradientType::remapHorizontal),
     VERTICAL      (GradientType::remapVertical),
     ROTATED_45    (GradientType::remapRotated45),

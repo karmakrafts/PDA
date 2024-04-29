@@ -114,10 +114,10 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                             color((Color.RED..Color.WHITE).gradient(GradientType.HORIZONTAL))
                         }
                     }.apply {
-                        background(0x141414.rgb.solid)
+                        background(0x141414.rgb)
                     }
                 }.apply {
-                    background(0x0A0A0A.rgb.solid)
+                    background(0x0A0A0A.rgb)
                 }
 
                 label({

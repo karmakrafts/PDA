@@ -5,6 +5,7 @@
 package io.karma.pda.api.common.app.component;
 
 import io.karma.pda.api.common.color.Color;
+import io.karma.pda.api.common.color.ColorProvider;
 import io.karma.pda.api.common.state.MutableState;
 import io.karma.pda.api.common.state.Synchronize;
 
@@ -16,7 +17,7 @@ import java.util.UUID;
  */
 public class Separator extends AbstractComponent {
     @Synchronize
-    public final MutableState<Color> color = MutableState.of(Color.WHITE);
+    public final MutableState<ColorProvider> color = MutableState.of(Color.WHITE);
     @Synchronize
     public final MutableState<Integer> width = MutableState.of(1);
     @Synchronize

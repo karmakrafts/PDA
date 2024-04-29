@@ -5,7 +5,6 @@
 package io.karma.pda.client.render.graphics;
 
 import io.karma.pda.api.client.render.graphics.Brush;
-import io.karma.pda.api.common.color.Color;
 import io.karma.pda.api.common.util.RectangleCorner;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -31,8 +30,8 @@ public final class InvisibleBrush implements Brush {
     }
 
     @Override
-    public Color getColor(final RectangleCorner corner) {
-        return Color.NONE;
+    public int getColor(final RectangleCorner corner) {
+        return 0;
     }
 
     @Override

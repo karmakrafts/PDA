@@ -29,8 +29,5 @@ inline val UInt.rgba: Color
 inline val UInt.argb: Color
     get() = Color.unpackARGB(toInt())
 
-inline val Color.solid: Gradient
-    get() = Gradient.solid(this)
-
 operator fun Color.rangeTo(other: Color): ColorRange = ColorRange(this, other)
 operator fun Color.rangeUntil(other: Color): ColorRange = ColorRange(other, this)

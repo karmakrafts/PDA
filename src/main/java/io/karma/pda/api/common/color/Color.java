@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.karma.pda.api.common.util.RectangleCorner;
 import net.minecraft.util.Mth;
 
 import java.util.Objects;
@@ -16,7 +17,7 @@ import java.util.Objects;
  * @author Alexander Hinze
  * @since 11/04/2024
  */
-public final class Color {
+public final class Color implements ColorProvider {
     // @formatter:off
     public static final Color NONE       = new Color(0F, 0F, 0F, 0F);
     public static final Color BLACK      = new Color(0F, 0F, 0F);
@@ -104,6 +105,11 @@ public final class Color {
     @JsonIgnore
     public int packARGB() {
         return (int) (a * 255F) << 24 | (int) (r * 255F) << 16 | (int) (g * 255F) << 8 | (int) (b * 255F);
+    }
+
+    @Override
+    public int getColor(final RectangleCorner corner) {
+        return packARGB();
     }
 
     @Override

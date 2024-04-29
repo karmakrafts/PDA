@@ -15,7 +15,7 @@ import org.jetbrains.annotations.ApiStatus;
  * @author Alexander Hinze
  * @since 29/04/2024
  */
-public final class Gradient {
+public final class Gradient implements ColorProvider {
     @JsonIgnore
     private Color startColor;
     @JsonIgnore
@@ -35,13 +35,9 @@ public final class Gradient {
         this.gradientFunction = gradientFunction;
     }
 
-    public static Gradient solid(final Color color) {
-        return new Gradient(color, color, GradientType.NONE);
-    }
-
-    @JsonIgnore
-    public Color sample(final RectangleCorner corner) {
-        return gradientFunction.remap(startColor, endColor, corner);
+    @Override
+    public int getColor(final RectangleCorner corner) {
+        return gradientFunction.remap(startColor, endColor, corner).packARGB();
     }
 
     @JsonSetter("start")
