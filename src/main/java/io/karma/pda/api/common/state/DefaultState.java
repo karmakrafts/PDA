@@ -17,13 +17,14 @@ import java.util.function.BiConsumer;
 final class DefaultState<T> implements MutableState<T> {
     private final Class<T> type;
     private final AtomicReference<T> value = new AtomicReference<>();
-    private final AtomicReference<BiConsumer<State<T>, T>> callback = new AtomicReference<>();
+    private final AtomicReference<BiConsumer<State<T>, T>> updateCallback = new AtomicReference<>();
+    private final AtomicReference<BiConsumer<State<T>, T>> changeCallback = new AtomicReference<>((prop, val) -> {});
     private final AtomicReference<String> name = new AtomicReference<>();
     private final AtomicBoolean isPersistent = new AtomicBoolean(true);
 
     DefaultState(final Class<T> type, final @Nullable T initial) {
         this.type = type;
-        value.set(initial);
+        set(initial);
     }
 
     @Override
@@ -52,10 +53,11 @@ final class DefaultState<T> implements MutableState<T> {
 
     @Override
     public void set(final @Nullable T value) {
-        final var callback = this.callback.get();
+        final var callback = this.updateCallback.get();
         if (callback != null) {
             callback.accept(this, value);
         }
+        changeCallback.get().accept(this, value);
         this.value.set(value);
     }
 
@@ -65,13 +67,18 @@ final class DefaultState<T> implements MutableState<T> {
     }
 
     @Override
-    public void setCallback(final @Nullable BiConsumer<State<T>, T> callback) {
-        this.callback.set(callback);
+    public void setUpdateCallback(final @Nullable BiConsumer<State<T>, T> callback) {
+        this.updateCallback.set(callback);
     }
 
     @Override
-    public @Nullable BiConsumer<State<T>, T> getCallback() {
-        return callback.get();
+    public @Nullable BiConsumer<State<T>, T> getUpdateCallback() {
+        return updateCallback.get();
+    }
+
+    @Override
+    public void onChanged(final BiConsumer<State<T>, T> callback) {
+        this.changeCallback.set(this.changeCallback.get().andThen(callback));
     }
 
     @Override

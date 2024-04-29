@@ -9,6 +9,7 @@ package io.karma.pda.api.common.app.compose
 
 import io.karma.pda.api.common.color.Color
 import io.karma.pda.api.common.state.MutableState
+import io.karma.pda.api.common.state.State
 
 /**
  * @author Alexander Hinze
@@ -32,4 +33,9 @@ inline fun <reified T> mutableStateOf(value: T? = null): MutableState<T?> {
 
 inline fun <reified T> mutableStateBy(crossinline function: () -> T?): MutableState<T?> {
     return MutableState.by(T::class.java) { function() }
+}
+
+infix fun <T> MutableState<T>.by(state: State<out T>): MutableState<T> {
+    updatedBy(state)
+    return this
 }

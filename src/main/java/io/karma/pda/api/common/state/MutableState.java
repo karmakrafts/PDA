@@ -93,5 +93,10 @@ public interface MutableState<T> extends State<T> {
      *
      * @param callback The callback invoked by this property upon being set.
      */
-    void setCallback(final @Nullable BiConsumer<State<T>, T> callback);
+    void setUpdateCallback(final @Nullable BiConsumer<State<T>, T> callback);
+
+    default void updatedBy(final State<? extends T> state) {
+        state.onChanged((prop, val) -> set(val));
+        set(state.get());
+    }
 }

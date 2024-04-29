@@ -23,7 +23,7 @@ import io.karma.pda.api.common.state.Synchronize
 class LauncherApp(type: AppType<*>) : ComposableApp(type) {
     @Synchronize
     @Persistent
-    private val someSetting: MutableState<Boolean?> = mutableStateOf(true)
+    private val someSetting: MutableState<String?> = mutableStateOf("Testing testing")
 
     override fun compose() {
         defaultView {
@@ -36,21 +36,21 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                     width(100.percent)
                     height(40.pixels)
                 }) {
-                    text("Testing 1")
+                    text by someSetting
                 }
 
                 label({
                     width(50.percent)
                     height(20.pixels)
                 }) {
-                    text("Testing 2")
+                    text by someSetting
                 }
 
                 label({
                     width(75.percent)
                     height(20.pixels)
                 }) {
-                    text("Testing 3")
+                    text by someSetting
                 }
 
                 panel({
@@ -100,10 +100,11 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                             text("C")
                         }
 
-                        separator({
+                        val sep = separator({
                             width(20.pixels)
                         }) {
                             orientation(Separator.Orientation.VERTICAL)
+                            color((Color.WHITE..Color.RED).gradient(GradientType.VERTICAL))
                         }
 
                         spinner({
@@ -111,7 +112,7 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                             height(32.pixels)
                             margin(FlexBorder.of(4.pixels))
                         }) {
-                            color((Color.RED..Color.WHITE).gradient(GradientType.HORIZONTAL))
+                            color by sep.color
                         }
                     }.apply {
                         background(0x141414.rgb)

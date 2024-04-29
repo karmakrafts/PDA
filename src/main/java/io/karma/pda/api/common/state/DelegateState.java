@@ -18,7 +18,9 @@ import java.util.function.Supplier;
 final class DelegateState<T> implements MutableState<T> {
     private final Class<T> type;
     private final AtomicReference<Supplier<@Nullable T>> delegate = new AtomicReference<>();
-    private final AtomicReference<BiConsumer<State<T>, T>> callback = new AtomicReference<>();
+    private final AtomicReference<BiConsumer<State<T>, T>> updateCallback = new AtomicReference<>();
+    private final AtomicReference<BiConsumer<State<T>, T>> changeCallback = new AtomicReference<>((prop, val) -> {
+    });
     private final AtomicReference<T> lastValue = new AtomicReference<>();
     private final AtomicReference<String> name = new AtomicReference<>();
     private final AtomicBoolean isPersistent = new AtomicBoolean(true);
@@ -55,17 +57,22 @@ final class DelegateState<T> implements MutableState<T> {
 
     @Override
     public void set(final @Nullable T value) {
-        delegate.set(() -> value);
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public @Nullable BiConsumer<State<T>, T> getCallback() {
-        return callback.get();
+    public @Nullable BiConsumer<State<T>, T> getUpdateCallback() {
+        return updateCallback.get();
     }
 
     @Override
-    public void setCallback(final @Nullable BiConsumer<State<T>, T> callback) {
-        this.callback.set(callback);
+    public void setUpdateCallback(final @Nullable BiConsumer<State<T>, T> callback) {
+        this.updateCallback.set(callback);
+    }
+
+    @Override
+    public void onChanged(final BiConsumer<State<T>, T> callback) {
+        this.changeCallback.set(this.changeCallback.get().andThen(callback));
     }
 
     @Override
@@ -79,7 +86,11 @@ final class DelegateState<T> implements MutableState<T> {
         if (value != null && value.equals(lastValue.get())) {
             return value;
         }
-        callback.get().accept(this, value);
+        final var updateCallback = this.updateCallback.get();
+        if (updateCallback != null) {
+            updateCallback.accept(this, value);
+        }
+        changeCallback.get().accept(this, value);
         lastValue.set(value);
         return value;
     }

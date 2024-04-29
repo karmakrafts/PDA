@@ -8,6 +8,7 @@ import io.karma.pda.api.common.util.TypedValue;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * An instance of this interface may behave like a regular property;
@@ -23,15 +24,15 @@ import java.util.function.BiConsumer;
  * @author Alexander Hinze
  * @since 11/04/2024
  */
-public interface State<T> extends TypedValue<T> {
+public interface State<T> extends TypedValue<T>, Consumer<BiConsumer<State<T>, T>> {
     /**
      * Retrieves the callback invoked by this property
-     * upon being set if present.
+     * upon being set if present used for synchronization.
      *
      * @return The callback invoke by this property upon being set if present.
      */
     @Nullable
-    BiConsumer<State<T>, T> getCallback();
+    BiConsumer<State<T>, T> getUpdateCallback();
 
     /**
      * Retrieves the name of this property.
@@ -46,4 +47,11 @@ public interface State<T> extends TypedValue<T> {
      * @return True if this property is saved to NBT.
      */
     boolean isPersistent();
+
+    void onChanged(final BiConsumer<State<T>, T> callback);
+
+    @Override
+    default void accept(final BiConsumer<State<T>, T> callback) {
+        onChanged(callback);
+    }
 }

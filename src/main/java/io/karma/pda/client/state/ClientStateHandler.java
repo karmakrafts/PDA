@@ -39,7 +39,7 @@ public final class ClientStateHandler extends DefaultStateHandler {
 
     @Override
     protected void addProperty(final String ownerId, final MutableState<?> value) {
-        value.setCallback((prop, newValue) -> {
+        value.setUpdateCallback((prop, newValue) -> {
             if (prop.get().equals(newValue)) {
                 return;
             }
@@ -50,7 +50,7 @@ public final class ClientStateHandler extends DefaultStateHandler {
 
     @Override
     protected void removeProperty(final String ownerId, final MutableState<?> value) {
-        value.setCallback(null);
+        value.setUpdateCallback(null);
         queue.remove(ownerId, value.getName());
         super.unregister(ownerId, value);
     }
