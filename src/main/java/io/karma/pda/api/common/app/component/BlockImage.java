@@ -6,7 +6,6 @@ package io.karma.pda.api.common.app.component;
 
 import io.karma.pda.api.common.state.MutableState;
 import io.karma.pda.api.common.state.Synchronize;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 

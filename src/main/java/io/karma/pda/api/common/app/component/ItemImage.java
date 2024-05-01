@@ -8,7 +8,6 @@ import io.karma.pda.api.common.color.Color;
 import io.karma.pda.api.common.color.ColorProvider;
 import io.karma.pda.api.common.state.MutableState;
 import io.karma.pda.api.common.state.Synchronize;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 

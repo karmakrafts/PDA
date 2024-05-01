@@ -23,8 +23,77 @@ public class DefaultContainer extends AbstractComponent implements Container {
     }
 
     @Override
+    public @Nullable Component findChild(final String localName) {
+        for (final var child : children.values()) {
+            final var name = child.getLocalName();
+            if (name == null || !name.equals(localName)) {
+                continue;
+            }
+            return child;
+        }
+        return null;
+    }
+
+    @Override
     public @Nullable Component findChild(final UUID id) {
         return children.get(id);
+    }
+
+    private static @Nullable Component findChildRecursively(final Component component, final UUID id) {
+        if (component.getId().equals(id)) {
+            return component;
+        }
+        if (component instanceof Container container) {
+            for (final var child : container.getChildren()) {
+                final var subChild = findChildRecursively(child, id);
+                if (subChild == null) {
+                    continue;
+                }
+                return subChild;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public @Nullable Component findChildRecursively(final UUID id) {
+        for (final var child : getChildren()) {
+            final var component = findChildRecursively(child, id);
+            if (component == null) {
+                continue;
+            }
+            return component;
+        }
+        return null;
+    }
+
+    private static @Nullable Component findChildRecursively(final Component component, final String localName) {
+        final var name = component.getLocalName();
+        if (name != null && name.equals(localName)) {
+            return component;
+        }
+        if (component instanceof Container container) {
+            for (final var child : container.getChildren()) {
+                final var subChild = findChildRecursively(child, localName);
+                if (subChild == null) {
+                    continue;
+                }
+                return subChild;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public @Nullable Component findChildRecursively(final String localName) {
+        for (final var child : getChildren()) {
+            final var component = findChildRecursively(child, localName);
+            if (component == null) {
+                continue;
+            }
+            return component;
+        }
+        return null;
     }
 
     @Override
@@ -51,13 +120,7 @@ public class DefaultContainer extends AbstractComponent implements Container {
         if (!(obj instanceof Container container)) {
             return false;
         }
-        for (final var childId : children.keySet()) {
-            if (container.findChild(childId) != null) {
-                continue;
-            }
-            return false;
-        }
-        return id.equals(container.getId());
+        return id.get().equals(container.getId());
     }
 
     @Override

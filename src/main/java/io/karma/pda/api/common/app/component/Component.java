@@ -8,6 +8,7 @@ import io.karma.pda.api.common.app.event.ClickEvent;
 import io.karma.pda.api.common.app.event.MouseMoveEvent;
 import io.karma.pda.api.common.flex.FlexNode;
 import io.karma.pda.api.common.util.Identifiable;
+import io.karma.pda.api.common.util.Proxy;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -22,8 +23,17 @@ public interface Component extends Identifiable {
 
     void setId(final UUID id);
 
+    void setLocalName(final @Nullable String localName);
+
+    @Nullable
+    String getLocalName();
+
     @Nullable
     Component getParent();
+
+    default Proxy<? extends Component> getParentProxy() {
+        return this::getParent;
+    }
 
     void setParent(final @Nullable Component parent);
 

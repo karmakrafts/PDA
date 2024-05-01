@@ -6,6 +6,7 @@ package io.karma.pda.common.app
 
 import io.karma.pda.api.common.app.AppType
 import io.karma.pda.api.common.app.component.Separator
+import io.karma.pda.api.common.app.component.Spinner
 import io.karma.pda.api.common.app.compose.*
 import io.karma.pda.api.common.color.Color
 import io.karma.pda.api.common.color.GradientType
@@ -42,8 +43,9 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                 label({
                     width(50.percent)
                     height(20.pixels)
-                }) {
+                }, "testing") {
                     text by someSetting
+                    color(Color.GREEN)
                 }
 
                 label({
@@ -100,19 +102,19 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                             text("C")
                         }
 
-                        val sep = separator({
+                        separator({
                             width(20.pixels)
                         }) {
                             orientation(Separator.Orientation.VERTICAL)
-                            color((Color.WHITE..Color.RED).gradient(GradientType.VERTICAL))
+                            color by childRef<Spinner>("spinner").map { it!!.color }
                         }
 
                         spinner({
                             width(32.pixels)
                             height(32.pixels)
                             margin(FlexBorder.of(4.pixels))
-                        }) {
-                            color by sep.color
+                        }, "spinner") {
+                            color((Color.WHITE..Color.RED).gradient(GradientType.VERTICAL))
                         }
                     }.apply {
                         background(0x141414.rgb)

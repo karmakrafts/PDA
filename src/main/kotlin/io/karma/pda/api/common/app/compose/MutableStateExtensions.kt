@@ -10,13 +10,14 @@ package io.karma.pda.api.common.app.compose
 import io.karma.pda.api.common.color.Color
 import io.karma.pda.api.common.state.MutableState
 import io.karma.pda.api.common.state.State
+import java.util.function.Supplier
 
 /**
  * @author Alexander Hinze
  * @since 26/04/2024
  */
 
-operator fun <T> MutableState<T>.invoke(value: T) = set(value)
+operator fun <T : Any?> MutableState<T>.invoke(value: T) = set(value)
 
 operator fun MutableState<Color>.invoke(value: Int) = set(
     Color.unpackARGB(value)
@@ -26,16 +27,22 @@ operator fun MutableState<Color>.invoke(value: UInt) = set(
     Color.unpackARGB(value.toInt())
 )
 
-inline fun <reified T> mutableStateOf(value: T? = null): MutableState<T?> {
+inline fun <reified T : Any?> mutableStateOf(value: T? = null): MutableState<T?> {
     return if (value == null) MutableState.ofNull(T::class.java)
     else MutableState.of(value)
 }
 
-inline fun <reified T> mutableStateBy(crossinline function: () -> T?): MutableState<T?> {
-    return MutableState.by(T::class.java) { function() }
+infix fun <T : Any?> MutableState<T>.by(state: State<out T>): MutableState<T> {
+    setBy(state)
+    return this
 }
 
-infix fun <T> MutableState<T>.by(state: State<out T>): MutableState<T> {
-    updatedBy(state)
+inline infix fun <T : Any?> MutableState<T>.by(crossinline stateProvider: () -> State<out T>): MutableState<T> {
+    setBy { stateProvider() }
+    return this
+}
+
+infix fun <T : Any?> MutableState<T>.by(stateProvider: Supplier<out State<out T>>): MutableState<T> {
+    setBy(stateProvider)
     return this
 }

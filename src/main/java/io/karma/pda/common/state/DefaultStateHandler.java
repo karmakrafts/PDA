@@ -110,5 +110,8 @@ public class DefaultStateHandler implements StateHandler {
         if (properties == null || properties.remove(property.getName()) == null) {
             throw new IllegalArgumentException("No such property");
         }
+        if (properties.isEmpty()) {
+            fields.remove(ownerId); // Free up space we don't need for this owner
+        }
     }
 }

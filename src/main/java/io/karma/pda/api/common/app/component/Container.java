@@ -6,6 +6,7 @@ package io.karma.pda.api.common.app.component;
 
 import io.karma.pda.api.common.app.event.ClickEvent;
 import io.karma.pda.api.common.app.event.MouseMoveEvent;
+import io.karma.pda.api.common.util.Proxy;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -23,6 +24,31 @@ public interface Container extends Component {
 
     @Nullable
     Component findChild(final UUID id);
+
+    @Nullable
+    Component findChild(final String localName);
+
+    @Nullable
+    Component findChildRecursively(final UUID id);
+
+    @Nullable
+    Component findChildRecursively(final String localName);
+
+    default Proxy<? extends Component> findChildProxy(final String localName) {
+        return () -> findChild(localName);
+    }
+
+    default Proxy<? extends Component> findChildProxy(final UUID id) {
+        return () -> findChild(id);
+    }
+
+    default Proxy<? extends Component> findChildRecursivelyProxy(final String localName) {
+        return () -> findChildRecursively(localName);
+    }
+
+    default Proxy<? extends Component> findChildRecursivelyProxy(final UUID id) {
+        return () -> findChildRecursively(id);
+    }
 
     Collection<Component> getChildren();
 

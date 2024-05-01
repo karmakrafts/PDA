@@ -26,6 +26,7 @@ public abstract class AbstractComponent implements Component {
     protected final AtomicReference<UUID> id = new AtomicReference<>();
     protected final FlexNode flexNode = DefaultFlexNode.defaults();
     protected Component parent;
+    protected String localName;
     protected Consumer<ClickEvent> clickEventConsumer = event -> {
     };
     protected Consumer<MouseMoveEvent> mouseOverEventConsumer = event -> {
@@ -43,6 +44,16 @@ public abstract class AbstractComponent implements Component {
         this.type = type;
         this.id.set(id);
         API.getLogger().debug("Creating component {} of type {}", id, type.getName());
+    }
+
+    @Override
+    public void setLocalName(final @Nullable String localName) {
+        this.localName = localName;
+    }
+
+    @Override
+    public @Nullable String getLocalName() {
+        return localName;
     }
 
     @Override

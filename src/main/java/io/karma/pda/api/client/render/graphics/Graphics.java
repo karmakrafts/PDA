@@ -54,8 +54,8 @@ public interface Graphics {
 
     void text(final int x, final int y, final String text, final int maxLength, final String delimiter);
 
-    default void text(final int x, final int y, final String text, final String delimiter) {
-        text(x, y, text, text.length(), delimiter);
+    default void text(final int x, final int y, final String text, final String cutoffSuffix) {
+        text(x, y, text, text.length(), cutoffSuffix);
     }
 
     default void text(final int x, final int y, final String text) {

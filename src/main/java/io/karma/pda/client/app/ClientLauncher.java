@@ -95,7 +95,7 @@ public class ClientLauncher extends DefaultLauncher {
         final var name = type.getName();
         final var game = Minecraft.getInstance();
         final var app = type.create();
-        app.compose(); // Compose app locally to generate temporary component IDs
+        tryCompose(app);
         synchronized (appStackLock) {
             appStack.push(app); // Push app when composed initially
         }
@@ -113,7 +113,7 @@ public class ClientLauncher extends DefaultLauncher {
                     return null;
                 }
                 registerSyncedFields(theApp);
-                theApp.init(session);
+                tryInit(theApp);
                 return (A)theApp;
             });
         // @formatter:on

@@ -10,6 +10,7 @@ import io.karma.pda.api.common.app.Launcher;
 import io.karma.pda.api.common.app.component.Component;
 import io.karma.pda.api.common.app.component.Container;
 import io.karma.pda.api.common.session.Session;
+import io.karma.pda.api.common.util.Exceptions;
 import io.karma.pda.api.common.util.LogMarkers;
 import io.karma.pda.common.PDAMod;
 import org.jetbrains.annotations.ApiStatus;
@@ -33,10 +34,34 @@ public class DefaultLauncher implements Launcher {
         this.session = session;
     }
 
+    protected void tryCompose(final App app) {
+        try {
+            app.compose();
+        }
+        catch (Throwable error) {
+            PDAMod.LOGGER.error("Composition for {} in session {} failed: {}",
+                app.getType().getName(),
+                session.getId(),
+                Exceptions.toFancyString(error));
+        }
+    }
+
+    protected void tryInit(final App app) {
+        try {
+            app.init(session);
+        }
+        catch (Throwable error) {
+            PDAMod.LOGGER.error("Initialization for {} in session {} failed: {}",
+                app.getType().getName(),
+                session.getId(),
+                Exceptions.toFancyString(error));
+        }
+    }
+
     @ApiStatus.Internal
     public <A extends App> A openNow(final AppType<A> type) {
         final var app = type.create();
-        app.compose(); // Compose app locally to generate temporary component IDs
+        tryCompose(app);
         synchronized (appStackLock) {
             appStack.push(app); // Push app when composed initially
         }
@@ -137,8 +162,8 @@ public class DefaultLauncher implements Launcher {
             }
             PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Opening app {}", type.getName());
             final var app = type.create();
-            app.compose();
-            app.init(session);
+            tryCompose(app);
+            tryInit(app);
             registerSyncedFields(app);
             appStack.push(app);
             return CompletableFuture.completedFuture(app);

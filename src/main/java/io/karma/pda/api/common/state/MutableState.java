@@ -5,16 +5,18 @@
 package io.karma.pda.api.common.state;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
  * @author Alexander Hinze
  * @since 26/04/2024
  */
-public interface MutableState<T> extends State<T> {
+public interface MutableState<T> extends State<T>, Consumer<T> {
+    // TODO: document this
     static <T> MutableState<T> fromPair(final Pair<Class<T>, T> pair) {
         final var value = pair.getRight();
         if (value == null) {
@@ -50,32 +52,23 @@ public interface MutableState<T> extends State<T> {
     }
 
     /**
-     * Creates a new synchronized property instance whose instance
-     * is provided by the given supplier function. The property created
-     * by this function is immutable and cannot be set directly.
-     * A call to {@link MutableState#set(Object)} will throw an {@link UnsupportedOperationException}.
-     *
-     * @param type     The type of the property to create.
-     * @param delegate The function which to call when retrieving the value of the property.
-     * @param <T>      The type of the newly created property.
-     * @return A new synchronized property instance with the given delegate function.
-     */
-    static <T> MutableState<T> by(final Class<T> type, final Supplier<T> delegate) {
-        return new DelegateState<>(type, delegate);
-    }
-
-    /**
      * Sets the value contained within this synchronized property.
      *
      * @param value The value to set this property to.
      */
-    void set(final @Nullable T value);
+    void set(final Supplier<@Nullable T> value);
+
+    // TODO: document this
+    default void set(final @Nullable T value) {
+        set(() -> value);
+    }
 
     /**
      * Sets the name of this property.
      *
      * @param name The name of this property.
      */
+    @ApiStatus.Internal
     void setName(final String name);
 
     /**
@@ -87,16 +80,18 @@ public interface MutableState<T> extends State<T> {
      */
     void setPersistent(final boolean isPersistent);
 
-    /**
-     * Sets the callback invoked by this property upon
-     * being set.
-     *
-     * @param callback The callback invoked by this property upon being set.
-     */
-    void setUpdateCallback(final @Nullable BiConsumer<State<T>, T> callback);
+    // TODO: document this
+    default void setBy(final State<? extends T> state) {
+        state.onChanged((prop, value) -> set(value));
+    }
 
-    default void updatedBy(final State<? extends T> state) {
-        state.onChanged((prop, val) -> set(val));
-        set(state.get());
+    // TODO: document this
+    default void setBy(final Supplier<? extends State<? extends T>> stateProvider) {
+        set(() -> stateProvider.get().get());
+    }
+
+    @Override
+    default void accept(final @Nullable T value) {
+        set(value);
     }
 }

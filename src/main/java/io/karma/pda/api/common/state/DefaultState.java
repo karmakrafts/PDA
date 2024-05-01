@@ -9,22 +9,33 @@ import org.jetbrains.annotations.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 /**
  * @author Alexander Hinze
  * @since 11/04/2024
  */
 final class DefaultState<T> implements MutableState<T> {
+    private final AtomicReference<Supplier<T>> value = new AtomicReference<>();
     private final Class<T> type;
-    private final AtomicReference<T> value = new AtomicReference<>();
-    private final AtomicReference<BiConsumer<State<T>, T>> updateCallback = new AtomicReference<>();
-    private final AtomicReference<BiConsumer<State<T>, T>> changeCallback = new AtomicReference<>((prop, val) -> {});
+    private final AtomicReference<BiConsumer<State<T>, T>> changeCallback = new AtomicReference<>((prop, val) -> {
+    });
     private final AtomicReference<String> name = new AtomicReference<>();
     private final AtomicBoolean isPersistent = new AtomicBoolean(true);
 
     DefaultState(final Class<T> type, final @Nullable T initial) {
         this.type = type;
-        set(initial);
+        value.set(() -> initial);
+    }
+
+    @Override
+    public Class<T> getType() {
+        return type;
+    }
+
+    @Override
+    public void onChanged(final BiConsumer<State<T>, T> callback) {
+        changeCallback.set(changeCallback.get().andThen(callback));
     }
 
     @Override
@@ -52,37 +63,17 @@ final class DefaultState<T> implements MutableState<T> {
     }
 
     @Override
-    public void set(final @Nullable T value) {
-        final var callback = this.updateCallback.get();
-        if (callback != null) {
-            callback.accept(this, value);
-        }
-        changeCallback.get().accept(this, value);
-        this.value.set(value);
+    public BiConsumer<State<T>, T> getChangeCallback() {
+        return changeCallback.get();
     }
 
     @Override
-    public Class<T> getType() {
-        return type;
-    }
-
-    @Override
-    public void setUpdateCallback(final @Nullable BiConsumer<State<T>, T> callback) {
-        this.updateCallback.set(callback);
-    }
-
-    @Override
-    public @Nullable BiConsumer<State<T>, T> getUpdateCallback() {
-        return updateCallback.get();
-    }
-
-    @Override
-    public void onChanged(final BiConsumer<State<T>, T> callback) {
-        this.changeCallback.set(this.changeCallback.get().andThen(callback));
+    public void set(final Supplier<@Nullable T> supplier) {
+        this.value.set(supplier);
     }
 
     @Override
     public T get() {
-        return value.get();
+        return value.get().get();
     }
 }
