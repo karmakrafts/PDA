@@ -18,9 +18,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public abstract class AbstractComponentRenderer<C extends Component> implements ComponentRenderer<C> {
     @Override
     public void render(final C component, final FlexNode flexNode, final Graphics graphics) {
-        if (graphics.getContext().isDebugMode()) {
+        final var context = graphics.getContext();
+        if (context.isDebugMode()) {
             try (final var state = graphics.pushState()) {
-                state.setBrush(graphics.getBrushFactory().createDebug(component));
+                state.setBrush(context.getBrushFactory().createDebug(component));
                 graphics.drawRect(flexNode.getAbsoluteX(),
                     flexNode.getAbsoluteY(),
                     flexNode.getAbsoluteWidth(),

@@ -18,8 +18,6 @@ public interface Graphics {
 
     GraphicsContext getContext();
 
-    BrushFactory getBrushFactory();
-
     Graphics copyWithContext(final GraphicsContext context);
 
     default Graphics copy() {

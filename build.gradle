@@ -125,6 +125,13 @@ dependencies {
     library group: 'org.lwjgl', name: 'lwjgl-yoga', version: lwjgl_version, classifier: 'natives-windows-x86', transitive: false
     library group: 'org.lwjgl', name: 'lwjgl-yoga', version: lwjgl_version, classifier: 'natives-windows', transitive: false
 
+    library files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT.jar')
+    compileOnly files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-javadoc.jar')
+    compileOnly files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-sources.jar')
+    library files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-linux.jar')
+    library files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-macos.jar')
+    library files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-macos-arm64.jar')
+
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit_version
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junit_version
 }

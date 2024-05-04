@@ -30,6 +30,10 @@ public interface GraphicsContext {
 
     GraphicsContext derive(final int width, final int height);
 
+    BrushFactory getBrushFactory();
+
+    FontRenderer getFontRenderer();
+
     default Matrix4f getTransform() {
         return getPoseStack().last().pose();
     }

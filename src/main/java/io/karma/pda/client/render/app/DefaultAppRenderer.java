@@ -25,12 +25,12 @@ public final class DefaultAppRenderer<A extends App> implements AppRenderer<A> {
     @SuppressWarnings("unchecked")
     @Override
     public void render(final A app, final Graphics graphics) {
-        final var gfxContext = graphics.getContext();
-        final var width = gfxContext.getWidth();
-        final var height = gfxContext.getHeight();
+        final var context = graphics.getContext();
+        final var width = context.getWidth();
+        final var height = context.getHeight();
         if (!app.isInitialized()) {
             try (final var state = graphics.pushState()) {
-                final var brushFactory = graphics.getBrushFactory();
+                final var brushFactory = context.getBrushFactory();
                 state.setBrush(brushFactory.create(Color.BLACK));
                 graphics.fillRect(0, 0, width, height);
                 state.setBrush(brushFactory.create(Color.WHITE));

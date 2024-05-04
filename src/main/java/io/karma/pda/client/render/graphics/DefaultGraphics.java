@@ -55,11 +55,6 @@ public final class DefaultGraphics implements Graphics {
     }
 
     @Override
-    public BrushFactory getBrushFactory() {
-        return DefaultBrushFactory.INSTANCE;
-    }
-
-    @Override
     public GraphicsContext getContext() {
         return context;
     }

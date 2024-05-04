@@ -30,7 +30,7 @@ public final class PanelRenderer extends AbstractComponentRenderer<Panel> {
                 final var y = flexNode.getAbsoluteY();
                 final var w = flexNode.getAbsoluteWidth();
                 final var h = flexNode.getAbsoluteHeight();
-                final var brushFactory = graphics.getBrushFactory();
+                final var brushFactory = graphics.getContext().getBrushFactory();
                 state.setBrush(brushFactory.create(component.background.get()));
                 graphics.fillRect(x, y, w, h);
                 state.setBrush(brushFactory.create(component.foreground.get()));
