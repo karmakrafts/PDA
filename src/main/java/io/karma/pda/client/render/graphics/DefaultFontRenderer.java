@@ -6,6 +6,7 @@ package io.karma.pda.client.render.graphics;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import io.karma.pda.api.client.render.graphics.FontAtlas;
 import io.karma.pda.api.client.render.graphics.FontRenderer;
@@ -32,6 +33,7 @@ import net.minecraftforge.client.event.RegisterShadersEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 
 import java.util.HashMap;
 import java.util.function.Function;
@@ -69,18 +71,11 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     private final HashMap<ResourceLocation, DefaultFontAtlas> fontAtlasCache = new HashMap<>();
     private ShaderInstance shader;
 
-    private FontAtlas getOrCreateFontAtlas(final Font font) {
-        return fontAtlasCache.computeIfAbsent(font.getLocation(), location -> new DefaultFontAtlas(font));
-    }
-
-    @Override
-    public void renderGlyph(final int x, final int y, final int zIndex, final char c, final ColorProvider colorProvider,
-                            final Font font, final GraphicsContext context) {
-        final var atlas = getOrCreateFontAtlas(font);
-        final var buffer = context.getBufferSource().getBuffer(RENDER_TYPE.apply(atlas));
+    private int renderGlyph(final int x, final int y, final int zIndex, final char c, final FontAtlas atlas,
+                            final Matrix4f matrix, final VertexConsumer buffer, final ColorProvider colorProvider) {
         final var sprite = atlas.getGlyphSprite(c);
-        final var matrix = context.getTransform();
-        final var maxX = x + sprite.getWidth();
+        final var width = sprite.getWidth();
+        final var maxX = x + width;
         final var maxY = y + sprite.getHeight();
         final var z = (float) zIndex;
         final var colorTR = colorProvider.getColor(RectangleCorner.TOP_RIGHT);
@@ -99,18 +94,46 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
         buffer.vertex(matrix, maxX, maxY, z).uv(maxU,
             maxV).color(colorProvider.getColor(RectangleCorner.BOTTOM_RIGHT)).endVertex();
         buffer.vertex(matrix, x, maxY, z).uv(minU, maxV).color(colorBL).endVertex();
+
+        return width;
+    }
+
+    @Override
+    public FontAtlas getFontAtlas(Font font) {
+        return fontAtlasCache.computeIfAbsent(font.getLocation(), location -> new DefaultFontAtlas(font));
+    }
+
+    @Override
+    public int renderGlyph(final int x, final int y, final int zIndex, final char c, final ColorProvider colorProvider,
+                           final Font font, final GraphicsContext context) {
+        final var atlas = getFontAtlas(font);
+        final var buffer = context.getBufferSource().getBuffer(RENDER_TYPE.apply(atlas));
+        final var matrix = context.getTransform();
+        return renderGlyph(x, y, zIndex, c, atlas, matrix, buffer, colorProvider);
     }
 
     @Override
     public void render(final int x, final int y, final int zIndex, final String s, final ColorProvider colorProvider,
                        final Font font, final GraphicsContext context) {
-        // TODO: ...
+        final var atlas = getFontAtlas(font);
+        final var buffer = context.getBufferSource().getBuffer(RENDER_TYPE.apply(atlas));
+        final var matrix = context.getTransform();
+        var offset = 0;
+        for (var i = 0; i < s.length(); i++) {
+            offset += renderGlyph(x + offset, y, zIndex, s.charAt(i), atlas, matrix, buffer, colorProvider);
+        }
     }
 
     @Override
     public void render(final int x, final int y, final int zIndex, final String s,
                        final IntFunction<ColorProvider> colorFunction, final Font font, final GraphicsContext context) {
-        // TODO: ...
+        final var atlas = getFontAtlas(font);
+        final var buffer = context.getBufferSource().getBuffer(RENDER_TYPE.apply(atlas));
+        final var matrix = context.getTransform();
+        var offset = 0;
+        for (var i = 0; i < s.length(); i++) {
+            offset += renderGlyph(x + offset, y, zIndex, s.charAt(i), atlas, matrix, buffer, colorFunction.apply(i));
+        }
     }
 
     @Override

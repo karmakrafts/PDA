@@ -10,6 +10,8 @@ import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.common.app.App;
 import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.component.Container;
+import io.karma.pda.api.common.app.theme.font.DefaultFontFamilies;
+import io.karma.pda.api.common.app.theme.font.FontStyle;
 import io.karma.pda.api.common.color.Color;
 import io.karma.pda.api.common.flex.FlexValue;
 import io.karma.pda.client.flex.ClientFlexNodeHandler;
@@ -31,6 +33,7 @@ public final class DefaultAppRenderer<A extends App> implements AppRenderer<A> {
         if (!app.isInitialized()) {
             try (final var state = graphics.pushState()) {
                 final var brushFactory = context.getBrushFactory();
+                state.setFont(DefaultFontFamilies.FIXEDSYS.getFont(FontStyle.REGULAR, 16F));
                 state.setBrush(brushFactory.create(Color.BLACK));
                 graphics.fillRect(0, 0, width, height);
                 state.setBrush(brushFactory.create(Color.WHITE));

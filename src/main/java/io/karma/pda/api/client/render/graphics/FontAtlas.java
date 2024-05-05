@@ -7,6 +7,7 @@ package io.karma.pda.api.client.render.graphics;
 import io.karma.pda.api.common.app.theme.font.Font;
 import io.karma.pda.api.common.dispose.Disposable;
 import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
+import it.unimi.dsi.fastutil.chars.CharSet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -19,6 +20,8 @@ public interface FontAtlas extends Disposable {
     Font getFont();
 
     GlyphSprite getGlyphSprite(final char c);
+
+    CharSet getSupportedChars();
 
     Char2ObjectMap<GlyphSprite> getGlyphSprites();
 

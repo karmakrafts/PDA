@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -26,12 +27,13 @@ public abstract class AbstractApp implements App {
     protected final AtomicBoolean isInitialized = new AtomicBoolean(false);
 
     @Synchronize
-    protected final MutableState<String> currentView = MutableState.of(DEFAULT_VIEW);
+    protected final MutableState<Stack<String>> viewStack = MutableState.of(new Stack<>());
     @Synchronize
     protected final MutableState<AppState> state = MutableState.of(new AppState());
 
     public AbstractApp(final AppType<?> type) {
         this.type = type;
+        viewStack.get().push(DEFAULT_VIEW);
     }
 
     @Override
@@ -66,12 +68,23 @@ public abstract class AbstractApp implements App {
 
     @Override
     public void setView(final String name) {
-        currentView.set(name);
+        final var stack = viewStack.get();
+        stack.set(stack.size() - 1, name);
+    }
+
+    @Override
+    public void pushView(final String name) {
+        viewStack.get().push(name);
+    }
+
+    @Override
+    public @Nullable AppView popView() {
+        return views.get(viewStack.get().pop());
     }
 
     @Override
     public String getViewName() {
-        return currentView.get();
+        return viewStack.get().peek();
     }
 
     @Override
@@ -81,7 +94,7 @@ public abstract class AbstractApp implements App {
 
     @Override
     public AppView getView() {
-        return Objects.requireNonNull(views.get(currentView.get()));
+        return Objects.requireNonNull(views.get(getViewName()));
     }
 
     @Override

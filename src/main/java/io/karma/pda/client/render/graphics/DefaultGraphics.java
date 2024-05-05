@@ -229,11 +229,15 @@ public final class DefaultGraphics implements Graphics {
 
     @Override
     public void text(final int x, final int y, final String text, final int maxLength, final String delimiter) {
+        final var state = getState();
+        context.getFontRenderer().render(x, y, state.getZIndex(), text, state.getBrush(), state.getFont(), context);
         // TODO: ...
     }
 
     @Override
     public void wrappedText(final int x, final int y, final String text, final int maxLength) {
+        final var state = getState();
+        context.getFontRenderer().render(x, y, state.getZIndex(), text, state.getBrush(), state.getFont(), context);
         // TODO: ...
     }
 }

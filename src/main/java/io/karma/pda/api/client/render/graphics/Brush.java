@@ -4,7 +4,7 @@
 
 package io.karma.pda.api.client.render.graphics;
 
-import io.karma.pda.api.common.util.RectangleCorner;
+import io.karma.pda.api.common.color.ColorProvider;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -16,10 +16,8 @@ import org.jetbrains.annotations.Nullable;
  * @since 11/04/2024
  */
 @OnlyIn(Dist.CLIENT)
-public interface Brush {
+public interface Brush extends ColorProvider {
     RenderType getRenderType();
-
-    int getColor(final RectangleCorner corner);
 
     @Nullable
     ResourceLocation getTexture();

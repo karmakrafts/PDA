@@ -7,6 +7,7 @@ package io.karma.pda.api.common.app.theme;
 import io.karma.material.dynamiccolor.DynamicScheme;
 import io.karma.pda.api.common.app.theme.font.FontSet;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Alexander Hinze
@@ -19,8 +20,8 @@ public interface Theme {
 
     FontSet getFontSet();
 
-    // Helper for declaring registry object holder fields
-    static Theme nullType() {
+    @SuppressWarnings("all")
+    @NotNull static Theme nullType() {
         return null;
     }
 }

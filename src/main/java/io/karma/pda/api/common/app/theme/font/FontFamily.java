@@ -5,6 +5,7 @@
 package io.karma.pda.api.common.app.theme.font;
 
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
@@ -20,4 +21,9 @@ public interface FontFamily {
     Set<FontStyle> getStyles();
 
     Font getFont(final FontStyle style, final float size);
+
+    @SuppressWarnings("all")
+    @NotNull static FontFamily nullType() {
+        return null;
+    }
 }

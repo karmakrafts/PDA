@@ -17,7 +17,9 @@ import java.util.function.IntFunction;
  */
 @OnlyIn(Dist.CLIENT)
 public interface FontRenderer {
-    void renderGlyph(final int x, final int y, final int zIndex, final char c, final ColorProvider colorProvider,
+    FontAtlas getFontAtlas(final Font font);
+
+    int renderGlyph(final int x, final int y, final int zIndex, final char c, final ColorProvider colorProvider,
                      final Font font, final GraphicsContext context);
 
     void render(final int x, final int y, final int zIndex, final String s, final ColorProvider colorProvider,

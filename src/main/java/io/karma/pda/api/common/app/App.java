@@ -64,6 +64,11 @@ public interface App {
 
     void setView(final String name);
 
+    void pushView(final String name);
+
+    @Nullable
+    AppView popView();
+
     String getViewName();
 
     AppView getView();
