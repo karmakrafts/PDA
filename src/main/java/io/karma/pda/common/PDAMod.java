@@ -23,6 +23,7 @@ import io.karma.pda.client.flex.ClientFlexNodeHandler;
 import io.karma.pda.client.interaction.DockInteractionHandler;
 import io.karma.pda.client.interaction.PDAInteractionHandler;
 import io.karma.pda.client.render.display.DisplayRenderer;
+import io.karma.pda.client.render.graphics.DefaultFontRenderer;
 import io.karma.pda.client.render.graphics.GraphicsRenderTypes;
 import io.karma.pda.client.render.item.PDAItemRenderer;
 import io.karma.pda.client.screen.DockStorageScreen;
@@ -233,6 +234,7 @@ public class PDAMod {
         PDAInteractionHandler.INSTANCE.setup();
         PDAItemRenderer.INSTANCE.setup();
         DisplayRenderer.getInstance().setupEarly();
+        DefaultFontRenderer.INSTANCE.setupEarly();
         GraphicsRenderTypes.INSTANCE.setupEarly();
         initClientAPI();
     }
@@ -249,6 +251,7 @@ public class PDAMod {
         event.enqueueWork(() -> {
             LOGGER.info("Registering screens");
             DisplayRenderer.getInstance().setup();
+            DefaultFontRenderer.INSTANCE.setup();
             MenuScreens.register(ModMenus.pdaStorage.get(),
                 (PDAStorageMenu menu, Inventory inventory, Component title) -> new PDAStorageScreen(menu, inventory));
             MenuScreens.register(ModMenus.dockStorage.get(),

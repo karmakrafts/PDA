@@ -4,7 +4,6 @@
 
 package io.karma.pda.client.render.graphics;
 
-import io.karma.pda.api.client.render.graphics.BrushFactory;
 import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.client.render.graphics.GraphicsContext;
 import io.karma.pda.api.client.render.graphics.GraphicsState;

@@ -166,6 +166,7 @@ public final class DisplayRenderer {
 
     private void onRegisterShaders(final RegisterShadersEvent event) {
         try {
+            PDAMod.LOGGER.debug("Loading display renderer shaders");
             event.registerShader(new ShaderInstance(event.getResourceProvider(),
                 new ResourceLocation(Constants.MODID, "display_blit_bw"),
                 DefaultVertexFormat.POSITION_TEX_COLOR), shader -> {

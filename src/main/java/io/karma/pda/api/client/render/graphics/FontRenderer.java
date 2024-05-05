@@ -5,10 +5,11 @@
 package io.karma.pda.api.client.render.graphics;
 
 import io.karma.pda.api.common.app.theme.font.Font;
+import io.karma.pda.api.common.color.ColorProvider;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.awt.image.BufferedImage;
+import java.util.function.IntFunction;
 
 /**
  * @author Alexander Hinze
@@ -16,5 +17,12 @@ import java.awt.image.BufferedImage;
  */
 @OnlyIn(Dist.CLIENT)
 public interface FontRenderer {
+    void renderGlyph(final int x, final int y, final int zIndex, final char c, final ColorProvider colorProvider,
+                     final Font font, final GraphicsContext context);
 
+    void render(final int x, final int y, final int zIndex, final String s, final ColorProvider colorProvider,
+                final Font font, final GraphicsContext context);
+
+    void render(final int x, final int y, final int zIndex, final String s,
+                final IntFunction<ColorProvider> colorFunction, final Font font, final GraphicsContext context);
 }

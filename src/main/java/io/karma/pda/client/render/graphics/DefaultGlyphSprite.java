@@ -14,23 +14,50 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  */
 @OnlyIn(Dist.CLIENT)
 public final class DefaultGlyphSprite implements GlyphSprite {
+    private final int width;
+    private final int height;
+    private final float minU;
+    private final float minV;
+    private final float maxU;
+    private final float maxV;
+
+    public DefaultGlyphSprite(final int width, final int height, final float minU, final float minV, final float maxU,
+                              final float maxV) {
+        this.width = width;
+        this.height = height;
+        this.minU = minU;
+        this.minV = minV;
+        this.maxU = maxU;
+        this.maxV = maxV;
+    }
+
     @Override
     public int getWidth() {
-        return 0;
+        return width;
     }
 
     @Override
     public int getHeight() {
-        return 0;
+        return height;
     }
 
     @Override
-    public float getU() {
-        return 0;
+    public float getMinU() {
+        return minU;
     }
 
     @Override
-    public float getV() {
-        return 0;
+    public float getMinV() {
+        return minV;
+    }
+
+    @Override
+    public float getMaxU() {
+        return maxU;
+    }
+
+    @Override
+    public float getMaxV() {
+        return maxV;
     }
 }

@@ -17,7 +17,11 @@ public interface GlyphSprite {
 
     int getHeight();
 
-    float getU();
+    float getMinU();
 
-    float getV();
+    float getMinV();
+
+    float getMaxU();
+
+    float getMaxV();
 }

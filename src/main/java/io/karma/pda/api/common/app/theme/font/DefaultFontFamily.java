@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.util.Exceptions;
 import io.karma.pda.api.common.util.JSONUtils;
+import io.karma.pda.common.PDAMod;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -89,6 +90,7 @@ public final class DefaultFontFamily implements FontFamily {
     private final class ReloadListener implements ResourceManagerReloadListener {
         @Override
         public void onResourceManagerReload(final @NotNull ResourceManager manager) {
+            PDAMod.LOGGER.debug("Reloading font family {}", name);
             DefaultFontFamily.this.reload(manager);
         }
     }
