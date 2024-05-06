@@ -15,6 +15,8 @@ public interface Font {
 
     FontFamily getFamily();
 
+    FontCharSet getSupportedChars();
+
     ResourceLocation getLocation();
 
     FontStyle getStyle();

@@ -25,9 +25,15 @@ public interface FontAtlas extends Disposable {
 
     Char2ObjectMap<GlyphSprite> getGlyphSprites();
 
+    int getWidth();
+
+    int getHeight();
+
     int getTextureId();
 
     void bind();
 
     void unbind();
+
+    boolean isReady();
 }

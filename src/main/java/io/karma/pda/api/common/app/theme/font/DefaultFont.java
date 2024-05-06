@@ -12,15 +12,22 @@ import net.minecraft.resources.ResourceLocation;
  */
 public final class DefaultFont implements Font {
     private final FontFamily family;
+    private final FontCharSet supportedChars;
     private final ResourceLocation location;
     private final FontStyle style;
     private final float size;
 
-    DefaultFont(final FontFamily family, final ResourceLocation location, final FontStyle style, final float size) {
+    DefaultFont(final FontFamily family, final FontCharSet supportedChars, final ResourceLocation location, final FontStyle style, final float size) {
         this.family = family;
+        this.supportedChars = supportedChars;
         this.location = location;
         this.style = style;
         this.size = size;
+    }
+
+    @Override
+    public FontCharSet getSupportedChars() {
+        return supportedChars;
     }
 
     @Override

@@ -9,17 +9,27 @@ import io.karma.pda.api.client.render.graphics.GlyphSprite;
 import io.karma.pda.api.common.app.theme.font.Font;
 import io.karma.pda.api.common.util.Exceptions;
 import io.karma.pda.common.PDAMod;
-import it.unimi.dsi.fastutil.chars.*;
+import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
+import it.unimi.dsi.fastutil.chars.Char2ObjectMaps;
+import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.chars.CharSet;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.stb.STBTTFontinfo;
+import org.lwjgl.stb.STBTTVertex;
 import org.lwjgl.stb.STBTruetype;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.util.msdfgen.MSDFGen;
+import org.lwjgl.util.msdfgen.MSDFGenBitmap;
+import org.lwjgl.util.msdfgen.MSDFGenTransform;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Alexander Hinze
@@ -27,15 +37,26 @@ import java.nio.ByteBuffer;
  */
 @OnlyIn(Dist.CLIENT)
 public final class DefaultFontAtlas implements FontAtlas {
+    private static final int SPRITE_SIZE = 16;
     private final Font font;
+    private final int sizeInSlots;
     private final DefaultGlyphSprite missingGlyphSprite;
-    private final CharOpenHashSet supportedChars = new CharOpenHashSet();
     private final Char2ObjectOpenHashMap<GlyphSprite> glyphSprites = new Char2ObjectOpenHashMap<>();
+    private final AtomicBoolean isReady = new AtomicBoolean(false);
     private int textureId;
 
     public DefaultFontAtlas(final Font font) {
         this.font = font;
-        missingGlyphSprite = new DefaultGlyphSprite((int) font.getSize(), (int) font.getSize(), 0F, 0F, 0F, 0F);
+
+        // Simple way of finding a size that fits all characters but is a power of 2
+        final var numChars = font.getSupportedChars().toSet().size();
+        int size = 2;
+        while ((size * size) < numChars) {
+            size <<= 1;
+        }
+        this.sizeInSlots = size;
+
+        missingGlyphSprite = new DefaultGlyphSprite(SPRITE_SIZE, SPRITE_SIZE, 0F, 0F, 0F, 0F);
         textureId = GL11.glGenTextures();
         if (textureId == -1) {
             throw new IllegalStateException("Could not allocate font atlas texture");
@@ -50,19 +71,52 @@ public final class DefaultFontAtlas implements FontAtlas {
         PDAMod.DISPOSITION_HANDLER.addObject(this);
     }
 
+    private static long makeShape(final STBTTVertex.Buffer data) {
+        try (final var stack = MemoryStack.stackPush()) {
+            final var shapeAddress = stack.mallocPointer(1);
+            if (MSDFGen.msdf_shape_alloc(shapeAddress) != 0) {
+                throw new OutOfMemoryError("Could not allocate shape object");
+            }
+            final var shape = shapeAddress.get();
+            if (shape == MemoryUtil.NULL) {
+                throw new NullPointerException();
+            }
+            final var contourAddress = stack.mallocPointer(1);
+            MSDFGen.msdf_shape_add_contour(shape, contourAddress);
+            final var contour = contourAddress.get();
+            if(contour == MemoryUtil.NULL) {
+                throw new NullPointerException();
+            }
+            for (final var vertex : data) {
+                try(final var innerStack = MemoryStack.stackPush()) {
+                    final var segmentAddress = innerStack.mallocPointer(1);
+                    MSDFGen.msdf_contour_add_edge(contour, segmentAddress);
+                    final var segmentType = switch(vertex.type()) {
+                        case STBTruetype.STBTT_vcurve -> 1;
+                        case STBTruetype.STBTT_vcubic -> 2;
+                        default -> 0;
+                    };
+                }
+            }
+            return shape;
+        }
+    }
+
     void rebuild() {
+        isReady.set(false);
         PDAMod.EXECUTOR_SERVICE.submit(() -> {
             final var fontLocation = font.getLocation();
-            PDAMod.LOGGER.debug("Rebuilding font atlas for font {}", fontLocation);
+            PDAMod.LOGGER.debug("Rebuilding font atlas for font {} with {}x{} slots",
+                fontLocation,
+                sizeInSlots,
+                sizeInSlots);
             synchronized (this) {
-                supportedChars.clear();
                 glyphSprites.clear();
             }
             final var resourceManager = Minecraft.getInstance().getResourceManager();
-
             try (final var stream = resourceManager.getResourceOrThrow(fontLocation).open()) {
                 final var data = stream.readAllBytes();
-                final var buffer = ByteBuffer.allocateDirect(data.length);
+                final var buffer = ByteBuffer.allocateDirect(data.length).order(ByteOrder.nativeOrder());
                 buffer.put(data);
                 buffer.flip();
                 try (final var stack = MemoryStack.stackPush()) {
@@ -70,6 +124,18 @@ public final class DefaultFontAtlas implements FontAtlas {
                     if (!STBTruetype.stbtt_InitFont(fontInfo, buffer)) {
                         throw new IOException("Could not init font info");
                     }
+                    font.getSupportedChars().forEachChar(c -> {
+                        final var glyphIndex = STBTruetype.stbtt_FindGlyphIndex(fontInfo, c);
+                        if (STBTruetype.stbtt_IsGlyphEmpty(fontInfo, glyphIndex)) {
+                            return; // We are not interested in empty glyphs
+                        }
+                        final var shape = makeShape(STBTruetype.stbtt_GetGlyphShape(fontInfo, glyphIndex));
+                        try (final var innerStack = MemoryStack.stackPush()) {
+                            final var bitmap = MSDFGenBitmap.malloc(1, innerStack);
+                            final var transform = MSDFGenTransform.calloc(1, innerStack);
+                        }
+                        MSDFGen.msdf_shape_free(shape);
+                    });
                 }
             }
             catch (Throwable error) {
@@ -77,12 +143,24 @@ public final class DefaultFontAtlas implements FontAtlas {
                     fontLocation,
                     Exceptions.toFancyString(error));
             }
+
+            isReady.set(true); // We are done processing
         });
     }
 
     @Override
-    public synchronized CharSet getSupportedChars() {
-        return CharSets.unmodifiable(supportedChars);
+    public int getWidth() {
+        return sizeInSlots * SPRITE_SIZE;
+    }
+
+    @Override
+    public int getHeight() {
+        return sizeInSlots * SPRITE_SIZE;
+    }
+
+    @Override
+    public CharSet getSupportedChars() {
+        return font.getSupportedChars().toSet();
     }
 
     @Override
@@ -119,5 +197,10 @@ public final class DefaultFontAtlas implements FontAtlas {
     @Override
     public void unbind() {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+    }
+
+    @Override
+    public boolean isReady() {
+        return isReady.get();
     }
 }

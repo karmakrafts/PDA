@@ -107,6 +107,9 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     public int renderGlyph(final int x, final int y, final int zIndex, final char c, final ColorProvider colorProvider,
                            final Font font, final GraphicsContext context) {
         final var atlas = getFontAtlas(font);
+        if (!atlas.isReady()) {
+            return 0; // Don't render anything until the atlas is rebuilt
+        }
         final var buffer = context.getBufferSource().getBuffer(RENDER_TYPE.apply(atlas));
         final var matrix = context.getTransform();
         return renderGlyph(x, y, zIndex, c, atlas, matrix, buffer, colorProvider);
@@ -116,6 +119,9 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     public void render(final int x, final int y, final int zIndex, final String s, final ColorProvider colorProvider,
                        final Font font, final GraphicsContext context) {
         final var atlas = getFontAtlas(font);
+        if (!atlas.isReady()) {
+            return; // Don't render anything until the atlas is rebuilt
+        }
         final var buffer = context.getBufferSource().getBuffer(RENDER_TYPE.apply(atlas));
         final var matrix = context.getTransform();
         var offset = 0;
@@ -128,6 +134,9 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     public void render(final int x, final int y, final int zIndex, final String s,
                        final IntFunction<ColorProvider> colorFunction, final Font font, final GraphicsContext context) {
         final var atlas = getFontAtlas(font);
+        if (!atlas.isReady()) {
+            return; // Don't render anything until the atlas is rebuilt
+        }
         final var buffer = context.getBufferSource().getBuffer(RENDER_TYPE.apply(atlas));
         final var matrix = context.getTransform();
         var offset = 0;

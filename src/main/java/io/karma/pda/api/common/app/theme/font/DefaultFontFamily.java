@@ -10,6 +10,8 @@ import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.util.Exceptions;
 import io.karma.pda.api.common.util.JSONUtils;
 import io.karma.pda.common.PDAMod;
+import it.unimi.dsi.fastutil.chars.CharCharPair;
+import it.unimi.dsi.fastutil.chars.CharConsumer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -83,7 +85,7 @@ public final class DefaultFontFamily implements FontFamily {
             if (location == null) {
                 throw new IllegalStateException(String.format("Malformed font location: %s", locationString));
             }
-            return new DefaultFont(this, location, s, size);
+            return new DefaultFont(this, config.supportedCharSet, location, s, size);
         });
     }
 
@@ -92,6 +94,31 @@ public final class DefaultFontFamily implements FontFamily {
         public void onResourceManagerReload(final @NotNull ResourceManager manager) {
             PDAMod.LOGGER.debug("Reloading font family {}", name);
             DefaultFontFamily.this.reload(manager);
+        }
+    }
+
+    public enum DefaultCharSet implements FontCharSet {
+        // @formatter:off
+        ASCII         (CharCharPair.of('!', '~')),
+        EXTENDED_ASCII(CharCharPair.of('!', '~'), CharCharPair.of('Ç', '■'));
+        // @formatter:on
+
+        private final CharCharPair[] ranges;
+
+        DefaultCharSet(final CharCharPair... ranges) {
+            this.ranges = ranges;
+        }
+
+        public CharCharPair[] getRanges() {
+            return ranges;
+        }
+
+        public void forEachChar(final CharConsumer consumer) {
+            for (final var range : ranges) {
+                for (char c = range.leftChar(); c < range.rightChar(); c++) {
+                    consumer.accept(c);
+                }
+            }
         }
     }
 
@@ -104,6 +131,8 @@ public final class DefaultFontFamily implements FontFamily {
         public String name;
         @JsonProperty("default_size")
         public float defaultSize;
+        @JsonProperty("supported_char_set")
+        public DefaultCharSet supportedCharSet;
         @JsonProperty
         public HashMap<FontStyle, String> variants = new HashMap<>();
     }
