@@ -129,7 +129,6 @@ dependencies {
     library files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT.jar')
     library files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-linux.jar')
     library files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-macos.jar')
-    library files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-macos-arm64.jar')
     library files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-windows.jar')
     compileOnly files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-javadoc.jar')
     compileOnly files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-sources.jar')
@@ -180,7 +179,6 @@ shadowJar {
         include dependency(files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT.jar'))
         include dependency(files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-linux.jar'))
         include dependency(files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-macos.jar'))
-        include dependency(files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-macos-arm64.jar'))
         include dependency(files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-windows.jar'))
     }
 }
