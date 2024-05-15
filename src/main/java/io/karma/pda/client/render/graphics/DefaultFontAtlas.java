@@ -8,27 +8,24 @@ import io.karma.pda.api.client.render.graphics.FontAtlas;
 import io.karma.pda.api.client.render.graphics.GlyphSprite;
 import io.karma.pda.api.common.app.theme.font.Font;
 import io.karma.pda.api.common.util.Exceptions;
+import io.karma.pda.client.util.TextureUtils;
 import io.karma.pda.common.PDAMod;
 import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectMaps;
 import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.chars.CharSet;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.stb.STBTTFontinfo;
-import org.lwjgl.stb.STBTTVertex;
-import org.lwjgl.stb.STBTruetype;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.msdfgen.MSDFGen;
-import org.lwjgl.util.msdfgen.MSDFGenBitmap;
-import org.lwjgl.util.msdfgen.MSDFGenTransform;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.nio.file.Files;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -37,69 +34,51 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @OnlyIn(Dist.CLIENT)
 public final class DefaultFontAtlas implements FontAtlas {
-    private static final int SPRITE_SIZE = 16;
     private final Font font;
+    private final int spriteSize;
     private final int sizeInSlots;
     private final DefaultGlyphSprite missingGlyphSprite;
     private final Char2ObjectOpenHashMap<GlyphSprite> glyphSprites = new Char2ObjectOpenHashMap<>();
     private final AtomicBoolean isReady = new AtomicBoolean(false);
     private int textureId;
 
-    public DefaultFontAtlas(final Font font) {
+    public DefaultFontAtlas(final Font font, final int spriteSize) {
         this.font = font;
+        this.spriteSize = spriteSize;
 
         // Simple way of finding a size that fits all characters but is a power of 2
+        final var maxSize = GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE) / spriteSize;
         final var numChars = font.getSupportedChars().toSet().size();
         int size = 2;
         while ((size * size) < numChars) {
+            if (size > maxSize) {
+                throw new IllegalStateException("Font atlas too large, not supported yet");
+            }
             size <<= 1;
         }
         this.sizeInSlots = size;
 
-        missingGlyphSprite = new DefaultGlyphSprite(SPRITE_SIZE, SPRITE_SIZE, 0F, 0F, 0F, 0F);
-        textureId = GL11.glGenTextures();
-        if (textureId == -1) {
-            throw new IllegalStateException("Could not allocate font atlas texture");
-        }
-        bind();
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-        unbind();
+        // @formatter:off
+        missingGlyphSprite = new DefaultGlyphSprite(new DefaultGlyphMetrics(spriteSize, spriteSize, 0, 0, 0, spriteSize, 0),
+            spriteSize, spriteSize, 0F, 0F, 0F, 0F);
+        // @formatter:on
+        textureId = TextureUtils.createTexture();
         rebuild();
         PDAMod.DISPOSITION_HANDLER.addObject(this);
     }
 
-    private static long makeShape(final STBTTVertex.Buffer data) {
-        try (final var stack = MemoryStack.stackPush()) {
-            final var shapeAddress = stack.mallocPointer(1);
-            if (MSDFGen.msdf_shape_alloc(shapeAddress) != 0) {
-                throw new OutOfMemoryError("Could not allocate shape object");
-            }
-            final var shape = shapeAddress.get();
-            if (shape == MemoryUtil.NULL) {
-                throw new NullPointerException();
-            }
-            final var contourAddress = stack.mallocPointer(1);
-            MSDFGen.msdf_shape_add_contour(shape, contourAddress);
-            final var contour = contourAddress.get();
-            if(contour == MemoryUtil.NULL) {
-                throw new NullPointerException();
-            }
-            for (final var vertex : data) {
-                try(final var innerStack = MemoryStack.stackPush()) {
-                    final var segmentAddress = innerStack.mallocPointer(1);
-                    MSDFGen.msdf_contour_add_edge(contour, segmentAddress);
-                    final var segmentType = switch(vertex.type()) {
-                        case STBTruetype.STBTT_vcurve -> 1;
-                        case STBTruetype.STBTT_vcubic -> 2;
-                        default -> 0;
-                    };
-                }
-            }
-            return shape;
+    private static void dump(final BufferedImage image, final ResourceLocation location) throws IOException {
+        final var directory = FMLLoader.getGamePath().resolve("pda");
+        if (!Files.exists(directory)) {
+            Files.createDirectories(directory);
         }
+        final var fileName = String.format("%s_%s.png", location.getNamespace(), location.getPath().replace('/', '_'));
+        final var filePath = directory.resolve(fileName);
+        Files.deleteIfExists(filePath);
+        try (final var outStream = Files.newOutputStream(filePath)) {
+            ImageIO.write(image, "PNG", outStream);
+        }
+        PDAMod.LOGGER.debug("Dumped font atlas for {} to {}", location, filePath);
     }
 
     void rebuild() {
@@ -114,29 +93,21 @@ public final class DefaultFontAtlas implements FontAtlas {
                 glyphSprites.clear();
             }
             final var resourceManager = Minecraft.getInstance().getResourceManager();
-            try (final var stream = resourceManager.getResourceOrThrow(fontLocation).open()) {
-                final var data = stream.readAllBytes();
-                final var buffer = ByteBuffer.allocateDirect(data.length).order(ByteOrder.nativeOrder());
-                buffer.put(data);
-                buffer.flip();
-                try (final var stack = MemoryStack.stackPush()) {
-                    final var fontInfo = STBTTFontinfo.malloc(stack);
-                    if (!STBTruetype.stbtt_InitFont(fontInfo, buffer)) {
-                        throw new IOException("Could not init font info");
-                    }
-                    font.getSupportedChars().forEachChar(c -> {
-                        final var glyphIndex = STBTruetype.stbtt_FindGlyphIndex(fontInfo, c);
-                        if (STBTruetype.stbtt_IsGlyphEmpty(fontInfo, glyphIndex)) {
-                            return; // We are not interested in empty glyphs
-                        }
-                        final var shape = makeShape(STBTruetype.stbtt_GetGlyphShape(fontInfo, glyphIndex));
-                        try (final var innerStack = MemoryStack.stackPush()) {
-                            final var bitmap = MSDFGenBitmap.malloc(1, innerStack);
-                            final var transform = MSDFGenTransform.calloc(1, innerStack);
-                        }
-                        MSDFGen.msdf_shape_free(shape);
-                    });
-                }
+            try (final var fontShapes = new MSDFFont(resourceManager.getResourceOrThrow(fontLocation).open())) {
+                // TODO: Finish implementing this
+                final var shape = fontShapes.createGlyphShape('B');
+                //MSDFGenUtil.throwIfError(MSDFGen.msdf_shape_edge_colors_ink_trap(shape, 3.0));
+                final var image = MSDFGenUtil.renderShapeToImage(MSDFGen.MSDF_BITMAP_TYPE_PSDF,
+                    32,
+                    32,
+                    shape,
+                    1,
+                    1,
+                    4,
+                    4,
+                    2);
+                dump(image, fontLocation);
+                MSDFGen.msdf_shape_free(shape);
             }
             catch (Throwable error) {
                 PDAMod.LOGGER.error("Could not rebuild font atlas for font {}: {}",
@@ -150,12 +121,12 @@ public final class DefaultFontAtlas implements FontAtlas {
 
     @Override
     public int getWidth() {
-        return sizeInSlots * SPRITE_SIZE;
+        return sizeInSlots * spriteSize;
     }
 
     @Override
     public int getHeight() {
-        return sizeInSlots * SPRITE_SIZE;
+        return sizeInSlots * spriteSize;
     }
 
     @Override

@@ -10,8 +10,7 @@ import io.karma.pda.api.common.API;
 import io.karma.pda.api.common.util.Exceptions;
 import io.karma.pda.api.common.util.JSONUtils;
 import io.karma.pda.common.PDAMod;
-import it.unimi.dsi.fastutil.chars.CharCharPair;
-import it.unimi.dsi.fastutil.chars.CharConsumer;
+import it.unimi.dsi.fastutil.ints.IntIntPair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -99,26 +98,19 @@ public final class DefaultFontFamily implements FontFamily {
 
     public enum DefaultCharSet implements FontCharSet {
         // @formatter:off
-        ASCII         (CharCharPair.of('!', '~')),
-        EXTENDED_ASCII(CharCharPair.of('!', '~'), CharCharPair.of('Ç', '■'));
+        ASCII         (IntIntPair.of(0x20, 0x7E)),
+        EXTENDED_ASCII(IntIntPair.of(0x20, 0x7E), IntIntPair.of(0x80, 0xFF)); // TODO: implement proper character range
         // @formatter:on
 
-        private final CharCharPair[] ranges;
+        private final IntIntPair[] ranges;
 
-        DefaultCharSet(final CharCharPair... ranges) {
+        DefaultCharSet(final IntIntPair... ranges) {
             this.ranges = ranges;
         }
 
-        public CharCharPair[] getRanges() {
+        @Override
+        public IntIntPair[] getRanges() {
             return ranges;
-        }
-
-        public void forEachChar(final CharConsumer consumer) {
-            for (final var range : ranges) {
-                for (char c = range.leftChar(); c < range.rightChar(); c++) {
-                    consumer.accept(c);
-                }
-            }
         }
     }
 

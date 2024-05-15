@@ -99,8 +99,8 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     }
 
     @Override
-    public FontAtlas getFontAtlas(Font font) {
-        return fontAtlasCache.computeIfAbsent(font.getLocation(), location -> new DefaultFontAtlas(font));
+    public FontAtlas getFontAtlas(final Font font) {
+        return fontAtlasCache.computeIfAbsent(font.getLocation(), location -> new DefaultFontAtlas(font, 32));
     }
 
     @Override

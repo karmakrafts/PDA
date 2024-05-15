@@ -5,6 +5,7 @@
 package io.karma.pda.client.render.display;
 
 import io.karma.pda.api.common.dispose.Disposable;
+import io.karma.pda.client.util.TextureUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;
@@ -26,24 +27,10 @@ public final class DisplayFramebuffer implements Disposable {
     private int height;
 
     public DisplayFramebuffer(final int initialWidth, final int initialHeight) {
-        textureId = GL11.glGenTextures();
-        depthTextureId = GL11.glGenTextures();
-
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
-        applyTextureParams();
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, depthTextureId);
-        applyTextureParams();
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-
+        textureId = TextureUtils.createTexture();
+        depthTextureId = TextureUtils.createTexture();
         id = GL30.glGenFramebuffers();
         resize(initialWidth, initialHeight);
-    }
-
-    private static void applyTextureParams() {
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_CLAMP);
     }
 
     @Override

@@ -23,7 +23,8 @@ public interface FontFamily {
     Font getFont(final FontStyle style, final float size);
 
     @SuppressWarnings("all")
-    @NotNull static FontFamily nullType() {
+    @NotNull
+    static FontFamily nullType() {
         return null;
     }
 }

@@ -9,21 +9,21 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 /**
  * @author Alexander Hinze
- * @since 04/05/2024
+ * @since 10/05/2024
  */
 @OnlyIn(Dist.CLIENT)
-public interface GlyphSprite {
-    GlyphMetrics getMetrics();
-
+public interface GlyphMetrics {
     int getWidth();
 
     int getHeight();
 
-    float getMinU();
+    int getAscent();
 
-    float getMinV();
+    int getDescent();
 
-    float getMaxU();
+    int getLineGap();
 
-    float getMaxV();
+    int getAdvance();
+
+    int getLeftSideBearing();
 }

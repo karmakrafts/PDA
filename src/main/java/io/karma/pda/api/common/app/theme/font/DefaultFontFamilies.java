@@ -16,6 +16,8 @@ public final class DefaultFontFamilies {
 
     @ObjectHolder(value = Constants.MODID + ":fixedsys", registryName = REGISTRY_NAME)
     public static final FontFamily FIXEDSYS = FontFamily.nullType();
+    @ObjectHolder(value = Constants.MODID + ":figtree", registryName = REGISTRY_NAME)
+    public static final FontFamily FIGTREE = FontFamily.nullType();
 
     // @formatter:off
     private DefaultFontFamilies() {}

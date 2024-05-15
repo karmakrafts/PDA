@@ -4,6 +4,7 @@
 
 package io.karma.pda.client.render.graphics;
 
+import io.karma.pda.api.client.render.graphics.GlyphMetrics;
 import io.karma.pda.api.client.render.graphics.GlyphSprite;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -14,6 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  */
 @OnlyIn(Dist.CLIENT)
 public final class DefaultGlyphSprite implements GlyphSprite {
+    private final GlyphMetrics metrics;
     private final int width;
     private final int height;
     private final float minU;
@@ -21,14 +23,20 @@ public final class DefaultGlyphSprite implements GlyphSprite {
     private final float maxU;
     private final float maxV;
 
-    public DefaultGlyphSprite(final int width, final int height, final float minU, final float minV, final float maxU,
-                              final float maxV) {
+    public DefaultGlyphSprite(final GlyphMetrics metrics, final int width, final int height, final float minU,
+                              final float minV, final float maxU, final float maxV) {
+        this.metrics = metrics;
         this.width = width;
         this.height = height;
         this.minU = minU;
         this.minV = minV;
         this.maxU = maxU;
         this.maxV = maxV;
+    }
+
+    @Override
+    public GlyphMetrics getMetrics() {
+        return metrics;
     }
 
     @Override

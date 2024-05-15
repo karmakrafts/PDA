@@ -24,6 +24,7 @@ public final class ModFontFamilies {
     public static void register() {
         PDAMod.LOGGER.debug("Registering font families");
         register("fixedsys", DefaultFontFamily::new);
+        register("figtree", DefaultFontFamily::new);
     }
 
     private static void register(final String name, final Function<ResourceLocation, FontFamily> factory) {

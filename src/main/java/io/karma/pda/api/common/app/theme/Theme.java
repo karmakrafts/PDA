@@ -21,7 +21,8 @@ public interface Theme {
     FontSet getFontSet();
 
     @SuppressWarnings("all")
-    @NotNull static Theme nullType() {
+    @NotNull
+    static Theme nullType() {
         return null;
     }
 }

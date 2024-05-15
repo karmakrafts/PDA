@@ -22,7 +22,7 @@ public final class LabelRenderer extends AbstractComponentRenderer<Label> {
     @Override
     public void render(final Label component, final FlexNode flexNode, final Graphics graphics) {
         try (final var state = graphics.pushState()) {
-            state.setFont(DefaultFontFamilies.FIXEDSYS.getFont(FontStyle.REGULAR, 12F));
+            state.setFont(DefaultFontFamilies.FIGTREE.getFont(FontStyle.REGULAR, 12F));
             state.setBrush(graphics.getContext().getBrushFactory().create(component.color.get()));
             graphics.text(flexNode.getAbsoluteX(), flexNode.getAbsoluteY(), component.text.get());
         }
