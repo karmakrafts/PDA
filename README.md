@@ -22,7 +22,7 @@ Currently, the mod is built and tested on the following systems:
 | Platform | Architecture | Status |
 |----------|--------------|--------|
 | Windows  | i386         | ❌      |
-| Windows  | x64          | 🛠️      |
+| Windows  | x64          | ✅      |
 | Windows  | arm64        | 🛠️    |
 | Linux    | i386         | ❌      |
 | Linux    | x64          | ✅      |
@@ -30,8 +30,8 @@ Currently, the mod is built and tested on the following systems:
 | Linux    | arm32hf      | ❌      |
 | Linux    | arm64        | 🛠️    |
 | Linux    | riscv64      | 🛠️    |
-| macOS    | x64          | 🛠️      |
-| macOS    | arm64        | 🛠️    |
+| macOS    | x64          | ✅      |
+| macOS    | arm64        | ✅    |
 
 ❌ Currently unsupported | 🛠️ Being worked on | ✅ Supported
 

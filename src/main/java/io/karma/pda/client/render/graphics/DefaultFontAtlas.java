@@ -14,13 +14,16 @@ import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectMaps;
 import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.chars.CharSet;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.loading.FMLLoader;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.msdfgen.MSDFGen;
+import org.lwjgl.util.msdfgen.MSDFGenBounds;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -81,41 +84,51 @@ public final class DefaultFontAtlas implements FontAtlas {
         PDAMod.LOGGER.debug("Dumped font atlas for {} to {}", location, filePath);
     }
 
+    private void rebuildBlocking() {
+        final var fontLocation = font.getLocation();
+        PDAMod.LOGGER.debug("Rebuilding font atlas for font {} with {}x{} slots",
+            fontLocation,
+            sizeInSlots,
+            sizeInSlots);
+        synchronized (this) {
+            glyphSprites.clear();
+        }
+        final var resourceManager = Minecraft.getInstance().getResourceManager();
+        try (final var fontShapes = new MSDFFont(resourceManager.getResourceOrThrow(fontLocation).open())) {
+            final var stack = MemoryStack.stackGet();
+            final var previousSP = stack.getPointer();
+
+            final var unitSize = (double)fontShapes.getFace().units_per_EM() / 64.0;
+            PDAMod.LOGGER.debug("Computed face unit size: {}", String.format("%.04f", unitSize));
+
+            final var chars = font.getSupportedChars().toArray();
+            final var shapes = new LongArrayList(chars.length);
+            // Extract vector shape for every glyph
+            final var boundsBuffer = MSDFGenBounds.malloc(1, stack);
+            for (char c : chars) {
+                final var shape = fontShapes.createGlyphShape(c);
+                MSDFGenUtil.throwIfError(MSDFGen.msdf_shape_get_bounds(shape, boundsBuffer));
+
+                PDAMod.LOGGER.debug("Calculated ");
+                shapes.add(shape);
+            }
+            // Free every glyph shape after processing is done
+            shapes.forEach(MSDFGen::msdf_shape_free);
+
+            stack.setPointer(previousSP);
+        }
+        catch (Throwable error) {
+            PDAMod.LOGGER.error("Could not rebuild font atlas for font {}: {}",
+                fontLocation,
+                Exceptions.toFancyString(error));
+        }
+    }
+
     void rebuild() {
         isReady.set(false);
         PDAMod.EXECUTOR_SERVICE.submit(() -> {
-            final var fontLocation = font.getLocation();
-            PDAMod.LOGGER.debug("Rebuilding font atlas for font {} with {}x{} slots",
-                fontLocation,
-                sizeInSlots,
-                sizeInSlots);
-            synchronized (this) {
-                glyphSprites.clear();
-            }
-            final var resourceManager = Minecraft.getInstance().getResourceManager();
-            try (final var fontShapes = new MSDFFont(resourceManager.getResourceOrThrow(fontLocation).open())) {
-                // TODO: Finish implementing this
-                final var shape = fontShapes.createGlyphShape('B');
-                //MSDFGenUtil.throwIfError(MSDFGen.msdf_shape_edge_colors_ink_trap(shape, 3.0));
-                final var image = MSDFGenUtil.renderShapeToImage(MSDFGen.MSDF_BITMAP_TYPE_PSDF,
-                    32,
-                    32,
-                    shape,
-                    1,
-                    1,
-                    4,
-                    4,
-                    2);
-                dump(image, fontLocation);
-                MSDFGen.msdf_shape_free(shape);
-            }
-            catch (Throwable error) {
-                PDAMod.LOGGER.error("Could not rebuild font atlas for font {}: {}",
-                    fontLocation,
-                    Exceptions.toFancyString(error));
-            }
-
-            isReady.set(true); // We are done processing
+            rebuildBlocking();
+            isReady.set(true);
         });
     }
 

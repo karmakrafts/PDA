@@ -4,7 +4,7 @@
 
 package io.karma.pda.api.common.app.theme.font;
 
-import io.karma.pda.api.common.util.CharIntConsumer;
+import it.unimi.dsi.fastutil.chars.CharArrayList;
 import it.unimi.dsi.fastutil.chars.CharOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
 
@@ -15,18 +15,31 @@ import it.unimi.dsi.fastutil.ints.IntIntPair;
 public interface FontCharSet {
     IntIntPair[] getRanges();
 
-    default void forEachChar(final CharIntConsumer consumer) {
-        var index = 0;
+    default int getCharCount() {
+        var charCount = 0;
         for (final var range : getRanges()) {
-            for (var c = range.leftInt(); c < range.rightInt(); c++) {
-                consumer.accept((char) c, index++);
+            charCount += range.rightInt() - range.leftInt();
+        }
+        return charCount;
+    }
+
+    default char[] toArray() {
+        final var chars = new CharArrayList(getCharCount());
+        for (final var range : getRanges()) {
+            for (var i = range.leftInt(); i < range.rightInt(); i++) {
+                chars.add((char) i);
             }
         }
+        return chars.toCharArray();
     }
 
     default CharOpenHashSet toSet() {
-        final var set = new CharOpenHashSet();
-        forEachChar((c, i) -> set.add(c));
+        final var set = new CharOpenHashSet(getCharCount());
+        for (final var range : getRanges()) {
+            for (var i = range.leftInt(); i < range.rightInt(); i++) {
+                set.add((char) i);
+            }
+        }
         return set;
     }
 }

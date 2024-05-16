@@ -145,7 +145,7 @@ public final class MSDFFont implements AutoCloseable {
                 final var contourCount = contourCountBuffer.get();
                 final var contourAddressBuffer = stack.mallocPointer(1);
                 for (long i = 0; i < contourCount; i++) {
-                    contourAddressBuffer.reset();
+                    contourAddressBuffer.rewind();
                     MSDFGenUtil.throwIfError(MSDFGen.msdf_shape_get_contour(shape, i, contourAddressBuffer));
                     MSDFGenUtil.throwIfError(MSDFGen.msdf_contour_reverse(Checks.check(contourAddressBuffer.get())));
                 }
@@ -156,19 +156,16 @@ public final class MSDFFont implements AutoCloseable {
         return shape;
     }
 
-    public FT_GlyphSlot getGlyph(final char c, final int size) {
-        FreeType.FT_Set_Pixel_Sizes(face,
-            0,
-            size); // TODO: check if request size is available, and if not, search for a fitting one
+    public FT_GlyphSlot getGlyph(final char c) {
         final var charIndex = FreeType.FT_Get_Char_Index(face, c);
-        if (FreeType.FT_Load_Glyph(face, charIndex, FreeType.FT_LOAD_RENDER) != FreeType.FT_Err_Ok) {
+        if (FreeType.FT_Load_Glyph(face, charIndex, FreeType.FT_LOAD_NO_SCALE) != FreeType.FT_Err_Ok) {
             throw new IllegalStateException("Could not load glyph");
         }
         return Objects.requireNonNull(face.glyph());
     }
 
-    public DefaultGlyphMetrics getGlyphMetrics(final char c, final int size) {
-        final var glyph = getGlyph(c, size);
+    public DefaultGlyphMetrics getGlyphMetrics(final char c) {
+        final var glyph = getGlyph(c);
         final var ascent = face.ascender() >> 6;
         final var descent = face.descender() >> 6;
         final var advance = (int) (glyph.advance().x() >> 6);
@@ -176,6 +173,7 @@ public final class MSDFFont implements AutoCloseable {
         final var width = (int) (metrics.width() >> 6);
         final var height = (int) (metrics.height() >> 6);
         final var lsb = (int) (metrics.horiBearingX() >> 6);
+
         return new DefaultGlyphMetrics(width, height, ascent, descent, 0, advance, lsb);
     }
 

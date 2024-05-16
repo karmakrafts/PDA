@@ -8,10 +8,7 @@ import net.minecraft.util.Mth;
 import org.lwjgl.system.Checks;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.util.msdfgen.MSDFGen;
-import org.lwjgl.util.msdfgen.MSDFGenBitmap;
-import org.lwjgl.util.msdfgen.MSDFGenMultichannelConfig;
-import org.lwjgl.util.msdfgen.MSDFGenTransform;
+import org.lwjgl.util.msdfgen.*;
 
 import java.awt.image.BufferedImage;
 
@@ -25,6 +22,42 @@ public final class MSDFGenUtil {
     // @formatter:off
     private MSDFGenUtil() {}
     // @formatter:on
+
+    private static void scaleShape(final long shape, final double scale) {
+        final var stack = MemoryStack.stackGet();
+        final var previousSP = stack.getPointer();
+
+        final var countBuffer = stack.mallocPointer(1);
+        throwIfError(MSDFGen.msdf_shape_get_contour_count(shape, countBuffer));
+        final var contourCount = countBuffer.get();
+        final var addressBuffer = stack.mallocPointer(1);
+        final var pos = MSDFGenVector2.malloc(1, stack);
+        for (long i = 0; i < contourCount; i++) {
+            addressBuffer.rewind();
+            throwIfError(MSDFGen.msdf_shape_get_contour(shape, i, addressBuffer));
+            final var contour = Checks.check(addressBuffer.get());
+            countBuffer.rewind();
+            throwIfError(MSDFGen.msdf_contour_get_edge_count(contour, countBuffer));
+            final var edgeCount = countBuffer.get();
+            for (long j = 0; j < edgeCount; j++) {
+                addressBuffer.rewind();
+                throwIfError(MSDFGen.msdf_contour_get_edge(contour, j, addressBuffer));
+                final var segment = Checks.check(addressBuffer.get());
+                countBuffer.rewind();
+                throwIfError(MSDFGen.msdf_segment_get_point_count(segment, countBuffer));
+                final var pointCount = countBuffer.get();
+                for (long k = 0; k < pointCount; k++) {
+                    pos.rewind();
+                    throwIfError(MSDFGen.msdf_segment_get_point(segment, k, pos));
+                    pos.x(pos.x() * scale);
+                    pos.y(pos.y() * scale);
+                    throwIfError(MSDFGen.msdf_segment_set_point(segment, k, pos));
+                }
+            }
+        }
+
+        stack.setPointer(previousSP);
+    }
 
     /**
      * Throws an {@link MSDFGenException} if the given result is not
@@ -51,29 +84,34 @@ public final class MSDFGenUtil {
         }
     }
 
+    private static int getChannel(final long address, final int index) {
+        final var raw = MemoryUtil.memGetFloat(address + ((long) Float.BYTES * index));
+        return ~(int) (255.5F - 255F * Mth.clamp(raw, 0.0F, 1.0F)) & 0xFF;
+    }
+
     private static int getBitmapPixel1(final long address, final int x, final int y, final int width) {
         final var pixelIndex = y * width + x;
         final var pixelAddress = address + ((long) Float.BYTES * pixelIndex);
-        final var r = ~(int) (255.5F - 255F * Mth.clamp(MemoryUtil.memGetFloat(pixelAddress), 0.0F, 1.0F)) & 0xFF;
+        final var r = getChannel(pixelAddress, 0);
         return (0xFF << 24) | (r << 16) | (r << 8) | r;
     }
 
     private static int getBitmapPixel3(final long address, final int x, final int y, final int width) {
         final var pixelIndex = y * width + x;
         final var pixelAddress = address + ((long) Float.BYTES * 3 * pixelIndex);
-        final var r = (int) (MemoryUtil.memGetFloat(pixelAddress) * 255F);
-        final var g = (int) (MemoryUtil.memGetFloat(pixelAddress + Float.BYTES) * 255F);
-        final var b = (int) (MemoryUtil.memGetFloat(pixelAddress + Float.BYTES * 2) * 255F);
+        final var r = getChannel(pixelAddress, 0);
+        final var g = getChannel(pixelAddress, 1);
+        final var b = getChannel(pixelAddress, 2);
         return (0xFF << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
     }
 
     private static int getBitmapPixel4(final long address, final int x, final int y, final int width) {
         final var pixelIndex = y * width + x;
         final var pixelAddress = address + ((long) Float.BYTES * 4 * pixelIndex);
-        final var r = (int) (MemoryUtil.memGetFloat(pixelAddress) * 255F);
-        final var g = (int) (MemoryUtil.memGetFloat(pixelAddress + Float.BYTES) * 255F);
-        final var b = (int) (MemoryUtil.memGetFloat(pixelAddress + Float.BYTES * 2) * 255F);
-        final var a = (int) (MemoryUtil.memGetFloat(pixelAddress + Float.BYTES * 3) * 255F);
+        final var r = getChannel(pixelAddress, 0);
+        final var g = getChannel(pixelAddress, 1);
+        final var b = getChannel(pixelAddress, 2);
+        final var a = getChannel(pixelAddress, 3);
         return ((a & 0xFF) << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
     }
 
@@ -111,7 +149,7 @@ public final class MSDFGenUtil {
 
         for (var y = 0; y < height; y++) {
             for (var x = 0; x < width; x++) {
-                dst.setRGB(dstX + x, dstY + y, pixelGetter.get(address, x, height - 1 - y, width));
+                dst.setRGB(dstX + x, dstY + y, pixelGetter.get(address, x, height - y - 1, width));
             }
         }
 
