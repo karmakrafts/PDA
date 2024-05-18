@@ -21,8 +21,8 @@ public final class DefaultGlyphSprite implements GlyphSprite {
     private final float u;
     private final float v;
 
-    public DefaultGlyphSprite(final GlyphMetrics metrics, final int width, final int height,
-                              final float u, final float v) {
+    public DefaultGlyphSprite(final GlyphMetrics metrics, final int width, final int height, final float u,
+                              final float v) {
         this.metrics = metrics;
         this.width = width;
         this.height = height;
