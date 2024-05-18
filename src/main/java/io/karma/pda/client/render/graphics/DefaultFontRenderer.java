@@ -102,7 +102,7 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     @Override
     public FontAtlas getFontAtlas(final Font font) {
         return fontAtlasCache.computeIfAbsent(font.getLocation(),
-            location -> new DefaultFontAtlas(font, 64, 0, 1.0, MSDFGen.MSDF_BITMAP_TYPE_MSDF));
+            location -> new DefaultFontAtlas(font, 32, 4, 4.0, MSDFGen.MSDF_BITMAP_TYPE_MSDF));
     }
 
     @Override

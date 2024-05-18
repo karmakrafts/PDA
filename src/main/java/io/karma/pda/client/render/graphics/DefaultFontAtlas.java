@@ -18,12 +18,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.loading.FMLLoader;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.msdfgen.MSDFGen;
 import org.lwjgl.util.msdfgen.MSDFGenBounds;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -43,6 +44,7 @@ public final class DefaultFontAtlas implements FontAtlas {
     private final Char2ObjectOpenHashMap<GlyphSprite> glyphSprites = new Char2ObjectOpenHashMap<>();
     private final AtomicBoolean isReady = new AtomicBoolean(false);
     private int textureId;
+    private final Image missingGlyphImage;
 
     public DefaultFontAtlas(final Font font, final int spriteSize, final int spriteBorder, final double sdfRange,
                             final int renderType) {
@@ -51,6 +53,16 @@ public final class DefaultFontAtlas implements FontAtlas {
         this.spriteBorder = spriteBorder;
         this.sdfRange = sdfRange;
         this.renderType = renderType;
+
+        // Set up missing glyph image
+        final var missingGlyphImage = new BufferedImage(2, 2, BufferedImage.TYPE_INT_ARGB);
+        missingGlyphImage.setRGB(0, 0, 0xFF7700FF);
+        missingGlyphImage.setRGB(1, 0, 0xFFFF0088);
+        missingGlyphImage.setRGB(1, 1, 0xFF7700FF);
+        missingGlyphImage.setRGB(0, 1, 0xFFFF0088);
+        this.missingGlyphImage = missingGlyphImage.getScaledInstance(spriteSize,
+            spriteSize,
+            BufferedImage.SCALE_REPLICATE);
 
         // Simple way of finding a size that fits all characters but is a power of 2
         final var maxSize = GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE) / spriteSize;
@@ -73,20 +85,27 @@ public final class DefaultFontAtlas implements FontAtlas {
         PDAMod.DISPOSITION_HANDLER.addObject(this);
     }
 
-    private static void dump(final BufferedImage image, final ResourceLocation location) throws IOException {
-        final var directory = FMLLoader.getGamePath().resolve("pda");
-        if (!Files.exists(directory)) {
-            Files.createDirectories(directory);
+    private static void dump(final BufferedImage image, final ResourceLocation location) {
+        try {
+            final var directory = FMLLoader.getGamePath().resolve("pda");
+            if (!Files.exists(directory)) {
+                Files.createDirectories(directory);
+            }
+            final var fileName = String.format("%s_%s.png",
+                location.getNamespace(),
+                location.getPath().replace('/', '_'));
+            final var filePath = directory.resolve(fileName);
+            Files.deleteIfExists(filePath);
+            try (final var outStream = Files.newOutputStream(filePath)) {
+                ImageIO.write(image, "PNG", outStream);
+            }
+            PDAMod.LOGGER.debug("Dumped font atlas for {} to {}", location, filePath);
         }
-        final var fileName = String.format("%s_%s.png", location.getNamespace(), location.getPath().replace('/', '_'));
-        final var filePath = directory.resolve(fileName);
-        Files.deleteIfExists(filePath);
-        try (final var outStream = Files.newOutputStream(filePath)) {
-            ImageIO.write(image, "PNG", outStream);
+        catch (Throwable error) {
+            PDAMod.LOGGER.error("Could not dump font atlas {}: {}", location, Exceptions.toFancyString(error));
         }
-        PDAMod.LOGGER.debug("Dumped font atlas for {} to {}", location, filePath);
     }
-    
+
     private void rebuildBlocking() {
         final var fontLocation = font.getLocation();
         PDAMod.LOGGER.debug("Rebuilding font atlas for font {} with {}x{} slots",
@@ -96,20 +115,30 @@ public final class DefaultFontAtlas implements FontAtlas {
         synchronized (this) {
             glyphSprites.clear();
         }
-        final var resourceManager = Minecraft.getInstance().getResourceManager();
-        try (final var fontShapes = new MSDFFont(resourceManager.getResourceOrThrow(fontLocation).open())) {
-            final var stack = MemoryStack.stackGet();
-            final var previousSP = stack.getPointer();
 
+        final var stack = MemoryStack.stackGet();
+        final var previousSP = stack.getPointer();
+
+        final var resourceManager = Minecraft.getInstance().getResourceManager();
+        final var atlasImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+        final var atlasGraphics = atlasImage.createGraphics();
+        final var shapes = new Char2LongLinkedOpenHashMap();
+        final var boundsBuffer = MSDFGenBounds.malloc(1, stack);
+        var maxWidth = 0.0;
+        var maxHeight = 0.0;
+
+        try (final var fontShapes = new MSDFFont(resourceManager.getResourceOrThrow(fontLocation).open())) {
             final var chars = font.getSupportedChars().toArray();
-            final var atlasImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
-            final var shapes = new Char2LongLinkedOpenHashMap();
-            final var boundsBuffer = MSDFGenBounds.malloc(1, stack);
-            var maxWidth = 0.0;
-            var maxHeight = 0.0;
+            final var numChars = chars.length;
             // Extract vector shape for every glyph and determine common scaling factor
-            for (final var c : chars) {
+            for (var i = 0; i < numChars; i++) {
+                final var c = chars[i];
                 final var shape = fontShapes.createGlyphShape(c);
+                // Index 0 is always the exceptions since that's the space character
+                if (i > 0 && (fontShapes.isGlyphEmpty(c) || MSDFGenUtil.isShapeEmpty(shape))) {
+                    shapes.put(c, MemoryUtil.NULL);
+                    continue;
+                }
                 boundsBuffer.rewind();
                 MSDFGenUtil.throwIfError(MSDFGen.msdf_shape_get_bounds(shape, boundsBuffer));
                 final var width = boundsBuffer.r() - boundsBuffer.l();
@@ -122,41 +151,64 @@ public final class DefaultFontAtlas implements FontAtlas {
                 }
                 shapes.put(c, shape);
             }
-            final var scale = (double) spriteSize / Math.max(maxWidth, maxHeight);
-            // Render glyphs to atlas image
-            var index = 0;
-            for (final var entry : shapes.char2LongEntrySet()) {
-                final var shape = entry.getLongValue();
-                MSDFGenUtil.scaleShape(shape, scale); // Scale to default size of font
-                MSDFGenUtil.throwIfError(MSDFGen.msdf_shape_edge_colors_simple(shape, 3.0));
-                boundsBuffer.rewind();
-                MSDFGenUtil.throwIfError(MSDFGen.msdf_shape_get_bounds(shape, boundsBuffer));
-                final var tx = -boundsBuffer.l();
-                final var ty = -boundsBuffer.b() + (spriteSize - (boundsBuffer.t() - boundsBuffer.b()));
-                MSDFGenUtil.renderShapeToImage(renderType,
-                    spriteSize,
-                    spriteSize,
-                    shape,
-                    1.0,
-                    1.0,
-                    tx,
-                    ty,
-                    sdfRange,
-                    atlasImage,
-                    (index % sizeInSlots) * spriteSize,
-                    (index / sizeInSlots) * spriteSize);
-                MSDFGen.msdf_shape_free(shape);
-                index++;
-            }
-            dump(atlasImage, fontLocation);
-
-            stack.setPointer(previousSP);
         }
         catch (Throwable error) {
-            PDAMod.LOGGER.error("Could not rebuild font atlas for font {}: {}",
+            PDAMod.LOGGER.error("Could not load glyph data for font {}: {}",
                 fontLocation,
                 Exceptions.toFancyString(error));
         }
+
+        final var totalSpriteBorder = spriteBorder << 1;
+        final var actualSpriteSize = spriteSize - totalSpriteBorder;
+        final var scale = (double) actualSpriteSize / Math.max(maxWidth, maxHeight);
+
+        // Render glyphs to atlas image
+        var index = 0;
+        final var shapeIterator = Char2LongMaps.fastIterable(shapes);
+        for (final var entry : shapeIterator) {
+            final var shape = entry.getLongValue();
+            final var atlasX = (index % sizeInSlots) * spriteSize;
+            final var atlasY = (index / sizeInSlots) * spriteSize;
+            if (shape == MemoryUtil.NULL) {
+                // Blit the missing glyph texture for all unsupported/empty slots
+                atlasGraphics.drawImage(missingGlyphImage, atlasX, atlasY, spriteSize, spriteSize, null);
+                index++;
+                continue;
+            }
+            MSDFGenUtil.scaleShape(shape, scale); // Scale to default size of font
+            MSDFGenUtil.throwIfError(MSDFGen.msdf_shape_edge_colors_simple(shape, 3.0));
+            boundsBuffer.rewind();
+            MSDFGenUtil.throwIfError(MSDFGen.msdf_shape_get_bounds(shape, boundsBuffer));
+            final var width = boundsBuffer.r() - boundsBuffer.l();
+            final var height = boundsBuffer.t() - boundsBuffer.b();
+            final var tx = -boundsBuffer.l();
+            final var ty = -boundsBuffer.b() + (actualSpriteSize - height);
+            final var sdfTx = tx + ((double) (actualSpriteSize >> 1) - (width * 0.5)) + spriteBorder;
+            final var sdfTy = ty - ((double) (actualSpriteSize >> 1) - (height * 0.5)) + spriteBorder;
+            // @formatter:off
+            MSDFGenUtil.renderShapeToImage(renderType, spriteSize, spriteSize, shape,
+                1.0, 1.0, sdfTx, sdfTy, sdfRange,
+                atlasImage, atlasX, atlasY);
+            // @formatter:on
+            MSDFGen.msdf_shape_free(shape);
+            index++;
+        }
+
+        // Fill remaining slots with missing sprites for consistency
+        final var numShapes = shapes.size();
+        final var numEmptySlots = (sizeInSlots * sizeInSlots) - numShapes;
+        for (var i = 0; i < numEmptySlots; i++) {
+            final var contIndex = numShapes + i;
+            atlasGraphics.drawImage(missingGlyphImage,
+                (contIndex % sizeInSlots) * spriteSize,
+                (contIndex / sizeInSlots) * spriteSize,
+                null);
+        }
+
+        atlasGraphics.dispose();
+        dump(atlasImage, fontLocation);
+
+        stack.setPointer(previousSP);
     }
 
     void rebuild() {

@@ -22,7 +22,8 @@ public final class DefaultGlyphMetrics implements GlyphMetrics {
     private final int bearingX;
     private final int bearingY;
 
-    public DefaultGlyphMetrics(final int width, final int height, final int ascent, final int descent, final int advance, final int bearingX, final int bearingY) {
+    public DefaultGlyphMetrics(final int width, final int height, final int ascent, final int descent,
+                               final int advance, final int bearingX, final int bearingY) {
         this.width = width;
         this.height = height;
         this.ascent = ascent;

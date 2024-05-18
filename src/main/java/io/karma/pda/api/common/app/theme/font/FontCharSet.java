@@ -26,7 +26,7 @@ public interface FontCharSet {
     default char[] toArray() {
         final var chars = new CharArrayList(getCharCount());
         for (final var range : getRanges()) {
-            for (var i = range.leftInt(); i < range.rightInt(); i++) {
+            for (var i = range.leftInt(); i <= range.rightInt(); i++) {
                 chars.add((char) i);
             }
         }
@@ -36,7 +36,7 @@ public interface FontCharSet {
     default CharOpenHashSet toSet() {
         final var set = new CharOpenHashSet(getCharCount());
         for (final var range : getRanges()) {
-            for (var i = range.leftInt(); i < range.rightInt(); i++) {
+            for (var i = range.leftInt(); i <= range.rightInt(); i++) {
                 set.add((char) i);
             }
         }

@@ -23,6 +23,16 @@ public final class MSDFGenUtil {
     private MSDFGenUtil() {}
     // @formatter:on
 
+    public static boolean isShapeEmpty(final long shape) {
+        final var stack = MemoryStack.stackGet();
+        final var previousSP = stack.getPointer();
+        final var countBuffer = stack.mallocPointer(1);
+        throwIfError(MSDFGen.msdf_shape_get_contour_count(shape, countBuffer));
+        final var isEmpty = countBuffer.get() == 0;
+        stack.setPointer(previousSP);
+        return isEmpty;
+    }
+
     public static void scaleShape(final long shape, final double scale) {
         final var stack = MemoryStack.stackGet();
         final var previousSP = stack.getPointer();

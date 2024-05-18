@@ -5,6 +5,7 @@
 package io.karma.pda.client.render.graphics;
 
 import io.karma.pda.common.PDAMod;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2d;
 import org.lwjgl.system.APIUtil;
 import org.lwjgl.system.Checks;
@@ -113,11 +114,16 @@ public final class MSDFFont implements AutoCloseable {
         this(Files.newInputStream(filePath));
     }
 
-    public long createGlyphShape(final char c) {
+    public boolean isGlyphEmpty(final int c) {
+        return getGlyph(c) == null;
+    }
+
+    public long createGlyphShape(final int c) {
         final var stack = MemoryStack.stackGet();
         final var previousSP = stack.getPointer();
 
         final var addressBuffer = stack.mallocPointer(1);
+        // Convert raw Java character to unicode codepoint to properly support surrogate pairs
         MSDFGenUtil.throwIfError(MSDFGen.msdf_ft_font_load_glyph(font, c, addressBuffer));
         final var shape = Checks.check(addressBuffer.get());
 
@@ -156,16 +162,22 @@ public final class MSDFFont implements AutoCloseable {
         return shape;
     }
 
-    public FT_GlyphSlot getGlyph(final char c) {
+    public @Nullable FT_GlyphSlot getGlyph(final int c) {
         final var charIndex = FreeType.FT_Get_Char_Index(face, c);
+        if (charIndex == 0) {
+            return null; // The glyph is unsupported
+        }
         if (FreeType.FT_Load_Glyph(face, charIndex, FreeType.FT_LOAD_NO_SCALE) != FreeType.FT_Err_Ok) {
             throw new IllegalStateException("Could not load glyph");
         }
         return Objects.requireNonNull(face.glyph());
     }
 
-    public DefaultGlyphMetrics getGlyphMetrics(final char c) {
+    public @Nullable DefaultGlyphMetrics getGlyphMetrics(final int c) {
         final var glyph = getGlyph(c);
+        if (glyph == null) {
+            return null;
+        }
         final var ascent = face.ascender() >> 6;
         final var descent = face.descender() >> 6;
         final var advance = (int) glyph.advance().x() >> 6;
