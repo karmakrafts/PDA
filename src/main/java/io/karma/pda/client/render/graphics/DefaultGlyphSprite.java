@@ -18,20 +18,16 @@ public final class DefaultGlyphSprite implements GlyphSprite {
     private final GlyphMetrics metrics;
     private final int width;
     private final int height;
-    private final float minU;
-    private final float minV;
-    private final float maxU;
-    private final float maxV;
+    private final float u;
+    private final float v;
 
-    public DefaultGlyphSprite(final GlyphMetrics metrics, final int width, final int height, final float minU,
-                              final float minV, final float maxU, final float maxV) {
+    public DefaultGlyphSprite(final GlyphMetrics metrics, final int width, final int height,
+                              final float u, final float v) {
         this.metrics = metrics;
         this.width = width;
         this.height = height;
-        this.minU = minU;
-        this.minV = minV;
-        this.maxU = maxU;
-        this.maxV = maxV;
+        this.u = u;
+        this.v = v;
     }
 
     @Override
@@ -50,22 +46,12 @@ public final class DefaultGlyphSprite implements GlyphSprite {
     }
 
     @Override
-    public float getMinU() {
-        return minU;
+    public float getU() {
+        return u;
     }
 
     @Override
-    public float getMinV() {
-        return minV;
-    }
-
-    @Override
-    public float getMaxU() {
-        return maxU;
-    }
-
-    @Override
-    public float getMaxV() {
-        return maxV;
+    public float getV() {
+        return v;
     }
 }

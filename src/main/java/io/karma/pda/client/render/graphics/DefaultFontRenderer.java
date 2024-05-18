@@ -76,15 +76,18 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
                             final Matrix4f matrix, final VertexConsumer buffer, final ColorProvider colorProvider) {
         final var sprite = atlas.getGlyphSprite(c);
         final var width = sprite.getWidth();
+        final var height = sprite.getHeight();
         final var maxX = x + width;
-        final var maxY = y + sprite.getHeight();
+        final var maxY = y + height;
         final var z = (float) zIndex;
         final var colorTR = colorProvider.getColor(RectangleCorner.TOP_RIGHT);
         final var colorBL = colorProvider.getColor(RectangleCorner.BOTTOM_LEFT);
-        final var minU = sprite.getMinU();
-        final var minV = sprite.getMinV();
-        final var maxU = sprite.getMaxU();
-        final var maxV = sprite.getMaxV();
+
+        final var minU = sprite.getU();
+        final var minV = sprite.getV();
+        final var maxU = minU + (1F / atlas.getWidth()) * width;
+        final var maxV = minV + (1F / atlas.getHeight()) * height;
+
         // First triangle
         buffer.vertex(matrix, x, y, z).uv(minU,
             minV).color(colorProvider.getColor(RectangleCorner.TOP_LEFT)).endVertex();

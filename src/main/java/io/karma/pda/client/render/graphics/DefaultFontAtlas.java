@@ -17,6 +17,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.loading.FMLLoader;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL33;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.msdfgen.MSDFGen;
@@ -25,6 +26,8 @@ import org.lwjgl.util.msdfgen.MSDFGenBounds;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.nio.file.Files;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -41,7 +44,7 @@ public final class DefaultFontAtlas implements FontAtlas {
     private final double sdfRange;
     private final int renderType;
     private final DefaultGlyphSprite missingGlyphSprite;
-    private final Char2ObjectOpenHashMap<GlyphSprite> glyphSprites = new Char2ObjectOpenHashMap<>();
+    private final Char2ObjectOpenHashMap<DefaultGlyphSprite> glyphSprites = new Char2ObjectOpenHashMap<>();
     private final AtomicBoolean isReady = new AtomicBoolean(false);
     private int textureId;
     private final Image missingGlyphImage;
@@ -57,9 +60,9 @@ public final class DefaultFontAtlas implements FontAtlas {
         // Set up missing glyph image
         final var missingGlyphImage = new BufferedImage(2, 2, BufferedImage.TYPE_INT_ARGB);
         missingGlyphImage.setRGB(0, 0, 0xFF7700FF);
-        missingGlyphImage.setRGB(1, 0, 0xFFFF0088);
+        missingGlyphImage.setRGB(1, 0, 0xFFFF00FF);
         missingGlyphImage.setRGB(1, 1, 0xFF7700FF);
-        missingGlyphImage.setRGB(0, 1, 0xFFFF0088);
+        missingGlyphImage.setRGB(0, 1, 0xFFFF00FF);
         this.missingGlyphImage = missingGlyphImage.getScaledInstance(spriteSize,
             spriteSize,
             BufferedImage.SCALE_REPLICATE);
@@ -78,7 +81,7 @@ public final class DefaultFontAtlas implements FontAtlas {
 
         // @formatter:off
         missingGlyphSprite = new DefaultGlyphSprite(new DefaultGlyphMetrics(spriteSize, spriteSize, 0, 0, 0, spriteSize, 0),
-            spriteSize, spriteSize, 0F, 0F, 0F, 0F);
+            spriteSize, spriteSize, 0F, 0F);
         // @formatter:on
         textureId = TextureUtils.createTexture();
         rebuild();
@@ -106,6 +109,30 @@ public final class DefaultFontAtlas implements FontAtlas {
         }
     }
 
+    private void uploadTexture(final BufferedImage image) {
+        final var stack = MemoryStack.stackGet();
+        final var previousSP = stack.getPointer();
+
+        final var width = image.getWidth();
+        final var height = image.getHeight();
+
+        final var pixelData = image.getData().getPixels(0, 0, width, height, (int[]) null);
+        final var buffer = ByteBuffer.allocateDirect(pixelData.length << 2);
+        buffer.asIntBuffer().put(pixelData);
+        buffer.flip();
+
+        bind();
+        // @formatter:off
+        GL11.glTexParameteriv(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_RGBA,
+            stack.ints(GL11.GL_GREEN, GL11.GL_BLUE, GL11.GL_ALPHA, GL11.GL_RED));
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+        // @formatter:on
+        unbind();
+        PDAMod.LOGGER.debug("Uploaded {} bytes to GPU memory", buffer.capacity());
+
+        stack.setPointer(previousSP);
+    }
+
     private void rebuildBlocking() {
         final var fontLocation = font.getLocation();
         PDAMod.LOGGER.debug("Rebuilding font atlas for font {} with {}x{} slots",
@@ -119,9 +146,12 @@ public final class DefaultFontAtlas implements FontAtlas {
         final var stack = MemoryStack.stackGet();
         final var previousSP = stack.getPointer();
 
-        final var resourceManager = Minecraft.getInstance().getResourceManager();
-        final var atlasImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+        final var atlasWidth = getWidth();
+        final var atlasHeight = getHeight();
+        final var atlasImage = new BufferedImage(atlasWidth, atlasHeight, BufferedImage.TYPE_INT_ARGB);
         final var atlasGraphics = atlasImage.createGraphics();
+
+        final var resourceManager = Minecraft.getInstance().getResourceManager();
         final var shapes = new Char2LongLinkedOpenHashMap();
         final var boundsBuffer = MSDFGenBounds.malloc(1, stack);
         var maxWidth = 0.0;
@@ -191,6 +221,12 @@ public final class DefaultFontAtlas implements FontAtlas {
                 1.0, 1.0, sdfTx, sdfTy, sdfRange,
                 atlasImage, atlasX, atlasY);
             // @formatter:on
+            final var metrics = new DefaultGlyphMetrics((int) width, (int) height, 0, 0, 0, 0, 0);
+            final var u = (1F / atlasWidth) * atlasX;
+            final var v = (1F / atlasHeight) * atlasY;
+            synchronized (this) {
+                glyphSprites.put(entry.getCharKey(), new DefaultGlyphSprite(metrics, spriteSize, spriteSize, u, v));
+            }
             MSDFGen.msdf_shape_free(shape);
             index++;
         }
@@ -208,6 +244,9 @@ public final class DefaultFontAtlas implements FontAtlas {
 
         atlasGraphics.dispose();
         dump(atlasImage, fontLocation);
+
+        // Upload atlas image to GPU memory on render thread
+        Minecraft.getInstance().execute(() -> uploadTexture(atlasImage));
 
         stack.setPointer(previousSP);
     }
