@@ -168,13 +168,13 @@ public final class MSDFFont implements AutoCloseable {
         final var glyph = getGlyph(c);
         final var ascent = face.ascender() >> 6;
         final var descent = face.descender() >> 6;
-        final var advance = (int) (glyph.advance().x() >> 6);
+        final var advance = (int) glyph.advance().x() >> 6;
         final var metrics = glyph.metrics();
-        final var width = (int) (metrics.width() >> 6);
-        final var height = (int) (metrics.height() >> 6);
-        final var lsb = (int) (metrics.horiBearingX() >> 6);
-
-        return new DefaultGlyphMetrics(width, height, ascent, descent, 0, advance, lsb);
+        final var width = (int) metrics.width() >> 6;
+        final var height = (int) metrics.height() >> 6;
+        final var bearingX = (int) metrics.horiBearingX() >> 6;
+        final var bearingY = (int) metrics.horiBearingY() >> 6;
+        return new DefaultGlyphMetrics(width, height, ascent, descent, advance, bearingX, bearingY);
     }
 
     public long getLibrary() {

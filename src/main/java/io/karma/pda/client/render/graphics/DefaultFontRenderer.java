@@ -34,6 +34,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
+import org.lwjgl.util.msdfgen.MSDFGen;
 
 import java.util.HashMap;
 import java.util.function.Function;
@@ -100,7 +101,8 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
 
     @Override
     public FontAtlas getFontAtlas(final Font font) {
-        return fontAtlasCache.computeIfAbsent(font.getLocation(), location -> new DefaultFontAtlas(font, 32));
+        return fontAtlasCache.computeIfAbsent(font.getLocation(),
+            location -> new DefaultFontAtlas(font, 64, 0, 1.0, MSDFGen.MSDF_BITMAP_TYPE_MSDF));
     }
 
     @Override

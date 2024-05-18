@@ -21,9 +21,9 @@ public interface GlyphMetrics {
 
     int getDescent();
 
-    int getLineGap();
-
     int getAdvance();
 
-    int getLeftSideBearing();
+    int getBearingX();
+
+    int getBearingY();
 }

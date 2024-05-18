@@ -23,7 +23,7 @@ public final class MSDFGenUtil {
     private MSDFGenUtil() {}
     // @formatter:on
 
-    private static void scaleShape(final long shape, final double scale) {
+    public static void scaleShape(final long shape, final double scale) {
         final var stack = MemoryStack.stackGet();
         final var previousSP = stack.getPointer();
 
@@ -149,7 +149,7 @@ public final class MSDFGenUtil {
 
         for (var y = 0; y < height; y++) {
             for (var x = 0; x < width; x++) {
-                dst.setRGB(dstX + x, dstY + y, pixelGetter.get(address, x, height - y - 1, width));
+                dst.setRGB(dstX + x, dstY + (height - y - 1), pixelGetter.get(address, x, y, width));
             }
         }
 

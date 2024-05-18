@@ -18,19 +18,18 @@ public final class DefaultGlyphMetrics implements GlyphMetrics {
     private final int height;
     private final int ascent;
     private final int descent;
-    private final int lineGap;
     private final int advance;
-    private final int leftSideBearing;
+    private final int bearingX;
+    private final int bearingY;
 
-    public DefaultGlyphMetrics(final int width, final int height, final int ascent, final int descent,
-                               final int lineGap, final int advance, final int leftSideBearing) {
+    public DefaultGlyphMetrics(final int width, final int height, final int ascent, final int descent, final int advance, final int bearingX, final int bearingY) {
         this.width = width;
         this.height = height;
         this.ascent = ascent;
         this.descent = descent;
-        this.lineGap = lineGap;
         this.advance = advance;
-        this.leftSideBearing = leftSideBearing;
+        this.bearingX = bearingX;
+        this.bearingY = bearingY;
     }
 
     @Override
@@ -54,22 +53,22 @@ public final class DefaultGlyphMetrics implements GlyphMetrics {
     }
 
     @Override
-    public int getLineGap() {
-        return lineGap;
-    }
-
-    @Override
     public int getAdvance() {
         return advance;
     }
 
     @Override
-    public int getLeftSideBearing() {
-        return leftSideBearing;
+    public int getBearingX() {
+        return bearingX;
+    }
+
+    @Override
+    public int getBearingY() {
+        return bearingY;
     }
 
     @Override
     public String toString() {
-        return String.format("[ASC%d,DES%d,GAP%d,ADV%d,LSB%d]", ascent, descent, lineGap, advance, leftSideBearing);
+        return String.format("[ASC%d,DES%d,ADV%d,BX%d,BY%d]", ascent, descent, advance, bearingX, bearingY);
     }
 }
