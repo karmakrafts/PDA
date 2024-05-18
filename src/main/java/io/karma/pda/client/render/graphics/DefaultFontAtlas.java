@@ -136,6 +136,7 @@ public final class DefaultFontAtlas implements FontAtlas {
                 final var shape = fontShapes.createGlyphShape(c);
                 // Index 0 is always the exceptions since that's the space character
                 if (i > 0 && (fontShapes.isGlyphEmpty(c) || MSDFGenUtil.isShapeEmpty(shape))) {
+                    MSDFGen.msdf_shape_free(shape); // Free shape right away
                     shapes.put(c, MemoryUtil.NULL);
                     continue;
                 }
