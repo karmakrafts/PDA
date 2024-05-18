@@ -86,8 +86,7 @@ public final class DefaultFontAtlas implements FontAtlas {
         }
         PDAMod.LOGGER.debug("Dumped font atlas for {} to {}", location, filePath);
     }
-
-    // Auto-framing algorithm partially adapted from https://github.com/Chlumsky/msdfgen/blob/master/main.cpp
+    
     private void rebuildBlocking() {
         final var fontLocation = font.getLocation();
         PDAMod.LOGGER.debug("Rebuilding font atlas for font {} with {}x{} slots",
