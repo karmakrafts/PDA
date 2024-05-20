@@ -14,16 +14,18 @@ public final class DefaultFont implements Font {
     private final FontFamily family;
     private final FontCharSet supportedChars;
     private final ResourceLocation location;
-    private final FontStyle style;
-    private final float size;
+    private final DefaultFontVariant defaultVariant;
 
-    DefaultFont(final FontFamily family, final FontCharSet supportedChars, final ResourceLocation location,
-                final FontStyle style, final float size) {
+    public DefaultFont(final FontFamily family, final FontCharSet supportedChars, final ResourceLocation location) {
         this.family = family;
         this.supportedChars = supportedChars;
         this.location = location;
-        this.style = style;
-        this.size = size;
+        defaultVariant = new DefaultFontVariant(this, FontStyle.REGULAR, FontVariant.DEFAULT_SIZE);
+    }
+
+    @Override
+    public FontVariant getDefaultVariant() {
+        return defaultVariant;
     }
 
     @Override
@@ -39,25 +41,5 @@ public final class DefaultFont implements Font {
     @Override
     public ResourceLocation getLocation() {
         return location;
-    }
-
-    @Override
-    public FontStyle getStyle() {
-        return style;
-    }
-
-    @Override
-    public float getSize() {
-        return size;
-    }
-
-    @Override
-    public Font derive(final FontStyle style) {
-        return family.getFont(style, size);
-    }
-
-    @Override
-    public Font derive(final float size) {
-        return family.getFont(style, size);
     }
 }

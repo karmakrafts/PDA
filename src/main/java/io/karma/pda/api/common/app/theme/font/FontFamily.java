@@ -20,7 +20,7 @@ public interface FontFamily {
 
     Set<FontStyle> getStyles();
 
-    Font getFont(final FontStyle style, final float size);
+    FontVariant getFont(final FontStyle style, final float size);
 
     @SuppressWarnings("all")
     @NotNull

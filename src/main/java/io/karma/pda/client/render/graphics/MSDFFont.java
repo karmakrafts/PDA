@@ -6,7 +6,7 @@ package io.karma.pda.client.render.graphics;
 
 import io.karma.pda.common.PDAMod;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector2d;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.system.APIUtil;
 import org.lwjgl.system.Checks;
 import org.lwjgl.system.MemoryStack;
@@ -17,13 +17,9 @@ import org.lwjgl.util.freetype.FT_Face;
 import org.lwjgl.util.freetype.FT_GlyphSlot;
 import org.lwjgl.util.freetype.FreeType;
 import org.lwjgl.util.msdfgen.MSDFGen;
-import org.lwjgl.util.msdfgen.MSDFGenBounds;
-import org.lwjgl.util.msdfgen.MSDFGenVector2;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -57,27 +53,25 @@ public final class MSDFFont implements AutoCloseable {
     public MSDFFont(final InputStream stream) throws IOException {
         this.stream = stream;
 
-        final var stack = MemoryStack.stackGet();
-        final var previousSP = stack.getPointer();
-        final var ftAddressBuffer = stack.mallocPointer(1);
+        try (final var stack = MemoryStack.stackPush()) {
+            final var ftAddressBuffer = stack.mallocPointer(1);
 
-        if (FreeType.FT_Init_FreeType(ftAddressBuffer) != FreeType.FT_Err_Ok) {
-            throw new IllegalStateException("Could not create FreeType library");
-        }
-        library = Checks.check(ftAddressBuffer.get());
-        PDAMod.LOGGER.debug("Created FreeType instance at 0x{}", Long.toHexString(library));
+            if (FreeType.FT_Init_FreeType(ftAddressBuffer) != FreeType.FT_Err_Ok) {
+                throw new IllegalStateException("Could not create FreeType library");
+            }
+            library = Checks.check(ftAddressBuffer.get());
+            PDAMod.LOGGER.debug("Created FreeType instance at 0x{}", Long.toHexString(library));
 
-        // Create the font face and load it
-        final var data = stream.readAllBytes();
-        final var dataSize = data.length;
-        final var srcBuffer = ByteBuffer.allocateDirect(dataSize).order(ByteOrder.nativeOrder());
-        srcBuffer.put(data);
-        srcBuffer.flip();
-        memory = MemoryUtil.nmemAllocChecked(dataSize);
-        MemoryUtil.memCopy(MemoryUtil.memAddress(srcBuffer), memory, dataSize);
-        PDAMod.LOGGER.debug("Created font memory at 0x{}", Long.toHexString(memory));
+            // Create the font face and load it
+            final var data = stream.readAllBytes();
+            final var dataSize = data.length;
+            final var srcBuffer = BufferUtils.createByteBuffer(dataSize);
+            srcBuffer.put(data);
+            srcBuffer.flip();
+            memory = MemoryUtil.nmemAllocChecked(dataSize);
+            MemoryUtil.memCopy(MemoryUtil.memAddress(srcBuffer), memory, dataSize);
+            PDAMod.LOGGER.debug("Created font memory at 0x{}", Long.toHexString(memory));
 
-        {
             final var resultBuffer = stack.mallocInt(1);
             final var faceAddressBuffer = stack.mallocPointer(1);
             // @formatter:off
@@ -96,18 +90,14 @@ public final class MSDFFont implements AutoCloseable {
             }
             face = FT_Face.create(Checks.check(faceAddressBuffer.get()));
             PDAMod.LOGGER.debug("Created font face instance at 0x{}", Long.toHexString(face.address()));
-        }
 
-        {
             // Setup msdfgen to use LWJGL FreeType bindings
-            MSDFGenUtil.throwIfError(MSDFGen.msdf_ft_set_load_callback(nameAddress -> FreeType.getLibrary().getFunctionAddress(
+            MSDFUtils.throwIfError(MSDFGen.msdf_ft_set_load_callback(nameAddress -> FreeType.getLibrary().getFunctionAddress(
                 MemoryUtil.memASCII(nameAddress))));
             final var fontAddressBuffer = stack.mallocPointer(1);
-            MSDFGenUtil.throwIfError(MSDFGen.nmsdf_ft_adopt_font(face.address(), fontAddressBuffer.address()));
+            MSDFUtils.throwIfError(MSDFGen.nmsdf_ft_adopt_font(face.address(), fontAddressBuffer.address()));
             font = Checks.check(fontAddressBuffer.get());
         }
-
-        stack.setPointer(previousSP);
     }
 
     public MSDFFont(final Path filePath) throws IOException {
@@ -119,47 +109,15 @@ public final class MSDFFont implements AutoCloseable {
     }
 
     public long createGlyphShape(final int c) {
-        final var stack = MemoryStack.stackGet();
-        final var previousSP = stack.getPointer();
-
-        final var addressBuffer = stack.mallocPointer(1);
-        // Convert raw Java character to unicode codepoint to properly support surrogate pairs
-        MSDFGenUtil.throwIfError(MSDFGen.msdf_ft_font_load_glyph(font, c, addressBuffer));
-        final var shape = Checks.check(addressBuffer.get());
-
-        final var resultBuffer = stack.mallocInt(1);
-        MSDFGenUtil.throwIfError(MSDFGen.msdf_shape_validate(shape, resultBuffer));
-        if (resultBuffer.get() != MSDFGen.MSDF_TRUE) {
-            throw new MSDFGenException("Could not validate shape");
+        try (final var stack = MemoryStack.stackPush()) {
+            final var addressBuffer = stack.mallocPointer(1);
+            // Convert raw Java character to unicode codepoint to properly support surrogate pairs
+            MSDFUtils.throwIfError(MSDFGen.msdf_ft_font_load_glyph(font, c, addressBuffer));
+            final var shape = Checks.check(addressBuffer.get());
+            MSDFUtils.throwIfError(MSDFGen.msdf_shape_normalize(shape));
+            MSDFUtils.rewindShapeIfNeeded(shape);
+            return shape;
         }
-        MSDFGenUtil.throwIfError(MSDFGen.msdf_shape_normalize(shape));
-
-        // Correct incorrectly wound contours (taken from https://github.com/Chlumsky/msdf-atlas-gen/blob/master/msdf-atlas-gen/GlyphGeometry.cpp)
-        {
-            final var bounds = MSDFGenBounds.malloc(1, stack);
-            MSDFGenUtil.throwIfError(MSDFGen.msdf_shape_get_bounds(shape, bounds));
-            final var outerPoint = new Vector2d(bounds.l() - (bounds.r() - bounds.l()) - 1,
-                bounds.b() - (bounds.t() - bounds.b()) - 1);
-            final var distanceBuffer = stack.mallocDouble(1);
-            MSDFGenUtil.throwIfError(MSDFGen.msdf_shape_one_shot_distance(shape,
-                MSDFGenVector2.malloc(1, stack).x(outerPoint.x).y(outerPoint.y),
-                distanceBuffer));
-            if (distanceBuffer.get() > 0.0) {
-                PDAMod.LOGGER.debug("Shape wound incorrectly, correcting winding order");
-                final var contourCountBuffer = stack.mallocPointer(1);
-                MSDFGenUtil.throwIfError(MSDFGen.msdf_shape_get_contour_count(shape, contourCountBuffer));
-                final var contourCount = contourCountBuffer.get();
-                final var contourAddressBuffer = stack.mallocPointer(1);
-                for (long i = 0; i < contourCount; i++) {
-                    contourAddressBuffer.rewind();
-                    MSDFGenUtil.throwIfError(MSDFGen.msdf_shape_get_contour(shape, i, contourAddressBuffer));
-                    MSDFGenUtil.throwIfError(MSDFGen.msdf_contour_reverse(Checks.check(contourAddressBuffer.get())));
-                }
-            }
-        }
-
-        stack.setPointer(previousSP);
-        return shape;
     }
 
     public @Nullable FT_GlyphSlot getGlyph(final int c) {
@@ -173,19 +131,22 @@ public final class MSDFFont implements AutoCloseable {
         return Objects.requireNonNull(face.glyph());
     }
 
-    public @Nullable DefaultGlyphMetrics getGlyphMetrics(final int c) {
+    public @Nullable DefaultGlyphMetrics getGlyphMetrics(final int c, final double scale) {
         final var glyph = getGlyph(c);
         if (glyph == null) {
             return null;
         }
+
         final var ascent = face.ascender() >> 6;
         final var descent = face.descender() >> 6;
-        final var advance = (int) glyph.advance().x() >> 6;
+        final var advance = (int) (((double) glyph.advance().x() / 64.0) * scale);
+
         final var metrics = glyph.metrics();
-        final var width = (int) metrics.width() >> 6;
-        final var height = (int) metrics.height() >> 6;
-        final var bearingX = (int) metrics.horiBearingX() >> 6;
-        final var bearingY = (int) metrics.horiBearingY() >> 6;
+        final var width = (int) (((double) metrics.width() / 64.0) * scale);
+        final var height = (int) (((double) metrics.height() / 64.0) * scale);
+        final var bearingX = (int) (((double) metrics.horiBearingX() / 64.0) * scale);
+        final var bearingY = (int) (((double) metrics.horiBearingY() / 64.0) * scale);
+
         return new DefaultGlyphMetrics(width, height, ascent, descent, advance, bearingX, bearingY);
     }
 

@@ -16,6 +16,8 @@ import org.joml.Matrix4f;
  */
 @OnlyIn(Dist.CLIENT)
 public interface GraphicsContext {
+    Graphics getGraphics();
+
     int getDefaultZIndex();
 
     PoseStack getPoseStack();

@@ -7,6 +7,7 @@ package io.karma.pda.client.render.graphics;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.karma.pda.api.client.render.graphics.BrushFactory;
 import io.karma.pda.api.client.render.graphics.FontRenderer;
+import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.client.render.graphics.GraphicsContext;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.client.Minecraft;
@@ -20,6 +21,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  */
 @OnlyIn(Dist.CLIENT)
 public final class DefaultGraphicsContext implements GraphicsContext {
+    private Graphics graphics;
     private PoseStack poseStack;
     private MultiBufferSource bufferSource;
     private int width;
@@ -33,6 +35,15 @@ public final class DefaultGraphicsContext implements GraphicsContext {
         this.width = width;
         this.height = height;
         this.defaultZIndex = defaultZIndex;
+    }
+
+    public void setGraphics(final Graphics graphics) {
+        this.graphics = graphics;
+    }
+
+    @Override
+    public Graphics getGraphics() {
+        return graphics;
     }
 
     @Override

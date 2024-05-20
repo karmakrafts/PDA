@@ -26,7 +26,7 @@ import java.util.*;
 public final class DefaultFontFamily implements FontFamily {
     private final ResourceLocation name;
     private final Set<FontStyle> styles = Collections.synchronizedSet(EnumSet.noneOf(FontStyle.class));
-    private final Map<FontStyle, Font> fonts = Collections.synchronizedMap(new EnumMap<>(FontStyle.class));
+    private final Map<FontStyle, DefaultFontVariant> fonts = Collections.synchronizedMap(new EnumMap<>(FontStyle.class));
     private Config config;
 
     public DefaultFontFamily(final ResourceLocation name) {
@@ -50,7 +50,7 @@ public final class DefaultFontFamily implements FontFamily {
 
             API.getLogger().debug("Preloading default fonts for {}", configLocation);
             for (final var style : styles) {
-                getFont(style, Font.DEFAULT_SIZE);
+                getFont(style, FontVariant.DEFAULT_SIZE);
             }
         }
         catch (Throwable error) {
@@ -74,7 +74,7 @@ public final class DefaultFontFamily implements FontFamily {
     }
 
     @Override
-    public synchronized Font getFont(final FontStyle style, final float size) {
+    public synchronized FontVariant getFont(final FontStyle style, final float size) {
         if (size < 0F) {
             throw new IllegalArgumentException("Size must be greater than or equal to zero");
         }
@@ -84,7 +84,7 @@ public final class DefaultFontFamily implements FontFamily {
             if (location == null) {
                 throw new IllegalStateException(String.format("Malformed font location: %s", locationString));
             }
-            return new DefaultFont(this, config.supportedCharSet, location, s, size);
+            return new DefaultFontVariant(new DefaultFont(this, config.supportedCharSet, location), s, size);
         });
     }
 

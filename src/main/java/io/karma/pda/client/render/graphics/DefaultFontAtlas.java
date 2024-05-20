@@ -17,6 +17,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.loading.FMLLoader;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
@@ -26,8 +27,8 @@ import org.lwjgl.util.msdfgen.MSDFGenBounds;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -42,11 +43,17 @@ public final class DefaultFontAtlas implements FontAtlas {
     private final int spriteBorder;
     private final double sdfRange;
     private final int renderType;
+    private final float uScale;
+    private final float vScale;
     private final DefaultGlyphSprite missingGlyphSprite;
     private final Char2ObjectOpenHashMap<DefaultGlyphSprite> glyphSprites = new Char2ObjectOpenHashMap<>();
     private final AtomicBoolean isReady = new AtomicBoolean(false);
-    private int textureId;
+    private final int textureId;
     private final Image missingGlyphImage;
+    private int maxGlyphWidth;
+    private int maxGlyphHeight;
+    private int maxGlyphBearingX;
+    private int maxGlyphBearingY;
 
     public DefaultFontAtlas(final Font font, final int spriteSize, final int spriteBorder, final double sdfRange,
                             final int renderType) {
@@ -77,6 +84,8 @@ public final class DefaultFontAtlas implements FontAtlas {
             size <<= 1;
         }
         this.sizeInSlots = size;
+        uScale = 1F / getWidth();
+        vScale = 1F / getHeight();
 
         // @formatter:off
         missingGlyphSprite = new DefaultGlyphSprite(new DefaultGlyphMetrics(spriteSize, spriteSize, 0, 0, 0, spriteSize, 0),
@@ -85,6 +94,19 @@ public final class DefaultFontAtlas implements FontAtlas {
         textureId = TextureUtils.createTexture();
         rebuild();
         PDAMod.DISPOSITION_HANDLER.addObject(this);
+    }
+
+    private void uploadTexture(final BufferedImage image) {
+        bind();
+        final var w = image.getWidth();
+        final var h = image.getHeight();
+        final var buffer = TextureUtils.toBuffer(image);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, w, h, 0, GL12.GL_BGRA, GL11.GL_UNSIGNED_BYTE, buffer);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_R, GL11.GL_BLUE);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_G, GL11.GL_GREEN);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_B, GL11.GL_RED);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_A, GL11.GL_ALPHA);
+        unbind();
     }
 
     private static void dump(final BufferedImage image, final ResourceLocation location) {
@@ -108,30 +130,6 @@ public final class DefaultFontAtlas implements FontAtlas {
         }
     }
 
-    private void uploadTexture(final BufferedImage image) {
-        final var stack = MemoryStack.stackGet();
-        final var previousSP = stack.getPointer();
-
-        final var width = image.getWidth();
-        final var height = image.getHeight();
-
-        final var pixelData = image.getData().getPixels(0, 0, width, height, (int[]) null);
-        final var buffer = ByteBuffer.allocateDirect(pixelData.length << 2);
-        buffer.asIntBuffer().put(pixelData);
-        buffer.flip();
-
-        bind();
-        // @formatter:off
-        GL11.glTexParameteriv(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_RGBA,
-            stack.ints(GL11.GL_GREEN, GL11.GL_BLUE, GL11.GL_ALPHA, GL11.GL_RED));
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-        // @formatter:on
-        unbind();
-        PDAMod.LOGGER.debug("Uploaded {} bytes to GPU memory", buffer.capacity());
-
-        stack.setPointer(previousSP);
-    }
-
     private void rebuildBlocking() {
         final var fontLocation = font.getLocation();
         PDAMod.LOGGER.debug("Rebuilding font atlas for font {} with {}x{} slots",
@@ -142,92 +140,108 @@ public final class DefaultFontAtlas implements FontAtlas {
             glyphSprites.clear();
         }
 
-        final var stack = MemoryStack.stackGet();
-        final var previousSP = stack.getPointer();
-
         final var atlasWidth = getWidth();
         final var atlasHeight = getHeight();
         final var atlasImage = new BufferedImage(atlasWidth, atlasHeight, BufferedImage.TYPE_INT_ARGB);
         final var atlasGraphics = atlasImage.createGraphics();
-
         final var resourceManager = Minecraft.getInstance().getResourceManager();
         final var shapes = new Char2LongLinkedOpenHashMap();
-        final var boundsBuffer = MSDFGenBounds.malloc(1, stack);
-        var maxWidth = 0.0;
-        var maxHeight = 0.0;
 
-        try (final var fontShapes = new MSDFFont(resourceManager.getResourceOrThrow(fontLocation).open())) {
-            final var chars = font.getSupportedChars().toArray();
-            final var numChars = chars.length;
-            // Extract vector shape for every glyph and determine common scaling factor
-            for (var i = 0; i < numChars; i++) {
-                final var c = chars[i];
-                final var shape = fontShapes.createGlyphShape(c);
-                // Index 0 is always the exceptions since that's the space character
-                if (i > 0 && (fontShapes.isGlyphEmpty(c) || MSDFGenUtil.isShapeEmpty(shape))) {
-                    MSDFGen.msdf_shape_free(shape); // Free shape right away
-                    shapes.put(c, MemoryUtil.NULL);
-                    continue;
-                }
-                boundsBuffer.rewind();
-                MSDFGenUtil.throwIfError(MSDFGen.msdf_shape_get_bounds(shape, boundsBuffer));
-                final var width = boundsBuffer.r() - boundsBuffer.l();
-                if (maxWidth < width) {
-                    maxWidth = width;
-                }
-                final var height = boundsBuffer.t() - boundsBuffer.b();
-                if (maxHeight < height) {
-                    maxHeight = height;
-                }
-                shapes.put(c, shape);
-            }
-        }
-        catch (Throwable error) {
-            PDAMod.LOGGER.error("Could not load glyph data for font {}: {}",
-                fontLocation,
-                Exceptions.toFancyString(error));
-        }
+        try (final var stack = MemoryStack.stackPush()) {
+            final var boundsBuffer = MSDFGenBounds.malloc(1, stack);
+            var maxWidth = 0.0;
+            var maxHeight = 0.0;
 
-        final var totalSpriteBorder = spriteBorder << 1;
-        final var actualSpriteSize = spriteSize - totalSpriteBorder;
-        final var scale = (double) actualSpriteSize / Math.max(maxWidth, maxHeight);
+            try (final var fontShapes = new MSDFFont(resourceManager.getResourceOrThrow(fontLocation).open())) {
+                final var chars = font.getSupportedChars().toArray();
+                final var numChars = chars.length;
+                // Extract vector shape for every glyph and determine common scaling factor
+                for (var i = 0; i < numChars; i++) {
+                    final var c = chars[i];
+                    final var shape = fontShapes.createGlyphShape(c);
+                    // Index 0 is always the exceptions since that's the space character
+                    if (i > 0 && (fontShapes.isGlyphEmpty(c) || MSDFUtils.isShapeEmpty(shape))) {
+                        MSDFGen.msdf_shape_free(shape); // Free shape right away
+                        shapes.put(c, MemoryUtil.NULL);
+                        continue;
+                    }
+                    boundsBuffer.rewind();
+                    MSDFUtils.throwIfError(MSDFGen.msdf_shape_get_bounds(shape, boundsBuffer));
+                    final var width = boundsBuffer.r() - boundsBuffer.l();
+                    if (maxWidth < width) {
+                        maxWidth = width;
+                    }
+                    final var height = boundsBuffer.t() - boundsBuffer.b();
+                    if (maxHeight < height) {
+                        maxHeight = height;
+                    }
+                    shapes.put(c, shape);
+                }
 
-        // Render glyphs to atlas image
-        var index = 0;
-        final var shapeIterator = Char2LongMaps.fastIterable(shapes);
-        for (final var entry : shapeIterator) {
-            final var shape = entry.getLongValue();
-            final var atlasX = (index % sizeInSlots) * spriteSize;
-            final var atlasY = (index / sizeInSlots) * spriteSize;
-            if (shape == MemoryUtil.NULL) {
-                // Blit the missing glyph texture for all unsupported/empty slots
-                atlasGraphics.drawImage(missingGlyphImage, atlasX, atlasY, spriteSize, spriteSize, null);
-                index++;
-                continue;
+                final var totalSpriteBorder = spriteBorder << 1;
+                final var actualSpriteSize = spriteSize - totalSpriteBorder;
+                final var scale = (double) actualSpriteSize / Math.max(maxWidth, maxHeight);
+
+                // Render glyphs to atlas image
+                var index = 0;
+                final var shapeIterator = Char2LongMaps.fastIterable(shapes);
+                for (final var entry : shapeIterator) {
+                    final var shape = entry.getLongValue();
+                    final var atlasX = (index % sizeInSlots) * spriteSize;
+                    final var atlasY = (index / sizeInSlots) * spriteSize;
+                    if (shape == MemoryUtil.NULL) {
+                        // Blit the missing glyph texture for all unsupported/empty slots
+                        atlasGraphics.drawImage(missingGlyphImage, atlasX, atlasY, spriteSize, spriteSize, null);
+                        index++;
+                        continue;
+                    }
+                    MSDFUtils.scaleShape(shape, scale); // Scale to default size of font
+                    MSDFUtils.throwIfError(MSDFGen.msdf_shape_edge_colors_simple(shape, 3.0));
+                    boundsBuffer.rewind();
+                    MSDFUtils.throwIfError(MSDFGen.msdf_shape_get_bounds(shape, boundsBuffer));
+                    final var bbWidth = boundsBuffer.r() - boundsBuffer.l();
+                    final var bbHeight = boundsBuffer.t() - boundsBuffer.b();
+                    final var tx = -boundsBuffer.l();
+                    final var ty = -boundsBuffer.b() + (actualSpriteSize - bbHeight);
+                    final var sdfTx = tx + ((double) (actualSpriteSize >> 1) - (bbWidth * 0.5)) + spriteBorder;
+                    final var sdfTy = ty - ((double) (actualSpriteSize >> 1) - (bbHeight * 0.5)) + spriteBorder;
+                    // @formatter:off
+                    MSDFUtils.renderShapeToImage(renderType, spriteSize, spriteSize, shape,
+                        1.0, 1.0, sdfTx, sdfTy, sdfRange,
+                        atlasImage, atlasX, atlasY);
+                    // @formatter:on
+                    final var c = entry.getCharKey();
+                    final var metrics = Objects.requireNonNull(fontShapes.getGlyphMetrics(c, scale));
+                    final var width = metrics.getWidth();
+                    final var height = metrics.getHeight();
+                    final var bearingX = metrics.getBearingX();
+                    final var bearingY = metrics.getBearingY();
+                    final var u = (1F / atlasWidth) * atlasX;
+                    final var v = (1F / atlasHeight) * atlasY;
+                    synchronized (this) {
+                        if (maxGlyphWidth < width) {
+                            maxGlyphWidth = width;
+                        }
+                        if (maxGlyphHeight < height) {
+                            maxGlyphHeight = height;
+                        }
+                        if (maxGlyphBearingX < bearingX) {
+                            maxGlyphBearingX = bearingX;
+                        }
+                        if (maxGlyphBearingY < bearingY) {
+                            maxGlyphBearingY = bearingY;
+                        }
+                        glyphSprites.put(c, new DefaultGlyphSprite(metrics, spriteSize, spriteSize, u, v));
+                    }
+                    MSDFGen.msdf_shape_free(shape);
+                    index++;
+                }
             }
-            MSDFGenUtil.scaleShape(shape, scale); // Scale to default size of font
-            MSDFGenUtil.throwIfError(MSDFGen.msdf_shape_edge_colors_simple(shape, 3.0));
-            boundsBuffer.rewind();
-            MSDFGenUtil.throwIfError(MSDFGen.msdf_shape_get_bounds(shape, boundsBuffer));
-            final var width = boundsBuffer.r() - boundsBuffer.l();
-            final var height = boundsBuffer.t() - boundsBuffer.b();
-            final var tx = -boundsBuffer.l();
-            final var ty = -boundsBuffer.b() + (actualSpriteSize - height);
-            final var sdfTx = tx + ((double) (actualSpriteSize >> 1) - (width * 0.5)) + spriteBorder;
-            final var sdfTy = ty - ((double) (actualSpriteSize >> 1) - (height * 0.5)) + spriteBorder;
-            // @formatter:off
-            MSDFGenUtil.renderShapeToImage(renderType, spriteSize, spriteSize, shape,
-                1.0, 1.0, sdfTx, sdfTy, sdfRange,
-                atlasImage, atlasX, atlasY);
-            // @formatter:on
-            final var metrics = new DefaultGlyphMetrics((int) width, (int) height, 0, 0, 0, 0, 0);
-            final var u = (1F / atlasWidth) * atlasX;
-            final var v = (1F / atlasHeight) * atlasY;
-            synchronized (this) {
-                glyphSprites.put(entry.getCharKey(), new DefaultGlyphSprite(metrics, spriteSize, spriteSize, u, v));
+            catch (Throwable error) {
+                PDAMod.LOGGER.error("Could not load glyph data for font {}: {}",
+                    fontLocation,
+                    Exceptions.toFancyString(error));
             }
-            MSDFGen.msdf_shape_free(shape);
-            index++;
         }
 
         // Fill remaining slots with missing sprites for consistency
@@ -246,8 +260,6 @@ public final class DefaultFontAtlas implements FontAtlas {
 
         // Upload atlas image to GPU memory on render thread
         Minecraft.getInstance().execute(() -> uploadTexture(atlasImage));
-
-        stack.setPointer(previousSP);
     }
 
     void rebuild() {
@@ -269,6 +281,41 @@ public final class DefaultFontAtlas implements FontAtlas {
     }
 
     @Override
+    public int getSpriteBorder() {
+        return spriteBorder;
+    }
+
+    @Override
+    public int getMaxGlyphWidth() {
+        return maxGlyphWidth;
+    }
+
+    @Override
+    public int getMaxGlyphHeight() {
+        return maxGlyphHeight;
+    }
+
+    @Override
+    public int getMaxGlyphBearingX() {
+        return maxGlyphBearingX;
+    }
+
+    @Override
+    public int getMaxGlyphBearingY() {
+        return maxGlyphBearingY;
+    }
+
+    @Override
+    public float getUScale() {
+        return uScale;
+    }
+
+    @Override
+    public float getVScale() {
+        return vScale;
+    }
+
+    @Override
     public CharSet getSupportedChars() {
         return font.getSupportedChars().toSet();
     }
@@ -276,7 +323,6 @@ public final class DefaultFontAtlas implements FontAtlas {
     @Override
     public void dispose() {
         GL11.glDeleteTextures(textureId);
-        textureId = -1;
     }
 
     @Override
@@ -312,5 +358,10 @@ public final class DefaultFontAtlas implements FontAtlas {
     @Override
     public boolean isReady() {
         return isReady.get();
+    }
+
+    @Override
+    public double getSDFRange() {
+        return sdfRange;
     }
 }
