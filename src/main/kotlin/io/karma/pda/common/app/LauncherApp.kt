@@ -100,6 +100,7 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                             margin(FlexBorder.of(4.pixels))
                         }) {
                             text("C")
+                            color by childRef<Spinner>("spinner").map { it!!.color }
                         }
 
                         separator({
@@ -128,6 +129,7 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                     grow(1F)
                 }) {
                     text("Testing 4")
+                    color((Color.WHITE..Color.LIGHT_GREY).gradient(GradientType.VERTICAL))
                 }
             }
         }

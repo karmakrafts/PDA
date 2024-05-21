@@ -21,6 +21,8 @@ public final class Color implements ColorProvider {
     // @formatter:off
     public static final Color NONE       = new Color(0F, 0F, 0F, 0F);
     public static final Color BLACK      = new Color(0F, 0F, 0F);
+    public static final Color GREY       = new Color(0.2F, 0.2F, 0.2F);
+    public static final Color LIGHT_GREY = new Color(0.4F, 0.4F, 0.4F);
     public static final Color WHITE      = new Color(1F, 1F, 1F);
     public static final Color RED        = new Color(1F, 0F, 0F);
     public static final Color GREEN      = new Color(0F, 1F, 0F);

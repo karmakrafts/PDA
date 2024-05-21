@@ -6,11 +6,11 @@ package io.karma.pda.client.util;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.image.BufferedImage;
-import java.nio.IntBuffer;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * @author Alexander Hinze
@@ -33,11 +33,11 @@ public final class TextureUtils {
         return id;
     }
 
-    public static IntBuffer toBuffer(final BufferedImage image) {
+    public static ByteBuffer toBuffer(final BufferedImage image) {
         final var width = image.getWidth();
         final var data = image.getRGB(0, 0, width, image.getHeight(), null, 0, width);
-        final var buffer = BufferUtils.createIntBuffer(data.length);
-        buffer.put(data);
+        final var buffer = ByteBuffer.allocateDirect(data.length << 2).order(ByteOrder.nativeOrder());
+        buffer.asIntBuffer().put(data);
         buffer.flip();
         return buffer;
     }

@@ -57,7 +57,7 @@ minecraft {
                     source sourceSets.main
                 }
             }
-            jvmArgs '-Xms512M', '-Xmx4G', '-XX:+UnlockExperimentalVMOptions', '-XX:+AllowEnhancedClassRedefinition', '-XX:HotswapAgent=core'
+            jvmArgs '-Xms512M', '-Xmx4G'
         }
         clientAlt {
             parent runs.client

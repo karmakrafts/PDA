@@ -4,6 +4,7 @@
 
 package io.karma.pda.client.render.graphics;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.karma.pda.api.client.render.graphics.FontAtlas;
 import io.karma.pda.api.client.render.graphics.GlyphSprite;
 import io.karma.pda.api.common.app.theme.font.Font;
@@ -101,12 +102,13 @@ public final class DefaultFontAtlas implements FontAtlas {
         final var w = image.getWidth();
         final var h = image.getHeight();
         final var buffer = TextureUtils.toBuffer(image);
+        try(final var stack = MemoryStack.stackPush()) {
+            GL11.glTexParameteriv(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_RGBA, stack.ints(
+                GL11.GL_BLUE, GL11.GL_GREEN, GL11.GL_RED, GL11.GL_ALPHA));
+        }
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, w, h, 0, GL12.GL_BGRA, GL11.GL_UNSIGNED_BYTE, buffer);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_R, GL11.GL_BLUE);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_G, GL11.GL_GREEN);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_B, GL11.GL_RED);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_A, GL11.GL_ALPHA);
         unbind();
+        isReady.set(true); // After uploading, we are ready
     }
 
     private static void dump(final BufferedImage image, final ResourceLocation location) {
@@ -147,16 +149,15 @@ public final class DefaultFontAtlas implements FontAtlas {
         final var resourceManager = Minecraft.getInstance().getResourceManager();
         final var shapes = new Char2LongLinkedOpenHashMap();
 
-        try (final var stack = MemoryStack.stackPush()) {
-            final var boundsBuffer = MSDFGenBounds.malloc(1, stack);
-            var maxWidth = 0.0;
-            var maxHeight = 0.0;
+        var maxWidth = 0.0;
+        var maxHeight = 0.0;
 
-            try (final var fontShapes = new MSDFFont(resourceManager.getResourceOrThrow(fontLocation).open())) {
-                final var chars = font.getSupportedChars().toArray();
-                final var numChars = chars.length;
-                // Extract vector shape for every glyph and determine common scaling factor
-                for (var i = 0; i < numChars; i++) {
+        try (final var fontShapes = new MSDFFont(resourceManager.getResourceOrThrow(fontLocation).open())) {
+            final var chars = font.getSupportedChars().toArray();
+            final var numChars = chars.length;
+            // Extract vector shape for every glyph and determine common scaling factor
+            for (var i = 0; i < numChars; i++) {
+                try (final var stack = MemoryStack.stackPush()) {
                     final var c = chars[i];
                     final var shape = fontShapes.createGlyphShape(c);
                     // Index 0 is always the exceptions since that's the space character
@@ -165,7 +166,7 @@ public final class DefaultFontAtlas implements FontAtlas {
                         shapes.put(c, MemoryUtil.NULL);
                         continue;
                     }
-                    boundsBuffer.rewind();
+                    final var boundsBuffer = MSDFGenBounds.malloc(1, stack);
                     MSDFUtils.throwIfError(MSDFGen.msdf_shape_get_bounds(shape, boundsBuffer));
                     final var width = boundsBuffer.r() - boundsBuffer.l();
                     if (maxWidth < width) {
@@ -177,15 +178,17 @@ public final class DefaultFontAtlas implements FontAtlas {
                     }
                     shapes.put(c, shape);
                 }
+            }
 
-                final var totalSpriteBorder = spriteBorder << 1;
-                final var actualSpriteSize = spriteSize - totalSpriteBorder;
-                final var scale = (double) actualSpriteSize / Math.max(maxWidth, maxHeight);
+            final var totalSpriteBorder = spriteBorder << 1;
+            final var actualSpriteSize = spriteSize - totalSpriteBorder;
+            final var scale = (double) actualSpriteSize / Math.max(maxWidth, maxHeight);
 
-                // Render glyphs to atlas image
-                var index = 0;
-                final var shapeIterator = Char2LongMaps.fastIterable(shapes);
-                for (final var entry : shapeIterator) {
+            // Render glyphs to atlas image
+            var index = 0;
+            final var shapeIterator = Char2LongMaps.fastIterable(shapes);
+            for (final var entry : shapeIterator) {
+                try (final var stack = MemoryStack.stackPush()) {
                     final var shape = entry.getLongValue();
                     final var atlasX = (index % sizeInSlots) * spriteSize;
                     final var atlasY = (index / sizeInSlots) * spriteSize;
@@ -197,7 +200,7 @@ public final class DefaultFontAtlas implements FontAtlas {
                     }
                     MSDFUtils.scaleShape(shape, scale); // Scale to default size of font
                     MSDFUtils.throwIfError(MSDFGen.msdf_shape_edge_colors_simple(shape, 3.0));
-                    boundsBuffer.rewind();
+                    final var boundsBuffer = MSDFGenBounds.malloc(1, stack);
                     MSDFUtils.throwIfError(MSDFGen.msdf_shape_get_bounds(shape, boundsBuffer));
                     final var bbWidth = boundsBuffer.r() - boundsBuffer.l();
                     final var bbHeight = boundsBuffer.t() - boundsBuffer.b();
@@ -237,11 +240,11 @@ public final class DefaultFontAtlas implements FontAtlas {
                     index++;
                 }
             }
-            catch (Throwable error) {
-                PDAMod.LOGGER.error("Could not load glyph data for font {}: {}",
-                    fontLocation,
-                    Exceptions.toFancyString(error));
-            }
+        }
+        catch (Throwable error) {
+            PDAMod.LOGGER.error("Could not load glyph data for font {}: {}",
+                fontLocation,
+                Exceptions.toFancyString(error));
         }
 
         // Fill remaining slots with missing sprites for consistency
@@ -257,17 +260,12 @@ public final class DefaultFontAtlas implements FontAtlas {
 
         atlasGraphics.dispose();
         dump(atlasImage, fontLocation);
-
-        // Upload atlas image to GPU memory on render thread
-        Minecraft.getInstance().execute(() -> uploadTexture(atlasImage));
+        RenderSystem.recordRenderCall(() -> uploadTexture(atlasImage));
     }
 
     void rebuild() {
         isReady.set(false);
-        PDAMod.EXECUTOR_SERVICE.submit(() -> {
-            rebuildBlocking();
-            isReady.set(true);
-        });
+        rebuildBlocking();
     }
 
     @Override

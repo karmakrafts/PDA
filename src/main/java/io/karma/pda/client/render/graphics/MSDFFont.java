@@ -20,6 +20,7 @@ import org.lwjgl.util.msdfgen.MSDFGen;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -45,7 +46,7 @@ public final class MSDFFont implements AutoCloseable {
         LibFFI.ffi_type_pointer);
 
     private final InputStream stream;
-    private final long memory; // Raw memory
+    private final ByteBuffer buffer;
     private final long library; // FT_Library
     private final FT_Face face;
     private final long font; // msdf_ft_font_handle
@@ -65,12 +66,11 @@ public final class MSDFFont implements AutoCloseable {
             // Create the font face and load it
             final var data = stream.readAllBytes();
             final var dataSize = data.length;
-            final var srcBuffer = BufferUtils.createByteBuffer(dataSize);
-            srcBuffer.put(data);
-            srcBuffer.flip();
-            memory = MemoryUtil.nmemAllocChecked(dataSize);
-            MemoryUtil.memCopy(MemoryUtil.memAddress(srcBuffer), memory, dataSize);
-            PDAMod.LOGGER.debug("Created font memory at 0x{}", Long.toHexString(memory));
+            buffer = BufferUtils.createByteBuffer(dataSize);
+            buffer.put(data);
+            buffer.flip();
+            final var dataAddress = MemoryUtil.memAddress(buffer);
+            PDAMod.LOGGER.debug("Created font memory at 0x{}", Long.toHexString(dataAddress));
 
             final var resultBuffer = stack.mallocInt(1);
             final var faceAddressBuffer = stack.mallocPointer(1);
@@ -79,7 +79,7 @@ public final class MSDFFont implements AutoCloseable {
                 MemoryUtil.memByteBuffer(resultBuffer),
                 stack.pointers(
                     stack.pointers(library).address(),
-                    stack.pointers(memory).address(),
+                    stack.pointers(dataAddress).address(),
                     MemoryUtil.memAddress(stack.longs(dataSize)),
                     MemoryUtil.memAddress(stack.longs(0)),
                     stack.pointers(faceAddressBuffer.address()).address()
@@ -167,7 +167,5 @@ public final class MSDFFont implements AutoCloseable {
         PDAMod.LOGGER.debug("Freed font face instance at 0x{}", Long.toHexString(face.address()));
         FreeType.FT_Done_FreeType(library);
         PDAMod.LOGGER.debug("Freed FreeType instance at 0x{}", Long.toHexString(library));
-        MemoryUtil.nmemFree(memory);
-        PDAMod.LOGGER.debug("Freed font memory at 0x{}", Long.toHexString(memory));
     }
 }

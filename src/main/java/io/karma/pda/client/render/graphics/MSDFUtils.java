@@ -142,7 +142,7 @@ public final class MSDFUtils {
                     final var srcPixelAddress = srcAddress + (pixelSize * srcIndex);
                     image.setRGB(dstX + x,
                         dstY + (height - y - 1),
-                        sampler.sample(srcPixelAddress, x, y, width, height));
+                        sampler.sample(srcPixelAddress));
                 }
             }
         }
@@ -185,19 +185,19 @@ public final class MSDFUtils {
             return ~(int) (255.5F - 255F * Mth.clamp(raw, 0F, 1F)) & 0xFF;
         }
 
-        BitmapSampler SDF = (address, x, y, w, h) -> {
+        BitmapSampler SDF = (address) -> {
             final var r = getAndQuantize(address, 0);
             return (0xFF << 24) | (r << 16) | (r << 8) | r;
         };
 
-        BitmapSampler MSDF = (address, x, y, w, h) -> {
+        BitmapSampler MSDF = (address) -> {
             final var r = getAndQuantize(address, 0);
             final var g = getAndQuantize(address, 1);
             final var b = getAndQuantize(address, 2);
             return (0xFF << 24) | (r << 16) | (g << 8) | b;
         };
 
-        BitmapSampler MTSDF = (address, x, y, w, h) -> {
+        BitmapSampler MTSDF = (address) -> {
             final var r = getAndQuantize(address, 0);
             final var g = getAndQuantize(address, 1);
             final var b = getAndQuantize(address, 2);
@@ -205,6 +205,6 @@ public final class MSDFUtils {
             return (a << 24) | (r << 16) | (g << 8) | b;
         };
 
-        int sample(final long address, final int x, final int y, final int w, final int h);
+        int sample(final long address);
     }
 }
