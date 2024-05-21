@@ -4,6 +4,8 @@
 
 package io.karma.pda.client.render.graphics;
 
+import io.karma.pda.client.util.MSDFUtils;
+
 /**
  * A general exception type used by {@link MSDFUtils} and {@link MSDFGenFont}.
  *

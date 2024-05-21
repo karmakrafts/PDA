@@ -2,8 +2,9 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.client.render.graphics;
+package io.karma.pda.client.util;
 
+import io.karma.pda.client.render.graphics.MSDFException;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.util.Mth;
 import org.joml.Vector2d;
@@ -38,11 +39,12 @@ public final class MSDFUtils {
                 final var contourCountBuffer = stack.mallocPointer(1);
                 MSDFUtils.throwIfError(MSDFGen.msdf_shape_get_contour_count(shape, contourCountBuffer));
                 final var contourCount = contourCountBuffer.get();
-                final var contourAddressBuffer = stack.mallocPointer(1);
                 for (long i = 0; i < contourCount; i++) {
-                    contourAddressBuffer.rewind();
-                    MSDFUtils.throwIfError(MSDFGen.msdf_shape_get_contour(shape, i, contourAddressBuffer));
-                    MSDFUtils.throwIfError(MSDFGen.msdf_contour_reverse(Checks.check(contourAddressBuffer.get())));
+                    try(final var contourStack = MemoryStack.stackPush()) {
+                        final var contourAddressBuffer = contourStack.mallocPointer(1);
+                        MSDFUtils.throwIfError(MSDFGen.msdf_shape_get_contour(shape, i, contourAddressBuffer));
+                        MSDFUtils.throwIfError(MSDFGen.msdf_contour_reverse(Checks.check(contourAddressBuffer.get())));
+                    }
                 }
             }
         }
@@ -61,28 +63,32 @@ public final class MSDFUtils {
             final var countBuffer = stack.mallocPointer(1);
             throwIfError(MSDFGen.msdf_shape_get_contour_count(shape, countBuffer));
             final var contourCount = countBuffer.get();
-            final var addressBuffer = stack.mallocPointer(1);
-            final var pos = MSDFGenVector2.malloc(1, stack);
             for (long i = 0; i < contourCount; i++) {
-                addressBuffer.rewind();
-                throwIfError(MSDFGen.msdf_shape_get_contour(shape, i, addressBuffer));
-                final var contour = Checks.check(addressBuffer.get());
-                countBuffer.rewind();
-                throwIfError(MSDFGen.msdf_contour_get_edge_count(contour, countBuffer));
-                final var edgeCount = countBuffer.get();
-                for (long j = 0; j < edgeCount; j++) {
-                    addressBuffer.rewind();
-                    throwIfError(MSDFGen.msdf_contour_get_edge(contour, j, addressBuffer));
-                    final var segment = Checks.check(addressBuffer.get());
-                    countBuffer.rewind();
-                    throwIfError(MSDFGen.msdf_segment_get_point_count(segment, countBuffer));
-                    final var pointCount = countBuffer.get();
-                    for (long k = 0; k < pointCount; k++) {
-                        pos.rewind();
-                        throwIfError(MSDFGen.msdf_segment_get_point(segment, k, pos));
-                        pos.x(pos.x() * scale);
-                        pos.y(pos.y() * scale);
-                        throwIfError(MSDFGen.msdf_segment_set_point(segment, k, pos));
+                try(final var contourStack = MemoryStack.stackPush()) {
+                    final var contourAddressBuffer = contourStack.mallocPointer(1);
+                    throwIfError(MSDFGen.msdf_shape_get_contour(shape, i, contourAddressBuffer));
+                    final var contour = Checks.check(contourAddressBuffer.get());
+                    final var edgeCountBuffer = contourStack.mallocPointer(1);
+                    throwIfError(MSDFGen.msdf_contour_get_edge_count(contour, edgeCountBuffer));
+                    final var edgeCount = edgeCountBuffer.get();
+                    for (long j = 0; j < edgeCount; j++) {
+                        try(final var edgeStack = MemoryStack.stackPush()) {
+                            final var edgeAddressBuffer = edgeStack.mallocPointer(1);
+                            throwIfError(MSDFGen.msdf_contour_get_edge(contour, j, edgeAddressBuffer));
+                            final var segment = Checks.check(edgeAddressBuffer.get());
+                            final var pointCountBuffer = edgeStack.mallocPointer(1);
+                            throwIfError(MSDFGen.msdf_segment_get_point_count(segment, pointCountBuffer));
+                            final var pointCount = pointCountBuffer.get();
+                            for (long k = 0; k < pointCount; k++) {
+                                try(final var pointStack = MemoryStack.stackPush()) {
+                                    final var pos = MSDFGenVector2.malloc(1, pointStack);
+                                    throwIfError(MSDFGen.msdf_segment_get_point(segment, k, pos));
+                                    pos.x(pos.x() * scale);
+                                    pos.y(pos.y() * scale);
+                                    throwIfError(MSDFGen.msdf_segment_set_point(segment, k, pos));
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -140,9 +146,7 @@ public final class MSDFUtils {
                 for (var x = 0; x < width; x++) {
                     final var srcIndex = (long) y * width + x;
                     final var srcPixelAddress = srcAddress + (pixelSize * srcIndex);
-                    image.setRGB(dstX + x,
-                        dstY + (height - y - 1),
-                        sampler.sample(srcPixelAddress));
+                    image.setRGB(dstX + x, dstY + (height - y - 1), sampler.sample(srcPixelAddress));
                 }
             }
         }

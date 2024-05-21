@@ -19,7 +19,7 @@ float median(vec3 rgb) {
 }
 
 void main() {
-    float sd = 4.0 * (median(texture(Sampler0, texCoord0).rgb) - 0.5);
+    float sd = PxRange * (median(texture(Sampler0, texCoord0).rgb) - 0.5);
     float opacity = clamp(sd + 0.5, 0.0, 1.0);
     fragColor = mix(vec4(0.0), vertexColor * ColorModulator, opacity);
 }

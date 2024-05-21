@@ -4,13 +4,19 @@
 
 package io.karma.pda.client.util;
 
+import io.karma.pda.api.common.util.Exceptions;
+import io.karma.pda.common.PDAMod;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.lwjgl.opengl.GL11;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.file.Files;
 
 /**
  * @author Alexander Hinze
@@ -40,5 +46,26 @@ public final class TextureUtils {
         buffer.asIntBuffer().put(data);
         buffer.flip();
         return buffer;
+    }
+
+    public static void dump(final BufferedImage image, final ResourceLocation location) {
+        try {
+            final var directory = FMLLoader.getGamePath().resolve("pda");
+            if (!Files.exists(directory)) {
+                Files.createDirectories(directory);
+            }
+            final var fileName = String.format("%s_%s.png",
+                location.getNamespace(),
+                location.getPath().replace('/', '_'));
+            final var filePath = directory.resolve(fileName);
+            Files.deleteIfExists(filePath);
+            try (final var outStream = Files.newOutputStream(filePath)) {
+                ImageIO.write(image, "PNG", outStream);
+            }
+            PDAMod.LOGGER.debug("Dumped image for {} to {}", location, filePath);
+        }
+        catch (Throwable error) {
+            PDAMod.LOGGER.error("Could not dump image {}: {}", location, Exceptions.toFancyString(error));
+        }
     }
 }

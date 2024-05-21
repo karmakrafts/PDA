@@ -128,8 +128,8 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                     width(100.percent)
                     grow(1F)
                 }) {
-                    text("Testing 4")
-                    color((Color.WHITE..Color.LIGHT_GREY).gradient(GradientType.VERTICAL))
+                    text("- Testing 123 -")
+                    color((Color.WHITE..Color.GREEN).gradient(GradientType.VERTICAL))
                 }
             }
         }

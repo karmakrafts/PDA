@@ -174,7 +174,7 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     public void onResourceManagerReload(final @NotNull ResourceManager manager) {
         PDAMod.LOGGER.debug("Rebuilding font atlas cache");
         for (final var fontAtlas : fontAtlasCache.values()) {
-            fontAtlas.rebuild();
+            Minecraft.getInstance().execute(fontAtlas::rebuild);
         }
     }
 

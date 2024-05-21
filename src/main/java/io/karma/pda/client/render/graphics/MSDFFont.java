@@ -4,6 +4,8 @@
 
 package io.karma.pda.client.render.graphics;
 
+import io.karma.pda.client.util.FreeTypeUtils;
+import io.karma.pda.client.util.MSDFUtils;
 import io.karma.pda.common.PDAMod;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.BufferUtils;
@@ -20,7 +22,6 @@ import org.lwjgl.util.msdfgen.MSDFGen;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -46,10 +47,14 @@ public final class MSDFFont implements AutoCloseable {
         LibFFI.ffi_type_pointer);
 
     private final InputStream stream;
-    private final ByteBuffer buffer;
     private final long library; // FT_Library
     private final FT_Face face;
     private final long font; // msdf_ft_font_handle
+
+    static {
+        MSDFUtils.throwIfError(MSDFGen.msdf_ft_set_load_callback(nameAddress -> FreeType.getLibrary().getFunctionAddress(
+            MemoryUtil.memASCII(nameAddress))));
+    }
 
     public MSDFFont(final InputStream stream) throws IOException {
         this.stream = stream;
@@ -66,7 +71,7 @@ public final class MSDFFont implements AutoCloseable {
             // Create the font face and load it
             final var data = stream.readAllBytes();
             final var dataSize = data.length;
-            buffer = BufferUtils.createByteBuffer(dataSize);
+            final var buffer = BufferUtils.createByteBuffer(dataSize);
             buffer.put(data);
             buffer.flip();
             final var dataAddress = MemoryUtil.memAddress(buffer);
@@ -92,10 +97,9 @@ public final class MSDFFont implements AutoCloseable {
             PDAMod.LOGGER.debug("Created font face instance at 0x{}", Long.toHexString(face.address()));
 
             // Setup msdfgen to use LWJGL FreeType bindings
-            MSDFUtils.throwIfError(MSDFGen.msdf_ft_set_load_callback(nameAddress -> FreeType.getLibrary().getFunctionAddress(
-                MemoryUtil.memASCII(nameAddress))));
             final var fontAddressBuffer = stack.mallocPointer(1);
-            MSDFUtils.throwIfError(MSDFGen.nmsdf_ft_adopt_font(face.address(), fontAddressBuffer.address()));
+            MSDFUtils.throwIfError(MSDFGen.msdf_ft_adopt_font(MemoryUtil.memByteBuffer(face.address(), face.sizeof()),
+                fontAddressBuffer));
             font = Checks.check(fontAddressBuffer.get());
         }
     }
@@ -139,23 +143,15 @@ public final class MSDFFont implements AutoCloseable {
 
         final var ascent = face.ascender() >> 6;
         final var descent = face.descender() >> 6;
-        final var advance = (int) (((double) glyph.advance().x() / 64.0) * scale);
+        final var advance = (int) (FreeTypeUtils.f26Dot6ToDouble(glyph.advance().x()) * scale);
 
         final var metrics = glyph.metrics();
-        final var width = (int) (((double) metrics.width() / 64.0) * scale);
-        final var height = (int) (((double) metrics.height() / 64.0) * scale);
-        final var bearingX = (int) (((double) metrics.horiBearingX() / 64.0) * scale);
-        final var bearingY = (int) (((double) metrics.horiBearingY() / 64.0) * scale);
+        final var width = (int) (FreeTypeUtils.f26Dot6ToDouble(metrics.width()) * scale);
+        final var height = (int) (FreeTypeUtils.f26Dot6ToDouble(metrics.height()) * scale);
+        final var bearingX = (int) (FreeTypeUtils.f26Dot6ToDouble(metrics.horiBearingX()) * scale);
+        final var bearingY = (int) (FreeTypeUtils.f26Dot6ToDouble(metrics.horiBearingY()) * scale);
 
         return new DefaultGlyphMetrics(width, height, ascent, descent, advance, bearingX, bearingY);
-    }
-
-    public long getLibrary() {
-        return library;
-    }
-
-    public FT_Face getFace() {
-        return face;
     }
 
     @Override

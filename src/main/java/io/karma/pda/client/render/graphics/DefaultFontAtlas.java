@@ -4,19 +4,17 @@
 
 package io.karma.pda.client.render.graphics;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import io.karma.pda.api.client.render.graphics.FontAtlas;
 import io.karma.pda.api.client.render.graphics.GlyphSprite;
 import io.karma.pda.api.common.app.theme.font.Font;
 import io.karma.pda.api.common.util.Exceptions;
+import io.karma.pda.client.util.MSDFUtils;
 import io.karma.pda.client.util.TextureUtils;
 import io.karma.pda.common.PDAMod;
 import it.unimi.dsi.fastutil.chars.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.loading.FMLLoader;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL33;
@@ -25,12 +23,9 @@ import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.msdfgen.MSDFGen;
 import org.lwjgl.util.msdfgen.MSDFGenBounds;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.nio.file.Files;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Alexander Hinze
@@ -47,10 +42,11 @@ public final class DefaultFontAtlas implements FontAtlas {
     private final float uScale;
     private final float vScale;
     private final DefaultGlyphSprite missingGlyphSprite;
-    private final Char2ObjectOpenHashMap<DefaultGlyphSprite> glyphSprites = new Char2ObjectOpenHashMap<>();
-    private final AtomicBoolean isReady = new AtomicBoolean(false);
     private final int textureId;
     private final Image missingGlyphImage;
+
+    private final Char2ObjectOpenHashMap<DefaultGlyphSprite> glyphSprites = new Char2ObjectOpenHashMap<>();
+    private boolean isReady = false;
     private int maxGlyphWidth;
     private int maxGlyphHeight;
     private int maxGlyphBearingX;
@@ -102,37 +98,19 @@ public final class DefaultFontAtlas implements FontAtlas {
         final var w = image.getWidth();
         final var h = image.getHeight();
         final var buffer = TextureUtils.toBuffer(image);
-        try(final var stack = MemoryStack.stackPush()) {
-            GL11.glTexParameteriv(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_RGBA, stack.ints(
-                GL11.GL_BLUE, GL11.GL_GREEN, GL11.GL_RED, GL11.GL_ALPHA));
+        PDAMod.LOGGER.debug("Uploading {} bytes of texture data", buffer.capacity());
+        try (final var stack = MemoryStack.stackPush()) {
+            GL11.glTexParameteriv(GL11.GL_TEXTURE_2D,
+                GL33.GL_TEXTURE_SWIZZLE_RGBA,
+                stack.ints(GL11.GL_BLUE, GL11.GL_GREEN, GL11.GL_RED, GL11.GL_ALPHA));
         }
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, w, h, 0, GL12.GL_BGRA, GL11.GL_UNSIGNED_BYTE, buffer);
         unbind();
-        isReady.set(true); // After uploading, we are ready
     }
 
-    private static void dump(final BufferedImage image, final ResourceLocation location) {
-        try {
-            final var directory = FMLLoader.getGamePath().resolve("pda");
-            if (!Files.exists(directory)) {
-                Files.createDirectories(directory);
-            }
-            final var fileName = String.format("%s_%s.png",
-                location.getNamespace(),
-                location.getPath().replace('/', '_'));
-            final var filePath = directory.resolve(fileName);
-            Files.deleteIfExists(filePath);
-            try (final var outStream = Files.newOutputStream(filePath)) {
-                ImageIO.write(image, "PNG", outStream);
-            }
-            PDAMod.LOGGER.debug("Dumped font atlas for {} to {}", location, filePath);
-        }
-        catch (Throwable error) {
-            PDAMod.LOGGER.error("Could not dump font atlas {}: {}", location, Exceptions.toFancyString(error));
-        }
-    }
+    void rebuild() {
+        isReady = false;
 
-    private void rebuildBlocking() {
         final var fontLocation = font.getLocation();
         PDAMod.LOGGER.debug("Rebuilding font atlas for font {} with {}x{} slots",
             fontLocation,
@@ -140,6 +118,10 @@ public final class DefaultFontAtlas implements FontAtlas {
             sizeInSlots);
         synchronized (this) {
             glyphSprites.clear();
+            maxGlyphWidth = 0;
+            maxGlyphHeight = 0;
+            maxGlyphBearingX = 0;
+            maxGlyphBearingY = 0;
         }
 
         final var atlasWidth = getWidth();
@@ -147,8 +129,8 @@ public final class DefaultFontAtlas implements FontAtlas {
         final var atlasImage = new BufferedImage(atlasWidth, atlasHeight, BufferedImage.TYPE_INT_ARGB);
         final var atlasGraphics = atlasImage.createGraphics();
         final var resourceManager = Minecraft.getInstance().getResourceManager();
-        final var shapes = new Char2LongLinkedOpenHashMap();
 
+        final var shapes = new Char2LongLinkedOpenHashMap();
         var maxWidth = 0.0;
         var maxHeight = 0.0;
 
@@ -200,6 +182,7 @@ public final class DefaultFontAtlas implements FontAtlas {
                     }
                     MSDFUtils.scaleShape(shape, scale); // Scale to default size of font
                     MSDFUtils.throwIfError(MSDFGen.msdf_shape_edge_colors_simple(shape, 3.0));
+
                     final var boundsBuffer = MSDFGenBounds.malloc(1, stack);
                     MSDFUtils.throwIfError(MSDFGen.msdf_shape_get_bounds(shape, boundsBuffer));
                     final var bbWidth = boundsBuffer.r() - boundsBuffer.l();
@@ -213,7 +196,9 @@ public final class DefaultFontAtlas implements FontAtlas {
                         1.0, 1.0, sdfTx, sdfTy, sdfRange,
                         atlasImage, atlasX, atlasY);
                     // @formatter:on
+
                     final var c = entry.getCharKey();
+
                     final var metrics = Objects.requireNonNull(fontShapes.getGlyphMetrics(c, scale));
                     final var width = metrics.getWidth();
                     final var height = metrics.getHeight();
@@ -221,21 +206,20 @@ public final class DefaultFontAtlas implements FontAtlas {
                     final var bearingY = metrics.getBearingY();
                     final var u = (1F / atlasWidth) * atlasX;
                     final var v = (1F / atlasHeight) * atlasY;
-                    synchronized (this) {
-                        if (maxGlyphWidth < width) {
-                            maxGlyphWidth = width;
-                        }
-                        if (maxGlyphHeight < height) {
-                            maxGlyphHeight = height;
-                        }
-                        if (maxGlyphBearingX < bearingX) {
-                            maxGlyphBearingX = bearingX;
-                        }
-                        if (maxGlyphBearingY < bearingY) {
-                            maxGlyphBearingY = bearingY;
-                        }
-                        glyphSprites.put(c, new DefaultGlyphSprite(metrics, spriteSize, spriteSize, u, v));
+                    if (maxGlyphWidth < width) {
+                        maxGlyphWidth = width;
                     }
+                    if (maxGlyphHeight < height) {
+                        maxGlyphHeight = height;
+                    }
+                    if (maxGlyphBearingX < bearingX) {
+                        maxGlyphBearingX = bearingX;
+                    }
+                    if (maxGlyphBearingY < bearingY) {
+                        maxGlyphBearingY = bearingY;
+                    }
+                    glyphSprites.put(c, new DefaultGlyphSprite(metrics, spriteSize, spriteSize, u, v));
+
                     MSDFGen.msdf_shape_free(shape);
                     index++;
                 }
@@ -259,13 +243,10 @@ public final class DefaultFontAtlas implements FontAtlas {
         }
 
         atlasGraphics.dispose();
-        dump(atlasImage, fontLocation);
-        RenderSystem.recordRenderCall(() -> uploadTexture(atlasImage));
-    }
+        TextureUtils.dump(atlasImage, fontLocation);
+        uploadTexture(atlasImage);
 
-    void rebuild() {
-        isReady.set(false);
-        rebuildBlocking();
+        isReady = true;
     }
 
     @Override
@@ -355,7 +336,7 @@ public final class DefaultFontAtlas implements FontAtlas {
 
     @Override
     public boolean isReady() {
-        return isReady.get();
+        return isReady;
     }
 
     @Override
