@@ -40,7 +40,7 @@ public final class MSDFUtils {
                 MSDFUtils.throwIfError(MSDFGen.msdf_shape_get_contour_count(shape, contourCountBuffer));
                 final var contourCount = contourCountBuffer.get();
                 for (long i = 0; i < contourCount; i++) {
-                    try(final var contourStack = MemoryStack.stackPush()) {
+                    try (final var contourStack = MemoryStack.stackPush()) {
                         final var contourAddressBuffer = contourStack.mallocPointer(1);
                         MSDFUtils.throwIfError(MSDFGen.msdf_shape_get_contour(shape, i, contourAddressBuffer));
                         MSDFUtils.throwIfError(MSDFGen.msdf_contour_reverse(Checks.check(contourAddressBuffer.get())));
@@ -64,7 +64,7 @@ public final class MSDFUtils {
             throwIfError(MSDFGen.msdf_shape_get_contour_count(shape, countBuffer));
             final var contourCount = countBuffer.get();
             for (long i = 0; i < contourCount; i++) {
-                try(final var contourStack = MemoryStack.stackPush()) {
+                try (final var contourStack = MemoryStack.stackPush()) {
                     final var contourAddressBuffer = contourStack.mallocPointer(1);
                     throwIfError(MSDFGen.msdf_shape_get_contour(shape, i, contourAddressBuffer));
                     final var contour = Checks.check(contourAddressBuffer.get());
@@ -72,7 +72,7 @@ public final class MSDFUtils {
                     throwIfError(MSDFGen.msdf_contour_get_edge_count(contour, edgeCountBuffer));
                     final var edgeCount = edgeCountBuffer.get();
                     for (long j = 0; j < edgeCount; j++) {
-                        try(final var edgeStack = MemoryStack.stackPush()) {
+                        try (final var edgeStack = MemoryStack.stackPush()) {
                             final var edgeAddressBuffer = edgeStack.mallocPointer(1);
                             throwIfError(MSDFGen.msdf_contour_get_edge(contour, j, edgeAddressBuffer));
                             final var segment = Checks.check(edgeAddressBuffer.get());
@@ -80,7 +80,7 @@ public final class MSDFUtils {
                             throwIfError(MSDFGen.msdf_segment_get_point_count(segment, pointCountBuffer));
                             final var pointCount = pointCountBuffer.get();
                             for (long k = 0; k < pointCount; k++) {
-                                try(final var pointStack = MemoryStack.stackPush()) {
+                                try (final var pointStack = MemoryStack.stackPush()) {
                                     final var pos = MSDFGenVector2.malloc(1, pointStack);
                                     throwIfError(MSDFGen.msdf_segment_get_point(segment, k, pos));
                                     pos.x(pos.x() * scale);
