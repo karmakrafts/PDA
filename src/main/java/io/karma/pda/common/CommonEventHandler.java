@@ -10,8 +10,12 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.karma.pda.api.common.app.component.Container;
+import io.karma.pda.api.common.app.theme.font.FontFamily;
+import io.karma.pda.api.common.app.theme.font.FontStyle;
+import io.karma.pda.api.common.app.theme.font.FontVariant;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.api.common.util.Exceptions;
+import io.karma.pda.client.render.graphics.DefaultFontRenderer;
 import io.karma.pda.common.init.ModBlocks;
 import io.karma.pda.common.init.ModItems;
 import io.karma.pda.common.item.MemoryCardItem;
@@ -21,6 +25,7 @@ import io.karma.pda.common.network.cb.CPacketOpenApp;
 import io.karma.pda.common.network.cb.CPacketTerminateSession;
 import io.karma.pda.common.session.DefaultSessionHandler;
 import io.karma.pda.common.util.TreeGraph;
+import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.UuidArgument;
@@ -31,6 +36,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
@@ -39,15 +45,19 @@ import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.registries.IForgeRegistryInternal;
 import net.minecraftforge.registries.NewRegistryEvent;
 import net.minecraftforge.registries.RegistryBuilder;
+import net.minecraftforge.registries.RegistryManager;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -153,12 +163,27 @@ public final class CommonEventHandler {
         }
     }
 
+    private void onBakeFontFamilies(final IForgeRegistryInternal<FontFamily> registry, final RegistryManager manager) {
+        // Preload fonts on client when baking font family registry
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            Minecraft.getInstance().execute(() -> {
+                PDAMod.LOGGER.debug("Pre-generating font atlases for all registered families");
+                // @formatter:off
+                registry.getValues().stream()
+                    .flatMap(family -> Arrays.stream(FontStyle.values())
+                        .map(style -> family.getFont(style, FontVariant.DEFAULT_SIZE)))
+                    .forEach(DefaultFontRenderer.INSTANCE::getFontAtlas);
+                // @formatter:on
+            });
+        });
+    }
+
     private void onNewRegistry(final NewRegistryEvent event) {
         PDAMod.LOGGER.info("Creating registries");
         event.create(RegistryBuilder.of(Constants.COMPONENT_REGISTRY_NAME));
         event.create(RegistryBuilder.of(Constants.APP_REGISTRY_NAME));
         event.create(RegistryBuilder.of(Constants.THEME_REGISTRY_NAME));
-        event.create(RegistryBuilder.of(Constants.FONT_FAMILY_REGISTRY_NAME));
+        event.create(RegistryBuilder.<FontFamily>of(Constants.FONT_FAMILY_REGISTRY_NAME).onBake(this::onBakeFontFamilies));
         event.create(RegistryBuilder.of(Constants.GRADIENT_FUNCTION_REGISTRY_NAME));
     }
 
