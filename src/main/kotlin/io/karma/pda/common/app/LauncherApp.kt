@@ -8,6 +8,8 @@ import io.karma.pda.api.common.app.AppType
 import io.karma.pda.api.common.app.component.Separator
 import io.karma.pda.api.common.app.component.Spinner
 import io.karma.pda.api.common.app.compose.*
+import io.karma.pda.api.common.app.theme.font.DefaultFontFamilies
+import io.karma.pda.api.common.app.theme.font.FontStyle
 import io.karma.pda.api.common.color.Color
 import io.karma.pda.api.common.color.GradientType
 import io.karma.pda.api.common.flex.FlexBorder
@@ -128,7 +130,8 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                     width(100.percent)
                     grow(1F)
                 }) {
-                    text("- Testing 123 -")
+                    font(DefaultFontFamilies.FIXEDSYS.getFont(FontStyle.REGULAR, 32F))
+                    text("{ println() }")
                     color((Color.WHITE..Color.GREEN).gradient(GradientType.VERTICAL))
                 }
             }

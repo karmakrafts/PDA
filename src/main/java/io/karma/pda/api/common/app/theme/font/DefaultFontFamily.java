@@ -26,7 +26,7 @@ import java.util.*;
 public final class DefaultFontFamily implements FontFamily {
     private final ResourceLocation name;
     private final Set<FontStyle> styles = Collections.synchronizedSet(EnumSet.noneOf(FontStyle.class));
-    private final Map<FontStyle, DefaultFontVariant> fonts = Collections.synchronizedMap(new EnumMap<>(FontStyle.class));
+    private final Map<FontStyle, DefaultFont> fonts = Collections.synchronizedMap(new EnumMap<>(FontStyle.class));
     private Config config;
 
     public DefaultFontFamily(final ResourceLocation name) {
@@ -78,14 +78,14 @@ public final class DefaultFontFamily implements FontFamily {
         if (size < 0F) {
             throw new IllegalArgumentException("Size must be greater than or equal to zero");
         }
-        return fonts.computeIfAbsent(style, s -> {
+        return new DefaultFontVariant(fonts.computeIfAbsent(style, s -> {
             final var locationString = config.variants.get(s);
             final var location = ResourceLocation.tryParse(locationString);
             if (location == null) {
                 throw new IllegalStateException(String.format("Malformed font location: %s", locationString));
             }
-            return new DefaultFontVariant(new DefaultFont(this, config.supportedCharSet, location), s, size);
-        });
+            return new DefaultFont(this, config.supportedCharSet, location);
+        }), style, size);
     }
 
     private final class ReloadListener implements ResourceManagerReloadListener {

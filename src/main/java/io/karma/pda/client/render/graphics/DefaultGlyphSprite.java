@@ -16,16 +16,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public final class DefaultGlyphSprite implements GlyphSprite {
     private final GlyphMetrics metrics;
-    private final int width;
-    private final int height;
+    private final int size;
     private final float u;
     private final float v;
 
-    public DefaultGlyphSprite(final GlyphMetrics metrics, final int width, final int height, final float u,
-                              final float v) {
+    public DefaultGlyphSprite(final GlyphMetrics metrics, final int size, final float u, final float v) {
         this.metrics = metrics;
-        this.width = width;
-        this.height = height;
+        this.size = size;
         this.u = u;
         this.v = v;
     }
@@ -36,13 +33,8 @@ public final class DefaultGlyphSprite implements GlyphSprite {
     }
 
     @Override
-    public int getWidth() {
-        return width;
-    }
-
-    @Override
-    public int getHeight() {
-        return height;
+    public int getSize() {
+        return size;
     }
 
     @Override

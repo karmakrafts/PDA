@@ -23,8 +23,8 @@ import java.util.List;
  */
 @OnlyIn(Dist.CLIENT)
 public final class FreeTypeUtils {
-    private static final double F16DOT16_SCALE = 65536.0;
-    private static final double F26DOT6_SCALE = 64.0;
+    private static final float F16DOT16_SCALE = 65536F;
+    private static final float F26DOT6_SCALE = 64F;
 
     // @formatter:off
     private FreeTypeUtils() {}
@@ -32,43 +32,27 @@ public final class FreeTypeUtils {
 
     // F16DOT16 conversions
 
-    public static double f16Dot16ToDouble(final double value) {
-        return (1.0 / F16DOT16_SCALE) * value;
+    public static float f16Dot16ToFP32(final long value) {
+        return (1F / F16DOT16_SCALE) * (float) value;
     }
 
-    public static double f16Dot16ToDouble(final long value) {
-        return (1.0 / F16DOT16_SCALE) * (double) value;
-    }
-
-    public static double doubleToF16Dot16(final double value) {
+    public static float fp32ToF16Dot16(final float value) {
         return value * F16DOT16_SCALE;
-    }
-
-    public static double longToF16Dot16(final long value) {
-        return (double) value * F16DOT16_SCALE;
     }
 
     // F26DOT6 conversions
 
-    public static double f26Dot6ToDouble(final long value) {
-        return (1.0 / F26DOT6_SCALE) * (double) value;
+    public static float f26Dot6ToFP32(final long value) {
+        return (1F / F26DOT6_SCALE) * (float) value;
     }
 
-    public static long f26Dot6ToLong(final long value) {
-        return value >> 6;
-    }
-
-    public static long doubleToF26Dot6(final double value) {
-        return (long) (value * F26DOT6_SCALE);
-    }
-
-    public static long longToF26Dot6(final long value) {
-        return value << 6;
+    public static float fp32ToF26Dot6(final float value) {
+        return value * F26DOT6_SCALE;
     }
 
     // Font variation axes - adapted from https://github.com/Chlumsky/msdfgen/blob/master/ext/import-font.cpp#L269-L311
 
-    public record FontVariationAxis(String name, double min, double max, double def) {
+    public record FontVariationAxis(String name, float min, float max, float def) {
     }
 
     public static List<FontVariationAxis> listFontVariationAxes(final long library, final FT_Face face) {
@@ -87,9 +71,9 @@ public final class FreeTypeUtils {
             for (var i = 0; i < numAxes; i++) {
                 final var axis = master.axis().get(i);
                 axes.add(new FontVariationAxis(axis.nameString(),
-                    f16Dot16ToDouble(axis.minimum()),
-                    f16Dot16ToDouble(axis.maximum()),
-                    f16Dot16ToDouble(axis.def())));
+                    f16Dot16ToFP32(axis.minimum()),
+                    f16Dot16ToFP32(axis.maximum()),
+                    f16Dot16ToFP32(axis.def())));
             }
             FreeType.FT_Done_MM_Var(library, master);
             return axes;
@@ -97,7 +81,7 @@ public final class FreeTypeUtils {
     }
 
     public static boolean setFontVariationAxis(final long library, final FT_Face face, final String name,
-                                               final double coord) {
+                                               final float coord) {
         try (final var stack = MemoryStack.stackPush()) {
             final var faceFlags = face.face_flags();
             if ((faceFlags & FreeType.FT_FACE_FLAG_MULTIPLE_MASTERS) == 0) {
@@ -117,7 +101,7 @@ public final class FreeTypeUtils {
                     if (!axis.nameString().equals(name)) {
                         continue;
                     }
-                    MemoryUtil.memPutDouble(coordsBuffer.address(i), doubleToF16Dot16(coord));
+                    MemoryUtil.memPutDouble(coordsBuffer.address(i), fp32ToF16Dot16(coord));
                     result = true;
                     break;
                 }

@@ -135,23 +135,25 @@ public final class MSDFFont implements AutoCloseable {
         return Objects.requireNonNull(face.glyph());
     }
 
-    public @Nullable DefaultGlyphMetrics getGlyphMetrics(final int c, final double scale) {
+    public @Nullable DefaultGlyphMetrics createGlyphMetrics(final int c, final float scale) {
         final var glyph = getGlyph(c);
         if (glyph == null) {
             return null;
         }
 
-        final var ascent = face.ascender() >> 6;
-        final var descent = face.descender() >> 6;
-        final var advance = (int) (FreeTypeUtils.f26Dot6ToDouble(glyph.advance().x()) * scale);
+        final var ascent = FreeTypeUtils.f26Dot6ToFP32(face.ascender()) * scale;
+        final var descent = FreeTypeUtils.f26Dot6ToFP32(face.descender()) * scale;
+        final var advance = glyph.advance(); // Warning can be ignored
+        final var advanceX = FreeTypeUtils.f26Dot6ToFP32(advance.x()) * scale;
+        final var advanceY = FreeTypeUtils.f26Dot6ToFP32(advance.y()) * scale;
 
         final var metrics = glyph.metrics();
-        final var width = (int) (FreeTypeUtils.f26Dot6ToDouble(metrics.width()) * scale);
-        final var height = (int) (FreeTypeUtils.f26Dot6ToDouble(metrics.height()) * scale);
-        final var bearingX = (int) (FreeTypeUtils.f26Dot6ToDouble(metrics.horiBearingX()) * scale);
-        final var bearingY = (int) (FreeTypeUtils.f26Dot6ToDouble(metrics.horiBearingY()) * scale);
+        final var width = FreeTypeUtils.f26Dot6ToFP32(metrics.width()) * scale;
+        final var height = FreeTypeUtils.f26Dot6ToFP32(metrics.height()) * scale;
+        final var bearingX = FreeTypeUtils.f26Dot6ToFP32(metrics.horiBearingX()) * scale;
+        final var bearingY = FreeTypeUtils.f26Dot6ToFP32(metrics.horiBearingY()) * scale;
 
-        return new DefaultGlyphMetrics(width, height, ascent, descent, advance, bearingX, bearingY);
+        return new DefaultGlyphMetrics(width, height, ascent, descent, advanceX, advanceY, bearingX, bearingY);
     }
 
     @Override

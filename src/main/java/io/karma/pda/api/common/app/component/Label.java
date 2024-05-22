@@ -4,8 +4,11 @@
 
 package io.karma.pda.api.common.app.component;
 
+import io.karma.pda.api.common.app.theme.font.DefaultFontFamilies;
+import io.karma.pda.api.common.app.theme.font.Font;
 import io.karma.pda.api.common.color.Color;
 import io.karma.pda.api.common.color.ColorProvider;
+import io.karma.pda.api.common.flex.FlexNodeType;
 import io.karma.pda.api.common.state.MutableState;
 import io.karma.pda.api.common.state.Synchronize;
 
@@ -17,11 +20,14 @@ import java.util.UUID;
  */
 public class Label extends AbstractComponent {
     @Synchronize
+    public final MutableState<Font> font = MutableState.of(DefaultFontFamilies.FIXEDSYS.getDefaultFont());
+    @Synchronize
     public final MutableState<String> text = MutableState.of("");
     @Synchronize
     public final MutableState<ColorProvider> color = MutableState.of(Color.WHITE);
 
     public Label(final ComponentType<?> type, final UUID uuid) {
         super(type, uuid);
+        flexNode.setType(FlexNodeType.TEXT);
     }
 }

@@ -15,9 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public interface GlyphSprite {
     GlyphMetrics getMetrics();
 
-    int getWidth();
-
-    int getHeight();
+    int getSize();
 
     float getU();
 

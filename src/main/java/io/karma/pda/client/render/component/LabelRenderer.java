@@ -7,8 +7,6 @@ package io.karma.pda.client.render.component;
 import io.karma.pda.api.client.render.component.AbstractComponentRenderer;
 import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.common.app.component.Label;
-import io.karma.pda.api.common.app.theme.font.DefaultFontFamilies;
-import io.karma.pda.api.common.app.theme.font.FontStyle;
 import io.karma.pda.api.common.flex.FlexNode;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -22,7 +20,7 @@ public final class LabelRenderer extends AbstractComponentRenderer<Label> {
     @Override
     public void render(final Label component, final FlexNode flexNode, final Graphics graphics) {
         try (final var state = graphics.pushState()) {
-            state.setFont(DefaultFontFamilies.FIXEDSYS.getFont(FontStyle.REGULAR, 32F));
+            state.setFont(component.font.get());
             state.setBrush(graphics.getContext().getBrushFactory().create(component.color.get()));
             graphics.text(flexNode.getAbsoluteX(), flexNode.getAbsoluteY(), component.text.get());
         }

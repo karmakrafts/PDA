@@ -13,17 +13,19 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  */
 @OnlyIn(Dist.CLIENT)
 public interface GlyphMetrics {
-    int getWidth();
+    float getWidth();
 
-    int getHeight();
+    float getHeight();
 
-    int getAscent();
+    float getAscent();
 
-    int getDescent();
+    float getDescent();
 
-    int getAdvance();
+    float getAdvanceX();
 
-    int getBearingX();
+    float getAdvanceY();
 
-    int getBearingY();
+    float getBearingX();
+
+    float getBearingY();
 }

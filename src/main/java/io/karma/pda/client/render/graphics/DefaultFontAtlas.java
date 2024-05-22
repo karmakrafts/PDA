@@ -37,7 +37,7 @@ public final class DefaultFontAtlas implements FontAtlas {
     private final int spriteSize;
     private final int sizeInSlots;
     private final int spriteBorder;
-    private final double sdfRange;
+    private final float sdfRange;
     private final int renderType;
     private final float uScale;
     private final float vScale;
@@ -47,12 +47,12 @@ public final class DefaultFontAtlas implements FontAtlas {
 
     private final Char2ObjectOpenHashMap<DefaultGlyphSprite> glyphSprites = new Char2ObjectOpenHashMap<>();
     private boolean isReady = false;
-    private int maxGlyphWidth;
-    private int maxGlyphHeight;
-    private int maxGlyphBearingX;
-    private int maxGlyphBearingY;
+    private float maxGlyphWidth;
+    private float maxGlyphHeight;
+    private float maxGlyphBearingX;
+    private float maxGlyphBearingY;
 
-    public DefaultFontAtlas(final Font font, final int spriteSize, final int spriteBorder, final double sdfRange,
+    public DefaultFontAtlas(final Font font, final int spriteSize, final int spriteBorder, final float sdfRange,
                             final int renderType) {
         this.font = font;
         this.spriteSize = spriteSize;
@@ -85,10 +85,10 @@ public final class DefaultFontAtlas implements FontAtlas {
         vScale = 1F / getHeight();
 
         // @formatter:off
-        missingGlyphSprite = new DefaultGlyphSprite(new DefaultGlyphMetrics(spriteSize, spriteSize, 0, 0, 0, spriteSize, 0),
-            spriteSize, spriteSize, 0F, 0F);
+        missingGlyphSprite = new DefaultGlyphSprite(new DefaultGlyphMetrics(spriteSize, spriteSize, 0, 0, spriteSize, spriteSize, 0, 0),
+            spriteSize, 0F, 0F);
         // @formatter:on
-        textureId = TextureUtils.createTexture();
+        textureId = TextureUtils.createTexture(true);
         rebuild();
         PDAMod.DISPOSITION_HANDLER.addObject(this);
     }
@@ -164,7 +164,7 @@ public final class DefaultFontAtlas implements FontAtlas {
 
             final var totalSpriteBorder = spriteBorder << 1;
             final var actualSpriteSize = spriteSize - totalSpriteBorder;
-            final var scale = (double) actualSpriteSize / Math.max(maxWidth, maxHeight);
+            final var scale = (float) actualSpriteSize / (float) Math.max(maxWidth, maxHeight);
 
             // Render glyphs to atlas image
             var index = 0;
@@ -198,27 +198,28 @@ public final class DefaultFontAtlas implements FontAtlas {
                     // @formatter:on
 
                     final var c = entry.getCharKey();
-
-                    final var metrics = Objects.requireNonNull(fontShapes.getGlyphMetrics(c, scale));
-                    final var width = metrics.getWidth();
-                    final var height = metrics.getHeight();
-                    final var bearingX = metrics.getBearingX();
-                    final var bearingY = metrics.getBearingY();
-                    final var u = (1F / atlasWidth) * atlasX;
-                    final var v = (1F / atlasHeight) * atlasY;
-                    if (maxGlyphWidth < width) {
-                        maxGlyphWidth = width;
+                    final var metrics = fontShapes.createGlyphMetrics(c, scale);
+                    if (metrics != null) {
+                        final var width = metrics.getWidth();
+                        final var height = metrics.getHeight();
+                        final var bearingX = metrics.getBearingX();
+                        final var bearingY = metrics.getBearingY();
+                        final var u = (1F / atlasWidth) * atlasX;
+                        final var v = (1F / atlasHeight) * atlasY;
+                        if (maxGlyphWidth < width) {
+                            maxGlyphWidth = width;
+                        }
+                        if (maxGlyphHeight < height) {
+                            maxGlyphHeight = height;
+                        }
+                        if (maxGlyphBearingX < bearingX) {
+                            maxGlyphBearingX = bearingX;
+                        }
+                        if (maxGlyphBearingY < bearingY) {
+                            maxGlyphBearingY = bearingY;
+                        }
+                        glyphSprites.put(c, new DefaultGlyphSprite(metrics, spriteSize, u, v));
                     }
-                    if (maxGlyphHeight < height) {
-                        maxGlyphHeight = height;
-                    }
-                    if (maxGlyphBearingX < bearingX) {
-                        maxGlyphBearingX = bearingX;
-                    }
-                    if (maxGlyphBearingY < bearingY) {
-                        maxGlyphBearingY = bearingY;
-                    }
-                    glyphSprites.put(c, new DefaultGlyphSprite(metrics, spriteSize, spriteSize, u, v));
 
                     MSDFGen.msdf_shape_free(shape);
                     index++;
@@ -260,27 +261,32 @@ public final class DefaultFontAtlas implements FontAtlas {
     }
 
     @Override
+    public int getSpriteSize() {
+        return spriteSize;
+    }
+
+    @Override
     public int getSpriteBorder() {
         return spriteBorder;
     }
 
     @Override
-    public int getMaxGlyphWidth() {
+    public float getMaxGlyphWidth() {
         return maxGlyphWidth;
     }
 
     @Override
-    public int getMaxGlyphHeight() {
+    public float getMaxGlyphHeight() {
         return maxGlyphHeight;
     }
 
     @Override
-    public int getMaxGlyphBearingX() {
+    public float getMaxGlyphBearingX() {
         return maxGlyphBearingX;
     }
 
     @Override
-    public int getMaxGlyphBearingY() {
+    public float getMaxGlyphBearingY() {
         return maxGlyphBearingY;
     }
 
@@ -340,7 +346,13 @@ public final class DefaultFontAtlas implements FontAtlas {
     }
 
     @Override
-    public double getSDFRange() {
+    public float getSDFRange() {
         return sdfRange;
+    }
+
+    // Ensures the memoize function can obtain a proper hash
+    @Override
+    public int hashCode() {
+        return Objects.hash(font.getLocation(), spriteSize, sizeInSlots, spriteBorder, sdfRange, renderType);
     }
 }

@@ -9,7 +9,7 @@ package io.karma.pda.api.common.app.theme.font;
  * @since 20/05/2024
  */
 public interface FontVariant extends Font {
-    float DEFAULT_SIZE = 12F;
+    float DEFAULT_SIZE = 16F;
 
     FontStyle getStyle();
 

@@ -50,13 +50,14 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     public static final DefaultFontRenderer INSTANCE = new DefaultFontRenderer();
 
     // @formatter:off
-    private static final Function<FontAtlas, RenderType> RENDER_TYPE = Util.memoize(fontAtlas -> {
+    private static final Function<FontAtlasContext, RenderType> RENDER_TYPE = Util.memoize(ctx -> {
+        final var fontAtlas = ctx.atlas;
         final var fontLocation = fontAtlas.getFont().getLocation();
         return RenderType.create(String.format("pda_display_font__%s_%s", fontLocation.getNamespace(), fontLocation.getPath()),
             DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
             RenderType.CompositeState.builder()
                 .setCullState(RenderStateShard.NO_CULL)
-                .setShaderState(new RenderStateShard.ShaderStateShard(() -> INSTANCE.getShader(fontAtlas)))
+                .setShaderState(new RenderStateShard.ShaderStateShard(() -> INSTANCE.getShader(ctx)))
                 .setOutputState(DisplayRenderer.DISPLAY_OUTPUT)
                 .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
                 .setTexturingState(RenderStateShard.DEFAULT_TEXTURING)
@@ -80,60 +81,72 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
             return 0; // Don't render anything until the atlas is rebuilt
         }
 
+        // Grab sprite properties
         final var sprite = atlas.getGlyphSprite(c);
-        final var spriteWidth = sprite.getWidth();
-        final var spriteHeight = sprite.getHeight();
-        final var spriteBorder = atlas.getSpriteBorder() << 1;
-        final var actualSpriteWidth = spriteWidth - spriteBorder;
-        final var actualSpriteHeight = spriteHeight - spriteBorder;
-        final var z = (float) zIndex;
+        final var spriteSize = sprite.getSize();
 
+        // Retrieve glyph metrics
         final var metrics = sprite.getMetrics();
-        final var fontSize = font.getSize();
         final var width = metrics.getWidth();
         final var height = metrics.getHeight();
-        //final var width = (int) (((float) metrics.getWidth() / actualSpriteWidth) * fontSize);
-        //final var height = (int) (((float) metrics.getHeight() / actualSpriteHeight) * fontSize);
 
-        final var minX = x + metrics.getBearingX();
-        final var minY = (y + (atlas.getMaxGlyphBearingY() - height)) + (height - metrics.getBearingY());
-        final var maxX = minX + width;
-        final var maxY = minY + height;
+        // Find scale factor and re-scale metrics
+        final var scale = font.getSize() / atlas.getMaxGlyphHeight();
+        final var scaledWidth = scale * width;
+        final var scaledHeight = scale * height;
+        final var scaledAscent = scale * metrics.getAscent();
+        final var scaledDescent = scale * metrics.getDescent();
+        final var scaledBearingY = scale * metrics.getBearingY();
 
+        // Compute vertex positions for glyph quad
+        final var minX = (float) x; // Do cast once instead of per-vertex
+        final var minY = (float) y + scaledAscent - scaledBearingY + scaledDescent;
+        final var maxX = minX + scaledWidth;
+        final var maxY = minY + scaledHeight;
+        final var z = (float) zIndex; // Do cast once instead of per-vertex
+
+        // Compute glyph UVs
         final var uUnit = atlas.getUScale();
         final var vUnit = atlas.getVScale();
-        final var xOffset = ((spriteWidth - width) >> 1);
-        final var yOffset = ((spriteHeight - height) >> 1);
-        final var minU = sprite.getU() + uUnit * xOffset;
-        final var minV = sprite.getV() + vUnit * yOffset;
-        final var maxU = minU + uUnit * width;
-        final var maxV = minV + vUnit * height;
+        final var minU = Math.fma(uUnit, ((float) spriteSize - width) * 0.5F, sprite.getU());
+        final var minV = Math.fma(vUnit, ((float) spriteSize - height) * 0.5F, sprite.getV());
+        final var maxU = Math.fma(uUnit, width, minU);
+        final var maxV = Math.fma(vUnit, height, minV);
 
+        // Retrieve colors for shared vertices
         final var colorTR = colorProvider.getColor(RectangleCorner.TOP_RIGHT);
         final var colorBL = colorProvider.getColor(RectangleCorner.BOTTOM_LEFT);
-        final var colorTL = colorProvider.getColor(RectangleCorner.TOP_LEFT);
-        final var colorBR = colorProvider.getColor(RectangleCorner.BOTTOM_RIGHT);
 
+        // @formatter:off
         // First triangle
-        buffer.vertex(matrix, minX, minY, z).uv(minU, minV).color(colorTL).endVertex();
-        buffer.vertex(matrix, maxX, minY, z).uv(maxU, minV).color(colorTR).endVertex();
-        buffer.vertex(matrix, minX, maxY, z).uv(minU, maxV).color(colorBL).endVertex();
+        buffer.vertex(matrix, minX, minY, z).uv(minU, minV)
+            .color(colorProvider.getColor(RectangleCorner.TOP_LEFT)).endVertex();
+        buffer.vertex(matrix, maxX, minY, z).uv(maxU, minV)
+            .color(colorTR).endVertex();
+        buffer.vertex(matrix, minX, maxY, z).uv(minU, maxV)
+            .color(colorBL).endVertex();
         // Second triangle
-        buffer.vertex(matrix, maxX, minY, z).uv(maxU, minV).color(colorTR).endVertex();
-        buffer.vertex(matrix, maxX, maxY, z).uv(maxU, maxV).color(colorBR).endVertex();
-        buffer.vertex(matrix, minX, maxY, z).uv(minU, maxV).color(colorBL).endVertex();
+        buffer.vertex(matrix, maxX, minY, z).uv(maxU, minV)
+            .color(colorTR).endVertex();
+        buffer.vertex(matrix, maxX, maxY, z).uv(maxU, maxV)
+            .color(colorProvider.getColor(RectangleCorner.BOTTOM_RIGHT)).endVertex();
+        buffer.vertex(matrix, minX, maxY, z).uv(minU, maxV)
+            .color(colorBL).endVertex();
+        // @formatter:on
 
-        return metrics.getAdvance();
+        // Make sure we return the scaled number of pixels to advance on the X-axis while rendering multiple glyphs
+        return (int) (scale * metrics.getAdvanceX());
     }
 
     private RenderType getRenderType(final Font font) {
-        return RENDER_TYPE.apply(getFontAtlas(font));
+        final var size = font instanceof FontVariant variant ? variant.getSize() : FontVariant.DEFAULT_SIZE;
+        return RENDER_TYPE.apply(new FontAtlasContext(getFontAtlas(font), size));
     }
 
     @Override
     public FontAtlas getFontAtlas(final Font font) {
         return fontAtlasCache.computeIfAbsent(font.getLocation(),
-            location -> new DefaultFontAtlas(font, 32, 2, 4.0, MSDFGen.MSDF_BITMAP_TYPE_MSDF));
+            location -> new DefaultFontAtlas(font, 32, 2, 4F, MSDFGen.MSDF_BITMAP_TYPE_MSDF));
     }
 
     @Override
@@ -178,8 +191,9 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
         }
     }
 
-    private ShaderInstance getShader(final FontAtlas atlas) {
-        // TODO: update PxRange uniform
+    private ShaderInstance getShader(final FontAtlasContext ctx) {
+        final var fontAtlas = ctx.atlas;
+        shader.safeGetUniform("PxRange").set((ctx.scale / fontAtlas.getSpriteSize()) * fontAtlas.getSDFRange());
         return shader;
     }
 
@@ -203,5 +217,8 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     @ApiStatus.Internal
     public void setup() {
         ((ReloadableResourceManager) Minecraft.getInstance().getResourceManager()).registerReloadListener(this);
+    }
+
+    private record FontAtlasContext(FontAtlas atlas, float scale) {
     }
 }

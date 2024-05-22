@@ -15,7 +15,6 @@ import io.karma.pda.api.common.util.Exceptions;
 import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.client.render.graphics.DefaultGraphics;
 import io.karma.pda.client.render.graphics.DefaultGraphicsContext;
-import io.karma.pda.client.render.graphics.GraphicsRenderTypes;
 import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -219,31 +218,20 @@ public final class DisplayRenderer {
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         framebuffer.unbind();
 
-        final var session = ClientSessionHandler.INSTANCE.findByDevice(stack);
         displayPoseStack.pushPose();
+        graphicsContext.setup(displayPoseStack, displayBufferSource, RES_X, RES_Y, 0);
+        graphics.setContext(graphicsContext);
+
+        final var session = ClientSessionHandler.INSTANCE.findByDevice(stack);
 
         if (session != null) {
             final var launcher = session.getLauncher();
             final var app = launcher.getCurrentApp();
             if (app != null) {
-                graphicsContext.setup(displayPoseStack, displayBufferSource, RES_X, RES_Y, 0);
-                graphics.setContext(graphicsContext);
                 final var appRenderer = AppRenderers.get((AppType<App>) app.getType());
                 appRenderer.render(app, graphics);
                 session.getStateHandler().flush(); // Flush the synchronizer after each frame
-            } // TODO: show crash screen when no app is open since that's a broken state
-        }
-        else {
-            final var buffer = displayBufferSource.getBuffer(GraphicsRenderTypes.COLOR_TRIS);
-            final var matrix = displayPoseStack.last().pose();
-            // First triangle
-            buffer.vertex(matrix, 0F, 0F, 0F).color(0).endVertex();
-            buffer.vertex(matrix, RES_X, 0F, 0F).color(0).endVertex();
-            buffer.vertex(matrix, 0F, RES_Y, 0F).color(0).endVertex();
-            // Second triangle
-            buffer.vertex(matrix, RES_X, 0F, 0F).color(0).endVertex();
-            buffer.vertex(matrix, RES_X, RES_Y, 0F).color(0).endVertex();
-            buffer.vertex(matrix, 0F, RES_Y, 0F).color(0).endVertex();
+            }
         }
 
         displayBufferSource.endBatch();

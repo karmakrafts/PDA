@@ -22,6 +22,10 @@ public interface FontFamily {
 
     FontVariant getFont(final FontStyle style, final float size);
 
+    default FontVariant getDefaultFont() {
+        return getFont(FontStyle.REGULAR, FontVariant.DEFAULT_SIZE);
+    }
+
     @SuppressWarnings("all")
     @NotNull
     static FontFamily nullType() {
