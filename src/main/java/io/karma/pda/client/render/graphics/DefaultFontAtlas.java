@@ -88,7 +88,7 @@ public final class DefaultFontAtlas implements FontAtlas {
         missingGlyphSprite = new DefaultGlyphSprite(new DefaultGlyphMetrics(spriteSize, spriteSize, 0, 0, spriteSize, spriteSize, 0, 0),
             spriteSize, 0F, 0F);
         // @formatter:on
-        textureId = TextureUtils.createTexture(true);
+        textureId = TextureUtils.createTexture();
         rebuild();
         PDAMod.DISPOSITION_HANDLER.addObject(this);
     }
