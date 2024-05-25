@@ -15,7 +15,7 @@ import io.karma.pda.api.common.app.theme.font.FontStyle;
 import io.karma.pda.api.common.app.theme.font.FontVariant;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.api.common.util.Exceptions;
-import io.karma.pda.client.render.graphics.DefaultFontRenderer;
+import io.karma.pda.client.render.graphics.font.DefaultFontRenderer;
 import io.karma.pda.common.init.ModBlocks;
 import io.karma.pda.common.init.ModItems;
 import io.karma.pda.common.item.MemoryCardItem;

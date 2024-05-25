@@ -24,14 +24,6 @@ public final class SPacketCloseApp {
         this.name = name;
     }
 
-    public UUID getSessionId() {
-        return sessionId;
-    }
-
-    public @Nullable ResourceLocation getName() {
-        return name;
-    }
-
     public static void encode(final SPacketCloseApp packet, final FriendlyByteBuf buffer) {
         buffer.writeUUID(packet.sessionId);
         PacketUtils.writeNullable(packet.name, FriendlyByteBuf::writeResourceLocation, buffer);
@@ -41,5 +33,13 @@ public final class SPacketCloseApp {
         final var sessionId = buffer.readUUID();
         final var name = PacketUtils.readNullable(buffer, FriendlyByteBuf::readResourceLocation);
         return new SPacketCloseApp(sessionId, name);
+    }
+
+    public UUID getSessionId() {
+        return sessionId;
+    }
+
+    public @Nullable ResourceLocation getName() {
+        return name;
     }
 }

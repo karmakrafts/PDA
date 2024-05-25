@@ -29,6 +29,11 @@ public final class ComponentType<C extends Component> {
         this.factory = factory;
     }
 
+    @SuppressWarnings("unchecked")
+    public static <C extends Component> ComponentType<C> nullType() {
+        return (ComponentType<C>) NULL;
+    }
+
     public ResourceLocation getName() {
         return name;
     }
@@ -52,10 +57,5 @@ public final class ComponentType<C extends Component> {
     public C create() {
         return create(props -> {
         });
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <C extends Component> ComponentType<C> nullType() {
-        return (ComponentType<C>) NULL;
     }
 }

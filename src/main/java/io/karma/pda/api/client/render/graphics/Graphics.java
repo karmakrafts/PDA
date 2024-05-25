@@ -50,17 +50,11 @@ public interface Graphics {
 
     void fillTriangle(final int x1, final int y1, final int x2, final int y2, final int x3, final int y3);
 
-    void text(final int x, final int y, final String text, final int maxLength, final String delimiter);
+    void text(final int x, final int y, final CharSequence text);
 
-    default void text(final int x, final int y, final String text, final String cutoffSuffix) {
-        text(x, y, text, text.length(), cutoffSuffix);
-    }
+    void text(final int x, final int y, final int maxWidth, final CharSequence text);
 
-    default void text(final int x, final int y, final String text) {
-        text(x, y, text, text.length(), "...");
-    }
-
-    void wrappedText(final int x, final int y, final String text, final int maxLength);
+    void text(final int x, final int y, final int maxWidth, final CharSequence text, final CharSequence cutoffSuffix);
 
     default VertexConsumer getBuffer() {
         return getContext().getBufferSource().getBuffer(getState().getBrush().getRenderType());

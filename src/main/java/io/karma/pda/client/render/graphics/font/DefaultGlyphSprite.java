@@ -2,7 +2,7 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.client.render.graphics;
+package io.karma.pda.client.render.graphics.font;
 
 import io.karma.pda.api.client.render.graphics.GlyphMetrics;
 import io.karma.pda.api.client.render.graphics.GlyphSprite;

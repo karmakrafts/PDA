@@ -2,11 +2,13 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.client.render.graphics;
+package io.karma.pda.client.render.graphics.font;
 
+import io.karma.pda.client.util.FontVariationAxis;
 import io.karma.pda.client.util.FreeTypeUtils;
 import io.karma.pda.client.util.MSDFUtils;
 import io.karma.pda.common.PDAMod;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.system.APIUtil;
@@ -24,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -46,15 +49,16 @@ public final class MSDFFont implements AutoCloseable {
         LibFFI.ffi_type_slong,
         LibFFI.ffi_type_pointer);
 
-    private final InputStream stream;
-    private final long library; // FT_Library
-    private final FT_Face face;
-    private final long font; // msdf_ft_font_handle
-
     static {
         MSDFUtils.throwIfError(MSDFGen.msdf_ft_set_load_callback(nameAddress -> FreeType.getLibrary().getFunctionAddress(
             MemoryUtil.memASCII(nameAddress))));
     }
+
+    private final InputStream stream;
+    private final long library; // FT_Library
+    private final FT_Face face;
+    private final long font; // msdf_ft_font_handle
+    private final List<FontVariationAxis> variationAxes;
 
     public MSDFFont(final InputStream stream) throws IOException {
         this.stream = stream;
@@ -95,6 +99,16 @@ public final class MSDFFont implements AutoCloseable {
             }
             face = FT_Face.create(Checks.check(faceAddressBuffer.get()));
             PDAMod.LOGGER.debug("Created font face instance at 0x{}", Long.toHexString(face.address()));
+
+            // Retrieve variation axes
+            variationAxes = FreeTypeUtils.listFontVariationAxes(library, face);
+            for (final var axis : variationAxes) {
+                PDAMod.LOGGER.debug("Found variation axis '{}' ({}, between {} and {})",
+                    axis.name(),
+                    String.format("%.04f", axis.def()),
+                    String.format("%.04f", axis.min()),
+                    String.format("%.04f", axis.max()));
+            }
 
             // Setup msdfgen to use LWJGL FreeType bindings
             final var fontAddressBuffer = stack.mallocPointer(1);
@@ -154,6 +168,20 @@ public final class MSDFFont implements AutoCloseable {
         final var bearingY = FreeTypeUtils.f26Dot6ToFP32(metrics.horiBearingY()) * scale;
 
         return new DefaultGlyphMetrics(width, height, ascent, descent, advanceX, advanceY, bearingX, bearingY);
+    }
+
+    public List<FontVariationAxis> getVariationAxes() {
+        return variationAxes;
+    }
+
+    public void setVariationAxis(final FontVariationAxis axis, final float coord) {
+        if (!FreeTypeUtils.setFontVariationAxis(library, face, axis.name(), Mth.clamp(coord, axis.min(), axis.max()))) {
+            PDAMod.LOGGER.warn("Could not set font variation axis {}, ignoring", axis.name());
+        }
+    }
+
+    public FT_Face getFace() {
+        return face;
     }
 
     @Override

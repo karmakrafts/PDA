@@ -40,16 +40,6 @@ public final class Gradient implements ColorProvider {
         return gradientFunction.remap(startColor, endColor, corner).packARGB();
     }
 
-    @JsonSetter("start")
-    public void setStartColor(final Color startColor) {
-        this.startColor = startColor;
-    }
-
-    @JsonSetter("end")
-    public void setEndColor(final Color endColor) {
-        this.endColor = endColor;
-    }
-
     @JsonSetter("function")
     public void setGradientFunction(final GradientFunction gradientFunction) {
         this.gradientFunction = gradientFunction;
@@ -60,9 +50,19 @@ public final class Gradient implements ColorProvider {
         return startColor;
     }
 
+    @JsonSetter("start")
+    public void setStartColor(final Color startColor) {
+        this.startColor = startColor;
+    }
+
     @JsonGetter("end")
     public Color getEndColor() {
         return endColor;
+    }
+
+    @JsonSetter("end")
+    public void setEndColor(final Color endColor) {
+        this.endColor = endColor;
     }
 
     @JsonGetter("function")

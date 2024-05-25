@@ -16,6 +16,8 @@ public final class DefaultFontFamilies {
 
     @ObjectHolder(value = Constants.MODID + ":fixedsys", registryName = REGISTRY_NAME)
     public static final FontFamily FIXEDSYS = FontFamily.nullType();
+    @ObjectHolder(value = Constants.MODID + ":noto_sans", registryName = REGISTRY_NAME)
+    public static final FontFamily NOTO_SANS = FontFamily.nullType();
 
     // @formatter:off
     private DefaultFontFamilies() {}

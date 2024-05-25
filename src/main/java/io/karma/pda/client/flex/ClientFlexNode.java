@@ -122,49 +122,40 @@ public final class ClientFlexNode implements FlexNode, Disposable {
     // Type
 
     @Override
-    public void setType(final FlexNodeType type) {
-        Yoga.YGNodeSetNodeType(address, FlexUtils.getType(type));
-    }
-
-    @Override
     public FlexNodeType getType() {
         return FlexUtils.getType(Yoga.YGNodeGetNodeType(address));
     }
 
-    // Grow
-
     @Override
-    public void setGrowWeight(final float growWeight) {
-        Yoga.YGNodeStyleSetFlexGrow(address, growWeight);
+    public void setType(final FlexNodeType type) {
+        Yoga.YGNodeSetNodeType(address, FlexUtils.getType(type));
     }
+
+    // Grow
 
     @Override
     public float getGrowWeight() {
         return Yoga.YGNodeStyleGetFlexGrow(address);
     }
 
-    // Shrink
-
     @Override
-    public void setShrinkWeight(final float shrinkWeight) {
-        Yoga.YGNodeStyleSetFlexShrink(address, shrinkWeight);
+    public void setGrowWeight(final float growWeight) {
+        Yoga.YGNodeStyleSetFlexGrow(address, growWeight);
     }
+
+    // Shrink
 
     @Override
     public float getShrinkWeight() {
         return Yoga.YGNodeStyleGetFlexShrink(address);
     }
 
-    // Base
-
     @Override
-    public void setBasis(final FlexValue basis) {
-        switch(basis.getType()) { // @formatter:off
-            case PIXEL   -> Yoga.YGNodeStyleSetFlexBasis(address, basis.get());
-            case PERCENT -> Yoga.YGNodeStyleSetFlexBasisPercent(address, basis.get());
-            default      -> Yoga.YGNodeStyleSetFlexBasisAuto(address);
-        } // @formatter:on
+    public void setShrinkWeight(final float shrinkWeight) {
+        Yoga.YGNodeStyleSetFlexShrink(address, shrinkWeight);
     }
+
+    // Base
 
     @Override
     public FlexValue getBasis() {
@@ -175,16 +166,25 @@ public final class ClientFlexNode implements FlexNode, Disposable {
         }
     }
 
-    // Wrap
-
     @Override
-    public void setWrap(final FlexWrap wrap) {
-        Yoga.YGNodeStyleSetFlexWrap(address, FlexUtils.getWrap(wrap));
+    public void setBasis(final FlexValue basis) {
+        switch(basis.getType()) { // @formatter:off
+            case PIXEL   -> Yoga.YGNodeStyleSetFlexBasis(address, basis.get());
+            case PERCENT -> Yoga.YGNodeStyleSetFlexBasisPercent(address, basis.get());
+            default      -> Yoga.YGNodeStyleSetFlexBasisAuto(address);
+        } // @formatter:on
     }
+
+    // Wrap
 
     @Override
     public FlexWrap getWrap() {
         return FlexUtils.getWrap(Yoga.YGNodeStyleGetFlexWrap(address));
+    }
+
+    @Override
+    public void setWrap(final FlexWrap wrap) {
+        Yoga.YGNodeStyleSetFlexWrap(address, FlexUtils.getWrap(wrap));
     }
 
     // Direction

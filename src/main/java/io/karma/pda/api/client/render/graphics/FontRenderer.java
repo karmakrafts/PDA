@@ -17,14 +17,18 @@ import java.util.function.IntFunction;
  */
 @OnlyIn(Dist.CLIENT)
 public interface FontRenderer {
+    int getLineHeight(final Font font);
+
     FontAtlas getFontAtlas(final Font font);
 
-    int renderGlyph(final int x, final int y, final int zIndex, final char c, final ColorProvider colorProvider,
-                    final Font font, final GraphicsContext context);
+    int getStringWidth(final Font font, final CharSequence s);
 
-    void render(final int x, final int y, final int zIndex, final String s, final ColorProvider colorProvider,
-                final Font font, final GraphicsContext context);
+    int render(final int x, final int y, final int zIndex, final char c, final ColorProvider colorProvider,
+               final Font font, final GraphicsContext context);
 
-    void render(final int x, final int y, final int zIndex, final String s,
-                final IntFunction<ColorProvider> colorFunction, final Font font, final GraphicsContext context);
+    int render(final int x, final int y, final int zIndex, final CharSequence s, final ColorProvider colorProvider,
+               final Font font, final GraphicsContext context);
+
+    int render(final int x, final int y, final int zIndex, final CharSequence s,
+               final IntFunction<ColorProvider> colorFunction, final Font font, final GraphicsContext context);
 }

@@ -2,7 +2,7 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.client.render.graphics;
+package io.karma.pda.client.render.graphics.font;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -19,6 +19,7 @@ import io.karma.pda.api.common.util.Exceptions;
 import io.karma.pda.api.common.util.RectangleCorner;
 import io.karma.pda.client.render.display.DisplayRenderer;
 import io.karma.pda.common.PDAMod;
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -70,8 +71,7 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
                 .createCompositeState(false));
     });
     // @formatter:on
-
-    private final HashMap<ResourceLocation, DefaultFontAtlas> fontAtlasCache = new HashMap<>();
+    private final HashMap<FontAtlasKey, DefaultFontAtlas> fontAtlasCache = new HashMap<>();
     private ShaderInstance shader;
 
     private int renderGlyph(final int x, final int y, final int zIndex, final char c, final FontVariant font,
@@ -96,13 +96,14 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
         final var scaledHeight = scale * height;
         final var scaledAscent = scale * metrics.getAscent();
         final var scaledDescent = scale * metrics.getDescent();
+        final var scaledBearingX = scale * metrics.getBearingX();
         final var scaledBearingY = scale * metrics.getBearingY();
 
         // Compute vertex positions for glyph quad
-        final var minX = (float) x; // Do cast once instead of per-vertex
-        final var minY = (float) y + scaledAscent - scaledBearingY + scaledDescent;
-        final var maxX = minX + scaledWidth;
-        final var maxY = minY + scaledHeight;
+        final var minX = (float) x + (int) scaledBearingX;
+        final var minY = (float) y + (int) (scaledAscent - scaledBearingY + scaledDescent);
+        final var maxX = minX + (int) scaledWidth;
+        final var maxY = minY + (int) scaledHeight;
         final var z = (float) zIndex; // Do cast once instead of per-vertex
 
         // Compute glyph UVs
@@ -139,48 +140,75 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     }
 
     private RenderType getRenderType(final Font font) {
-        final var size = font instanceof FontVariant variant ? variant.getSize() : FontVariant.DEFAULT_SIZE;
-        return RENDER_TYPE.apply(new FontAtlasContext(getFontAtlas(font), size));
+        final var variant = font.asVariant();
+        return RENDER_TYPE.apply(new FontAtlasContext(getFontAtlas(variant), variant.getSize()));
     }
 
     @Override
     public FontAtlas getFontAtlas(final Font font) {
-        return fontAtlasCache.computeIfAbsent(font.getLocation(),
-            location -> new DefaultFontAtlas(font, 32, 2, 4F, MSDFGen.MSDF_BITMAP_TYPE_MSDF));
+        return fontAtlasCache.computeIfAbsent(new FontAtlasKey(font.getLocation(), font.getVariationAxes()),
+            location -> new DefaultFontAtlas(font.asVariant(), 32, 2, 4F, MSDFGen.MSDF_BITMAP_TYPE_MSDF));
     }
 
     @Override
-    public int renderGlyph(final int x, final int y, final int zIndex, final char c, final ColorProvider colorProvider,
-                           final Font font, final GraphicsContext context) {
-        final var buffer = context.getBufferSource().getBuffer(getRenderType(font));
-        final var matrix = context.getTransform();
-        final var fontVariant = font instanceof FontVariant variant ? variant : font.getDefaultVariant();
-        return renderGlyph(x, y, zIndex, c, fontVariant, matrix, buffer, colorProvider);
+    public int getLineHeight(final Font font) {
+        final var fontVariant = font.asVariant();
+        final var atlas = getFontAtlas(fontVariant);
+        final var scale = fontVariant.getSize() / atlas.getMaxGlyphHeight();
+        return (int) (scale * atlas.getLineHeight());
     }
 
     @Override
-    public void render(final int x, final int y, final int zIndex, final String s, final ColorProvider colorProvider,
-                       final Font font, final GraphicsContext context) {
+    public int getStringWidth(final Font font, final CharSequence s) {
+        final var fontVariant = font.asVariant();
+        final var atlas = getFontAtlas(fontVariant);
+        final var scale = fontVariant.getSize() / atlas.getMaxGlyphHeight();
+        var width = 0F;
+        for (var i = 0; i < s.length(); i++) {
+            width += atlas.getGlyphSprite(s.charAt(i)).getMetrics().getAdvanceX();
+        }
+        return (int) (scale * width);
+    }
+
+    @Override
+    public int render(final int x, final int y, final int zIndex, final char c, final ColorProvider colorProvider,
+                      final Font font, final GraphicsContext context) {
         final var buffer = context.getBufferSource().getBuffer(getRenderType(font));
         final var matrix = context.getTransform();
-        final var fontVariant = font instanceof FontVariant variant ? variant : font.getDefaultVariant();
+        return renderGlyph(x, y, zIndex, c, font.asVariant(), matrix, buffer, colorProvider);
+    }
+
+    @Override
+    public int render(final int x, final int y, final int zIndex, final CharSequence s,
+                      final ColorProvider colorProvider, final Font font, final GraphicsContext context) {
+        final var buffer = context.getBufferSource().getBuffer(getRenderType(font));
+        final var matrix = context.getTransform();
+        final var fontVariant = font.asVariant();
         var offset = 0;
         for (var i = 0; i < s.length(); i++) {
             offset += renderGlyph(x + offset, y, zIndex, s.charAt(i), fontVariant, matrix, buffer, colorProvider);
         }
+        return offset;
     }
 
     @Override
-    public void render(final int x, final int y, final int zIndex, final String s,
-                       final IntFunction<ColorProvider> colorFunction, final Font font, final GraphicsContext context) {
+    public int render(final int x, final int y, final int zIndex, final CharSequence s,
+                      final IntFunction<ColorProvider> colorFunction, final Font font, final GraphicsContext context) {
         final var buffer = context.getBufferSource().getBuffer(getRenderType(font));
         final var matrix = context.getTransform();
-        final var fontVariant = font instanceof FontVariant variant ? variant : font.getDefaultVariant();
+        final var fontVariant = font.asVariant();
         var offset = 0;
         for (var i = 0; i < s.length(); i++) {
-            final var color = colorFunction.apply(i);
-            offset += renderGlyph(x + offset, y, zIndex, s.charAt(i), fontVariant, matrix, buffer, color);
+            offset += renderGlyph(x + offset,
+                y,
+                zIndex,
+                s.charAt(i),
+                fontVariant,
+                matrix,
+                buffer,
+                colorFunction.apply(i));
         }
+        return offset;
     }
 
     @Override
@@ -217,6 +245,9 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     @ApiStatus.Internal
     public void setup() {
         ((ReloadableResourceManager) Minecraft.getInstance().getResourceManager()).registerReloadListener(this);
+    }
+
+    private record FontAtlasKey(ResourceLocation location, Object2FloatMap<String> variationAxes) {
     }
 
     private record FontAtlasContext(FontAtlas atlas, float scale) {

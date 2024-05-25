@@ -38,23 +38,23 @@ public final class ClientAPI {
         }
     }
 
-    @ApiStatus.Internal
-    public static void setSessionHandler(final SessionHandler sessionHandler) {
-        ClientAPI.sessionHandler = sessionHandler;
-    }
-
-    @ApiStatus.Internal
-    public static void setFlexNodeHandler(final FlexNodeHandler flexNodeHandler) {
-        ClientAPI.flexNodeHandler = flexNodeHandler;
-    }
-
     public static SessionHandler getSessionHandler() {
         assertInitialized();
         return sessionHandler;
     }
 
+    @ApiStatus.Internal
+    public static void setSessionHandler(final SessionHandler sessionHandler) {
+        ClientAPI.sessionHandler = sessionHandler;
+    }
+
     public static FlexNodeHandler getFlexNodeHandler() {
         assertInitialized();
         return flexNodeHandler;
+    }
+
+    @ApiStatus.Internal
+    public static void setFlexNodeHandler(final FlexNodeHandler flexNodeHandler) {
+        ClientAPI.flexNodeHandler = flexNodeHandler;
     }
 }

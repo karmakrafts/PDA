@@ -76,18 +76,13 @@ public final class DefaultFlexNode implements FlexNode {
     }
 
     @Override
-    public void setType(final FlexNodeType type) {
-        this.type = type;
-    }
-
-    @Override
     public FlexNodeType getType() {
         return type;
     }
 
     @Override
-    public void setGrowWeight(final float growWeight) {
-        this.growWeight = growWeight;
+    public void setType(final FlexNodeType type) {
+        this.type = type;
     }
 
     @Override
@@ -96,8 +91,8 @@ public final class DefaultFlexNode implements FlexNode {
     }
 
     @Override
-    public void setShrinkWeight(final float shrinkWeight) {
-        this.shrinkWeight = shrinkWeight;
+    public void setGrowWeight(final float growWeight) {
+        this.growWeight = growWeight;
     }
 
     @Override
@@ -106,13 +101,18 @@ public final class DefaultFlexNode implements FlexNode {
     }
 
     @Override
-    public void setBasis(final FlexValue basis) {
-        this.basis = basis;
+    public void setShrinkWeight(final float shrinkWeight) {
+        this.shrinkWeight = shrinkWeight;
     }
 
     @Override
     public FlexValue getBasis() {
         return basis;
+    }
+
+    @Override
+    public void setBasis(final FlexValue basis) {
+        this.basis = basis;
     }
 
     @Override
@@ -193,38 +193,8 @@ public final class DefaultFlexNode implements FlexNode {
     }
 
     @Override
-    public void setDirection(final FlexDirection direction) {
-        this.direction = direction;
-    }
-
-    @Override
-    public void setOverflow(final FlexOverflow overflow) {
-        this.overflow = overflow;
-    }
-
-    @Override
-    public void setPositionType(final FlexPositionType positionType) {
-        this.positionType = positionType;
-    }
-
-    @Override
-    public void setSelfAlignment(final FlexAlignment selfAlignment) {
-        this.selfAlignment = selfAlignment;
-    }
-
-    @Override
-    public void setItemAlignment(final FlexAlignment itemAlignment) {
-        this.itemAlignment = itemAlignment;
-    }
-
-    @Override
-    public void setContentAlignment(final FlexAlignment contentAlignment) {
-        this.contentAlignment = contentAlignment;
-    }
-
-    @Override
-    public void setContentJustification(final FlexJustify contentJustification) {
-        this.contentJustification = contentJustification;
+    public FlexWrap getWrap() {
+        return wrap;
     }
 
     @Override
@@ -233,8 +203,8 @@ public final class DefaultFlexNode implements FlexNode {
     }
 
     @Override
-    public FlexWrap getWrap() {
-        return wrap;
+    public FlexBorder getBorder() {
+        return border;
     }
 
     @Override
@@ -243,43 +213,13 @@ public final class DefaultFlexNode implements FlexNode {
     }
 
     @Override
-    public FlexBorder getBorder() {
-        return border;
-    }
-
-    @Override
-    public void setX(final FlexValue x) {
-        this.x = x;
-    }
-
-    @Override
-    public void setY(final FlexValue y) {
-        this.y = y;
-    }
-
-    @Override
-    public void setWidth(final FlexValue width) {
-        this.width = width;
-    }
-
-    @Override
-    public void setHeight(final FlexValue height) {
-        this.height = height;
-    }
-
-    @Override
-    public void setMargin(final FlexBorder margin) {
-        this.margin = margin;
-    }
-
-    @Override
-    public void setPadding(final FlexBorder padding) {
-        this.padding = padding;
-    }
-
-    @Override
     public FlexDirection getDirection() {
         return direction;
+    }
+
+    @Override
+    public void setDirection(final FlexDirection direction) {
+        this.direction = direction;
     }
 
     @Override
@@ -288,8 +228,18 @@ public final class DefaultFlexNode implements FlexNode {
     }
 
     @Override
+    public void setPositionType(final FlexPositionType positionType) {
+        this.positionType = positionType;
+    }
+
+    @Override
     public FlexOverflow getOverflow() {
         return overflow;
+    }
+
+    @Override
+    public void setOverflow(final FlexOverflow overflow) {
+        this.overflow = overflow;
     }
 
     @Override
@@ -298,8 +248,18 @@ public final class DefaultFlexNode implements FlexNode {
     }
 
     @Override
+    public void setSelfAlignment(final FlexAlignment selfAlignment) {
+        this.selfAlignment = selfAlignment;
+    }
+
+    @Override
     public FlexAlignment getItemAlignment() {
         return itemAlignment;
+    }
+
+    @Override
+    public void setItemAlignment(final FlexAlignment itemAlignment) {
+        this.itemAlignment = itemAlignment;
     }
 
     @Override
@@ -308,8 +268,18 @@ public final class DefaultFlexNode implements FlexNode {
     }
 
     @Override
+    public void setContentAlignment(final FlexAlignment contentAlignment) {
+        this.contentAlignment = contentAlignment;
+    }
+
+    @Override
     public FlexJustify getContentJustification() {
         return contentJustification;
+    }
+
+    @Override
+    public void setContentJustification(final FlexJustify contentJustification) {
+        this.contentJustification = contentJustification;
     }
 
     @Override
@@ -318,8 +288,18 @@ public final class DefaultFlexNode implements FlexNode {
     }
 
     @Override
+    public void setX(final FlexValue x) {
+        this.x = x;
+    }
+
+    @Override
     public FlexValue getY() {
         return y;
+    }
+
+    @Override
+    public void setY(final FlexValue y) {
+        this.y = y;
     }
 
     @Override
@@ -328,8 +308,18 @@ public final class DefaultFlexNode implements FlexNode {
     }
 
     @Override
+    public void setWidth(final FlexValue width) {
+        this.width = width;
+    }
+
+    @Override
     public FlexValue getHeight() {
         return height;
+    }
+
+    @Override
+    public void setHeight(final FlexValue height) {
+        this.height = height;
     }
 
     @Override
@@ -338,8 +328,18 @@ public final class DefaultFlexNode implements FlexNode {
     }
 
     @Override
+    public void setMargin(final FlexBorder margin) {
+        this.margin = margin;
+    }
+
+    @Override
     public FlexBorder getPadding() {
         return padding;
+    }
+
+    @Override
+    public void setPadding(final FlexBorder padding) {
+        this.padding = padding;
     }
 
     @Override

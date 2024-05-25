@@ -43,6 +43,34 @@ public final class ClientPacketHandler extends CommonPacketHandler {
     private ClientPacketHandler() {}
     // @formatter:on
 
+    private static @Nullable Player getPlayerById(final UUID id) {
+        final var level = Minecraft.getInstance().level;
+        if (level == null) {
+            return null;
+        }
+        return level.getPlayerByUUID(id);
+    }
+
+    private static boolean isLocalPlayer(final UUID id) {
+        final var player = Minecraft.getInstance().player;
+        return player != null && player.getUUID().equals(id);
+    }
+
+    private static void remapComponentIds(final Component component, final List<UUID> ids) {
+        final var components = TreeGraph.from(component, Container.class, Container::getChildren).flatten();
+        final var numComponents = components.size();
+        if (numComponents != ids.size()) {
+            return; // TODO: warn?
+        }
+        for (var i = 0; i < numComponents; i++) {
+            final var comp = components.get(i);
+            final var oldId = comp.getId();
+            final var newId = ids.get(i);
+            comp.setId(newId);
+            PDAMod.LOGGER.debug("Remapped component ID {} -> {}", oldId, newId);
+        }
+    }
+
     @ApiStatus.Internal
     public void registerPackets() { // @formatter:off
         registerPacket(PacketIDs.CB_CREATE_SESSION,
@@ -64,19 +92,6 @@ public final class ClientPacketHandler extends CommonPacketHandler {
             CPacketCancelInteraction.class, CPacketCancelInteraction::encode, CPacketCancelInteraction::decode,
             this::onCancelInteraction);
     } // @formatter:on
-
-    private static @Nullable Player getPlayerById(final UUID id) {
-        final var level = Minecraft.getInstance().level;
-        if (level == null) {
-            return null;
-        }
-        return level.getPlayerByUUID(id);
-    }
-
-    private static boolean isLocalPlayer(final UUID id) {
-        final var player = Minecraft.getInstance().player;
-        return player != null && player.getUUID().equals(id);
-    }
 
     private void onCancelInteraction(final CPacketCancelInteraction packet, final NetworkEvent.Context context) {
         final var game = Minecraft.getInstance();
@@ -116,21 +131,6 @@ public final class ClientPacketHandler extends CommonPacketHandler {
         }
         sessionHandler.addActiveSession(sessionId,
             new ClientSession(sessionId, new HandheldSessionContext(extPlayer, (InteractionHand) contextObj)));
-    }
-
-    private static void remapComponentIds(final Component component, final List<UUID> ids) {
-        final var components = TreeGraph.from(component, Container.class, Container::getChildren).flatten();
-        final var numComponents = components.size();
-        if (numComponents != ids.size()) {
-            return; // TODO: warn?
-        }
-        for (var i = 0; i < numComponents; i++) {
-            final var comp = components.get(i);
-            final var oldId = comp.getId();
-            final var newId = ids.get(i);
-            comp.setId(newId);
-            PDAMod.LOGGER.debug("Remapped component ID {} -> {}", oldId, newId);
-        }
     }
 
     private void onOpenApp(final CPacketOpenApp packet, final NetworkEvent.Context context) {

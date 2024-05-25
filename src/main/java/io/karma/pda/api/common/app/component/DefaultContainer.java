@@ -22,23 +22,6 @@ public class DefaultContainer extends AbstractComponent implements Container {
         super(type, id);
     }
 
-    @Override
-    public @Nullable Component findChild(final String localName) {
-        for (final var child : children.values()) {
-            final var name = child.getLocalName();
-            if (name == null || !name.equals(localName)) {
-                continue;
-            }
-            return child;
-        }
-        return null;
-    }
-
-    @Override
-    public @Nullable Component findChild(final UUID id) {
-        return children.get(id);
-    }
-
     private static @Nullable Component findChildRecursively(final Component component, final UUID id) {
         if (component.getId().equals(id)) {
             return component;
@@ -51,18 +34,6 @@ public class DefaultContainer extends AbstractComponent implements Container {
                 }
                 return subChild;
             }
-        }
-        return null;
-    }
-
-    @Override
-    public @Nullable Component findChildRecursively(final UUID id) {
-        for (final var child : getChildren()) {
-            final var component = findChildRecursively(child, id);
-            if (component == null) {
-                continue;
-            }
-            return component;
         }
         return null;
     }
@@ -80,6 +51,35 @@ public class DefaultContainer extends AbstractComponent implements Container {
                 }
                 return subChild;
             }
+        }
+        return null;
+    }
+
+    @Override
+    public @Nullable Component findChild(final String localName) {
+        for (final var child : children.values()) {
+            final var name = child.getLocalName();
+            if (name == null || !name.equals(localName)) {
+                continue;
+            }
+            return child;
+        }
+        return null;
+    }
+
+    @Override
+    public @Nullable Component findChild(final UUID id) {
+        return children.get(id);
+    }
+
+    @Override
+    public @Nullable Component findChildRecursively(final UUID id) {
+        for (final var child : getChildren()) {
+            final var component = findChildRecursively(child, id);
+            if (component == null) {
+                continue;
+            }
+            return component;
         }
         return null;
     }

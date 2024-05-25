@@ -22,7 +22,10 @@ public final class LabelRenderer extends AbstractComponentRenderer<Label> {
         try (final var state = graphics.pushState()) {
             state.setFont(component.font.get());
             state.setBrush(graphics.getContext().getBrushFactory().create(component.color.get()));
-            graphics.text(flexNode.getAbsoluteX(), flexNode.getAbsoluteY(), component.text.get());
+            graphics.text(flexNode.getAbsoluteX(),
+                flexNode.getAbsoluteY(),
+                flexNode.getAbsoluteWidth(),
+                component.text.get());
         }
         super.render(component, flexNode, graphics);
     }

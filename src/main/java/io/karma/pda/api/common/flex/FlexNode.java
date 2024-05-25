@@ -30,81 +30,81 @@ public interface FlexNode {
 
     void clearChildren();
 
-    void setType(final FlexNodeType type);
-
     FlexNodeType getType();
 
-    void setGrowWeight(final float growWeight);
+    void setType(final FlexNodeType type);
 
     float getGrowWeight();
 
-    void setShrinkWeight(final float shrinkWeight);
+    void setGrowWeight(final float growWeight);
 
     float getShrinkWeight();
 
-    void setBasis(final FlexValue basis);
+    void setShrinkWeight(final float shrinkWeight);
 
     FlexValue getBasis();
 
-    void setDirection(final FlexDirection direction);
+    void setBasis(final FlexValue basis);
 
     FlexDirection getDirection();
 
-    void setOverflow(final FlexOverflow overflow);
+    void setDirection(final FlexDirection direction);
 
     FlexOverflow getOverflow();
 
-    void setPositionType(final FlexPositionType positionType);
+    void setOverflow(final FlexOverflow overflow);
 
     FlexPositionType getPositionType();
 
-    void setSelfAlignment(final FlexAlignment selfAlignment);
+    void setPositionType(final FlexPositionType positionType);
 
     FlexAlignment getSelfAlignment();
 
-    void setItemAlignment(final FlexAlignment itemAlignment);
+    void setSelfAlignment(final FlexAlignment selfAlignment);
 
     FlexAlignment getItemAlignment();
 
-    void setContentAlignment(final FlexAlignment contentAlignment);
+    void setItemAlignment(final FlexAlignment itemAlignment);
 
     FlexAlignment getContentAlignment();
 
-    void setContentJustification(final FlexJustify contentJustification);
+    void setContentAlignment(final FlexAlignment contentAlignment);
 
     FlexJustify getContentJustification();
 
-    void setWrap(final FlexWrap wrap);
+    void setContentJustification(final FlexJustify contentJustification);
 
     FlexWrap getWrap();
 
-    void setX(final FlexValue x);
+    void setWrap(final FlexWrap wrap);
 
     FlexValue getX();
 
-    void setY(final FlexValue y);
+    void setX(final FlexValue x);
 
     FlexValue getY();
 
-    void setWidth(final FlexValue width);
+    void setY(final FlexValue y);
 
     FlexValue getWidth();
 
-    void setHeight(final FlexValue height);
+    void setWidth(final FlexValue width);
 
     FlexValue getHeight();
 
-    void setBorder(final FlexBorder border);
+    void setHeight(final FlexValue height);
 
     FlexBorder getBorder();
 
-    void setMargin(final FlexBorder margin);
+    void setBorder(final FlexBorder border);
 
     FlexBorder getMargin();
 
-    void setPadding(final FlexBorder padding);
+    void setMargin(final FlexBorder margin);
 
     FlexBorder getPadding();
+
+    void setPadding(final FlexBorder padding);
 
     int getAbsoluteWidth();
 

@@ -45,10 +45,10 @@ public final class DisplayRenderer {
     public static final float OFFSET_Z = 0.609375F;
     private static final DisplayRenderer INSTANCE = new DisplayRenderer();
     private static final float SIZE_X = 0.5F;
-    public static final int RES_X = ((int) (SIZE_X * 16F) * 16) << 1; // 256
+    public static final int RES_X = ((int) (SIZE_X * 16F) * 16) << 2; // 256/512/1024
     public static final float MAX_X = MIN_X + SIZE_X;
     private static final float SIZE_Y = 0.5625F;
-    public static final int RES_Y = ((int) (SIZE_Y * 16F) * 16) << 1; // 288
+    public static final int RES_Y = ((int) (SIZE_Y * 16F) * 16) << 2; // 288/576/1152
     private static final Matrix4f DISPLAY_PROJECTION_MATRIX = new Matrix4f().ortho2D(0F, RES_X, RES_Y, 0F);
     public static final float MAX_Y = MIN_Y + SIZE_Y;
     private static final Matrix4f IDENTITY_MATRIX = new Matrix4f().identity();
@@ -73,11 +73,11 @@ public final class DisplayRenderer {
     private final MultiBufferSource.BufferSource displayBufferSource = MultiBufferSource.immediateWithBuffers(
         displayBuilders,
         displayBuilder);
-    private int prevFrontFace;
     private final int[] prevViewport = new int[4]; // Viewport position/size from last frame
     private final PoseStack displayPoseStack = new PoseStack();
     private final DefaultGraphicsContext graphicsContext = new DefaultGraphicsContext();
     private final DefaultGraphics graphics = new DefaultGraphics();
+    private int prevFrontFace;
     private DisplayFramebuffer framebuffer;
     private Matrix4f prevProjectionMatrix;
     private VertexSorting prevVertexSorting;

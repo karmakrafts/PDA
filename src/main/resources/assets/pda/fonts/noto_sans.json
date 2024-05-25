@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "name": "Noto Sans",
+  "default_size": 16.0,
+  "supported_char_set": "EXTENDED_ASCII",
+  "variants": {
+    "REGULAR": {
+      "location": "pda:fonts/noto_sans.ttf",
+      "variation_axes": {
+        "Width": 100.0,
+        "Weight": 500.0
+      }
+    },
+    "BOLD": {
+      "location": "pda:fonts/noto_sans.ttf",
+      "variation_axes": {
+        "Width": 100.0,
+        "Weight": 700.0
+      }
+    },
+    "ITALIC": {
+      "location": "pda:fonts/noto_sans_italic.ttf",
+      "variation_axes": {
+        "Width": 100.0,
+        "Weight": 500.0
+      }
+    }
+  }
+}

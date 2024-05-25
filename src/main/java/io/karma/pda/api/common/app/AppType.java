@@ -23,16 +23,16 @@ public final class AppType<A extends App> {
         this.factory = factory;
     }
 
+    @SuppressWarnings("unchecked")
+    public static <A extends App> AppType<A> nullType() {
+        return (AppType<A>) NULL;
+    }
+
     public ResourceLocation getName() {
         return name;
     }
 
     public A create() {
         return factory.apply(this);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <A extends App> AppType<A> nullType() {
-        return (AppType<A>) NULL;
     }
 }

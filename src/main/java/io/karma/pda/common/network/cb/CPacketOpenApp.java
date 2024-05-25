@@ -30,22 +30,6 @@ public final class CPacketOpenApp {
         this.newIds = newIds;
     }
 
-    public UUID getSessionId() {
-        return sessionId;
-    }
-
-    public UUID getPlayerId() {
-        return playerId;
-    }
-
-    public ResourceLocation getName() {
-        return name;
-    }
-
-    public Map<String, ? extends List<UUID>> getNewIds() {
-        return newIds;
-    }
-
     public static void encode(final CPacketOpenApp packet, final FriendlyByteBuf buffer) {
         buffer.writeUUID(packet.sessionId);
         buffer.writeResourceLocation(packet.name);
@@ -65,5 +49,21 @@ public final class CPacketOpenApp {
             buf -> PacketUtils.readList(buf, FriendlyByteBuf::readUUID));
         // @formatter:on
         return new CPacketOpenApp(sessionId, playerId, name, newIds);
+    }
+
+    public UUID getSessionId() {
+        return sessionId;
+    }
+
+    public UUID getPlayerId() {
+        return playerId;
+    }
+
+    public ResourceLocation getName() {
+        return name;
+    }
+
+    public Map<String, ? extends List<UUID>> getNewIds() {
+        return newIds;
     }
 }

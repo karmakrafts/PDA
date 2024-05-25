@@ -62,8 +62,6 @@ public interface App {
     @Nullable
     AppView removeView(final String name);
 
-    void setView(final String name);
-
     void pushView(final String name);
 
     @Nullable
@@ -72,6 +70,8 @@ public interface App {
     String getViewName();
 
     AppView getView();
+
+    void setView(final String name);
 
     Collection<AppView> getViews();
 

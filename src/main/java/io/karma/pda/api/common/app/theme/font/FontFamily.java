@@ -4,6 +4,7 @@
 
 package io.karma.pda.api.common.app.theme.font;
 
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,6 +15,12 @@ import java.util.Set;
  * @since 28/04/2024
  */
 public interface FontFamily {
+    @SuppressWarnings("all")
+    @NotNull
+    static FontFamily nullType() {
+        return null;
+    }
+
     ResourceLocation getName();
 
     String getDisplayName();
@@ -22,13 +29,9 @@ public interface FontFamily {
 
     FontVariant getFont(final FontStyle style, final float size);
 
+    FontVariant getFont(final FontStyle style, final float size, final Object2FloatMap<String> variationAxes);
+
     default FontVariant getDefaultFont() {
         return getFont(FontStyle.REGULAR, FontVariant.DEFAULT_SIZE);
-    }
-
-    @SuppressWarnings("all")
-    @NotNull
-    static FontFamily nullType() {
-        return null;
     }
 }

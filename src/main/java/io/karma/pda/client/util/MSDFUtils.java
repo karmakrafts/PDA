@@ -4,7 +4,7 @@
 
 package io.karma.pda.client.util;
 
-import io.karma.pda.client.render.graphics.MSDFException;
+import io.karma.pda.client.render.graphics.font.MSDFException;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.util.Mth;
 import org.joml.Vector2d;
@@ -184,23 +184,16 @@ public final class MSDFUtils {
 
     @FunctionalInterface
     private interface BitmapSampler {
-        static int getAndQuantize(final long address, final int channelIndex) {
-            final var raw = MemoryUtil.memGetFloat(address + ((long) Float.BYTES * channelIndex));
-            return ~(int) (255.5F - 255F * Mth.clamp(raw, 0F, 1F)) & 0xFF;
-        }
-
         BitmapSampler SDF = (address) -> {
             final var r = getAndQuantize(address, 0);
             return (0xFF << 24) | (r << 16) | (r << 8) | r;
         };
-
         BitmapSampler MSDF = (address) -> {
             final var r = getAndQuantize(address, 0);
             final var g = getAndQuantize(address, 1);
             final var b = getAndQuantize(address, 2);
             return (0xFF << 24) | (r << 16) | (g << 8) | b;
         };
-
         BitmapSampler MTSDF = (address) -> {
             final var r = getAndQuantize(address, 0);
             final var g = getAndQuantize(address, 1);
@@ -208,6 +201,11 @@ public final class MSDFUtils {
             final var a = getAndQuantize(address, 3);
             return (a << 24) | (r << 16) | (g << 8) | b;
         };
+
+        static int getAndQuantize(final long address, final int channelIndex) {
+            final var raw = MemoryUtil.memGetFloat(address + ((long) Float.BYTES * channelIndex));
+            return ~(int) (255.5F - 255F * Mth.clamp(raw, 0F, 1F)) & 0xFF;
+        }
 
         int sample(final long address);
     }

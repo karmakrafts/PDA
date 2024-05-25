@@ -54,9 +54,7 @@ public final class TextureUtils {
             if (!Files.exists(directory)) {
                 Files.createDirectories(directory);
             }
-            final var fileName = String.format("%s_%s.png",
-                location.getNamespace(),
-                location.getPath().replace('/', '_'));
+            final var fileName = String.format("%s_%s", location.getNamespace(), location.getPath().replace('/', '_'));
             final var filePath = directory.resolve(fileName);
             Files.deleteIfExists(filePath);
             try (final var outStream = Files.newOutputStream(filePath)) {

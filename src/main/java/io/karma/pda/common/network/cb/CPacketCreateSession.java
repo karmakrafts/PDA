@@ -33,6 +33,30 @@ public final class CPacketCreateSession {
         this.context = context;
     }
 
+    public static void encode(final CPacketCreateSession packet, final FriendlyByteBuf buffer) {
+        final var type = packet.type;
+        buffer.writeEnum(type);
+        PacketUtils.writeNullable(packet.requestId, FriendlyByteBuf::writeUUID, buffer);
+        buffer.writeUUID(packet.sessionId);
+        buffer.writeUUID(packet.playerId);
+        if (type == SessionType.DOCKED) {
+            buffer.writeBlockPos((BlockPos) packet.context);
+            return;
+        }
+        buffer.writeEnum((InteractionHand) packet.context);
+    }
+
+    public static CPacketCreateSession decode(final FriendlyByteBuf buffer) {
+        final var type = buffer.readEnum(SessionType.class);
+        final var requestId = PacketUtils.readNullable(buffer, FriendlyByteBuf::readUUID);
+        final var sessionId = buffer.readUUID();
+        final var playerId = buffer.readUUID();
+        if (type == SessionType.DOCKED) {
+            return new CPacketCreateSession(type, requestId, sessionId, playerId, buffer.readBlockPos());
+        }
+        return new CPacketCreateSession(type, requestId, sessionId, playerId, buffer.readEnum(InteractionHand.class));
+    }
+
     public @Nullable UUID getRequestId() {
         return requestId;
     }
@@ -65,29 +89,5 @@ public final class CPacketCreateSession {
             return null;
         }
         return pos;
-    }
-
-    public static void encode(final CPacketCreateSession packet, final FriendlyByteBuf buffer) {
-        final var type = packet.type;
-        buffer.writeEnum(type);
-        PacketUtils.writeNullable(packet.requestId, FriendlyByteBuf::writeUUID, buffer);
-        buffer.writeUUID(packet.sessionId);
-        buffer.writeUUID(packet.playerId);
-        if (type == SessionType.DOCKED) {
-            buffer.writeBlockPos((BlockPos) packet.context);
-            return;
-        }
-        buffer.writeEnum((InteractionHand) packet.context);
-    }
-
-    public static CPacketCreateSession decode(final FriendlyByteBuf buffer) {
-        final var type = buffer.readEnum(SessionType.class);
-        final var requestId = PacketUtils.readNullable(buffer, FriendlyByteBuf::readUUID);
-        final var sessionId = buffer.readUUID();
-        final var playerId = buffer.readUUID();
-        if (type == SessionType.DOCKED) {
-            return new CPacketCreateSession(type, requestId, sessionId, playerId, buffer.readBlockPos());
-        }
-        return new CPacketCreateSession(type, requestId, sessionId, playerId, buffer.readEnum(InteractionHand.class));
     }
 }

@@ -27,18 +27,6 @@ public final class SPacketOpenApp {
         this.oldIds = oldIds;
     }
 
-    public UUID getSessionId() {
-        return sessionId;
-    }
-
-    public ResourceLocation getName() {
-        return name;
-    }
-
-    public Map<String, List<UUID>> getOldIds() {
-        return oldIds;
-    }
-
     public static void encode(final SPacketOpenApp packet, final FriendlyByteBuf buffer) {
         buffer.writeUUID(packet.sessionId);
         buffer.writeResourceLocation(packet.name);
@@ -56,5 +44,17 @@ public final class SPacketOpenApp {
             buf -> PacketUtils.readList(buf, FriendlyByteBuf::readUUID));
         // @formatter:on
         return new SPacketOpenApp(sessionId, name, oldIds);
+    }
+
+    public UUID getSessionId() {
+        return sessionId;
+    }
+
+    public ResourceLocation getName() {
+        return name;
+    }
+
+    public Map<String, List<UUID>> getOldIds() {
+        return oldIds;
     }
 }

@@ -14,15 +14,15 @@ import org.jetbrains.annotations.NotNull;
  * @since 11/04/2024
  */
 public interface Theme {
-    ResourceLocation getName();
-
-    DynamicScheme getScheme();
-
-    FontSet getFontSet();
-
     @SuppressWarnings("all")
     @NotNull
     static Theme nullType() {
         return null;
     }
+
+    ResourceLocation getName();
+
+    DynamicScheme getScheme();
+
+    FontSet getFontSet();
 }

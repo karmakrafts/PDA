@@ -15,11 +15,13 @@ public interface FontVariant extends Font {
 
     float getSize();
 
-    FontVariant derive(final FontStyle style);
+    FontVariant withStyle(final FontStyle style);
 
-    FontVariant derive(final float size);
+    FontVariant withSize(final float size);
+
+    FontVariant withVar(final String name, final float value);
 
     default FontVariant derive(final FontStyle style, final float size) {
-        return derive(style).derive(size);
+        return withStyle(style).withSize(size);
     }
 }

@@ -28,16 +28,6 @@ public enum GradientType implements GradientFunction {
         name = new ResourceLocation(Constants.MODID, name().toLowerCase());
     }
 
-    @Override
-    public ResourceLocation getName() {
-        return name;
-    }
-
-    @Override
-    public Color remap(final Color start, final Color end, final RectangleCorner corner) {
-        return function.remap(start, end, corner);
-    }
-
     private static Color remapHorizontal(final Color start, final Color end, final RectangleCorner corner) {
         return switch (corner) {
             case TOP_LEFT, BOTTOM_LEFT -> start;
@@ -64,5 +54,15 @@ public enum GradientType implements GradientFunction {
             case TOP_LEFT, BOTTOM_RIGHT -> start;
             default -> end;
         };
+    }
+
+    @Override
+    public ResourceLocation getName() {
+        return name;
+    }
+
+    @Override
+    public Color remap(final Color start, final Color end, final RectangleCorner corner) {
+        return function.remap(start, end, corner);
     }
 }

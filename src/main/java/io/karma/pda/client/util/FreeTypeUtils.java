@@ -8,7 +8,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.system.Checks;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.freetype.FT_Face;
 import org.lwjgl.util.freetype.FT_MM_Var;
 import org.lwjgl.util.freetype.FreeType;
@@ -23,8 +22,8 @@ import java.util.List;
  */
 @OnlyIn(Dist.CLIENT)
 public final class FreeTypeUtils {
-    private static final float F16DOT16_SCALE = 65536F;
-    private static final float F26DOT6_SCALE = 64F;
+    private static final double F16DOT16_SCALE = 65536.0;
+    private static final double F26DOT6_SCALE = 64.0;
 
     // @formatter:off
     private FreeTypeUtils() {}
@@ -33,27 +32,24 @@ public final class FreeTypeUtils {
     // F16DOT16 conversions
 
     public static float f16Dot16ToFP32(final long value) {
-        return (1F / F16DOT16_SCALE) * (float) value;
+        return (float) ((1.0 / F16DOT16_SCALE) * (double) value);
     }
 
-    public static float fp32ToF16Dot16(final float value) {
-        return value * F16DOT16_SCALE;
+    public static long fp32ToF16Dot16(final float value) {
+        return (long) (value * F16DOT16_SCALE);
     }
 
     // F26DOT6 conversions
 
     public static float f26Dot6ToFP32(final long value) {
-        return (1F / F26DOT6_SCALE) * (float) value;
+        return (float) ((1.0 / F26DOT6_SCALE) * (float) value);
     }
 
-    public static float fp32ToF26Dot6(final float value) {
-        return value * F26DOT6_SCALE;
+    public static long fp32ToF26Dot6(final float value) {
+        return (long) (value * F26DOT6_SCALE);
     }
 
     // Font variation axes - adapted from https://github.com/Chlumsky/msdfgen/blob/master/ext/import-font.cpp#L269-L311
-
-    public record FontVariationAxis(String name, float min, float max, float def) {
-    }
 
     public static List<FontVariationAxis> listFontVariationAxes(final long library, final FT_Face face) {
         try (final var stack = MemoryStack.stackPush()) {
@@ -95,13 +91,13 @@ public final class FreeTypeUtils {
             final var numAxes = master.num_axis();
             final var coordsBuffer = stack.callocCLong(numAxes); // Make sure this is zeroed
             var result = false;
-            if (FreeType.FT_Get_Var_Design_Coordinates(face, coordsBuffer) != FreeType.FT_Err_Ok) {
+            if (FreeType.FT_Get_Var_Design_Coordinates(face, coordsBuffer) == FreeType.FT_Err_Ok) {
                 for (var i = 0; i < numAxes; i++) {
                     final var axis = master.axis().get(i);
                     if (!axis.nameString().equals(name)) {
                         continue;
                     }
-                    MemoryUtil.memPutDouble(coordsBuffer.address(i), fp32ToF16Dot16(coord));
+                    coordsBuffer.put(i, fp32ToF16Dot16(coord));
                     result = true;
                     break;
                 }

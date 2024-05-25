@@ -23,18 +23,6 @@ public final class CPacketTerminateSession {
         this.isPending = isPending;
     }
 
-    public UUID getSessionId() {
-        return sessionId;
-    }
-
-    public UUID getPlayerId() {
-        return playerId;
-    }
-
-    public boolean isPending() {
-        return isPending;
-    }
-
     public static void encode(final CPacketTerminateSession packet, final FriendlyByteBuf buffer) {
         buffer.writeUUID(packet.sessionId);
         buffer.writeUUID(packet.playerId);
@@ -46,5 +34,17 @@ public final class CPacketTerminateSession {
         final var playerId = buffer.readUUID();
         final var isPending = buffer.readBoolean();
         return new CPacketTerminateSession(sessionId, playerId, isPending);
+    }
+
+    public UUID getSessionId() {
+        return sessionId;
+    }
+
+    public UUID getPlayerId() {
+        return playerId;
+    }
+
+    public boolean isPending() {
+        return isPending;
     }
 }

@@ -41,6 +41,8 @@ public interface FontAtlas extends Disposable {
 
     float getMaxGlyphBearingY();
 
+    float getLineHeight();
+
     int getTextureId();
 
     void bind();

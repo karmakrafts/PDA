@@ -119,19 +119,6 @@ public final class Color implements ColorProvider {
             (byte) ((value >> 24) & 0xFF));
     }
 
-    @JsonIgnore
-    public void storeRGBInto(final float[] values) {
-        if (values.length < 3) {
-            throw new IllegalArgumentException("Array has invalid size");
-        }
-        values[0] = r;
-        values[1] = g;
-        values[2] = b;
-        if (values.length == 4) {
-            values[3] = a;
-        }
-    }
-
     private static float applyLinearGamma(final float value) {
         if (value > 0.04045F) {
             return (float) Math.pow((value + 0.055F) / 1.055F, 2.4F);
@@ -196,19 +183,6 @@ public final class Color implements ColorProvider {
         return fromXYZ(new float[]{x, y, z});
     }
 
-    @JsonIgnore
-    public void toXYZ(final float[] values) {
-        storeRGBInto(values);
-        transformRGBToXYZ(values);
-    }
-
-    @JsonIgnore
-    public float[] toXYZ() {
-        final var values = new float[3];
-        toXYZ(values);
-        return values;
-    }
-
     // https://en.wikipedia.org/wiki/CIELAB_color_space
     private static float transformToLAB(final float r) {
         return (r > 0.008856F) ? (float) Math.pow(r, 1F / 3F) : (7.787F * r + 16F / 116F);
@@ -250,6 +224,44 @@ public final class Color implements ColorProvider {
         return fromLAB(new float[]{l, a, b});
     }
 
+    // https://en.wikipedia.org/wiki/HCL_color_space
+    public static void transformRGBToLCH(final float[] values) {
+        if (values.length != 3) {
+            throw new IllegalArgumentException("Array has invalid size");
+        }
+        transformRGBToLAB(values);
+        final var a = values[1];
+        final var b = values[2];
+        values[1] = (float) Math.sqrt(a * a + b * b);
+        values[2] = (float) Math.toDegrees(Math.atan2(b, a));
+    }
+
+    @JsonIgnore
+    public void storeRGBInto(final float[] values) {
+        if (values.length < 3) {
+            throw new IllegalArgumentException("Array has invalid size");
+        }
+        values[0] = r;
+        values[1] = g;
+        values[2] = b;
+        if (values.length == 4) {
+            values[3] = a;
+        }
+    }
+
+    @JsonIgnore
+    public void toXYZ(final float[] values) {
+        storeRGBInto(values);
+        transformRGBToXYZ(values);
+    }
+
+    @JsonIgnore
+    public float[] toXYZ() {
+        final var values = new float[3];
+        toXYZ(values);
+        return values;
+    }
+
     @JsonIgnore
     public void toLAB(final float[] values) {
         storeRGBInto(values);
@@ -261,18 +273,6 @@ public final class Color implements ColorProvider {
         final var values = new float[3];
         toLAB(values);
         return values;
-    }
-
-    // https://en.wikipedia.org/wiki/HCL_color_space
-    public static void transformRGBToLCH(final float[] values) {
-        if (values.length != 3) {
-            throw new IllegalArgumentException("Array has invalid size");
-        }
-        transformRGBToLAB(values);
-        final var a = values[1];
-        final var b = values[2];
-        values[1] = (float) Math.sqrt(a * a + b * b);
-        values[2] = (float) Math.toDegrees(Math.atan2(b, a));
     }
 
     // TODO: implement reverse transform

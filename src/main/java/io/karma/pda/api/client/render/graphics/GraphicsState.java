@@ -14,15 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  */
 @OnlyIn(Dist.CLIENT)
 public interface GraphicsState extends AutoCloseable {
-    void setBrush(final Brush brush);
-
-    void setFont(final Font font);
-
-    void setLineWidth(final float lineWidth);
-
     void setHasTextShadows(final boolean hasTextShadows);
-
-    void setZIndex(final int zIndex);
 
     void setForceUVs(final boolean forceUVs);
 
@@ -30,13 +22,21 @@ public interface GraphicsState extends AutoCloseable {
 
     Brush getBrush();
 
+    void setBrush(final Brush brush);
+
     Font getFont();
 
+    void setFont(final Font font);
+
     float getLineWidth();
+
+    void setLineWidth(final float lineWidth);
 
     boolean hasTextShadows();
 
     int getZIndex();
+
+    void setZIndex(final int zIndex);
 
     boolean shouldForceUVs();
 

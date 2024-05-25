@@ -24,18 +24,6 @@ public final class CPacketCloseApp {
         this.name = name;
     }
 
-    public UUID getSessionId() {
-        return sessionId;
-    }
-
-    public UUID getPlayerId() {
-        return playerId;
-    }
-
-    public ResourceLocation getName() {
-        return name;
-    }
-
     public static void encode(final CPacketCloseApp packet, final FriendlyByteBuf buffer) {
         buffer.writeUUID(packet.sessionId);
         buffer.writeUUID(packet.playerId);
@@ -47,5 +35,17 @@ public final class CPacketCloseApp {
         final var playerId = buffer.readUUID();
         final var name = buffer.readResourceLocation();
         return new CPacketCloseApp(sessionId, playerId, name);
+    }
+
+    public UUID getSessionId() {
+        return sessionId;
+    }
+
+    public UUID getPlayerId() {
+        return playerId;
+    }
+
+    public ResourceLocation getName() {
+        return name;
     }
 }

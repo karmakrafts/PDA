@@ -33,8 +33,8 @@ public interface SessionHandler {
 
     List<Session> findByPlayer(final Player player);
 
-    void setActiveSession(final @Nullable Session session);
-
     @Nullable
     Session getActiveSession();
+
+    void setActiveSession(final @Nullable Session session);
 }

@@ -41,33 +41,18 @@ public final class DefaultGraphicsState implements GraphicsState {
     }
 
     @Override
-    public void setFont(final Font font) {
-        this.font = font;
-    }
-
-    @Override
     public Font getFont() {
         return font;
     }
 
     @Override
-    public void setBrush(final Brush brush) {
-        this.brush = brush;
-    }
-
-    @Override
-    public void setLineWidth(final float lineWidth) {
-        this.lineWidth = lineWidth;
+    public void setFont(final Font font) {
+        this.font = font;
     }
 
     @Override
     public void setHasTextShadows(final boolean hasTextShadows) {
         this.hasTextShadows = hasTextShadows;
-    }
-
-    @Override
-    public void setZIndex(final int zIndex) {
-        this.zIndex = zIndex;
     }
 
     @Override
@@ -81,8 +66,18 @@ public final class DefaultGraphicsState implements GraphicsState {
     }
 
     @Override
+    public void setBrush(final Brush brush) {
+        this.brush = brush;
+    }
+
+    @Override
     public float getLineWidth() {
         return lineWidth;
+    }
+
+    @Override
+    public void setLineWidth(final float lineWidth) {
+        this.lineWidth = lineWidth;
     }
 
     @Override
@@ -93,6 +88,11 @@ public final class DefaultGraphicsState implements GraphicsState {
     @Override
     public int getZIndex() {
         return zIndex;
+    }
+
+    @Override
+    public void setZIndex(final int zIndex) {
+        this.zIndex = zIndex;
     }
 
     @Override

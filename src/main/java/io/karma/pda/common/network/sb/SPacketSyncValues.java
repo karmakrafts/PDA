@@ -33,14 +33,6 @@ public final class SPacketSyncValues {
         this(sessionId, new HashMap<>());
     }
 
-    public UUID getSessionId() {
-        return sessionId;
-    }
-
-    public Map<String, ? extends Map<String, ? extends State<?>>> getValues() {
-        return values;
-    }
-
     public static void encode(final SPacketSyncValues packet, final FriendlyByteBuf buffer) {
         buffer.writeUUID(packet.sessionId);
         // @formatter:off
@@ -58,5 +50,13 @@ public final class SPacketSyncValues {
                 buf -> MutableState.fromPair(Objects.requireNonNull(JSONUtils.decompress(buf.readByteArray())))));
         // @formatter:on
         return new SPacketSyncValues(sessionId, values);
+    }
+
+    public UUID getSessionId() {
+        return sessionId;
+    }
+
+    public Map<String, ? extends Map<String, ? extends State<?>>> getValues() {
+        return values;
     }
 }

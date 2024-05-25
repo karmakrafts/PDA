@@ -31,18 +31,6 @@ public final class CPacketSyncValues {
         this.values = values;
     }
 
-    public UUID getSessionId() {
-        return sessionId;
-    }
-
-    public @Nullable UUID getPlayerId() {
-        return playerId;
-    }
-
-    public Map<String, ? extends Map<String, ? extends State<?>>> getValues() {
-        return values;
-    }
-
     public static void encode(final CPacketSyncValues packet, final FriendlyByteBuf buffer) {
         buffer.writeUUID(packet.sessionId);
         PacketUtils.writeNullable(packet.playerId, FriendlyByteBuf::writeUUID, buffer);
@@ -62,5 +50,17 @@ public final class CPacketSyncValues {
                 buf -> MutableState.fromPair(Objects.requireNonNull(JSONUtils.decompress(buf.readByteArray())))));
         // @formatter:on
         return new CPacketSyncValues(sessionId, playerId, values);
+    }
+
+    public UUID getSessionId() {
+        return sessionId;
+    }
+
+    public @Nullable UUID getPlayerId() {
+        return playerId;
+    }
+
+    public Map<String, ? extends Map<String, ? extends State<?>>> getValues() {
+        return values;
     }
 }

@@ -66,61 +66,24 @@ public class API {
     }
 
     @ApiStatus.Internal
-    public static void setLogger(final Logger logger) {
-        API.logger = logger;
-    }
-
-    @ApiStatus.Internal
-    public static void setObjectMapper(final ObjectMapper objectMapper) {
-        API.objectMapper = objectMapper;
-    }
-
-    @ApiStatus.Internal
-    public static void setExecutorService(final ExecutorService executorService) {
-        API.executorService = executorService;
-    }
-
-    @ApiStatus.Internal
-    public static void setSessionHandler(final SessionHandler sessionHandler) {
-        API.sessionHandler = sessionHandler;
-    }
-
-    @ApiStatus.Internal
-    public static void setComponentTypeRegistry(
-        final Supplier<IForgeRegistry<ComponentType<?>>> componentTypeRegistry) {
-        API.componentTypeRegistry = componentTypeRegistry;
-    }
-
-    @ApiStatus.Internal
-    public static void setAppTypeRegistry(final Supplier<IForgeRegistry<AppType<?>>> appTypeRegistry) {
-        API.appTypeRegistry = appTypeRegistry;
-    }
-
-    @ApiStatus.Internal
-    public static void setThemeRegistry(final Supplier<IForgeRegistry<Theme>> themeRegistry) {
-        API.themeRegistry = themeRegistry;
-    }
-
-    @ApiStatus.Internal
-    public static void setFontFamilyRegistry(final Supplier<IForgeRegistry<FontFamily>> fontFamilyRegistry) {
-        API.fontFamilyRegistry = fontFamilyRegistry;
-    }
-
-    @ApiStatus.Internal
-    public static void setGradientFunctionRegistry(
-        final Supplier<IForgeRegistry<GradientFunction>> gradientFunctionRegistry) {
-        API.gradientFunctionRegistry = gradientFunctionRegistry;
-    }
-
-    @ApiStatus.Internal
     public static Logger getLogger() {
         assertInitialized();
         return logger;
     }
 
+    @ApiStatus.Internal
+    public static void setLogger(final Logger logger) {
+        API.logger = logger;
+    }
+
     public static ObjectMapper getObjectMapper() {
         assertInitialized();
         return objectMapper;
+    }
+
+    @ApiStatus.Internal
+    public static void setObjectMapper(final ObjectMapper objectMapper) {
+        API.objectMapper = objectMapper;
     }
 
     public static ResourceManager getResourceManager() {
@@ -133,9 +96,19 @@ public class API {
         return sessionHandler;
     }
 
+    @ApiStatus.Internal
+    public static void setSessionHandler(final SessionHandler sessionHandler) {
+        API.sessionHandler = sessionHandler;
+    }
+
     public static ExecutorService getExecutorService() {
         assertInitialized();
         return executorService;
+    }
+
+    @ApiStatus.Internal
+    public static void setExecutorService(final ExecutorService executorService) {
+        API.executorService = executorService;
     }
 
     public static DeferredRegister<ComponentType<?>> makeDeferredComponentTypeRegister(final String modId) {
@@ -164,9 +137,20 @@ public class API {
         return componentTypeRegistry.get();
     }
 
+    @ApiStatus.Internal
+    public static void setComponentTypeRegistry(
+        final Supplier<IForgeRegistry<ComponentType<?>>> componentTypeRegistry) {
+        API.componentTypeRegistry = componentTypeRegistry;
+    }
+
     public static IForgeRegistry<AppType<?>> getAppTypeRegistry() {
         assertInitialized();
         return appTypeRegistry.get();
+    }
+
+    @ApiStatus.Internal
+    public static void setAppTypeRegistry(final Supplier<IForgeRegistry<AppType<?>>> appTypeRegistry) {
+        API.appTypeRegistry = appTypeRegistry;
     }
 
     public static IForgeRegistry<Theme> getThemeRegistry() {
@@ -174,14 +158,30 @@ public class API {
         return themeRegistry.get();
     }
 
+    @ApiStatus.Internal
+    public static void setThemeRegistry(final Supplier<IForgeRegistry<Theme>> themeRegistry) {
+        API.themeRegistry = themeRegistry;
+    }
+
     public static IForgeRegistry<FontFamily> getFontFamilyRegistry() {
         assertInitialized();
         return fontFamilyRegistry.get();
     }
 
+    @ApiStatus.Internal
+    public static void setFontFamilyRegistry(final Supplier<IForgeRegistry<FontFamily>> fontFamilyRegistry) {
+        API.fontFamilyRegistry = fontFamilyRegistry;
+    }
+
     public static IForgeRegistry<GradientFunction> getGradientFunctionRegistry() {
         assertInitialized();
         return gradientFunctionRegistry.get();
+    }
+
+    @ApiStatus.Internal
+    public static void setGradientFunctionRegistry(
+        final Supplier<IForgeRegistry<GradientFunction>> gradientFunctionRegistry) {
+        API.gradientFunctionRegistry = gradientFunctionRegistry;
     }
 
     @SuppressWarnings("all")

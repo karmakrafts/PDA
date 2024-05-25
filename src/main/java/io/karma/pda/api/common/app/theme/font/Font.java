@@ -4,6 +4,7 @@
 
 package io.karma.pda.api.common.app.theme.font;
 
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -18,4 +19,12 @@ public interface Font {
     ResourceLocation getLocation();
 
     FontVariant getDefaultVariant();
+
+    Object2FloatMap<String> getVariationAxes();
+
+    float getVariationAxis(final String name);
+
+    default FontVariant asVariant() {
+        return this instanceof FontVariant variant ? variant : getDefaultVariant();
+    }
 }

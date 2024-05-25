@@ -138,17 +138,17 @@ public final class ClientSessionHandler extends AbstractSessionHandler {
         return future;
     }
 
+    @Nullable
+    @Override
+    public Session getActiveSession() {
+        return session.get();
+    }
+
     @Override
     public void setActiveSession(final @Nullable Session session) {
         PDAMod.LOGGER.debug(LogMarkers.PROTOCOL,
             "Setting active session to {}",
             session != null ? session.getId().toString() : "null");
         this.session.set(session);
-    }
-
-    @Nullable
-    @Override
-    public Session getActiveSession() {
-        return session.get();
     }
 }

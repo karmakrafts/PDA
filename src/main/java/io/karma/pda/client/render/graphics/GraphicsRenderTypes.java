@@ -31,10 +31,6 @@ import java.util.function.Function;
 @OnlyIn(Dist.CLIENT)
 public final class GraphicsRenderTypes {
     public static final GraphicsRenderTypes INSTANCE = new GraphicsRenderTypes();
-    private ShaderInstance colorShader;
-    private ShaderInstance colorTextureShader;
-    private ShaderInstance spinnerShader;
-
     // @formatter:off
     public static final RenderType COLOR_TRIS = RenderType.create("pda_display_color_tris",
         DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
@@ -46,7 +42,6 @@ public final class GraphicsRenderTypes {
             .setLayeringState(RenderStateShard.POLYGON_OFFSET_LAYERING)
             .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
             .createCompositeState(false));
-
     public static final Function<ResourceLocation, RenderType> COLOR_TEXTURE_TRIS = Util.memoize(texture ->
         RenderType.create(String.format("pda_display_color_tex_tris__%s_%s", texture.getNamespace(), texture.getPath()),
             DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
@@ -63,7 +58,6 @@ public final class GraphicsRenderTypes {
                     () -> {}
                 ))
                 .createCompositeState(false)));
-
     public static final RenderType SPINNER = RenderType.create("pda_display_spinner",
         DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
         RenderType.CompositeState.builder()
@@ -74,6 +68,9 @@ public final class GraphicsRenderTypes {
             .setLayeringState(RenderStateShard.POLYGON_OFFSET_LAYERING)
             .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
             .createCompositeState(false));
+    private ShaderInstance colorShader;
+    private ShaderInstance colorTextureShader;
+    private ShaderInstance spinnerShader;
 
     private GraphicsRenderTypes() {}
     // @formatter:on

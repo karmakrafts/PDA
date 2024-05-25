@@ -20,7 +20,7 @@ import java.util.UUID;
  */
 public class Label extends AbstractComponent {
     @Synchronize
-    public final MutableState<Font> font = MutableState.of(DefaultFontFamilies.FIXEDSYS.getDefaultFont());
+    public final MutableState<Font> font = MutableState.of(DefaultFontFamilies.NOTO_SANS.getDefaultFont());
     @Synchronize
     public final MutableState<String> text = MutableState.of("");
     @Synchronize

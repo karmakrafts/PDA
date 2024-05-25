@@ -23,25 +23,25 @@ public interface Component extends Identifiable {
 
     void setId(final UUID id);
 
-    void setLocalName(final @Nullable String localName);
-
     @Nullable
     String getLocalName();
 
+    void setLocalName(final @Nullable String localName);
+
     @Nullable
     Component getParent();
+
+    void setParent(final @Nullable Component parent);
 
     default Proxy<? extends Component> getParentProxy() {
         return this::getParent;
     }
 
-    void setParent(final @Nullable Component parent);
-
     FlexNode getFlexNode();
 
-    void setVisible(final boolean isVisible);
-
     boolean isVisible();
+
+    void setVisible(final boolean isVisible);
 
     void onClicked(final Consumer<ClickEvent> callback);
 

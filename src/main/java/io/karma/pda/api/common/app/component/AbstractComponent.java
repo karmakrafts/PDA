@@ -25,6 +25,9 @@ public abstract class AbstractComponent implements Component {
     protected final ComponentType<?> type;
     protected final AtomicReference<UUID> id = new AtomicReference<>();
     protected final FlexNode flexNode = DefaultFlexNode.defaults();
+    // Internal synchronized property for tracking visibility state
+    @Synchronize
+    protected final MutableState<Boolean> isVisible = MutableState.of(true);
     protected Component parent;
     protected String localName;
     protected Consumer<ClickEvent> clickEventConsumer = event -> {
@@ -36,19 +39,10 @@ public abstract class AbstractComponent implements Component {
     protected Consumer<MouseMoveEvent> mouseExitEventConsumer = event -> {
     };
 
-    // Internal synchronized property for tracking visibility state
-    @Synchronize
-    protected final MutableState<Boolean> isVisible = MutableState.of(true);
-
     protected AbstractComponent(final ComponentType<?> type, final UUID id) {
         this.type = type;
         this.id.set(id);
         API.getLogger().debug("Creating component {} of type {}", id, type.getName());
-    }
-
-    @Override
-    public void setLocalName(final @Nullable String localName) {
-        this.localName = localName;
     }
 
     @Override
@@ -57,13 +51,8 @@ public abstract class AbstractComponent implements Component {
     }
 
     @Override
-    public void setId(final UUID id) {
-        this.id.set(id);
-    }
-
-    @Override
-    public void setVisible(final boolean isVisible) {
-        this.isVisible.set(isVisible);
+    public void setLocalName(final @Nullable String localName) {
+        this.localName = localName;
     }
 
     @Override
@@ -72,8 +61,18 @@ public abstract class AbstractComponent implements Component {
     }
 
     @Override
+    public void setVisible(final boolean isVisible) {
+        this.isVisible.set(isVisible);
+    }
+
+    @Override
     public UUID getId() {
         return id.get();
+    }
+
+    @Override
+    public void setId(final UUID id) {
+        this.id.set(id);
     }
 
     @Override

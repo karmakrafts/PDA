@@ -67,12 +67,6 @@ public abstract class AbstractApp implements App {
     }
 
     @Override
-    public void setView(final String name) {
-        final var stack = viewStack.get();
-        stack.set(stack.size() - 1, name);
-    }
-
-    @Override
     public void pushView(final String name) {
         viewStack.get().push(name);
     }
@@ -95,6 +89,12 @@ public abstract class AbstractApp implements App {
     @Override
     public AppView getView() {
         return Objects.requireNonNull(views.get(getViewName()));
+    }
+
+    @Override
+    public void setView(final String name) {
+        final var stack = viewStack.get();
+        stack.set(stack.size() - 1, name);
     }
 
     @Override

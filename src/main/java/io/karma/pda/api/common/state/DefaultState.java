@@ -39,17 +39,17 @@ final class DefaultState<T> implements MutableState<T> {
     }
 
     @Override
-    public void setName(final String name) {
-        this.name.set(name);
-    }
-
-    @Override
     public String getName() {
         final var name = this.name.get();
         if (name == null) {
             throw new IllegalStateException("Name not set");
         }
         return name;
+    }
+
+    @Override
+    public void setName(final String name) {
+        this.name.set(name);
     }
 
     @Override

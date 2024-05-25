@@ -2,15 +2,21 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.api.common.app.theme.font;
+package io.karma.pda.common.app.theme.font;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.karma.pda.api.common.API;
+import io.karma.pda.api.common.app.theme.font.FontCharSet;
+import io.karma.pda.api.common.app.theme.font.FontFamily;
+import io.karma.pda.api.common.app.theme.font.FontStyle;
+import io.karma.pda.api.common.app.theme.font.FontVariant;
 import io.karma.pda.api.common.util.Exceptions;
 import io.karma.pda.api.common.util.JSONUtils;
 import io.karma.pda.common.PDAMod;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -79,21 +85,35 @@ public final class DefaultFontFamily implements FontFamily {
             throw new IllegalArgumentException("Size must be greater than or equal to zero");
         }
         return new DefaultFontVariant(fonts.computeIfAbsent(style, s -> {
-            final var locationString = config.variants.get(s);
+            final var variant = config.variants.get(s);
+            final var locationString = variant.location;
             final var location = ResourceLocation.tryParse(locationString);
             if (location == null) {
                 throw new IllegalStateException(String.format("Malformed font location: %s", locationString));
             }
-            return new DefaultFont(this, config.supportedCharSet, location);
+            final var font = new DefaultFont(this, config.supportedCharSet, location);
+            font.setVariationAxes(variant.variationAxes);
+            return font;
         }), style, size);
     }
 
-    private final class ReloadListener implements ResourceManagerReloadListener {
-        @Override
-        public void onResourceManagerReload(final @NotNull ResourceManager manager) {
-            PDAMod.LOGGER.debug("Reloading font family {}", name);
-            DefaultFontFamily.this.reload(manager);
+    @Override
+    public synchronized FontVariant getFont(final FontStyle style, final float size,
+                                            final Object2FloatMap<String> variationAxes) {
+        if (size < 0F) {
+            throw new IllegalArgumentException("Size must be greater than or equal to zero");
         }
+        return new DefaultFontVariant(fonts.computeIfAbsent(style, s -> {
+            final var variant = config.variants.get(s);
+            final var locationString = variant.location;
+            final var location = ResourceLocation.tryParse(locationString);
+            if (location == null) {
+                throw new IllegalStateException(String.format("Malformed font location: %s", locationString));
+            }
+            final var font = new DefaultFont(this, config.supportedCharSet, location);
+            font.setVariationAxes(variant.variationAxes);
+            return font;
+        }), style, size); // TODO: finish implementing this
     }
 
     public enum DefaultCharSet implements FontCharSet {
@@ -137,6 +157,21 @@ public final class DefaultFontFamily implements FontFamily {
         @JsonProperty("supported_char_set")
         public DefaultCharSet supportedCharSet;
         @JsonProperty
-        public HashMap<FontStyle, String> variants = new HashMap<>();
+        public HashMap<FontStyle, Variant> variants = new HashMap<>();
+
+        public static final class Variant {
+            @JsonProperty
+            public String location;
+            @JsonProperty("variation_axes")
+            public Object2FloatOpenHashMap<String> variationAxes = new Object2FloatOpenHashMap<>();
+        }
+    }
+
+    private final class ReloadListener implements ResourceManagerReloadListener {
+        @Override
+        public void onResourceManagerReload(final @NotNull ResourceManager manager) {
+            PDAMod.LOGGER.debug("Reloading font family {}", name);
+            DefaultFontFamily.this.reload(manager);
+        }
     }
 }

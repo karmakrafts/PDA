@@ -52,14 +52,14 @@ public class DefaultSessionHandler extends AbstractSessionHandler {
         return CompletableFuture.completedFuture(null);
     }
 
-    @Override
-    public void setActiveSession(final @Nullable Session session) {
-        throw new UnsupportedOperationException();
-    }
-
     @Nullable
     @Override
     public Session getActiveSession() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setActiveSession(final @Nullable Session session) {
         throw new UnsupportedOperationException();
     }
 
