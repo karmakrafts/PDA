@@ -14,17 +14,17 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  */
 @OnlyIn(Dist.CLIENT)
 public final class DefaultGlyphMetrics implements GlyphMetrics {
-    private final float width;
-    private final float height;
-    private final float ascent;
-    private final float descent;
-    private final float advanceX;
-    private final float advanceY;
-    private final float bearingX;
-    private final float bearingY;
+    private final int width;
+    private final int height;
+    private final int ascent;
+    private final int descent;
+    private final int advanceX;
+    private final int advanceY;
+    private final int bearingX;
+    private final int bearingY;
 
-    public DefaultGlyphMetrics(final float width, final float height, final float ascent, final float descent,
-                               final float advanceX, final float advanceY, final float bearingX, final float bearingY) {
+    public DefaultGlyphMetrics(final int width, final int height, final int ascent, final int descent,
+                               final int advanceX, final int advanceY, final int bearingX, final int bearingY) {
         this.width = width;
         this.height = height;
         this.ascent = ascent;
@@ -36,42 +36,42 @@ public final class DefaultGlyphMetrics implements GlyphMetrics {
     }
 
     @Override
-    public float getWidth() {
+    public int getWidth() {
         return width;
     }
 
     @Override
-    public float getHeight() {
+    public int getHeight() {
         return height;
     }
 
     @Override
-    public float getAscent() {
+    public int getAscent() {
         return ascent;
     }
 
     @Override
-    public float getDescent() {
+    public int getDescent() {
         return descent;
     }
 
     @Override
-    public float getAdvanceX() {
+    public int getAdvanceX() {
         return advanceX;
     }
 
     @Override
-    public float getAdvanceY() {
+    public int getAdvanceY() {
         return advanceY;
     }
 
     @Override
-    public float getBearingX() {
+    public int getBearingX() {
         return bearingX;
     }
 
     @Override
-    public float getBearingY() {
+    public int getBearingY() {
         return bearingY;
     }
 

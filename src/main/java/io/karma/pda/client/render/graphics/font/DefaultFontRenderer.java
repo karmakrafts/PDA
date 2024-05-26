@@ -92,18 +92,18 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
 
         // Find scale factor and re-scale metrics
         final var scale = font.getSize() / atlas.getMaxGlyphHeight();
-        final var scaledWidth = scale * width;
-        final var scaledHeight = scale * height;
-        final var scaledAscent = scale * metrics.getAscent();
-        final var scaledDescent = scale * metrics.getDescent();
-        final var scaledBearingX = scale * metrics.getBearingX();
-        final var scaledBearingY = scale * metrics.getBearingY();
+        final var scaledWidth = (int) (scale * width);
+        final var scaledHeight = (int) (scale * height);
+        final var scaledAscent = (int) (scale * metrics.getAscent());
+        final var scaledDescent = (int) (scale * metrics.getDescent());
+        final var scaledBearingX = (int) (scale * metrics.getBearingX());
+        final var scaledBearingY = (int) (scale * metrics.getBearingY());
 
         // Compute vertex positions for glyph quad
-        final var minX = (float) x + (int) scaledBearingX;
-        final var minY = (float) y + (int) (scaledAscent - scaledBearingY + scaledDescent);
-        final var maxX = minX + (int) scaledWidth;
-        final var maxY = minY + (int) scaledHeight;
+        final var minX = x + scaledBearingX;
+        final var minY = y + (scaledAscent - scaledBearingY + scaledDescent);
+        final var maxX = minX + scaledWidth;
+        final var maxY = minY + scaledHeight;
         final var z = (float) zIndex; // Do cast once instead of per-vertex
 
         // Compute glyph UVs
@@ -163,11 +163,12 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
         final var fontVariant = font.asVariant();
         final var atlas = getFontAtlas(fontVariant);
         final var scale = fontVariant.getSize() / atlas.getMaxGlyphHeight();
-        var width = 0F;
+        var width = 0;
         for (var i = 0; i < s.length(); i++) {
-            width += atlas.getGlyphSprite(s.charAt(i)).getMetrics().getAdvanceX();
+            final var metrics = atlas.getGlyphSprite(s.charAt(i)).getMetrics();
+            width += (int) (scale * metrics.getAdvanceX());
         }
-        return (int) (scale * width);
+        return width;
     }
 
     @Override

@@ -50,11 +50,11 @@ public final class DefaultFontAtlas implements FontAtlas {
 
     private final Char2ObjectOpenHashMap<DefaultGlyphSprite> glyphSprites = new Char2ObjectOpenHashMap<>();
     private boolean isReady = false;
-    private float maxGlyphWidth;
-    private float maxGlyphHeight;
-    private float maxGlyphBearingX;
-    private float maxGlyphBearingY;
-    private float lineHeight;
+    private int maxGlyphWidth;
+    private int maxGlyphHeight;
+    private int maxGlyphBearingX;
+    private int maxGlyphBearingY;
+    private int lineHeight;
 
     public DefaultFontAtlas(final FontVariant font, final int spriteSize, final int spriteBorder, final float sdfRange,
                             final int renderType) {
@@ -129,11 +129,11 @@ public final class DefaultFontAtlas implements FontAtlas {
 
     private void clear() {
         glyphSprites.clear();
-        maxGlyphWidth = 0F;
-        maxGlyphHeight = 0F;
-        maxGlyphBearingX = 0F;
-        maxGlyphBearingY = 0F;
-        lineHeight = 0F;
+        maxGlyphWidth = 0;
+        maxGlyphHeight = 0;
+        maxGlyphBearingX = 0;
+        maxGlyphBearingY = 0;
+        lineHeight = 0;
     }
 
     private void buildAndMeasureShapes(final MSDFFont fontResource, final StitchContext context) {
@@ -263,8 +263,8 @@ public final class DefaultFontAtlas implements FontAtlas {
 
             final var scale = context.getScale();
             final var face = fontResource.getFace();
-            final var ascender = scale * FreeTypeUtils.f26Dot6ToFP32(face.ascender());
-            final var descender = scale * FreeTypeUtils.f26Dot6ToFP32(face.descender());
+            final var ascender = (int) (scale * FreeTypeUtils.f26Dot6ToFP32(face.ascender()));
+            final var descender = (int) (scale * FreeTypeUtils.f26Dot6ToFP32(face.descender()));
             lineHeight = ascender - descender;
         }
         catch (Throwable error) {
@@ -306,27 +306,27 @@ public final class DefaultFontAtlas implements FontAtlas {
     }
 
     @Override
-    public float getMaxGlyphWidth() {
+    public int getMaxGlyphWidth() {
         return maxGlyphWidth;
     }
 
     @Override
-    public float getMaxGlyphHeight() {
+    public int getMaxGlyphHeight() {
         return maxGlyphHeight;
     }
 
     @Override
-    public float getMaxGlyphBearingX() {
+    public int getMaxGlyphBearingX() {
         return maxGlyphBearingX;
     }
 
     @Override
-    public float getMaxGlyphBearingY() {
+    public int getMaxGlyphBearingY() {
         return maxGlyphBearingY;
     }
 
     @Override
-    public float getLineHeight() {
+    public int getLineHeight() {
         return lineHeight;
     }
 

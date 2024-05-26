@@ -241,6 +241,11 @@ public final class DefaultGraphics implements Graphics {
         final var fontRenderer = context.getFontRenderer();
         final var font = state.getFont();
         final var fontVariant = font instanceof FontVariant variant ? variant : font.getDefaultVariant();
+        final var fontAtlas = fontRenderer.getFontAtlas(fontVariant);
+
+        final var scale = fontVariant.getSize() / fontAtlas.getMaxGlyphHeight();
+        final var maxGlyphWidth = (int) (fontAtlas.getMaxGlyphWidth() * scale);
+        final var actualMaxWidth = maxWidth - (maxGlyphWidth >> 1); // Use half the largest char as tolerance
 
         final var buffer = new StringBuilder();
         final var charCount = text.length();
@@ -263,7 +268,7 @@ public final class DefaultGraphics implements Graphics {
                 continue;
             }
             // Handle horizontal overflow using word boundary algorithm
-            if (fontRenderer.getStringWidth(fontVariant, buffer) >= maxWidth && !buffer.isEmpty()) {
+            if (fontRenderer.getStringWidth(fontVariant, buffer) >= actualMaxWidth && !buffer.isEmpty()) {
                 fontRenderer.render(x, lineY, z, buffer, brush, fontVariant, context);
                 buffer.delete(0, buffer.length());
                 line++;
