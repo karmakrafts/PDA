@@ -91,7 +91,7 @@ public final class DisplayRenderer {
     private static RenderType createBlitRenderType(final String name, final Supplier<ShaderInstance> shaderSupplier) {
         // @formatter:off
         return RenderType.create(String.format("%s:display_blit_%s", Constants.MODID, name),
-            DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 4, false, false,
+            DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 6, false, false,
             RenderType.CompositeState.builder()
                 .setCullState(RenderStateShard.CULL)
                 .setTextureState(new RenderStateShard.EmptyTextureStateShard(
@@ -246,10 +246,15 @@ public final class DisplayRenderer {
         // Use an immediate buffer to blit the FBO onto the baked model
         final var matrix = poseStack.last().pose();
         final var buffer = blitBufferSource.getBuffer(getBlitRenderType(type));
+
         buffer.vertex(matrix, MIN_X, MIN_Y, OFFSET_Z).uv(0F, 0F).color(-1).endVertex();
+        buffer.vertex(matrix, MAX_X, MIN_Y, OFFSET_Z).uv(1F, 0F).color(-1).endVertex();
+        buffer.vertex(matrix, MIN_X, MAX_Y, OFFSET_Z).uv(0F, 1F).color(-1).endVertex();
+
         buffer.vertex(matrix, MAX_X, MIN_Y, OFFSET_Z).uv(1F, 0F).color(-1).endVertex();
         buffer.vertex(matrix, MAX_X, MAX_Y, OFFSET_Z).uv(1F, 1F).color(-1).endVertex();
         buffer.vertex(matrix, MIN_X, MAX_Y, OFFSET_Z).uv(0F, 1F).color(-1).endVertex();
+
         blitBufferSource.endBatch(); // Flush buffer data
     }
 }
