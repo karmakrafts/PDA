@@ -22,8 +22,8 @@ in vec4 vertexColor;
 out vec4 fragColor;
 
 const float GLITCH_RATE = 0.05;
-const float GLITCH_FACTOR = 0.2;
-const int GLITCH_BLOCKS = 16;
+const float GLITCH_FACTOR = 0.025;
+const int GLITCH_BLOCKS = 64;
 const float PIXEL_FACTOR = 0.06;
 
 float getSampleOffset(vec2 coord, float offset, float glitchMultiplier) {

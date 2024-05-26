@@ -17,7 +17,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityTeleportEvent;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import org.jetbrains.annotations.ApiStatus;
@@ -48,7 +47,6 @@ public final class PDAInteractionHandler {
         final var forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addListener(this::onClientTick);
         forgeBus.addListener(this::onLivingDeath);
-        forgeBus.addListener(this::onLivingDamage);
         forgeBus.addListener(this::onPlayerChangeDimension);
         forgeBus.addListener(this::onEntityTeleport);
     }
@@ -79,15 +77,6 @@ public final class PDAInteractionHandler {
     }
 
     private void onLivingDeath(final LivingDeathEvent event) {
-        if (!(event.getEntity() instanceof Player player)) {
-            return;
-        }
-        if (PlayerUtils.isSame(player, Objects.requireNonNull(Minecraft.getInstance().player))) {
-            reset();
-        }
-    }
-
-    private void onLivingDamage(final LivingDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) {
             return;
         }

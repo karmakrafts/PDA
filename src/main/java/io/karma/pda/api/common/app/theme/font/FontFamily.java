@@ -27,6 +27,8 @@ public interface FontFamily {
 
     Set<FontStyle> getStyles();
 
+    float getSDFRangeMultiplier();
+
     FontVariant getFont(final FontStyle style, final float size);
 
     FontVariant getFont(final FontStyle style, final float size, final Object2FloatMap<String> variationAxes);

@@ -276,6 +276,9 @@ public final class DockInteractionHandler {
     }
 
     private void reset() {
+        if (!isDockEngaged) {
+            return;
+        }
         resetAnimation();
         final var sessionHandler = ClientSessionHandler.INSTANCE;
         final var session = sessionHandler.getActiveSession();

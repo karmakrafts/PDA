@@ -65,6 +65,11 @@ public final class DefaultFontFamily implements FontFamily {
     }
 
     @Override
+    public float getSDFRangeMultiplier() {
+        return config.sdfRangeMultiplier;
+    }
+
+    @Override
     public ResourceLocation getName() {
         return name;
     }
@@ -152,8 +157,8 @@ public final class DefaultFontFamily implements FontFamily {
         public int version = VERSION;
         @JsonProperty
         public String name;
-        @JsonProperty("default_size")
-        public float defaultSize;
+        @JsonProperty("sdf_range_multiplier")
+        public float sdfRangeMultiplier;
         @JsonProperty("supported_char_set")
         public DefaultCharSet supportedCharSet;
         @JsonProperty

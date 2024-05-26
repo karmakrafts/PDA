@@ -70,8 +70,8 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                         padding(FlexBorder.of(4.pixels))
                     }) {
                         label({
-                            width(32.pixels)
-                            height(32.pixels)
+                            width(64.pixels)
+                            height(64.pixels)
                             margin(FlexBorder.of(4.pixels))
                         }) {
                             text("A")
@@ -86,8 +86,8 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                         }
 
                         label({
-                            width(32.pixels)
-                            height(32.pixels)
+                            width(64.pixels)
+                            height(64.pixels)
                             margin(FlexBorder.of(4.pixels))
                         }) {
                             text("B")
@@ -102,8 +102,8 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                         }
 
                         label({
-                            width(32.pixels)
-                            height(32.pixels)
+                            width(64.pixels)
+                            height(64.pixels)
                             margin(FlexBorder.of(4.pixels))
                         }) {
                             text("Hello, World!")
@@ -118,8 +118,8 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                         }
 
                         spinner({
-                            width(32.pixels)
-                            height(32.pixels)
+                            width(64.pixels)
+                            height(64.pixels)
                             margin(FlexBorder.of(4.pixels))
                         }, "spinner") {
                             color((Color.WHITE..Color.RED).gradient(GradientType.VERTICAL))

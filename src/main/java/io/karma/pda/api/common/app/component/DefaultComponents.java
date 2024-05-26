@@ -12,7 +12,7 @@ import net.minecraftforge.registries.ObjectHolder;
  * @since 18/02/2024
  */
 public final class DefaultComponents {
-    private static final String REGISTRY_NAME = Constants.MODID + ":components";
+    public static final String REGISTRY_NAME = Constants.MODID + ":components";
 
     @ObjectHolder(value = Constants.MODID + ":container", registryName = REGISTRY_NAME)
     public static final ComponentType<DefaultContainer> CONTAINER = ComponentType.nullType();

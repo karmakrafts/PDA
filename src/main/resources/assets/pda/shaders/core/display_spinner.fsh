@@ -22,7 +22,7 @@ void main() {
     float angle = -(time - sin(time + PI) * cos(time)) - time * 0.95;
     float aSin = sin(angle);
     float aCos = cos(angle);
-    vec2 p = mat2(aCos, aSin, -aSin, aCos) * (texCoord0 - 0.5);
+    vec2 p = mat2(aCos, aSin, -aSin, aCos) * (texCoord0 - 0.5) * 0.725;
 
     float L = length(p);
     float a = atan(p.y, p.x);

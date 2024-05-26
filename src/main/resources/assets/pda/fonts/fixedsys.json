@@ -1,7 +1,7 @@
 {
   "version": 1,
   "name": "Fixedsys",
-  "default_size": 16.0,
+  "sdf_range_multiplier": 1.0,
   "supported_char_set": "EXTENDED_ASCII",
   "variants": {
     "REGULAR": {

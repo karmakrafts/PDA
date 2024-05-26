@@ -6,7 +6,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'net.minecraftforge.gradle' version '6.+'
     id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
@@ -44,6 +44,10 @@ minecraft {
             workingDirectory project.file('run-data')
             args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
         }
+        clientAlt {
+            parent runs.client
+            args '--username', 'Dev2'
+        }
         configureEach {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'PDAAPI,PDAPRO'
@@ -51,17 +55,14 @@ minecraft {
             property 'mixin.debug', 'true'
             property 'mixin.debug.dumpTargetOnFailure', 'true'
             property 'mixin.debug.verbose', 'true'
-            property 'mixin.hotSwap', 'true'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
                 "${mod_id}" {
                     source sourceSets.main
                 }
             }
             jvmArgs '-Xms512M', '-Xmx4G'
-        }
-        clientAlt {
-            parent runs.client
-            args '--username', 'Dev2'
         }
     }
 }
@@ -99,6 +100,7 @@ repositories {
     mavenCentral()
     maven { url = 'https://thedarkcolour.github.io/KotlinForForge/' }
     maven { url = 'https://maven.covers1624.net' }
+    maven { url = 'https://www.cursemaven.com/' }
 }
 
 dependencies {

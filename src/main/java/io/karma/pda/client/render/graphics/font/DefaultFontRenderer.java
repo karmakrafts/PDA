@@ -94,14 +94,15 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
         final var scale = font.getSize() / atlas.getMaxGlyphHeight();
         final var scaledWidth = (int) (scale * width);
         final var scaledHeight = (int) (scale * height);
-        final var scaledAscent = (int) (scale * metrics.getAscent());
-        final var scaledDescent = (int) (scale * metrics.getDescent());
+        final var scaledAscent = scale * metrics.getAscent();
+        final var scaledDescent = scale * metrics.getDescent();
         final var scaledBearingX = (int) (scale * metrics.getBearingX());
-        final var scaledBearingY = (int) (scale * metrics.getBearingY());
+        final var scaledBearingY = scale * metrics.getBearingY();
+        final var yOffset = (int) (scaledAscent - scaledBearingY + scaledDescent);
 
         // Compute vertex positions for glyph quad
         final var minX = x + scaledBearingX;
-        final var minY = y + (scaledAscent - scaledBearingY + scaledDescent);
+        final var minY = y + yOffset;
         final var maxX = minX + scaledWidth;
         final var maxY = minY + scaledHeight;
         final var z = (float) zIndex; // Do cast once instead of per-vertex
@@ -147,7 +148,11 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     @Override
     public FontAtlas getFontAtlas(final Font font) {
         return fontAtlasCache.computeIfAbsent(new FontAtlasKey(font.getLocation(), font.getVariationAxes()),
-            location -> new DefaultFontAtlas(font.asVariant(), 32, 2, 4F, MSDFGen.MSDF_BITMAP_TYPE_MSDF));
+            location -> new DefaultFontAtlas(font.asVariant(),
+                32,
+                2,
+                4F * font.getFamily().getSDFRangeMultiplier(),
+                MSDFGen.MSDF_BITMAP_TYPE_MSDF));
     }
 
     @Override
@@ -222,7 +227,8 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
 
     private ShaderInstance getShader(final FontAtlasContext ctx) {
         final var fontAtlas = ctx.atlas;
-        shader.safeGetUniform("PxRange").set((ctx.scale / fontAtlas.getSpriteSize()) * fontAtlas.getSDFRange());
+        final var range = fontAtlas.getSDFRange() * ctx.atlas.getFont().getFamily().getSDFRangeMultiplier();
+        shader.safeGetUniform("PxRange").set((ctx.scale / fontAtlas.getSpriteSize()) * range);
         return shader;
     }
 
