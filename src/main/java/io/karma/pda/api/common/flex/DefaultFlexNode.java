@@ -489,6 +489,16 @@ public final class DefaultFlexNode implements FlexNode {
             return this;
         }
 
+        public Builder border(final FlexValue left, final FlexValue right, final FlexValue top, final FlexValue bottom) {
+            border = FlexBorder.of(left, right, top, bottom);
+            return this;
+        }
+
+        public Builder border(final FlexValue value) {
+            border = FlexBorder.of(value);
+            return this;
+        }
+
         public Builder wrap(final FlexWrap wrap) {
             this.wrap = wrap;
             return this;
@@ -554,8 +564,28 @@ public final class DefaultFlexNode implements FlexNode {
             return this;
         }
 
+        public Builder margin(final FlexValue left, final FlexValue right, final FlexValue top, final FlexValue bottom) {
+            margin = FlexBorder.of(left, right, top, bottom);
+            return this;
+        }
+
+        public Builder margin(final FlexValue value) {
+            margin = FlexBorder.of(value);
+            return this;
+        }
+
         public Builder padding(final FlexBorder padding) {
             this.padding = padding;
+            return this;
+        }
+
+        public Builder padding(final FlexValue left, final FlexValue right, final FlexValue top, final FlexValue bottom) {
+            padding = FlexBorder.of(left, right, top, bottom);
+            return this;
+        }
+
+        public Builder padding(final FlexValue value) {
+            padding = FlexBorder.of(value);
             return this;
         }
 

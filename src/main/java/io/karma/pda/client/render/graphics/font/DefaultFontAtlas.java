@@ -50,11 +50,11 @@ public final class DefaultFontAtlas implements FontAtlas {
 
     private final Char2ObjectOpenHashMap<DefaultGlyphSprite> glyphSprites = new Char2ObjectOpenHashMap<>();
     private boolean isReady = false;
-    private int maxGlyphWidth;
-    private int maxGlyphHeight;
-    private int maxGlyphBearingX;
-    private int maxGlyphBearingY;
-    private int lineHeight;
+    private float maxGlyphWidth;
+    private float maxGlyphHeight;
+    private float maxGlyphBearingX;
+    private float maxGlyphBearingY;
+    private float lineHeight;
 
     public DefaultFontAtlas(final FontVariant font, final int spriteSize, final int spriteBorder, final float sdfRange,
                             final int renderType) {
@@ -306,27 +306,27 @@ public final class DefaultFontAtlas implements FontAtlas {
     }
 
     @Override
-    public int getMaxGlyphWidth() {
+    public float getMaxGlyphWidth() {
         return maxGlyphWidth;
     }
 
     @Override
-    public int getMaxGlyphHeight() {
+    public float getMaxGlyphHeight() {
         return maxGlyphHeight;
     }
 
     @Override
-    public int getMaxGlyphBearingX() {
+    public float getMaxGlyphBearingX() {
         return maxGlyphBearingX;
     }
 
     @Override
-    public int getMaxGlyphBearingY() {
+    public float getMaxGlyphBearingY() {
         return maxGlyphBearingY;
     }
 
     @Override
-    public int getLineHeight() {
+    public float getLineHeight() {
         return lineHeight;
     }
 

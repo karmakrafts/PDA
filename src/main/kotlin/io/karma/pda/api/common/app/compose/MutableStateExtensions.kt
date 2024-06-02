@@ -18,6 +18,7 @@ import java.util.function.Supplier
  */
 
 operator fun <T : Any?> MutableState<T>.invoke(value: T) = set(value)
+operator fun <T : Any?> MutableState<T>.invoke(): T = get()
 
 operator fun MutableState<Color>.invoke(value: Int) = set(
     Color.unpackARGB(value)
@@ -32,17 +33,20 @@ inline fun <reified T : Any?> mutableStateOf(value: T? = null): MutableState<T?>
     else MutableState.of(value)
 }
 
-infix fun <T : Any?> MutableState<T>.by(state: State<out T>): MutableState<T> {
+@ComposeDsl
+infix fun <T : Any?> MutableState<T>.uses(state: State<out T>): MutableState<T> {
     setBy(state)
     return this
 }
 
-inline infix fun <T : Any?> MutableState<T>.by(crossinline stateProvider: () -> State<out T>): MutableState<T> {
+@ComposeDsl
+inline infix fun <T : Any?> MutableState<T>.uses(crossinline stateProvider: () -> State<out T>): MutableState<T> {
     setBy { stateProvider() }
     return this
 }
 
-infix fun <T : Any?> MutableState<T>.by(stateProvider: Supplier<out State<out T>>): MutableState<T> {
+@ComposeDsl
+infix fun <T : Any?> MutableState<T>.uses(stateProvider: Supplier<out State<out T>>): MutableState<T> {
     setBy(stateProvider)
     return this
 }

@@ -27,7 +27,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -45,6 +44,7 @@ public final class ClientEventHandler {
 
     private float frameTime;
     private int clientTick;
+    private boolean isDebugModeEnabled;
 
     // @formatter:off
     private ClientEventHandler() {}
@@ -58,7 +58,6 @@ public final class ClientEventHandler {
         modBus.addListener(this::onRegisterAdditionalModels);
         forgeBus.addListener(this::onRenderTick);
         forgeBus.addListener(this::onClientTick);
-        forgeBus.addListener(this::onRegisterClientCommands);
     }
 
     @SuppressWarnings("all")
@@ -66,17 +65,17 @@ public final class ClientEventHandler {
     public void fireRegisterEvents() {
         // Components
         ComponentRenderers.register(DefaultComponents.CONTAINER, new ContainerRenderer());
-        ComponentRenderers.register(DefaultComponents.LABEL, new LabelRenderer());
+        ComponentRenderers.register(DefaultComponents.TEXT, new TextRenderer());
         ComponentRenderers.register(DefaultComponents.BUTTON, new ButtonRenderer());
         ComponentRenderers.register(DefaultComponents.IMAGE, new ImageRenderer());
-        ComponentRenderers.register(DefaultComponents.SEPARATOR, new SeparatorRenderer());
+        ComponentRenderers.register(DefaultComponents.SPACER, new SpacerRenderer());
         ComponentRenderers.register(DefaultComponents.ITEM_IMAGE, new ItemImageRenderer());
         ComponentRenderers.register(DefaultComponents.BLOCK_IMAGE, new BlockImageRenderer());
         ComponentRenderers.register(DefaultComponents.ENTITY_IMAGE, new EntityImageRenderer());
         ComponentRenderers.register(DefaultComponents.PLAYER_IMAGE, new PlayerImageRenderer());
         ComponentRenderers.register(DefaultComponents.RECIPE_IMAGE, new RecipeImageRenderer());
         ComponentRenderers.register(DefaultComponents.SPINNER, new SpinnerRenderer());
-        ComponentRenderers.register(DefaultComponents.PANEL, new PanelRenderer());
+        ComponentRenderers.register(DefaultComponents.BOX, new BoxRenderer());
         // Apps
         AppRenderers.register(DefaultApps.LAUNCHER, new DefaultAppRenderer<>());
         AppRenderers.register(DefaultApps.SETTINGS, new DefaultAppRenderer<>());
@@ -88,10 +87,6 @@ public final class ClientEventHandler {
         forgeBus.post(new RegisterAppRenderersEvent(
             (type, renderer) -> AppRenderers.register((AppType<App>)type, (AppRenderer<App>) renderer)));
         // @formatter:on
-    }
-
-    private void onRegisterClientCommands(final RegisterClientCommandsEvent event) {
-
     }
 
     private void onClientTick(final TickEvent.ClientTickEvent event) {

@@ -15,6 +15,6 @@ import io.karma.pda.api.common.app.compose.ComposableApp
 @Composable
 class SettingsApp(type: AppType<*>) : ComposableApp(type) {
     override fun compose() {
-        defaultView {}
+        DefaultView {}
     }
 }

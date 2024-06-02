@@ -17,94 +17,116 @@ typealias ComponentProps = DefaultFlexNode.Builder.() -> Unit
  */
 @JvmInline
 value class Composer<C : Container>(val container: C) {
-    inline fun <T : Component> makeComponent(type: ComponentType<T>, crossinline props: ComponentProps): T {
+    @ComposeDsl
+    inline fun <T : Component> component(type: ComponentType<T>, crossinline props: ComponentProps): T {
         return type.create { builder -> builder.apply(props) }
     }
 
-    inline fun <reified T : Component> child(localName: String): T? {
-        return container.findChildRecursively(localName) as? T
+    @ComposeDsl
+    inline fun <reified T : Component> child(localName: String): Proxy<T?> {
+        return Proxy { container.findChildRecursively(localName) as? T }
     }
 
-    inline fun <reified T : Component> childRef(localName: String): Proxy<T?> {
-        return Proxy { child<T>(localName) }
+    @ComposeDsl
+    inline fun <reified T : Component> child(id: UUID): Proxy<T?> {
+        return Proxy { container.findChildRecursively(id) as? T }
     }
 
-    inline fun <reified T : Component> child(id: UUID): T? {
-        return container.findChildRecursively(id) as? T
-    }
-
-    inline fun <reified T : Component> childRef(id: UUID): Proxy<T?> {
-        return Proxy { child<T>(id) }
-    }
-
+    @ComposeDsl
     inline fun <T : Component> component(
-        type: ComponentType<T>, crossinline props: ComponentProps, localName: String? = null, scope: T.() -> Unit = {}
+        type: ComponentType<T>,
+        crossinline props: ComponentProps,
+        localName: String? = null,
+        scope: @Composable T.() -> Unit = {}
     ): T {
-        val component = makeComponent(type, props)
+        val component = component(type, props)
         component.localName = localName
         component.apply(scope)
         container.addChild(component)
         return component
     }
 
+    @ComposeDsl
     inline fun <T : Container> container(
         type: ComponentType<T>,
         crossinline props: ComponentProps,
         localName: String? = null,
-        scope: Composer<T>.() -> Unit = {}
+        scope: @Composable Composer<T>.() -> Unit = {}
     ): T {
-        val component = makeComponent(type, props)
+        val component = component(type, props)
         component.localName = localName
         Composer(component).apply(scope)
         container.addChild(component)
         return component
     }
 
-    inline fun defaultContainer(
-        crossinline props: ComponentProps, localName: String? = null, scope: Composer<DefaultContainer>.() -> Unit = {}
+    @Composable
+    inline fun DefaultContainer(
+        crossinline props: ComponentProps,
+        localName: String? = null,
+        scope: @Composable Composer<DefaultContainer>.() -> Unit = {}
     ): DefaultContainer = container(DefaultComponents.CONTAINER, props, localName, scope)
 
-    inline fun panel(
-        crossinline props: ComponentProps, localName: String? = null, scope: Composer<Panel>.() -> Unit = {}
-    ): Panel = container(DefaultComponents.PANEL, props, localName, scope)
+    @Composable
+    inline fun Box(
+        crossinline props: ComponentProps,
+        localName: String? = null,
+        scope: @Composable Composer<Box>.() -> Unit = {}
+    ): Box = container(DefaultComponents.BOX, props, localName, scope)
 
-    inline fun label(
-        crossinline props: ComponentProps, localName: String? = null, scope: Label.() -> Unit = {}
-    ): Label = component(DefaultComponents.LABEL, props, localName, scope)
+    @Composable
+    inline fun Text(
+        crossinline props: ComponentProps, localName: String? = null, scope: @Composable Text.() -> Unit = {}
+    ): Text = component(DefaultComponents.TEXT, props, localName, scope)
 
-    inline fun button(
-        crossinline props: ComponentProps, localName: String? = null, scope: Button.() -> Unit = {}
+    @Composable
+    inline fun Button(
+        crossinline props: ComponentProps, localName: String? = null, scope: @Composable Button.() -> Unit = {}
     ): Button = component(DefaultComponents.BUTTON, props, localName, scope)
 
-    inline fun separator(
-        crossinline props: ComponentProps, localName: String? = null, scope: Separator.() -> Unit = {}
-    ): Separator = component(DefaultComponents.SEPARATOR, props, localName, scope)
+    @Composable
+    inline fun Spacer(
+        crossinline props: ComponentProps, localName: String? = null, scope: @Composable Spacer.() -> Unit = {}
+    ): Spacer = component(DefaultComponents.SPACER, props, localName, scope)
 
-    inline fun image(
-        crossinline props: ComponentProps, localName: String? = null, scope: Image.() -> Unit = {}
+    @Composable
+    inline fun Image(
+        crossinline props: ComponentProps, localName: String? = null, scope: @Composable Image.() -> Unit = {}
     ): Image = component(DefaultComponents.IMAGE, props, localName, scope)
 
-    inline fun itemImage(
-        crossinline props: ComponentProps, localName: String? = null, scope: ItemImage.() -> Unit = {}
+    @Composable
+    inline fun ItemImage(
+        crossinline props: ComponentProps, localName: String? = null, scope: @Composable ItemImage.() -> Unit = {}
     ): ItemImage = component(DefaultComponents.ITEM_IMAGE, props, localName, scope)
 
-    inline fun blockImage(
-        crossinline props: ComponentProps, localName: String? = null, scope: BlockImage.() -> Unit = {}
+    @Composable
+    inline fun BlockImage(
+        crossinline props: ComponentProps, localName: String? = null, scope: @Composable BlockImage.() -> Unit = {}
     ): BlockImage = component(DefaultComponents.BLOCK_IMAGE, props, localName, scope)
 
-    inline fun entityImage(
-        crossinline props: ComponentProps, localName: String? = null, scope: EntityImage.() -> Unit = {}
+    @Composable
+    inline fun EntityImage(
+        crossinline props: ComponentProps,
+        localName: String? = null,
+        scope: @Composable EntityImage.() -> Unit = {}
     ): EntityImage = component(DefaultComponents.ENTITY_IMAGE, props, localName, scope)
 
-    inline fun recipeImage(
-        crossinline props: ComponentProps, localName: String? = null, scope: RecipeImage.() -> Unit = {}
+    @Composable
+    inline fun RecipeImage(
+        crossinline props: ComponentProps,
+        localName: String? = null,
+        scope: @Composable RecipeImage.() -> Unit = {}
     ): RecipeImage = component(DefaultComponents.RECIPE_IMAGE, props, localName, scope)
 
-    inline fun playerImage(
-        crossinline props: ComponentProps, localName: String? = null, scope: PlayerImage.() -> Unit = {}
+    @Composable
+    inline fun PlayerImage(
+        crossinline props: ComponentProps,
+        localName: String? = null,
+        scope: @Composable PlayerImage.() -> Unit = {}
     ): PlayerImage = component(DefaultComponents.PLAYER_IMAGE, props, localName, scope)
 
-    inline fun spinner(
-        crossinline props: ComponentProps, localName: String? = null, scope: Spinner.() -> Unit = {}
+    @Composable
+    inline fun Spinner(
+        crossinline props: ComponentProps, localName: String? = null, scope: @Composable Spinner.() -> Unit = {}
     ): Spinner = component(DefaultComponents.SPINNER, props, localName, scope)
 }

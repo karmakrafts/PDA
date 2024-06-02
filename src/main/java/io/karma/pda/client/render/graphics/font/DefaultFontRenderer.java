@@ -74,8 +74,8 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     private final HashMap<FontAtlasKey, DefaultFontAtlas> fontAtlasCache = new HashMap<>();
     private ShaderInstance shader;
 
-    private int renderGlyph(final int x, final int y, final int zIndex, final char c, final FontVariant font,
-                            final Matrix4f matrix, final VertexConsumer buffer, final ColorProvider colorProvider) {
+    private float renderGlyph(final float x, final float y, final int zIndex, final char c, final FontVariant font,
+                              final Matrix4f matrix, final VertexConsumer buffer, final ColorProvider colorProvider) {
         final var atlas = getFontAtlas(font);
         if (!atlas.isReady()) {
             return 0; // Don't render anything until the atlas is rebuilt
@@ -92,13 +92,13 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
 
         // Find scale factor and re-scale metrics
         final var scale = font.getSize() / atlas.getMaxGlyphHeight();
-        final var scaledWidth = (int) (scale * width);
-        final var scaledHeight = (int) (scale * height);
+        final var scaledWidth = scale * width;
+        final var scaledHeight = scale * height;
         final var scaledAscent = scale * metrics.getAscent();
         final var scaledDescent = scale * metrics.getDescent();
-        final var scaledBearingX = (int) (scale * metrics.getBearingX());
+        final var scaledBearingX = scale * metrics.getBearingX();
         final var scaledBearingY = scale * metrics.getBearingY();
-        final var yOffset = (int) (scaledAscent - scaledBearingY + scaledDescent);
+        final var yOffset = scaledAscent - scaledBearingY + scaledDescent;
 
         // Compute vertex positions for glyph quad
         final var minX = x + scaledBearingX;
@@ -137,7 +137,7 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
         // @formatter:on
 
         // Make sure we return the scaled number of pixels to advance on the X-axis while rendering multiple glyphs
-        return (int) (scale * metrics.getAdvanceX());
+        return scale * metrics.getAdvanceX();
     }
 
     private RenderType getRenderType(final Font font) {
@@ -168,12 +168,12 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
         final var fontVariant = font.asVariant();
         final var atlas = getFontAtlas(fontVariant);
         final var scale = fontVariant.getSize() / atlas.getMaxGlyphHeight();
-        var width = 0;
+        var width = 0F;
         for (var i = 0; i < s.length(); i++) {
             final var metrics = atlas.getGlyphSprite(s.charAt(i)).getMetrics();
-            width += (int) (scale * metrics.getAdvanceX());
+            width += scale * metrics.getAdvanceX();
         }
-        return width;
+        return (int) width;
     }
 
     @Override
@@ -181,7 +181,7 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
                       final Font font, final GraphicsContext context) {
         final var buffer = context.getBufferSource().getBuffer(getRenderType(font));
         final var matrix = context.getTransform();
-        return renderGlyph(x, y, zIndex, c, font.asVariant(), matrix, buffer, colorProvider);
+        return (int) renderGlyph(x, y, zIndex, c, font.asVariant(), matrix, buffer, colorProvider);
     }
 
     @Override
@@ -190,11 +190,11 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
         final var buffer = context.getBufferSource().getBuffer(getRenderType(font));
         final var matrix = context.getTransform();
         final var fontVariant = font.asVariant();
-        var offset = 0;
+        var offset = 0F;
         for (var i = 0; i < s.length(); i++) {
             offset += renderGlyph(x + offset, y, zIndex, s.charAt(i), fontVariant, matrix, buffer, colorProvider);
         }
-        return offset;
+        return (int) offset;
     }
 
     @Override
@@ -203,7 +203,7 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
         final var buffer = context.getBufferSource().getBuffer(getRenderType(font));
         final var matrix = context.getTransform();
         final var fontVariant = font.asVariant();
-        var offset = 0;
+        var offset = 0F;
         for (var i = 0; i < s.length(); i++) {
             offset += renderGlyph(x + offset,
                 y,
@@ -214,7 +214,7 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
                 buffer,
                 colorFunction.apply(i));
         }
-        return offset;
+        return (int) offset;
     }
 
     @Override

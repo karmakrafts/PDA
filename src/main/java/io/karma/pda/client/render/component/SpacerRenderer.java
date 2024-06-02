@@ -6,16 +6,16 @@ package io.karma.pda.client.render.component;
 
 import io.karma.pda.api.client.render.component.AbstractComponentRenderer;
 import io.karma.pda.api.client.render.graphics.Graphics;
-import io.karma.pda.api.common.app.component.Separator;
+import io.karma.pda.api.common.app.component.Spacer;
 import io.karma.pda.api.common.flex.FlexNode;
 
 /**
  * @author Alexander Hinze
  * @since 13/04/2024
  */
-public final class SeparatorRenderer extends AbstractComponentRenderer<Separator> {
+public final class SpacerRenderer extends AbstractComponentRenderer<Spacer> {
     @Override
-    public void render(final Separator component, final FlexNode flexNode, final Graphics graphics) {
+    public void render(final Spacer component, final FlexNode flexNode, final Graphics graphics) {
         if (component.isVisible()) {
             try (final var state = graphics.pushState()) {
                 int x;
@@ -25,7 +25,7 @@ public final class SeparatorRenderer extends AbstractComponentRenderer<Separator
                 final var width = flexNode.getAbsoluteWidth();
                 final var height = flexNode.getAbsoluteHeight();
                 final var sepWidth = component.width.get();
-                if (component.orientation.get() == Separator.Orientation.HORIZONTAL) {
+                if (component.orientation.get() == Spacer.Orientation.HORIZONTAL) {
                     x = flexNode.getAbsoluteX();
                     y = flexNode.getAbsoluteY() + (height >> 1) - (sepWidth >> 1);
                     rw = width;

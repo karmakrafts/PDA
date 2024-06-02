@@ -91,6 +91,6 @@ public final class DefaultGraphicsContext implements GraphicsContext {
 
     @Override
     public boolean isDebugMode() {
-        return PDAMod.IS_DEV_ENV && Minecraft.getInstance().options.renderDebug;
+        return PDAMod.IS_DEV_ENV;
     }
 }

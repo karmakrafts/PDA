@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.mapLatest
  * @since 18/04/2024
  */
 
+@Composable
 inline fun <reified T> Flow<T?>.collectAsState(value: T? = null): State<T?> {
     val result = mutableStateOf(value)
     mapLatest {

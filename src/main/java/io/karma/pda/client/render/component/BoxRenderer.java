@@ -9,7 +9,7 @@ import io.karma.pda.api.client.render.component.ComponentRenderers;
 import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.common.app.component.Component;
 import io.karma.pda.api.common.app.component.ComponentType;
-import io.karma.pda.api.common.app.component.Panel;
+import io.karma.pda.api.common.app.component.Box;
 import io.karma.pda.api.common.flex.FlexNode;
 import io.karma.pda.client.flex.ClientFlexNodeHandler;
 import net.minecraftforge.api.distmarker.Dist;
@@ -20,10 +20,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  * @since 23/04/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class PanelRenderer extends AbstractComponentRenderer<Panel> {
+public final class BoxRenderer extends AbstractComponentRenderer<Box> {
     @SuppressWarnings("unchecked")
     @Override
-    public void render(final Panel component, final FlexNode flexNode, final Graphics graphics) {
+    public void render(final Box component, final FlexNode flexNode, final Graphics graphics) {
         if (component.isVisible()) {
             try (final var state = graphics.pushState()) {
                 final var x = flexNode.getAbsoluteX();

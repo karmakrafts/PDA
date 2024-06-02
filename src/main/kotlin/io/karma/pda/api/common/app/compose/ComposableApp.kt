@@ -15,13 +15,20 @@ import io.karma.pda.api.common.app.view.DefaultContainerView
  */
 @Composable
 abstract class ComposableApp(type: AppType<*>) : AbstractApp(type) {
-    protected inline fun view(name: String, crossinline scope: Composer<DefaultContainer>.() -> Unit) {
+    @Composable
+    abstract override fun compose()
+
+    @Composable
+    @Suppress("FunctionName")
+    protected inline fun View(name: String, crossinline scope: @Composable Composer<DefaultContainer>.() -> Unit) {
         addView(name, DefaultContainerView(name) { container ->
             Composer(container).apply(scope)
         })
     }
 
-    protected inline fun defaultView(crossinline scope: Composer<DefaultContainer>.() -> Unit) {
-        view(DEFAULT_VIEW, scope)
+    @Composable
+    @Suppress("FunctionName")
+    protected inline fun DefaultView(crossinline scope: @Composable Composer<DefaultContainer>.() -> Unit) {
+        View(DEFAULT_VIEW, scope)
     }
 }

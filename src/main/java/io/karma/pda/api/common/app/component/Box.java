@@ -15,13 +15,13 @@ import java.util.UUID;
  * @author Alexander Hinze
  * @since 23/04/2024
  */
-public class Panel extends DefaultContainer {
+public class Box extends DefaultContainer {
     @Synchronize
     public final MutableState<ColorProvider> background = MutableState.of(Color.NONE);
     @Synchronize
     public final MutableState<ColorProvider> foreground = MutableState.of(Color.NONE);
 
-    public Panel(ComponentType<?> type, UUID id) {
+    public Box(ComponentType<?> type, UUID id) {
         super(type, id);
     }
 }

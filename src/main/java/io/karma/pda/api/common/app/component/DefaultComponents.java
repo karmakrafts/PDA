@@ -16,14 +16,14 @@ public final class DefaultComponents {
 
     @ObjectHolder(value = Constants.MODID + ":container", registryName = REGISTRY_NAME)
     public static final ComponentType<DefaultContainer> CONTAINER = ComponentType.nullType();
-    @ObjectHolder(value = Constants.MODID + ":label", registryName = REGISTRY_NAME)
-    public static final ComponentType<Label> LABEL = ComponentType.nullType();
+    @ObjectHolder(value = Constants.MODID + ":text", registryName = REGISTRY_NAME)
+    public static final ComponentType<Text> TEXT = ComponentType.nullType();
     @ObjectHolder(value = Constants.MODID + ":button", registryName = REGISTRY_NAME)
     public static final ComponentType<Button> BUTTON = ComponentType.nullType();
     @ObjectHolder(value = Constants.MODID + ":image", registryName = REGISTRY_NAME)
     public static final ComponentType<Image> IMAGE = ComponentType.nullType();
-    @ObjectHolder(value = Constants.MODID + ":separator", registryName = REGISTRY_NAME)
-    public static final ComponentType<Separator> SEPARATOR = ComponentType.nullType();
+    @ObjectHolder(value = Constants.MODID + ":spacer", registryName = REGISTRY_NAME)
+    public static final ComponentType<Spacer> SPACER = ComponentType.nullType();
     @ObjectHolder(value = Constants.MODID + ":item_image", registryName = REGISTRY_NAME)
     public static final ComponentType<ItemImage> ITEM_IMAGE = ComponentType.nullType();
     @ObjectHolder(value = Constants.MODID + ":block_image", registryName = REGISTRY_NAME)
@@ -36,8 +36,8 @@ public final class DefaultComponents {
     public static final ComponentType<PlayerImage> PLAYER_IMAGE = ComponentType.nullType();
     @ObjectHolder(value = Constants.MODID + ":spinner", registryName = REGISTRY_NAME)
     public static final ComponentType<Spinner> SPINNER = ComponentType.nullType();
-    @ObjectHolder(value = Constants.MODID + ":panel", registryName = REGISTRY_NAME)
-    public static final ComponentType<Panel> PANEL = ComponentType.nullType();
+    @ObjectHolder(value = Constants.MODID + ":box", registryName = REGISTRY_NAME)
+    public static final ComponentType<Box> BOX = ComponentType.nullType();
 
     // @formatter:off
     private DefaultComponents() {}

@@ -33,15 +33,15 @@ public interface FontAtlas extends Disposable {
 
     int getSpriteBorder();
 
-    int getMaxGlyphWidth();
+    float getMaxGlyphWidth();
 
-    int getMaxGlyphHeight();
+    float getMaxGlyphHeight();
 
-    int getMaxGlyphBearingX();
+    float getMaxGlyphBearingX();
 
-    int getMaxGlyphBearingY();
+    float getMaxGlyphBearingY();
 
-    int getLineHeight();
+    float getLineHeight();
 
     int getTextureId();
 

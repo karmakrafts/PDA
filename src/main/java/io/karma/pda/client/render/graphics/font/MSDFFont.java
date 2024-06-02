@@ -167,14 +167,14 @@ public final class MSDFFont implements AutoCloseable {
         final var bearingX = FreeTypeUtils.f26Dot6ToFP32(metrics.horiBearingX()) * scale;
         final var bearingY = FreeTypeUtils.f26Dot6ToFP32(metrics.horiBearingY()) * scale;
 
-        return new DefaultGlyphMetrics((int) width,
-            (int) height,
-            (int) ascent,
-            (int) descent,
-            (int) advanceX,
-            (int) advanceY,
-            (int) bearingX,
-            (int) bearingY);
+        return new DefaultGlyphMetrics(width,
+            height,
+            ascent,
+            descent,
+            advanceX,
+            advanceY,
+            bearingX,
+            bearingY);
     }
 
     public List<FontVariationAxis> getVariationAxes() {

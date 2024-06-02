@@ -18,7 +18,7 @@ import java.util.UUID;
  * @author Alexander Hinze
  * @since 08/02/2024
  */
-public class Label extends AbstractComponent {
+public class Text extends AbstractComponent {
     @Synchronize
     public final MutableState<Font> font = MutableState.of(DefaultFontFamilies.NOTO_SANS.getDefaultFont());
     @Synchronize
@@ -26,7 +26,7 @@ public class Label extends AbstractComponent {
     @Synchronize
     public final MutableState<ColorProvider> color = MutableState.of(Color.WHITE);
 
-    public Label(final ComponentType<?> type, final UUID uuid) {
+    public Text(final ComponentType<?> type, final UUID uuid) {
         super(type, uuid);
         flexNode.setType(FlexNodeType.TEXT);
     }

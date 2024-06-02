@@ -5,15 +5,13 @@
 package io.karma.pda.common.app
 
 import io.karma.pda.api.common.app.AppType
-import io.karma.pda.api.common.app.component.Separator
+import io.karma.pda.api.common.app.component.Spacer
 import io.karma.pda.api.common.app.component.Spinner
 import io.karma.pda.api.common.app.compose.*
 import io.karma.pda.api.common.app.theme.font.DefaultFontFamilies
 import io.karma.pda.api.common.app.theme.font.FontStyle
-import io.karma.pda.api.common.app.theme.font.FontVariant
 import io.karma.pda.api.common.color.Color
 import io.karma.pda.api.common.color.GradientType
-import io.karma.pda.api.common.flex.FlexBorder
 import io.karma.pda.api.common.flex.FlexDirection
 import io.karma.pda.api.common.state.MutableState
 import io.karma.pda.api.common.state.Persistent
@@ -30,97 +28,97 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
     private val someSetting: MutableState<String?> = mutableStateOf("Testing testing")
 
     override fun compose() {
-        defaultView {
-            panel({
+        DefaultView {
+            Box({
                 width(100.percent)
                 height(100.percent)
-                padding(FlexBorder.of(4.pixels))
+                padding(4.pixels)
             }) {
-                label({
+                Text({
                     width(100.percent)
                     height(40.pixels)
                 }) {
-                    text by someSetting
+                    text uses this@LauncherApp.someSetting
                 }
 
-                label({
+                Text({
                     width(50.percent)
                     height(20.pixels)
                 }, "testing") {
-                    text by someSetting
+                    text uses this@LauncherApp.someSetting
                     color(Color.GREEN)
                 }
 
-                label({
+                Text({
                     width(75.percent)
                     height(20.pixels)
                 }) {
-                    text by someSetting
+                    text uses this@LauncherApp.someSetting
                 }
 
-                panel({
+                Box({
                     width(100.percent)
                     height(auto)
-                    padding(FlexBorder.of(4.pixels))
+                    padding(4.pixels)
                 }) {
-                    panel({
+                    Box({
                         width(100.percent)
                         height(auto)
                         direction(FlexDirection.ROW)
-                        padding(FlexBorder.of(4.pixels))
-                    }) {
-                        label({
+                        padding(4.pixels)
+                    }) innerBox@{
+                        Text({
                             width(64.pixels)
                             height(64.pixels)
-                            margin(FlexBorder.of(4.pixels))
+                            margin(4.pixels)
                         }) {
                             text("A")
-                            color by childRef<Spinner>("spinner").map { it!!.color }
+                            color uses this@innerBox.child<Spinner>("spinner").map { it!!.color }
                         }
 
-                        separator({
+                        Spacer({
                             width(20.pixels)
                         }) {
-                            orientation(Separator.Orientation.VERTICAL)
-                            color by childRef<Spinner>("spinner").map { it!!.color }
+                            orientation(Spacer.Orientation.VERTICAL)
+                            color uses this@innerBox.child<Spinner>("spinner").map { it!!.color }
                         }
 
-                        label({
+                        Text({
                             width(64.pixels)
                             height(64.pixels)
-                            margin(FlexBorder.of(4.pixels))
+                            margin(4.pixels)
                         }) {
                             text("B")
-                            color by childRef<Spinner>("spinner").map { it!!.color }
+                            color uses this@innerBox.child<Spinner>("spinner").map { it!!.color }
                         }
 
-                        separator({
+                        Spacer({
                             width(20.pixels)
                         }) {
-                            orientation(Separator.Orientation.VERTICAL)
-                            color by childRef<Spinner>("spinner").map { it!!.color }
+                            orientation(Spacer.Orientation.VERTICAL)
+                            color uses this@innerBox.child<Spinner>("spinner").map { it!!.color }
                         }
 
-                        label({
+                        Text({
                             width(64.pixels)
                             height(64.pixels)
-                            margin(FlexBorder.of(4.pixels))
+                            margin(4.pixels)
                         }) {
                             text("Hello, World!")
-                            color by childRef<Spinner>("spinner").map { it!!.color }
+                            color uses this@innerBox.child<Spinner>("spinner").map { it!!.color }
                         }
 
-                        separator({
+                        Spacer({
                             width(20.pixels)
                         }) {
-                            orientation(Separator.Orientation.VERTICAL)
-                            color by childRef<Spinner>("spinner").map { it!!.color }
+                            orientation(Spacer.Orientation.VERTICAL)
+                            color uses this@innerBox.child<Spinner>("spinner").map { it!!.color }
                         }
 
-                        spinner({
+                        Spinner({
                             width(64.pixels)
                             height(64.pixels)
-                            margin(FlexBorder.of(4.pixels))
+                            margin(4.pixels)
                         }, "spinner") {
                             color((Color.WHITE..Color.RED).gradient(GradientType.VERTICAL))
                         }
@@ -131,11 +129,35 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                     background(0x0A0A0A.rgb)
                 }
 
-                label({
+                Text({
                     width(100.percent)
                     grow(1F)
                 }) {
                     font(DefaultFontFamilies.NOTO_SANS.getFont(FontStyle.REGULAR, 24F))
+                    text("Hello World, this is a text wrapping example on the PDA, finally WORKING \\o/")
+                }
+
+                Text({
+                    width(100.percent)
+                    grow(1F)
+                }) {
+                    font(DefaultFontFamilies.NOTO_SANS.getFont(FontStyle.REGULAR, 20F))
+                    text("Hello World, this is a text wrapping example on the PDA, finally WORKING \\o/")
+                }
+
+                Text({
+                    width(100.percent)
+                    grow(1F)
+                }) {
+                    font(DefaultFontFamilies.NOTO_SANS.getFont(FontStyle.REGULAR, 16F))
+                    text("Hello World, this is a text wrapping example on the PDA, finally WORKING \\o/")
+                }
+
+                Text({
+                    width(100.percent)
+                    grow(1F)
+                }) {
+                    font(DefaultFontFamilies.NOTO_SANS.getFont(FontStyle.REGULAR, 12F))
                     text("Hello World, this is a text wrapping example on the PDA, finally WORKING \\o/")
                 }
             }
