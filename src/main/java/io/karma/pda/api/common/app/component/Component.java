@@ -29,11 +29,11 @@ public interface Component extends Identifiable {
     void setLocalName(final @Nullable String localName);
 
     @Nullable
-    Component getParent();
+    Container getParent();
 
-    void setParent(final @Nullable Component parent);
+    void setParent(final @Nullable Container parent);
 
-    default Proxy<? extends Component> getParentProxy() {
+    default Proxy<? extends Container> getParentProxy() {
         return this::getParent;
     }
 

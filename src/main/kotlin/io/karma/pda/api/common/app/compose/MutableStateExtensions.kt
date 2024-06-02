@@ -11,6 +11,7 @@ import io.karma.pda.api.common.color.Color
 import io.karma.pda.api.common.state.MutableState
 import io.karma.pda.api.common.state.State
 import java.util.function.Supplier
+import kotlin.reflect.KProperty
 
 /**
  * @author Alexander Hinze
@@ -50,3 +51,6 @@ infix fun <T : Any?> MutableState<T>.uses(stateProvider: Supplier<out State<out 
     setBy(stateProvider)
     return this
 }
+
+operator fun <T : Any?> MutableState<T>.getValue(thisRef: Any?, property: KProperty<*>): T? = get()
+operator fun <T : Any?> MutableState<T>.setValue(thisRef: Any?, property: KProperty<*>, value: T?) = set(value)

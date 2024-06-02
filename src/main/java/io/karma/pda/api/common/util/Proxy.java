@@ -13,7 +13,7 @@ import java.util.function.Supplier;
  */
 @FunctionalInterface
 public interface Proxy<T> extends Supplier<T> {
-    default <R> Supplier<R> map(final Function<T, R> mapper) {
+    default <R> Proxy<R> map(final Function<T, R> mapper) {
         return () -> mapper.apply(get());
     }
 }

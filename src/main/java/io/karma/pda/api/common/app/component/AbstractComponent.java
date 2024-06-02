@@ -28,7 +28,7 @@ public abstract class AbstractComponent implements Component {
     // Internal synchronized property for tracking visibility state
     @Synchronize
     protected final MutableState<Boolean> isVisible = MutableState.of(true);
-    protected Component parent;
+    protected Container parent;
     protected String localName;
     protected Consumer<ClickEvent> clickEventConsumer = event -> {
     };
@@ -76,12 +76,12 @@ public abstract class AbstractComponent implements Component {
     }
 
     @Override
-    public @Nullable Component getParent() {
+    public @Nullable Container getParent() {
         return parent;
     }
 
     @Override
-    public void setParent(final @Nullable Component parent) {
+    public void setParent(final @Nullable Container parent) {
         this.parent = parent;
     }
 

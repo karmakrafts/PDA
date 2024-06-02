@@ -25,6 +25,8 @@ public class Text extends AbstractComponent {
     public final MutableState<String> text = MutableState.of("");
     @Synchronize
     public final MutableState<ColorProvider> color = MutableState.of(Color.WHITE);
+    @Synchronize
+    public final MutableState<Boolean> wrapping = MutableState.of(true);
 
     public Text(final ComponentType<?> type, final UUID uuid) {
         super(type, uuid);

@@ -44,7 +44,7 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                 Text({
                     width(50.percent)
                     height(20.pixels)
-                }, "testing") {
+                }) {
                     text uses this@LauncherApp.someSetting
                     color(Color.GREEN)
                 }
@@ -60,27 +60,27 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                     width(100.percent)
                     height(auto)
                     padding(4.pixels)
-                }) {
+                }, props = { background(0x0A0A0A.rgb) }) {
                     Box({
                         width(100.percent)
                         height(auto)
                         direction(FlexDirection.ROW)
                         padding(4.pixels)
-                    }) innerBox@{
+                    }, props = { background(0x141414.rgb) }) {
                         Text({
                             width(64.pixels)
                             height(64.pixels)
                             margin(4.pixels)
                         }) {
                             text("A")
-                            color uses this@innerBox.child<Spinner>("spinner").map { it!!.color }
+                            color uses child<Spinner>("spinner").map { it!!.color }
                         }
 
                         Spacer({
                             width(20.pixels)
                         }) {
                             orientation(Spacer.Orientation.VERTICAL)
-                            color uses this@innerBox.child<Spinner>("spinner").map { it!!.color }
+                            color uses child<Spinner>("spinner").map { it!!.color }
                         }
 
                         Text({
@@ -89,14 +89,14 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                             margin(4.pixels)
                         }) {
                             text("B")
-                            color uses this@innerBox.child<Spinner>("spinner").map { it!!.color }
+                            color uses child<Spinner>("spinner").map { it!!.color }
                         }
 
                         Spacer({
                             width(20.pixels)
                         }) {
                             orientation(Spacer.Orientation.VERTICAL)
-                            color uses this@innerBox.child<Spinner>("spinner").map { it!!.color }
+                            color uses child<Spinner>("spinner").map { it!!.color }
                         }
 
                         Text({
@@ -105,28 +105,24 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                             margin(4.pixels)
                         }) {
                             text("Hello, World!")
-                            color uses this@innerBox.child<Spinner>("spinner").map { it!!.color }
+                            color uses child<Spinner>("spinner").map { it!!.color }
                         }
 
                         Spacer({
                             width(20.pixels)
                         }) {
                             orientation(Spacer.Orientation.VERTICAL)
-                            color uses this@innerBox.child<Spinner>("spinner").map { it!!.color }
+                            color uses child<Spinner>("spinner").map { it!!.color }
                         }
 
                         Spinner({
                             width(64.pixels)
                             height(64.pixels)
                             margin(4.pixels)
-                        }, "spinner") {
+                        }, localName = "spinner") {
                             color((Color.WHITE..Color.RED).gradient(GradientType.VERTICAL))
                         }
-                    }.apply {
-                        background(0x141414.rgb)
                     }
-                }.apply {
-                    background(0x0A0A0A.rgb)
                 }
 
                 Text({
