@@ -21,8 +21,9 @@ public final class SpinnerRenderer extends AbstractComponentRenderer<Spinner> {
     @Override
     public void render(final Spinner component, final FlexNode flexNode, final Graphics graphics) {
         if (component.isVisible()) {
+            final var context = graphics.getContext();
             try (final var state = graphics.pushState()) {
-                state.setBrush(graphics.getContext().getBrushFactory().create(GraphicsRenderTypes.SPINNER,
+                state.setBrush(context.getBrushFactory().create(GraphicsRenderTypes.SPINNER.apply(context.getDisplayMode()),
                     component.color.get(),
                     null));
                 state.setForceUVs(true);

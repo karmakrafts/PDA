@@ -489,7 +489,8 @@ public final class DefaultFlexNode implements FlexNode {
             return this;
         }
 
-        public Builder border(final FlexValue left, final FlexValue right, final FlexValue top, final FlexValue bottom) {
+        public Builder border(final FlexValue left, final FlexValue right, final FlexValue top,
+                              final FlexValue bottom) {
             border = FlexBorder.of(left, right, top, bottom);
             return this;
         }
@@ -564,7 +565,8 @@ public final class DefaultFlexNode implements FlexNode {
             return this;
         }
 
-        public Builder margin(final FlexValue left, final FlexValue right, final FlexValue top, final FlexValue bottom) {
+        public Builder margin(final FlexValue left, final FlexValue right, final FlexValue top,
+                              final FlexValue bottom) {
             margin = FlexBorder.of(left, right, top, bottom);
             return this;
         }
@@ -579,7 +581,8 @@ public final class DefaultFlexNode implements FlexNode {
             return this;
         }
 
-        public Builder padding(final FlexValue left, final FlexValue right, final FlexValue top, final FlexValue bottom) {
+        public Builder padding(final FlexValue left, final FlexValue right, final FlexValue top,
+                               final FlexValue bottom) {
             padding = FlexBorder.of(left, right, top, bottom);
             return this;
         }

@@ -27,7 +27,11 @@ public interface FontFamily {
 
     Set<FontStyle> getStyles();
 
-    float getSDFRangeMultiplier();
+    int getGlyphSpriteSize();
+
+    int getGlyphSpriteBorder();
+
+    float getDistanceFieldRange();
 
     FontVariant getFont(final FontStyle style, final float size);
 

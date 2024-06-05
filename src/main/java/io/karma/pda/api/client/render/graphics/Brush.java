@@ -4,6 +4,7 @@
 
 package io.karma.pda.api.client.render.graphics;
 
+import io.karma.pda.api.client.render.display.DisplayMode;
 import io.karma.pda.api.common.color.ColorProvider;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
  */
 @OnlyIn(Dist.CLIENT)
 public interface Brush extends ColorProvider {
-    RenderType getRenderType();
+    RenderType getRenderType(final DisplayMode displayMode);
 
     @Nullable
     ResourceLocation getTexture();

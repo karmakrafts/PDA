@@ -4,14 +4,16 @@
 
 package io.karma.pda.api.common.app.theme;
 
+import io.karma.material.scheme.SchemeVibrant;
+import io.karma.pda.api.common.color.Color;
 import net.minecraft.resources.ResourceLocation;
 
 /**
  * @author Alexander Hinze
  * @since 13/04/2024
  */
-public class LightTheme extends DynamicTheme {
+public class LightTheme extends DefaultTheme {
     public LightTheme(final ResourceLocation name) {
-        super(name);
+        super(name, SchemeVibrant::new, new Color(0, 106, 255), false);
     }
 }

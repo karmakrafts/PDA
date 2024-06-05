@@ -84,7 +84,10 @@ public final class Color implements ColorProvider {
 
     @JsonIgnore
     public Color(final float r, final float g, final float b) {
-        this(r, g, b, 1F);
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = 1F;
     }
 
     @JsonIgnore
@@ -98,6 +101,22 @@ public final class Color implements ColorProvider {
     @JsonIgnore
     public Color(final byte r, final byte g, final byte b) {
         this(r, g, b, (byte) 0xFF);
+    }
+
+    @JsonIgnore
+    public Color(final int r, final int g, final int b) {
+        this.r = (float) ((r & 0xFF) / 255.0);
+        this.g = (float) ((g & 0xFF) / 255.0);
+        this.b = (float) ((b & 0xFF) / 255.0);
+        this.a = 0xFF;
+    }
+
+    @JsonIgnore
+    public Color(final int r, final int g, final int b, final int a) {
+        this.r = (float) ((r & 0xFF) / 255.0);
+        this.g = (float) ((g & 0xFF) / 255.0);
+        this.b = (float) ((b & 0xFF) / 255.0);
+        this.a = (float) ((a & 0xFF) / 255.0);
     }
 
     public static Color unpackRGB(final int value) {
@@ -123,18 +142,14 @@ public final class Color implements ColorProvider {
         if (value > 0.04045F) {
             return (float) Math.pow((value + 0.055F) / 1.055F, 2.4F);
         }
-        else {
-            return value / 12.92F;
-        }
+        return value / 12.92F;
     }
 
     private static float removeLinearGamma(final float value) {
         if (value <= 0.0031308F) {
             return 12.92F * value;
         }
-        else {
-            return 1.055F * (float) Math.pow(value, 1.0F / 2.4F) - 0.055F;
-        }
+        return 1.055F * (float) Math.pow(value, 1.0F / 2.4F) - 0.055F;
     }
 
     public static void transformSRGBToLinearRGB(final float[] values) {

@@ -5,12 +5,10 @@
 package io.karma.pda.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.karma.pda.api.common.util.DisplayType;
-import io.karma.pda.client.render.display.DisplayRenderer;
+import io.karma.pda.client.render.display.DefaultDisplayRenderer;
 import io.karma.pda.common.block.DockBlock;
 import io.karma.pda.common.entity.DockBlockEntity;
 import io.karma.pda.common.init.ModBlocks;
-import io.karma.pda.common.item.PDAItem;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -46,7 +44,6 @@ public final class DockBlockEntityRenderer implements BlockEntityRenderer<DockBl
             return;
         }
         final var stack = entity.getItem(0);
-        final var displayType = PDAItem.getDisplayType(stack).orElse(DisplayType.BW);
         final var direction = state.getValue(DockBlock.ORIENTATION).getDirection();
         // @formatter:off
         final var angle = direction.getAxis() == Direction.Axis.Z
@@ -58,7 +55,7 @@ public final class DockBlockEntityRenderer implements BlockEntityRenderer<DockBl
         poseStack.mulPose(TransformationHelper.quatFromXYZ(0F, angle, 0F, true));
         poseStack.translate(-0.5F, -0.5F, -0.5F);
         poseStack.translate(0F, 3F / 16F, 0F);
-        DisplayRenderer.getInstance().renderDisplay(stack, bufferSource, poseStack, displayType);
+        DefaultDisplayRenderer.INSTANCE.renderDisplay(stack, bufferSource, poseStack);
         poseStack.popPose();
     }
 }

@@ -7,9 +7,9 @@ package io.karma.pda.client.render.graphics;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import io.karma.pda.api.client.render.display.DisplayMode;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.client.ClientEventHandler;
-import io.karma.pda.client.render.display.DisplayRenderer;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -32,23 +32,37 @@ import java.util.function.Function;
 public final class GraphicsRenderTypes {
     public static final GraphicsRenderTypes INSTANCE = new GraphicsRenderTypes();
     // @formatter:off
-    public static final RenderType COLOR_TRIS = RenderType.create("pda_display_color_tris",
-        DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
-        RenderType.CompositeState.builder()
-            .setCullState(RenderStateShard.NO_CULL)
-            .setShaderState(new RenderStateShard.ShaderStateShard(INSTANCE::getColorShader))
-            .setOutputState(DisplayRenderer.DISPLAY_OUTPUT)
-            .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-            .setLayeringState(RenderStateShard.POLYGON_OFFSET_LAYERING)
-            .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
-            .createCompositeState(false));
-    public static final Function<ResourceLocation, RenderType> COLOR_TEXTURE_TRIS = Util.memoize(texture ->
-        RenderType.create(String.format("pda_display_color_tex_tris__%s_%s", texture.getNamespace(), texture.getPath()),
+    public static final Function<DisplayMode, RenderType> COLOR_TRIS = Util.memoize(displayMode ->
+        RenderType.create(String.format("pda_display_color_tris__%s", displayMode),
+            DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
+            RenderType.CompositeState.builder()
+                .setCullState(RenderStateShard.NO_CULL)
+                .setShaderState(new RenderStateShard.ShaderStateShard(() -> INSTANCE.getColorShader(displayMode)))
+                .setOutputState(displayMode.getOutputState())
+                .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+                .setLayeringState(RenderStateShard.POLYGON_OFFSET_LAYERING)
+                .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                .createCompositeState(false)));
+    public static final Function<DisplayMode, RenderType> SPINNER = Util.memoize(displayMode ->
+        RenderType.create(String.format("pda_display_spinner__%s", displayMode),
             DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
             RenderType.CompositeState.builder()
                 .setCullState(RenderStateShard.NO_CULL)
-                .setShaderState(new RenderStateShard.ShaderStateShard(INSTANCE::getColorTextureShader))
-                .setOutputState(DisplayRenderer.DISPLAY_OUTPUT)
+                .setShaderState(new RenderStateShard.ShaderStateShard(() -> INSTANCE.getSpinnerShader(displayMode)))
+                .setOutputState(displayMode.getOutputState())
+                .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+                .setLayeringState(RenderStateShard.POLYGON_OFFSET_LAYERING)
+                .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                .createCompositeState(false)));
+    private static final Function<ModeAndTextureKey, RenderType> COLOR_TEXTURE_TRIS = Util.memoize(key -> {
+        final var texture = key.texture;
+        final var displayMode = key.mode;
+        return RenderType.create(String.format("pda_display_color_tex_tris__%s__%s_%s", displayMode, texture.getNamespace(), texture.getPath()),
+            DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
+            RenderType.CompositeState.builder()
+                .setCullState(RenderStateShard.NO_CULL)
+                .setShaderState(new RenderStateShard.ShaderStateShard(() -> INSTANCE.getColorTextureShader(displayMode)))
+                .setOutputState(displayMode.getOutputState())
                 .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
                 .setTexturingState(RenderStateShard.DEFAULT_TEXTURING)
                 .setLayeringState(RenderStateShard.POLYGON_OFFSET_LAYERING)
@@ -57,23 +71,18 @@ public final class GraphicsRenderTypes {
                     () -> RenderSystem.setShaderTexture(0, texture),
                     () -> {}
                 ))
-                .createCompositeState(false)));
-    public static final RenderType SPINNER = RenderType.create("pda_display_spinner",
-        DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
-        RenderType.CompositeState.builder()
-            .setCullState(RenderStateShard.NO_CULL)
-            .setShaderState(new RenderStateShard.ShaderStateShard(INSTANCE::getSpinnerShader))
-            .setOutputState(DisplayRenderer.DISPLAY_OUTPUT)
-            .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-            .setLayeringState(RenderStateShard.POLYGON_OFFSET_LAYERING)
-            .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
-            .createCompositeState(false));
+                .createCompositeState(false));
+    });
     private ShaderInstance colorShader;
     private ShaderInstance colorTextureShader;
     private ShaderInstance spinnerShader;
 
     private GraphicsRenderTypes() {}
     // @formatter:on
+
+    public static RenderType getColorTextureTris(final DisplayMode displayMode, final ResourceLocation texture) {
+        return COLOR_TEXTURE_TRIS.apply(new ModeAndTextureKey(displayMode, texture));
+    }
 
     @ApiStatus.Internal
     public void setupEarly() {
@@ -97,16 +106,19 @@ public final class GraphicsRenderTypes {
         }
     }
 
-    public ShaderInstance getColorShader() {
+    public ShaderInstance getColorShader(final DisplayMode displayMode) {
         return colorShader;
     }
 
-    public ShaderInstance getColorTextureShader() {
+    public ShaderInstance getColorTextureShader(final DisplayMode displayMode) {
         return colorTextureShader;
     }
 
-    public ShaderInstance getSpinnerShader() {
+    public ShaderInstance getSpinnerShader(final DisplayMode displayMode) {
         spinnerShader.safeGetUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
         return spinnerShader;
+    }
+
+    private record ModeAndTextureKey(DisplayMode mode, ResourceLocation texture) {
     }
 }

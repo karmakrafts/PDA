@@ -277,8 +277,7 @@ public final class DefaultFontAtlas implements FontAtlas {
         context.graphics.dispose();
         if (PDAMod.IS_DEV_ENV) {
             TextureUtils.dump(context.image,
-                new ResourceLocation(fontLocation.getNamespace(),
-                    String.format("%s_%d.png", fontLocation.getPath(), font.hashCode())));
+                new ResourceLocation(fontLocation.getNamespace(), String.format("%s.png", font.getVariantString())));
         }
         uploadTexture(context.image);
 

@@ -18,19 +18,19 @@ inline val auto: FlexValue
     get() = FlexValue.auto()
 
 // Int conversions
-inline val Int.pixels: FlexValue
+inline val Int.px: FlexValue
     get() = FlexValue.pixel(this)
 inline val Int.percent: FlexValue
     get() = FlexValue.percent(this.toFloat())
 
 // Float conversions
-inline val Float.pixels: FlexValue
+inline val Float.px: FlexValue
     get() = FlexValue.pixel(this.toInt())
 inline val Float.percent: FlexValue
     get() = FlexValue.percent(this)
 
 // Double conversion
-inline val Double.pixels: FlexValue
+inline val Double.px: FlexValue
     get() = FlexValue.pixel(this.toInt())
 inline val Double.percent: FlexValue
     get() = FlexValue.percent(this.toFloat())

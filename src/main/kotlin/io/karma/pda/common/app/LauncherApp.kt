@@ -32,18 +32,18 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
             Box({
                 width(100.percent)
                 height(100.percent)
-                padding(4.pixels)
+                padding(4.px)
             }) {
                 Text({
                     width(100.percent)
-                    height(40.pixels)
+                    height(40.px)
                 }) {
                     text uses this@LauncherApp.someSetting
                 }
 
                 Text({
                     width(50.percent)
-                    height(20.pixels)
+                    height(20.px)
                 }) {
                     text uses this@LauncherApp.someSetting
                     color(Color.GREEN)
@@ -51,7 +51,7 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
 
                 Text({
                     width(75.percent)
-                    height(20.pixels)
+                    height(20.px)
                 }) {
                     text uses this@LauncherApp.someSetting
                 }
@@ -59,66 +59,66 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                 Box({
                     width(100.percent)
                     height(auto)
-                    padding(4.pixels)
+                    padding(4.px)
                 }, props = { background(0x0A0A0A.rgb) }) {
                     Box({
                         width(100.percent)
                         height(auto)
                         direction(FlexDirection.ROW)
-                        padding(4.pixels)
+                        padding(4.px)
                     }, props = { background(0x141414.rgb) }) {
                         Text({
-                            width(64.pixels)
-                            height(64.pixels)
-                            margin(4.pixels)
+                            width(64.px)
+                            height(64.px)
+                            margin(4.px)
                         }) {
                             text("A")
                             color uses child<Spinner>("spinner").map { it!!.color }
                         }
 
                         Spacer({
-                            width(20.pixels)
+                            width(20.px)
                         }) {
                             orientation(Spacer.Orientation.VERTICAL)
                             color uses child<Spinner>("spinner").map { it!!.color }
                         }
 
                         Text({
-                            width(64.pixels)
-                            height(64.pixels)
-                            margin(4.pixels)
+                            width(64.px)
+                            height(64.px)
+                            margin(4.px)
                         }) {
                             text("B")
                             color uses child<Spinner>("spinner").map { it!!.color }
                         }
 
                         Spacer({
-                            width(20.pixels)
+                            width(20.px)
                         }) {
                             orientation(Spacer.Orientation.VERTICAL)
                             color uses child<Spinner>("spinner").map { it!!.color }
                         }
 
                         Text({
-                            width(64.pixels)
-                            height(64.pixels)
-                            margin(4.pixels)
+                            width(64.px)
+                            height(64.px)
+                            margin(4.px)
                         }) {
                             text("Hello, World!")
                             color uses child<Spinner>("spinner").map { it!!.color }
                         }
 
                         Spacer({
-                            width(20.pixels)
+                            width(20.px)
                         }) {
                             orientation(Spacer.Orientation.VERTICAL)
                             color uses child<Spinner>("spinner").map { it!!.color }
                         }
 
                         Spinner({
-                            width(64.pixels)
-                            height(64.pixels)
-                            margin(4.pixels)
+                            width(64.px)
+                            height(64.px)
+                            margin(4.px)
                         }, localName = "spinner") {
                             color((Color.WHITE..Color.RED).gradient(GradientType.VERTICAL))
                         }
@@ -131,6 +131,7 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                 }) {
                     font(DefaultFontFamilies.NOTO_SANS.getFont(FontStyle.REGULAR, 24F))
                     text("Hello World, this is a text wrapping example on the PDA, finally WORKING \\o/")
+                    color((Color.WHITE..Color.RED).gradient(GradientType.HORIZONTAL))
                 }
 
                 Text({

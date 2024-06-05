@@ -7,7 +7,7 @@ package io.karma.pda.client.render.graphics;
 import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.client.render.graphics.GraphicsContext;
 import io.karma.pda.api.client.render.graphics.GraphicsState;
-import io.karma.pda.api.common.app.theme.font.FontVariant;
+import io.karma.pda.api.common.color.ColorProvider;
 import io.karma.pda.api.common.util.RectangleCorner;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraftforge.api.distmarker.Dist;
@@ -15,6 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.Objects;
 import java.util.Stack;
+import java.util.function.IntFunction;
 
 /**
  * @author Alexander Hinze
@@ -46,7 +47,8 @@ public final class DefaultGraphics implements Graphics {
 
     @Override
     public void flush() {
-        ((MultiBufferSource.BufferSource) context.getBufferSource()).endBatch(getState().getBrush().getRenderType());
+        ((MultiBufferSource.BufferSource) context.getBufferSource()).endBatch(getState().getBrush().getRenderType(
+            context.getDisplayMode()));
     }
 
     @Override
@@ -229,63 +231,71 @@ public final class DefaultGraphics implements Graphics {
     }
 
     @Override
+    public void text(final int x, final int y, final char c) {
+        final var state = getState();
+        context.getFontRenderer().render(x, y, c, state.getFont(), state.getBrush());
+    }
+
+    @Override
     public void text(final int x, final int y, final CharSequence text) {
         final var state = getState();
-        final var fontRenderer = context.getFontRenderer();
-        fontRenderer.render(x, y, state.getZIndex(), text, state.getBrush(), state.getFont(), context);
+        context.getFontRenderer().render(x, y, text, state.getFont(), state.getBrush());
     }
 
     @Override
     public void text(final int x, final int y, final int maxWidth, final CharSequence text) {
         final var state = getState();
-        final var fontRenderer = context.getFontRenderer();
-        final var font = state.getFont();
-        final var fontVariant = font instanceof FontVariant variant ? variant : font.getDefaultVariant();
-        final var fontAtlas = fontRenderer.getFontAtlas(fontVariant);
+        context.getFontRenderer().render(x, y, maxWidth, text, state.getFont(), state.getBrush());
+    }
 
-        final var scale = fontVariant.getSize() / fontAtlas.getMaxGlyphHeight();
-        final var maxGlyphWidth = (int) (fontAtlas.getMaxGlyphWidth() * scale);
-        final var actualMaxWidth = maxWidth - (maxGlyphWidth >> 1); // Use half the largest char as tolerance
-
-        final var buffer = new StringBuilder();
-        final var charCount = text.length();
-        final var lastIndex = charCount - 1;
-        final var lineHeight = fontRenderer.getLineHeight(fontVariant);
-        final var z = state.getZIndex();
-        final var brush = state.getBrush();
-        var line = 0;
-
-        for (var i = 0; i < charCount; i++) {
-            final var lineY = y + (lineHeight * line);
-            final var c = text.charAt(i);
-            // Add the current character to the buffer until we flush
-            buffer.append(c);
-            // Handle newlines
-            if (c == '\n' && !buffer.isEmpty()) {
-                fontRenderer.render(x, lineY, z, buffer, brush, fontVariant, context);
-                buffer.delete(0, buffer.length());
-                line++;
-                continue;
-            }
-            // Handle horizontal overflow using word boundary algorithm
-            if (fontRenderer.getStringWidth(fontVariant, buffer) >= actualMaxWidth && !buffer.isEmpty()) {
-                fontRenderer.render(x, lineY, z, buffer, brush, fontVariant, context);
-                buffer.delete(0, buffer.length());
-                line++;
-                continue;
-            }
-            // Handle remainder if we are at the end and the buffer is not empty
-            if (i == lastIndex) {
-                fontRenderer.render(x, lineY, z, buffer, brush, fontVariant, context);
-            }
-        }
+    @Override
+    public void text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text) {
+        final var state = getState();
+        context.getFontRenderer().render(x, y, maxWidth, maxHeight, text, state.getFont(), state.getBrush());
     }
 
     @Override
     public void text(final int x, final int y, final int maxWidth, final CharSequence text,
                      final CharSequence cutoffSuffix) {
         final var state = getState();
-        final var fontRenderer = context.getFontRenderer();
-        fontRenderer.render(x, y, state.getZIndex(), text, state.getBrush(), state.getFont(), context);
+        context.getFontRenderer().render(x, y, maxWidth, text, state.getFont(), state.getBrush());
+    }
+
+    @Override
+    public void text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
+                     final CharSequence cutoffSuffix) {
+        final var state = getState();
+        context.getFontRenderer().render(x, y, maxWidth, maxHeight, text, state.getFont(), state.getBrush());
+    }
+
+    // Extended text rendering with per-glyph colors
+
+    @Override
+    public void text(final int x, final int y, final CharSequence text, final IntFunction<ColorProvider> color) {
+        context.getFontRenderer().render(x, y, text, getState().getFont(), color);
+    }
+
+    @Override
+    public void text(final int x, final int y, final int maxWidth, final CharSequence text,
+                     final IntFunction<ColorProvider> color) {
+        context.getFontRenderer().render(x, y, maxWidth, text, getState().getFont(), color);
+    }
+
+    @Override
+    public void text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
+                     final IntFunction<ColorProvider> color) {
+        context.getFontRenderer().render(x, y, maxWidth, maxHeight, text, getState().getFont(), color);
+    }
+
+    @Override
+    public void text(final int x, final int y, final int maxWidth, final CharSequence text,
+                     final CharSequence cutoffSuffix, final IntFunction<ColorProvider> color) {
+        context.getFontRenderer().render(x, y, maxWidth, text, getState().getFont(), color);
+    }
+
+    @Override
+    public void text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
+                     final CharSequence cutoffSuffix, final IntFunction<ColorProvider> color) {
+        context.getFontRenderer().render(x, y, maxWidth, maxHeight, text, getState().getFont(), color);
     }
 }

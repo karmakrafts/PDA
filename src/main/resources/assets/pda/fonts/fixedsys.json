@@ -1,8 +1,6 @@
 {
   "version": 1,
   "name": "Fixedsys",
-  "sdf_range_multiplier": 1.0,
-  "supported_char_set": "EXTENDED_ASCII",
   "variants": {
     "REGULAR": {
       "location": "pda:fonts/fixedsys.ttf"

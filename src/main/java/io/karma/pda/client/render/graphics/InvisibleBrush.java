@@ -4,6 +4,7 @@
 
 package io.karma.pda.client.render.graphics;
 
+import io.karma.pda.api.client.render.display.DisplayMode;
 import io.karma.pda.api.client.render.graphics.Brush;
 import io.karma.pda.api.common.util.RectangleCorner;
 import net.minecraft.client.renderer.RenderType;
@@ -25,8 +26,8 @@ public final class InvisibleBrush implements Brush {
     // @formatter:on
 
     @Override
-    public RenderType getRenderType() {
-        return GraphicsRenderTypes.COLOR_TRIS;
+    public RenderType getRenderType(final DisplayMode displayMode) {
+        return GraphicsRenderTypes.COLOR_TRIS.apply(displayMode);
     }
 
     @Override

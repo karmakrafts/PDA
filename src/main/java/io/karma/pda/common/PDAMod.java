@@ -13,6 +13,7 @@ import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.theme.Theme;
 import io.karma.pda.api.common.app.theme.font.FontFamily;
 import io.karma.pda.api.common.color.GradientFunction;
+import io.karma.pda.api.common.display.DisplayModeSpec;
 import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.pda.api.common.dispose.DispositionHandler;
 import io.karma.pda.api.common.state.StateReflector;
@@ -22,7 +23,7 @@ import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.client.flex.ClientFlexNodeHandler;
 import io.karma.pda.client.interaction.DockInteractionHandler;
 import io.karma.pda.client.interaction.PDAInteractionHandler;
-import io.karma.pda.client.render.display.DisplayRenderer;
+import io.karma.pda.client.render.display.DefaultDisplayRenderer;
 import io.karma.pda.client.render.graphics.GraphicsRenderTypes;
 import io.karma.pda.client.render.graphics.font.DefaultFontRenderer;
 import io.karma.pda.client.render.item.PDAItemRenderer;
@@ -126,6 +127,7 @@ public class PDAMod {
     public static final DeferredRegister<Theme> THEMES = API.makeThemeRegister(Constants.MODID);
     public static final DeferredRegister<FontFamily> FONT_FAMILIES = API.makeFontFamilyRegister(Constants.MODID);
     public static final DeferredRegister<GradientFunction> GRADIENT_FUNCTIONS = API.makeGradientFunctionRegister(Constants.MODID);
+    public static final DeferredRegister<DisplayModeSpec> DISPLAY_MODES = API.makeDisplayModeRegister(Constants.MODID);
     // @formatter:on
 
     public static final ServiceLoader<StateReflector> STATE_REFLECTORS = ServiceLoader.load(StateReflector.class);
@@ -139,15 +141,16 @@ public class PDAMod {
         }
         catch (Throwable error) { /* IGNORE */ }
 
-        ModBlockEntities.register(BLOCK_ENTITIES);
-        ModBlocks.register(BLOCKS);
-        ModItems.register(ITEMS);
-        ModMenus.register(MENU_TYPES);
+        ModBlockEntities.register();
+        ModBlocks.register();
+        ModItems.register();
+        ModMenus.register();
         ModComponents.register();
         ModApps.register();
         ModThemes.register();
         ModFontFamilies.register();
         ModGradientFunctions.register();
+        ModDisplayModes.register();
     }
 
     public PDAMod() {
@@ -167,6 +170,7 @@ public class PDAMod {
         THEMES.register(modBus);
         FONT_FAMILIES.register(modBus);
         GRADIENT_FUNCTIONS.register(modBus);
+        DISPLAY_MODES.register(modBus);
 
         MinecraftForge.EVENT_BUS.addListener(this::onGameShutdown);
         initAPI();
@@ -224,6 +228,7 @@ public class PDAMod {
         API.setThemeRegistry(() -> RegistryUtils.getRegistry(Constants.THEME_REGISTRY_NAME));
         API.setFontFamilyRegistry(() -> RegistryUtils.getRegistry(Constants.FONT_FAMILY_REGISTRY_NAME));
         API.setGradientFunctionRegistry(() -> RegistryUtils.getRegistry(Constants.GRADIENT_FUNCTION_REGISTRY_NAME));
+        API.setDisplayModeRegistry(() -> RegistryUtils.getRegistry(Constants.DISPLAY_MODE_REGISTRY_NAME));
         API.init();
     }
 
@@ -233,7 +238,7 @@ public class PDAMod {
         DockInteractionHandler.INSTANCE.setup();
         PDAInteractionHandler.INSTANCE.setup();
         PDAItemRenderer.INSTANCE.setup();
-        DisplayRenderer.getInstance().setupEarly();
+        DefaultDisplayRenderer.INSTANCE.setupEarly();
         DefaultFontRenderer.INSTANCE.setupEarly();
         GraphicsRenderTypes.INSTANCE.setupEarly();
         initClientAPI();
@@ -243,6 +248,7 @@ public class PDAMod {
     private void initClientAPI() {
         ClientAPI.setSessionHandler(ClientSessionHandler.INSTANCE);
         ClientAPI.setFlexNodeHandler(ClientFlexNodeHandler.INSTANCE);
+        ClientAPI.setDisplayRenderer(DefaultDisplayRenderer.INSTANCE);
         ClientAPI.init();
     }
 
@@ -250,7 +256,7 @@ public class PDAMod {
     private void onClientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             LOGGER.info("Registering screens");
-            DisplayRenderer.getInstance().setup();
+            DefaultDisplayRenderer.INSTANCE.setup();
             DefaultFontRenderer.INSTANCE.setup();
             MenuScreens.register(ModMenus.pdaStorage.get(),
                 (PDAStorageMenu menu, Inventory inventory, Component title) -> new PDAStorageScreen(menu, inventory));

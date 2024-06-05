@@ -2,6 +2,9 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
+@file:JvmName("ExtensionsKt")
+@file:JvmMultifileClass
+
 package io.karma.pda.api.common.app.compose
 
 import io.karma.pda.api.common.app.component.Component

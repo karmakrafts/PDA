@@ -4,12 +4,15 @@
 
 package io.karma.pda.api.client.render.graphics;
 
+import io.karma.pda.api.client.render.display.DisplayMode;
 import io.karma.pda.api.common.color.ColorProvider;
 import io.karma.pda.api.common.util.Identifiable;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import java.util.function.Function;
 
 /**
  * @author Alexander Hinze
@@ -26,4 +29,7 @@ public interface BrushFactory {
     Brush create(final ColorProvider color, final ResourceLocation texture);
 
     Brush create(final RenderType renderType, final ColorProvider color, final ResourceLocation texture);
+
+    Brush create(final Function<DisplayMode, RenderType> renderType, final ColorProvider color,
+                 final ResourceLocation texture);
 }

@@ -13,6 +13,7 @@ import io.karma.pda.api.common.app.component.Container;
 import io.karma.pda.api.common.app.theme.font.FontFamily;
 import io.karma.pda.api.common.app.theme.font.FontStyle;
 import io.karma.pda.api.common.app.theme.font.FontVariant;
+import io.karma.pda.api.common.display.DisplayModeSpec;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.api.common.util.Exceptions;
 import io.karma.pda.client.render.graphics.font.DefaultFontRenderer;
@@ -178,6 +179,13 @@ public final class CommonEventHandler {
         });
     }
 
+    private void onBakeDisplayModes(final IForgeRegistryInternal<DisplayModeSpec> registry,
+                                    final RegistryManager manager) {
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+
+        });
+    }
+
     private void onNewRegistry(final NewRegistryEvent event) {
         PDAMod.LOGGER.info("Creating registries");
         event.create(RegistryBuilder.of(Constants.COMPONENT_REGISTRY_NAME));
@@ -185,6 +193,7 @@ public final class CommonEventHandler {
         event.create(RegistryBuilder.of(Constants.THEME_REGISTRY_NAME));
         event.create(RegistryBuilder.<FontFamily>of(Constants.FONT_FAMILY_REGISTRY_NAME).onBake(this::onBakeFontFamilies));
         event.create(RegistryBuilder.of(Constants.GRADIENT_FUNCTION_REGISTRY_NAME));
+        event.create(RegistryBuilder.<DisplayModeSpec>of(Constants.DISPLAY_MODE_REGISTRY_NAME).onBake(this::onBakeDisplayModes));
     }
 
     private void onRightClickBlock(final PlayerInteractEvent.RightClickBlock event) {

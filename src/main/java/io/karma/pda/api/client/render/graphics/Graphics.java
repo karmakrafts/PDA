@@ -5,8 +5,11 @@
 package io.karma.pda.api.client.render.graphics;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import io.karma.pda.api.common.color.ColorProvider;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import java.util.function.IntFunction;
 
 /**
  * @author Alexander Hinze
@@ -50,13 +53,36 @@ public interface Graphics {
 
     void fillTriangle(final int x1, final int y1, final int x2, final int y2, final int x3, final int y3);
 
+    void text(final int x, final int y, final char c);
+
     void text(final int x, final int y, final CharSequence text);
 
     void text(final int x, final int y, final int maxWidth, final CharSequence text);
 
+    void text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text);
+
     void text(final int x, final int y, final int maxWidth, final CharSequence text, final CharSequence cutoffSuffix);
 
+    void text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
+              final CharSequence cutoffSuffix);
+
+    // Extended text rendering with per-glyph colors
+
+    void text(final int x, final int y, final CharSequence text, final IntFunction<ColorProvider> color);
+
+    void text(final int x, final int y, final int maxWidth, final CharSequence text,
+              final IntFunction<ColorProvider> color);
+
+    void text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
+              final IntFunction<ColorProvider> color);
+
+    void text(final int x, final int y, final int maxWidth, final CharSequence text, final CharSequence cutoffSuffix,
+              final IntFunction<ColorProvider> color);
+
+    void text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
+              final CharSequence cutoffSuffix, final IntFunction<ColorProvider> color);
+
     default VertexConsumer getBuffer() {
-        return getContext().getBufferSource().getBuffer(getState().getBrush().getRenderType());
+        return getContext().getBufferSource().getBuffer(getState().getBrush().getRenderType(getContext().getDisplayMode()));
     }
 }

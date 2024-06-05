@@ -7,14 +7,12 @@ package io.karma.pda.common.app.theme.font;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.karma.pda.api.common.API;
-import io.karma.pda.api.common.app.theme.font.FontCharSet;
 import io.karma.pda.api.common.app.theme.font.FontFamily;
 import io.karma.pda.api.common.app.theme.font.FontStyle;
 import io.karma.pda.api.common.app.theme.font.FontVariant;
 import io.karma.pda.api.common.util.Exceptions;
 import io.karma.pda.api.common.util.JSONUtils;
 import io.karma.pda.common.PDAMod;
-import it.unimi.dsi.fastutil.ints.IntIntPair;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
@@ -65,8 +63,18 @@ public final class DefaultFontFamily implements FontFamily {
     }
 
     @Override
-    public float getSDFRangeMultiplier() {
-        return config.sdfRangeMultiplier;
+    public float getDistanceFieldRange() {
+        return config.sdfRange;
+    }
+
+    @Override
+    public int getGlyphSpriteBorder() {
+        return config.glyphSpriteBorder;
+    }
+
+    @Override
+    public int getGlyphSpriteSize() {
+        return config.glyphSpriteSize;
     }
 
     @Override
@@ -121,35 +129,6 @@ public final class DefaultFontFamily implements FontFamily {
         }), style, size); // TODO: finish implementing this
     }
 
-    public enum DefaultCharSet implements FontCharSet {
-        // @formatter:off
-        ASCII         (IntIntPair.of(0x20, 0x7E)),
-        EXTENDED_ASCII(IntIntPair.of(0x20, 0x7E), IntIntPair.of(0xA0, 0xFF)),
-        UNICODE       (
-            IntIntPair.of(0x0020, 0x007E), // ASCII
-            IntIntPair.of(0x00A0, 0x00FF), // Extended ASCII
-            IntIntPair.of(0x0100, 0x017F), // Latin Extended-A
-            IntIntPair.of(0x0370, 0x03FF), // Greek and Coptic
-            IntIntPair.of(0x0400, 0x04FF), // Cyrillic
-            IntIntPair.of(0x0590, 0x05FF), // Hebrew
-            IntIntPair.of(0x0600, 0x06FF), // Arabic
-            IntIntPair.of(0x0900, 0x097F), // Devanagari
-            IntIntPair.of(0x4E00, 0x9FFF)  // Chinese, Japanese, Korean (CJK) Unified Ideographs
-        );
-        // @formatter:on
-
-        private final IntIntPair[] ranges;
-
-        DefaultCharSet(final IntIntPair... ranges) {
-            this.ranges = ranges;
-        }
-
-        @Override
-        public IntIntPair[] getRanges() {
-            return ranges;
-        }
-    }
-
     public static final class Config {
         @JsonIgnore
         public static final int VERSION = 1;
@@ -157,10 +136,14 @@ public final class DefaultFontFamily implements FontFamily {
         public int version = VERSION;
         @JsonProperty
         public String name;
-        @JsonProperty("sdf_range_multiplier")
-        public float sdfRangeMultiplier;
+        @JsonProperty("sdf_range")
+        public float sdfRange = 4F;
+        @JsonProperty("glyph_sprite_size")
+        public int glyphSpriteSize = 32;
+        @JsonProperty("glyph_sprite_border")
+        public int glyphSpriteBorder = 2;
         @JsonProperty("supported_char_set")
-        public DefaultCharSet supportedCharSet;
+        public DefaultCharSet supportedCharSet = DefaultCharSet.EXTENDED_ASCII;
         @JsonProperty
         public HashMap<FontStyle, Variant> variants = new HashMap<>();
 

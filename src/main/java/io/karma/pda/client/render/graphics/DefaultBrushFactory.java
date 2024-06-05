@@ -4,8 +4,10 @@
 
 package io.karma.pda.client.render.graphics;
 
+import io.karma.pda.api.client.render.display.DisplayMode;
 import io.karma.pda.api.client.render.graphics.Brush;
 import io.karma.pda.api.client.render.graphics.BrushFactory;
+import io.karma.pda.api.client.render.graphics.GraphicsContext;
 import io.karma.pda.api.common.color.Color;
 import io.karma.pda.api.common.color.ColorProvider;
 import io.karma.pda.api.common.util.Identifiable;
@@ -17,6 +19,7 @@ import org.apache.commons.codec.digest.MurmurHash3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.function.Function;
 
 /**
  * @author Alexander Hinze
@@ -24,12 +27,12 @@ import java.util.HashMap;
  */
 @OnlyIn(Dist.CLIENT)
 public final class DefaultBrushFactory implements BrushFactory {
-    public static final DefaultBrushFactory INSTANCE = new DefaultBrushFactory();
+    private final GraphicsContext context;
     private final HashMap<BrushKey, Brush> brushes = new HashMap<>();
 
-    // @formatter:off
-    private DefaultBrushFactory() {}
-    // @formatter:on
+    public DefaultBrushFactory(final GraphicsContext context) {
+        this.context = context;
+    }
 
     @Override
     public Brush getInvisible() {
@@ -50,12 +53,12 @@ public final class DefaultBrushFactory implements BrushFactory {
 
     @Override
     public Brush create(final ColorProvider color) {
-        return create(GraphicsRenderTypes.COLOR_TRIS, color, null);
+        return create(GraphicsRenderTypes.COLOR_TRIS.apply(context.getDisplayMode()), color, null);
     }
 
     @Override
     public Brush create(final ColorProvider color, final ResourceLocation texture) {
-        return create(GraphicsRenderTypes.COLOR_TEXTURE_TRIS.apply(texture), color, texture);
+        return create(GraphicsRenderTypes.getColorTextureTris(context.getDisplayMode(), texture), color, texture);
     }
 
     @Override
@@ -64,7 +67,20 @@ public final class DefaultBrushFactory implements BrushFactory {
             return InvisibleBrush.INSTANCE;
         }
         return brushes.computeIfAbsent(new BrushKey(renderType.name, "none", color, color, texture),
-            key -> new DefaultBrush(renderType, color, texture));
+            key -> new DefaultBrush(displayMode -> renderType, color, texture));
+    }
+
+    @Override
+    public Brush create(final Function<DisplayMode, RenderType> renderType, final ColorProvider color,
+                        final ResourceLocation texture) {
+        if (color == Color.NONE) {
+            return InvisibleBrush.INSTANCE;
+        }
+        return brushes.computeIfAbsent(new BrushKey(renderType.apply(context.getDisplayMode()).name,
+            "none",
+            color,
+            color,
+            texture), key -> new DefaultBrush(renderType, color, texture));
     }
 
     private record BrushKey(String renderTypeName, String functionName, ColorProvider start, ColorProvider end,

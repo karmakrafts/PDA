@@ -4,6 +4,7 @@
 
 package io.karma.pda.client.render.graphics;
 
+import io.karma.pda.api.client.render.display.DisplayMode;
 import io.karma.pda.api.client.render.graphics.Brush;
 import io.karma.pda.api.common.color.ColorProvider;
 import io.karma.pda.api.common.util.RectangleCorner;
@@ -13,25 +14,28 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Function;
+
 /**
  * @author Alexander Hinze
  * @since 27/04/2024
  */
 @OnlyIn(Dist.CLIENT)
 public final class DefaultBrush implements Brush {
-    private final RenderType renderType;
+    private final Function<DisplayMode, RenderType> renderType;
     private final ColorProvider color;
     private final ResourceLocation texture;
 
-    public DefaultBrush(final RenderType renderType, final ColorProvider color, final ResourceLocation texture) {
+    public DefaultBrush(final Function<DisplayMode, RenderType> renderType, final ColorProvider color,
+                        final ResourceLocation texture) {
         this.renderType = renderType;
         this.color = color;
         this.texture = texture;
     }
 
     @Override
-    public RenderType getRenderType() {
-        return renderType;
+    public RenderType getRenderType(final DisplayMode displayMode) {
+        return renderType.apply(displayMode);
     }
 
     @Override

@@ -19,6 +19,7 @@ public final class Constants {
     public static final ResourceLocation FONT_FAMILY_REGISTRY_NAME = new ResourceLocation(MODID, "font_families");
     public static final ResourceLocation GRADIENT_FUNCTION_REGISTRY_NAME = new ResourceLocation(MODID,
         "gradient_functions");
+    public static final ResourceLocation DISPLAY_MODE_REGISTRY_NAME = new ResourceLocation(MODID, "display_modes");
 
     // @formatter:off
     private Constants() {}

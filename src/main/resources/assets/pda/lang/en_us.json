@@ -11,11 +11,18 @@
   "screen.pda.dock": "Dock",
 
   "tooltip.pda.owner": "Owner: %s",
+  "tooltip.pda.unknown": "Unknown",
+  "tooltip.pda.resolution": "§3Resolution: §r%s",
+  "tooltip.pda.display_type": "§3Display Type: §r%s",
 
   "message.pda.command.no_memory_card": "No memory card in main hand",
   "message.pda.command.active_sessions": "%d active sessions",
   "message.pda.command.session": "§bSession %s",
   "message.pda.command.session_owner": "Owner: %s",
   "message.pda.command.session_creation_time": "Creation time: %s",
-  "message.pda.command.session_app": "Current app: %s"
+  "message.pda.command.session_app": "Current app: %s",
+
+  "display_type.pda.bw_lcd": "§8Black§r/§fWhite §rLCD",
+  "display_type.pda.srgb_lcd": "s§cR§aG§9B §rLCD",
+  "display_type.pda.oled": "§2Organic §rLED"
 }

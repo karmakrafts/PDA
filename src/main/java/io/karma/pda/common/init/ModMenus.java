@@ -12,7 +12,6 @@ import io.karma.pda.common.menu.ItemMenuFactory;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -29,11 +28,11 @@ public final class ModMenus {
     // @formatter:on
 
     @ApiStatus.Internal
-    public static void register(final DeferredRegister<MenuType<?>> register) {
+    public static void register() {
         PDAMod.LOGGER.info("Registering menus");
-        pdaStorage = register.register("pda_storage",
+        pdaStorage = PDAMod.MENU_TYPES.register("pda_storage",
             () -> new MenuType<>(new ItemMenuFactory<>(PDAStorageMenu::new), FeatureFlagSet.of()));
-        dockStorage = register.register("dock_sotrage",
+        dockStorage = PDAMod.MENU_TYPES.register("dock_sotrage",
             () -> new MenuType<>(new BlockMenuFactory<>(DockStorageMenu::new, DockBlockEntity.class),
                 FeatureFlagSet.of()));
     }

@@ -24,4 +24,20 @@ public interface FontVariant extends Font {
     default FontVariant derive(final FontStyle style, final float size) {
         return withStyle(style).withSize(size);
     }
+
+    default String getVariantString() { // @formatter:off
+        final var builder = new StringBuilder();
+        builder.append(getLocation())
+            .append('$')
+            .append(getStyle())
+            .append('$')
+            .append(getSize());
+        for(final var var : getVariationAxes().object2FloatEntrySet()) {
+            builder.append('$')
+                .append(var.getKey())
+                .append(':')
+                .append(var.getFloatValue());
+        }
+        return builder.toString();
+    } // @formatter:on
 }

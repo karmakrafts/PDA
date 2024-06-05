@@ -4,8 +4,11 @@
 
 package io.karma.pda.client.render.display;
 
+import io.karma.pda.api.client.render.display.Framebuffer;
+import io.karma.pda.api.common.display.DisplayResolution;
 import io.karma.pda.api.common.dispose.Disposable;
 import io.karma.pda.client.util.TextureUtils;
+import io.karma.pda.common.PDAMod;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;
@@ -16,7 +19,7 @@ import org.lwjgl.opengl.GL30;
  * @since 09/02/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class DisplayFramebuffer implements Disposable {
+public final class DefaultFramebuffer implements Framebuffer, Disposable {
     private final int id;
     private final int textureId;
     private final int depthTextureId;
@@ -26,11 +29,12 @@ public final class DisplayFramebuffer implements Disposable {
     private int width;
     private int height;
 
-    public DisplayFramebuffer(final int initialWidth, final int initialHeight) {
+    public DefaultFramebuffer(final DisplayResolution resolution) {
         textureId = TextureUtils.createTexture();
         depthTextureId = TextureUtils.createTexture();
         id = GL30.glGenFramebuffers();
-        resize(initialWidth, initialHeight);
+        resize(resolution.getWidth(), resolution.getHeight());
+        PDAMod.DISPOSITION_HANDLER.addObject(this);
     }
 
     @Override
@@ -63,6 +67,7 @@ public final class DisplayFramebuffer implements Disposable {
         this.height = height;
     }
 
+    @Override
     public void bind() {
         if (previousDrawId != -1) {
             return;
@@ -74,6 +79,7 @@ public final class DisplayFramebuffer implements Disposable {
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, id);
     }
 
+    @Override
     public void unbind() {
         if (previousDrawId == -1) {
             return;
@@ -84,18 +90,28 @@ public final class DisplayFramebuffer implements Disposable {
         previousDrawId = -1;
     }
 
-    public int getTextureId() {
+    @Override
+    public void clear(final float r, final float g, final float b, final float a) {
+        GL11.glClearColor(r, g, b, a);
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+    }
+
+    @Override
+    public int getColorTexture() {
         return textureId;
     }
 
-    public int getDepthTextureId() {
+    @Override
+    public int getDepthTexture() {
         return depthTextureId;
     }
 
+    @Override
     public int getWidth() {
         return width;
     }
 
+    @Override
     public int getHeight() {
         return height;
     }

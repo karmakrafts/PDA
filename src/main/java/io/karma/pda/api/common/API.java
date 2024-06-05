@@ -10,6 +10,7 @@ import io.karma.pda.api.common.app.component.ComponentType;
 import io.karma.pda.api.common.app.theme.Theme;
 import io.karma.pda.api.common.app.theme.font.FontFamily;
 import io.karma.pda.api.common.color.GradientFunction;
+import io.karma.pda.api.common.display.DisplayModeSpec;
 import io.karma.pda.api.common.session.SessionHandler;
 import io.karma.pda.api.common.util.Constants;
 import net.minecraft.client.Minecraft;
@@ -39,6 +40,7 @@ public class API {
     private static Supplier<IForgeRegistry<Theme>> themeRegistry;
     private static Supplier<IForgeRegistry<FontFamily>> fontFamilyRegistry;
     private static Supplier<IForgeRegistry<GradientFunction>> gradientFunctionRegistry;
+    private static Supplier<IForgeRegistry<DisplayModeSpec>> displayModeRegistry;
     private static boolean isInitialized;
 
     // @formatter:off
@@ -131,6 +133,10 @@ public class API {
         return DeferredRegister.create(Constants.GRADIENT_FUNCTION_REGISTRY_NAME, modId);
     }
 
+    public static DeferredRegister<DisplayModeSpec> makeDisplayModeRegister(final String modId) {
+        return DeferredRegister.create(Constants.DISPLAY_MODE_REGISTRY_NAME, modId);
+    }
+
     @SuppressWarnings("all")
     public static IForgeRegistry<ComponentType<?>> getComponentTypeRegistry() {
         assertInitialized();
@@ -184,6 +190,16 @@ public class API {
         API.gradientFunctionRegistry = gradientFunctionRegistry;
     }
 
+    public static IForgeRegistry<DisplayModeSpec> getDisplayModeRegistry() {
+        assertInitialized();
+        return displayModeRegistry.get();
+    }
+
+    @ApiStatus.Internal
+    public static void setDisplayModeRegistry(final Supplier<IForgeRegistry<DisplayModeSpec>> displayModeRegistry) {
+        API.displayModeRegistry = displayModeRegistry;
+    }
+
     @SuppressWarnings("all")
     public static Collection<ComponentType<?>> getComponentTypes() {
         assertInitialized();
@@ -209,5 +225,10 @@ public class API {
     public static Collection<GradientFunction> getGradientFunctions() {
         assertInitialized();
         return gradientFunctionRegistry.get().getValues();
+    }
+
+    public static Collection<DisplayModeSpec> getDisplayModes() {
+        assertInitialized();
+        return displayModeRegistry.get().getValues();
     }
 }
