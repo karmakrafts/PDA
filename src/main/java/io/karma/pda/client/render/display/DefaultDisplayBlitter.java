@@ -38,6 +38,90 @@ public final class DefaultDisplayBlitter implements DisplayBlitter {
     private final RenderType renderType;
     private ShaderInstanceAdaptor shader;
 
+    //private static RenderType createBlitRenderType(final String name, final Supplier<ShaderInstance> shaderSupplier) {
+    //    // @formatter:off
+    //    return RenderType.create(String.format("%s:display_blit_%s", Constants.MODID, name),
+    //        DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 6, false, false,
+    //        RenderType.CompositeState.builder()
+    //            .setCullState(RenderStateShard.CULL)
+    //            .setTextureState(new RenderStateShard.EmptyTextureStateShard(
+    //                () -> {
+    //                    RenderSystem.setShaderTexture(0, INSTANCE.getFramebuffer(DisplayResolution.HD_512_576).getTextureId());
+    //                    RenderSystem.setShaderTexture(1, PIXEL_TEXTURE);
+    //                },
+    //                () -> {
+    //                    RenderSystem.setShaderTexture(0, 0);
+    //                    RenderSystem.setShaderTexture(1, 0);
+    //                }
+    //            ))
+    //            .setShaderState(new RenderStateShard.ShaderStateShard(shaderSupplier))
+    //            .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+    //            .createCompositeState(false));
+    //    // @formatter:on
+    //}
+
+    //@SuppressWarnings("all")
+    //private static ShaderInstance getBlitBWShader() {
+    //    BLIT_BW_SHADER.getUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
+    //    BLIT_BW_SHADER.getUniform("GlitchFactor").set(INSTANCE.glitchFactor);
+    //    return BLIT_BW_SHADER;
+    //}
+
+    //@SuppressWarnings("all")
+    //private static ShaderInstance getBlitSRGBShader() {
+    //    BLIT_SRGB_SHADER.getUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
+    //    BLIT_SRGB_SHADER.getUniform("GlitchFactor").set(INSTANCE.glitchFactor);
+    //    return BLIT_SRGB_SHADER;
+    //}
+
+    //@SuppressWarnings("all")
+    //private static ShaderInstance getBlitOLEDShader() {
+    //    BLIT_OLED_SHADER.getUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
+    //    BLIT_OLED_SHADER.getUniform("GlitchFactor").set(INSTANCE.glitchFactor);
+    //    return BLIT_OLED_SHADER;
+    //}
+
+    //private static RenderType getBlitRenderType(final DisplayType type) {
+    //    return switch (type) {
+    //        case SRGB_LCD -> BLIT_SRGB_RENDER_TYPE;
+    //        case OLED -> BLIT_OLED_RENDER_TYPE;
+    //        default -> BLIT_BW_RENDER_TYPE;
+    //    };
+    //}
+
+    //private void onRegisterShaders(final RegisterShadersEvent event) {
+    //    try {
+    //        PDAMod.LOGGER.debug("Loading display renderer shaders");
+    //        event.registerShader(new ShaderInstance(event.getResourceProvider(),
+    //            new ResourceLocation(Constants.MODID, "display_blit_bw"),
+    //            DefaultVertexFormat.POSITION_TEX_COLOR), shader -> {
+    //            BLIT_BW_SHADER = shader;
+    //        });
+    //        event.registerShader(new ShaderInstance(event.getResourceProvider(),
+    //            new ResourceLocation(Constants.MODID, "display_blit_srgb"),
+    //            DefaultVertexFormat.POSITION_TEX_COLOR), shader -> {
+    //            BLIT_SRGB_SHADER = shader;
+    //        });
+    //        event.registerShader(new ShaderInstance(event.getResourceProvider(),
+    //            new ResourceLocation(Constants.MODID, "display_blit_oled"),
+    //            DefaultVertexFormat.POSITION_TEX_COLOR), shader -> {
+    //            BLIT_OLED_SHADER = shader;
+    //        });
+    //    }
+    //    catch (Throwable error) {
+    //        PDAMod.LOGGER.error("Could not register shader: {}", Exceptions.toFancyString(error));
+    //    }
+    //}
+
+    //private static ShaderInstance BLIT_BW_SHADER;
+    //private static final RenderType BLIT_BW_RENDER_TYPE = createBlitRenderType("bw", DisplayRenderer::getBlitBWShader);
+    //private static ShaderInstance BLIT_SRGB_SHADER;
+    //private static final RenderType BLIT_SRGB_RENDER_TYPE = createBlitRenderType("srgb",
+    //    DisplayRenderer::getBlitSRGBShader);
+    //private static ShaderInstance BLIT_OLED_SHADER;
+    //private static final RenderType BLIT_OLED_RENDER_TYPE = createBlitRenderType("oled",
+    //    DisplayRenderer::getBlitOLEDShader);
+
     DefaultDisplayBlitter(final DisplayMode mode) {
         this.mode = mode;
         // @formatter:off

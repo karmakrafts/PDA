@@ -4,9 +4,13 @@
 
 package io.karma.pda.api.client.render.display;
 
+import io.karma.pda.api.common.display.DisplayModeSpec;
+import io.karma.pda.api.common.display.DisplayResolution;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import java.util.Optional;
 
 /**
  * @author Alexander Hinze
@@ -16,5 +20,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public interface DisplayRenderer {
     float getGlitchFactor();
 
-    DisplayMode getDisplayMode(final ItemStack stack);
+    DisplayMode getDisplayMode(final DisplayModeSpec modeSpec);
+
+    Optional<DisplayMode> getDisplayMode(final ItemStack stack);
+
+    Framebuffer getFramebuffer(final DisplayResolution resolution);
 }

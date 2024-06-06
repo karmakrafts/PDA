@@ -44,7 +44,6 @@ public final class ClientEventHandler {
 
     private float frameTime;
     private int clientTick;
-    private boolean isDebugModeEnabled;
 
     // @formatter:off
     private ClientEventHandler() {}
@@ -64,6 +63,7 @@ public final class ClientEventHandler {
     @ApiStatus.Internal
     public void fireRegisterEvents() {
         // Components
+        PDAMod.LOGGER.info("Registering component renderers");
         ComponentRenderers.register(DefaultComponents.CONTAINER, new ContainerRenderer());
         ComponentRenderers.register(DefaultComponents.TEXT, new TextRenderer());
         ComponentRenderers.register(DefaultComponents.BUTTON, new ButtonRenderer());
@@ -77,6 +77,7 @@ public final class ClientEventHandler {
         ComponentRenderers.register(DefaultComponents.SPINNER, new SpinnerRenderer());
         ComponentRenderers.register(DefaultComponents.BOX, new BoxRenderer());
         // Apps
+        PDAMod.LOGGER.info("Registering app renderers");
         AppRenderers.register(DefaultApps.LAUNCHER, new DefaultAppRenderer<>());
         AppRenderers.register(DefaultApps.SETTINGS, new DefaultAppRenderer<>());
 

@@ -16,6 +16,7 @@ import io.karma.pda.api.common.app.theme.font.FontVariant;
 import io.karma.pda.api.common.display.DisplayModeSpec;
 import io.karma.pda.api.common.util.Constants;
 import io.karma.pda.api.common.util.Exceptions;
+import io.karma.pda.client.render.display.DefaultDisplayRenderer;
 import io.karma.pda.client.render.graphics.font.DefaultFontRenderer;
 import io.karma.pda.common.init.ModBlocks;
 import io.karma.pda.common.init.ModItems;
@@ -168,7 +169,7 @@ public final class CommonEventHandler {
         // Preload fonts on client when baking font family registry
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             Minecraft.getInstance().execute(() -> {
-                PDAMod.LOGGER.debug("Pre-generating font atlases for all registered families");
+                PDAMod.LOGGER.info("Pre-generating font atlases for all registered families");
                 // @formatter:off
                 registry.getValues().stream()
                     .flatMap(family -> Arrays.stream(FontStyle.values())
@@ -182,7 +183,10 @@ public final class CommonEventHandler {
     private void onBakeDisplayModes(final IForgeRegistryInternal<DisplayModeSpec> registry,
                                     final RegistryManager manager) {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-
+            Minecraft.getInstance().execute(() -> {
+                PDAMod.LOGGER.info("Creating display modes");
+                DefaultDisplayRenderer.INSTANCE.createDisplayModes(registry.getValues());
+            });
         });
     }
 

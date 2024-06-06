@@ -41,12 +41,6 @@ public final class DefaultDisplayMode implements DisplayMode {
         blitter = new DefaultDisplayBlitter(this);
     }
 
-    public void prepare() {
-        framebuffer.bind();
-        framebuffer.clear(0F, 0F, 0F, 1F);
-        framebuffer.unbind();
-    }
-
     private void setup() {
         framebuffer.bind();
 
