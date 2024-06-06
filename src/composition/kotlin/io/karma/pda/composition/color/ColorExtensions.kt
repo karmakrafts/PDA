@@ -8,7 +8,8 @@
 package io.karma.pda.composition.color
 
 import io.karma.pda.api.color.Color
-import io.karma.pda.composition.ColorRange
+import io.karma.pda.api.color.Gradient
+import io.karma.pda.api.color.GradientFunction
 
 /**
  * @author Alexander Hinze
@@ -28,6 +29,10 @@ inline val UInt.rgba: Color
     get() = Color.unpackRGBA(toInt())
 inline val UInt.argb: Color
     get() = Color.unpackARGB(toInt())
+
+typealias ColorRange = Pair<Color, Color>
+
+fun ColorRange.gradient(function: GradientFunction): Gradient = Gradient(first, second, function)
 
 operator fun Color.rangeTo(other: Color): ColorRange = ColorRange(this, other)
 operator fun Color.rangeUntil(other: Color): ColorRange = ColorRange(other, this)
