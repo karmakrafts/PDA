@@ -4,6 +4,7 @@
 
 package io.karma.pda.client.render.graphics.font;
 
+import io.karma.pda.PDAMod;
 import io.karma.pda.api.app.theme.font.Font;
 import io.karma.pda.api.app.theme.font.FontVariant;
 import io.karma.pda.api.client.render.graphics.FontAtlas;
@@ -12,7 +13,6 @@ import io.karma.pda.api.util.Exceptions;
 import io.karma.pda.client.util.FreeTypeUtils;
 import io.karma.pda.client.util.MSDFUtils;
 import io.karma.pda.client.util.TextureUtils;
-import io.karma.pda.common.PDAMod;
 import it.unimi.dsi.fastutil.chars.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;

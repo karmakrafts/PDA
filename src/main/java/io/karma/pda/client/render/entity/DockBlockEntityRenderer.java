@@ -5,10 +5,10 @@
 package io.karma.pda.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.karma.pda.block.DockBlock;
 import io.karma.pda.client.render.display.DefaultDisplayRenderer;
-import io.karma.pda.common.block.DockBlock;
-import io.karma.pda.common.entity.DockBlockEntity;
-import io.karma.pda.common.init.ModBlocks;
+import io.karma.pda.entity.DockBlockEntity;
+import io.karma.pda.init.ModBlocks;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;

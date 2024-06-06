@@ -9,6 +9,6 @@
     "maxShiftBy": 100
   },
   "mixins": [
-    "ClipContextMixin"
+    "io.karma.pda.mixin.ClipContextMixin"
   ]
 }

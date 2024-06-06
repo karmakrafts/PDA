@@ -5,7 +5,7 @@
 package io.karma.pda.client.screen;
 
 import io.karma.pda.client.util.ScreenUtils;
-import io.karma.pda.common.menu.BasicSlot;
+import io.karma.pda.menu.BasicSlot;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;

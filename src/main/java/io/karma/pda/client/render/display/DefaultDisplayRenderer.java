@@ -6,6 +6,7 @@ package io.karma.pda.client.render.display;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.karma.pda.PDAMod;
 import io.karma.pda.api.app.App;
 import io.karma.pda.api.app.AppType;
 import io.karma.pda.api.client.render.app.AppRenderers;
@@ -17,8 +18,7 @@ import io.karma.pda.api.display.DisplayResolution;
 import io.karma.pda.client.render.graphics.DefaultGraphics;
 import io.karma.pda.client.render.graphics.DefaultGraphicsContext;
 import io.karma.pda.client.session.ClientSessionHandler;
-import io.karma.pda.common.PDAMod;
-import io.karma.pda.common.item.PDAItem;
+import io.karma.pda.item.PDAItem;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.item.ItemStack;

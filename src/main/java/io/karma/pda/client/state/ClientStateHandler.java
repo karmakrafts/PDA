@@ -6,13 +6,13 @@ package io.karma.pda.client.state;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import io.karma.pda.PDAMod;
 import io.karma.pda.api.session.Session;
 import io.karma.pda.api.state.MutableState;
 import io.karma.pda.api.state.State;
 import io.karma.pda.api.util.LogMarkers;
-import io.karma.pda.common.PDAMod;
-import io.karma.pda.common.network.sb.SPacketSyncValues;
-import io.karma.pda.common.state.DefaultStateHandler;
+import io.karma.pda.network.sb.SPacketSyncValues;
+import io.karma.pda.state.DefaultStateHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

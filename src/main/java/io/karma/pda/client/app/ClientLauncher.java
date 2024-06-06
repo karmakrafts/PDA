@@ -4,18 +4,18 @@
 
 package io.karma.pda.client.app;
 
+import io.karma.pda.PDAMod;
 import io.karma.pda.api.app.App;
 import io.karma.pda.api.app.AppType;
 import io.karma.pda.api.app.component.Component;
 import io.karma.pda.api.app.component.Container;
 import io.karma.pda.api.session.Session;
 import io.karma.pda.api.util.LogMarkers;
-import io.karma.pda.common.PDAMod;
-import io.karma.pda.common.app.DefaultLauncher;
-import io.karma.pda.common.network.sb.SPacketCloseApp;
-import io.karma.pda.common.network.sb.SPacketOpenApp;
-import io.karma.pda.common.util.BlockingHashMap;
-import io.karma.pda.common.util.TreeGraph;
+import io.karma.pda.app.DefaultLauncher;
+import io.karma.pda.network.sb.SPacketCloseApp;
+import io.karma.pda.network.sb.SPacketOpenApp;
+import io.karma.pda.util.BlockingHashMap;
+import io.karma.pda.util.TreeGraph;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;

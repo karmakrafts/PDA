@@ -2,7 +2,7 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-import io.karma.pda.common.util.BlockingHashMap;
+import io.karma.pda.util.BlockingHashMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;

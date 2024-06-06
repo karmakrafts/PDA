@@ -4,8 +4,8 @@
 
 package io.karma.pda.client.util;
 
+import io.karma.pda.PDAMod;
 import io.karma.pda.api.util.Exceptions;
-import io.karma.pda.common.PDAMod;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

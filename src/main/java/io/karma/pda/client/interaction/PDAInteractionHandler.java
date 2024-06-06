@@ -6,9 +6,9 @@ package io.karma.pda.client.interaction;
 
 import io.karma.pda.client.screen.PDAScreen;
 import io.karma.pda.client.session.ClientSessionHandler;
-import io.karma.pda.common.item.PDAItem;
-import io.karma.pda.common.util.Easings;
-import io.karma.pda.common.util.PlayerUtils;
+import io.karma.pda.item.PDAItem;
+import io.karma.pda.util.Easings;
+import io.karma.pda.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;

@@ -4,16 +4,16 @@
 
 package io.karma.pda.client.session;
 
+import io.karma.pda.PDAMod;
 import io.karma.pda.api.session.MuxedSession;
 import io.karma.pda.api.session.SelectiveSessionContext;
 import io.karma.pda.api.session.Session;
 import io.karma.pda.api.session.SessionContext;
 import io.karma.pda.api.util.LogMarkers;
-import io.karma.pda.common.PDAMod;
-import io.karma.pda.common.network.sb.SPacketCreateSession;
-import io.karma.pda.common.network.sb.SPacketTerminateSession;
-import io.karma.pda.common.session.AbstractSessionHandler;
-import io.karma.pda.common.util.BlockingHashMap;
+import io.karma.pda.network.sb.SPacketCreateSession;
+import io.karma.pda.network.sb.SPacketTerminateSession;
+import io.karma.pda.session.AbstractSessionHandler;
+import io.karma.pda.util.BlockingHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

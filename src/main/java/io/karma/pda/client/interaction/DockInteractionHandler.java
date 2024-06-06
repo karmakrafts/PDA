@@ -5,13 +5,13 @@
 package io.karma.pda.client.interaction;
 
 import com.mojang.blaze3d.vertex.Tesselator;
+import io.karma.pda.block.DockBlock;
 import io.karma.pda.client.screen.DockScreen;
 import io.karma.pda.client.session.ClientSessionHandler;
-import io.karma.pda.common.block.DockBlock;
-import io.karma.pda.common.hook.MutableClipContext;
-import io.karma.pda.common.util.BezierCurve;
-import io.karma.pda.common.util.Easings;
-import io.karma.pda.common.util.PlayerUtils;
+import io.karma.pda.hook.MutableClipContext;
+import io.karma.pda.util.BezierCurve;
+import io.karma.pda.util.Easings;
+import io.karma.pda.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;

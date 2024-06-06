@@ -4,12 +4,12 @@
 
 package io.karma.pda.client.render.item;
 
+import io.karma.pda.CommonEventHandler;
 import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.client.event.ItemRenderEvent;
 import io.karma.pda.client.interaction.PDAInteractionHandler;
 import io.karma.pda.client.render.display.DefaultDisplayRenderer;
-import io.karma.pda.common.CommonEventHandler;
-import io.karma.pda.common.init.ModItems;
+import io.karma.pda.init.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.InteractionHand;

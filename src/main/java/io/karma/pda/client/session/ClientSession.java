@@ -4,6 +4,7 @@
 
 package io.karma.pda.client.session;
 
+import io.karma.pda.PDAMod;
 import io.karma.pda.api.app.App;
 import io.karma.pda.api.app.AppType;
 import io.karma.pda.api.client.render.app.AppRenderers;
@@ -11,8 +12,7 @@ import io.karma.pda.api.session.SessionContext;
 import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.client.app.ClientLauncher;
 import io.karma.pda.client.state.ClientStateHandler;
-import io.karma.pda.common.PDAMod;
-import io.karma.pda.common.session.DefaultSession;
+import io.karma.pda.session.DefaultSession;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

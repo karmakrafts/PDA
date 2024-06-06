@@ -4,8 +4,8 @@
 
 package io.karma.pda.client.util;
 
+import io.karma.pda.PDAMod;
 import io.karma.pda.client.render.graphics.font.MSDFException;
-import io.karma.pda.common.PDAMod;
 import net.minecraft.util.Mth;
 import org.joml.Vector2d;
 import org.lwjgl.system.Checks;

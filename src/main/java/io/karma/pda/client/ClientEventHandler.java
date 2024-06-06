@@ -4,6 +4,7 @@
 
 package io.karma.pda.client;
 
+import io.karma.pda.PDAMod;
 import io.karma.pda.api.app.App;
 import io.karma.pda.api.app.AppType;
 import io.karma.pda.api.app.DefaultApps;
@@ -18,10 +19,9 @@ import io.karma.pda.api.client.render.component.ComponentRenderers;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.client.render.app.DefaultAppRenderer;
 import io.karma.pda.client.render.entity.DockBlockEntityRenderer;
-import io.karma.pda.common.PDAMod;
-import io.karma.pda.common.init.ModBlockEntities;
 import io.karma.pda.foundation.client.render.component.*;
 import io.karma.pda.foundation.component.DefaultComponents;
+import io.karma.pda.init.ModBlockEntities;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

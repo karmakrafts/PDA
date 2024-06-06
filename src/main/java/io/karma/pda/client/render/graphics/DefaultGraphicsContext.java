@@ -5,13 +5,13 @@
 package io.karma.pda.client.render.graphics;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.karma.pda.PDAMod;
 import io.karma.pda.api.client.render.display.DisplayMode;
 import io.karma.pda.api.client.render.graphics.BrushFactory;
 import io.karma.pda.api.client.render.graphics.FontRenderer;
 import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.client.render.graphics.GraphicsContext;
 import io.karma.pda.client.render.graphics.font.DefaultFontRenderer;
-import io.karma.pda.common.PDAMod;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

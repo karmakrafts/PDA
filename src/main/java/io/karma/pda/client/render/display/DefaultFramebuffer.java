@@ -4,11 +4,11 @@
 
 package io.karma.pda.client.render.display;
 
+import io.karma.pda.PDAMod;
 import io.karma.pda.api.client.render.display.Framebuffer;
 import io.karma.pda.api.display.DisplayResolution;
 import io.karma.pda.api.dispose.Disposable;
 import io.karma.pda.client.util.TextureUtils;
-import io.karma.pda.common.PDAMod;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;

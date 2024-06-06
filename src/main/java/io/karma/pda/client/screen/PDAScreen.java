@@ -7,7 +7,7 @@ package io.karma.pda.client.screen;
 import io.karma.pda.api.client.ClientAPI;
 import io.karma.pda.api.session.Session;
 import io.karma.pda.client.interaction.PDAInteractionHandler;
-import io.karma.pda.common.item.PDAItem;
+import io.karma.pda.item.PDAItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;

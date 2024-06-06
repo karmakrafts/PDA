@@ -4,8 +4,8 @@
 
 package io.karma.pda.client.render.shader;
 
+import io.karma.pda.PDAMod;
 import io.karma.pda.api.util.Exceptions;
-import io.karma.pda.common.PDAMod;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import net.minecraftforge.api.distmarker.Dist;
