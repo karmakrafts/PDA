@@ -6,7 +6,7 @@ package io.karma.pda.app
 
 import io.karma.pda.api.app.AppType
 import io.karma.pda.composition.Composable
-import io.karma.pda.composition.ComposableApp
+import io.karma.pda.composition.app.ComposableApp
 
 /**
  * @author Alexander Hinze

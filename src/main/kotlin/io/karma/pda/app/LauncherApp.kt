@@ -14,6 +14,7 @@ import io.karma.pda.api.state.MutableState
 import io.karma.pda.api.state.Persistent
 import io.karma.pda.api.state.Synchronize
 import io.karma.pda.composition.*
+import io.karma.pda.composition.app.ComposableApp
 import io.karma.pda.composition.color.gradient
 import io.karma.pda.composition.color.rangeTo
 import io.karma.pda.composition.color.rgb
