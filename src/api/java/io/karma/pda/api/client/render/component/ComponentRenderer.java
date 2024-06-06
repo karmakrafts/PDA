@@ -4,8 +4,8 @@
 
 package io.karma.pda.api.client.render.component;
 
-import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.app.component.Component;
+import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.flex.FlexNode;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

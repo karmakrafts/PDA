@@ -4,9 +4,9 @@
 
 package io.karma.pda.api.client.event;
 
-import io.karma.pda.api.client.render.component.ComponentRenderer;
 import io.karma.pda.api.app.component.Component;
 import io.karma.pda.api.app.component.ComponentType;
+import io.karma.pda.api.client.render.component.ComponentRenderer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.Event;

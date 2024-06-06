@@ -32,8 +32,6 @@ import java.util.function.Function;
 @OnlyIn(Dist.CLIENT)
 public final class ComponentRenderTypes {
     public static final ComponentRenderTypes INSTANCE = new ComponentRenderTypes();
-    private ShaderInstance spinnerShader;
-
     // @formatter:off
     public static final Function<DisplayMode, RenderType> SPINNER = Util.memoize(displayMode ->
         RenderType.create(String.format("pda_display_spinner__%s", displayMode),
@@ -46,6 +44,7 @@ public final class ComponentRenderTypes {
                 .setLayeringState(RenderStateShard.POLYGON_OFFSET_LAYERING)
                 .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
                 .createCompositeState(false)));
+    private ShaderInstance spinnerShader;
 
     private ComponentRenderTypes() {}
     // @formatter:on
