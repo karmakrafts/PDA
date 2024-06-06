@@ -2,11 +2,11 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.common.state
+package io.karma.pda.state
 
-import io.karma.pda.api.common.app.compose.Composable
 import io.karma.pda.api.state.*
 import io.karma.pda.common.PDAMod
+import io.karma.pda.composition.Composable
 import kotlin.reflect.KProperty
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.declaredMemberProperties

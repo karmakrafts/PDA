@@ -2,18 +2,18 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.common.app
+package io.karma.pda.app
 
 import io.karma.pda.api.app.AppType
 import io.karma.pda.api.app.theme.font.DefaultFontFamilies
 import io.karma.pda.api.app.theme.font.FontStyle
 import io.karma.pda.api.color.Color
 import io.karma.pda.api.color.GradientType
-import io.karma.pda.api.common.app.compose.*
 import io.karma.pda.api.flex.FlexDirection
 import io.karma.pda.api.state.MutableState
 import io.karma.pda.api.state.Persistent
 import io.karma.pda.api.state.Synchronize
+import io.karma.pda.composition.*
 import io.karma.pda.foundation.component.Spacer
 import io.karma.pda.foundation.component.Spinner
 

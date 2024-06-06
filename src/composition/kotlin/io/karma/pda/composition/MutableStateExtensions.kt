@@ -5,7 +5,7 @@
 @file:JvmName("ExtensionsKt")
 @file:JvmMultifileClass
 
-package io.karma.pda.api.common.app.compose
+package io.karma.pda.composition
 
 import io.karma.pda.api.color.Color
 import io.karma.pda.api.state.MutableState

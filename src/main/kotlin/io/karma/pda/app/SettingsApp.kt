@@ -2,11 +2,11 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.common.app
+package io.karma.pda.app
 
 import io.karma.pda.api.app.AppType
-import io.karma.pda.api.common.app.compose.Composable
-import io.karma.pda.api.common.app.compose.ComposableApp
+import io.karma.pda.composition.Composable
+import io.karma.pda.composition.ComposableApp
 
 /**
  * @author Alexander Hinze

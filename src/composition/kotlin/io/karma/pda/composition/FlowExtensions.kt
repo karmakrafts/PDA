@@ -6,7 +6,7 @@
 @file:JvmMultifileClass
 @file:OptIn(ExperimentalCoroutinesApi::class)
 
-package io.karma.pda.api.common.app.compose
+package io.karma.pda.composition
 
 import io.karma.pda.api.state.State
 import kotlinx.coroutines.ExperimentalCoroutinesApi

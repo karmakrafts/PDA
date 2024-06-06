@@ -80,10 +80,10 @@ sourceSets {
         kotlin { srcDirs = ['src/foundation/java', 'src/foundation/kotlin'] }
         resources { srcDirs = ['src/foundation/resources'] }
     }
-    dsl {
-        java { srcDirs = ['src/dsl/java', 'src/dsl/kotlin'] }
-        kotlin { srcDirs = ['src/dsl/java', 'src/dsl/kotlin'] }
-        resources { srcDirs = ['src/dsl/resources'] }
+    composition {
+        java { srcDirs = ['src/composition/java', 'src/composition/kotlin'] }
+        kotlin { srcDirs = ['src/composition/java', 'src/composition/kotlin'] }
+        resources { srcDirs = ['src/composition/resources'] }
     }
     main {
         java { srcDirs = ['src/main/java', 'src/main/kotlin'] }
@@ -106,7 +106,7 @@ configurations {
     apiImplementation.extendsFrom coreLibrary
 
     foundationImplementation.extendsFrom apiImplementation
-    dslImplementation.extendsFrom apiImplementation
+    compositionImplementation.extendsFrom apiImplementation
 }
 
 minecraft.runs.all {
@@ -175,9 +175,10 @@ dependencies {
     foundationImplementation sourceSets.api.output
     implementation sourceSets.foundation.output
 
-    dslImplementation sourceSets.api.output
-    dslImplementation sourceSets.foundation.output
-    implementation sourceSets.dsl.output
+    compositionImplementation group: 'thedarkcolour', name: 'kotlinforforge', version: kff_version
+    compositionImplementation sourceSets.api.output
+    compositionImplementation sourceSets.foundation.output
+    implementation sourceSets.composition.output
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit_version
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junit_version

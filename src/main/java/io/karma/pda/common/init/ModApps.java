@@ -8,8 +8,8 @@ import io.karma.pda.api.app.App;
 import io.karma.pda.api.app.AppType;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.common.PDAMod;
-import io.karma.pda.common.app.LauncherApp;
-import io.karma.pda.common.app.SettingsApp;
+import io.karma.pda.app.LauncherApp;
+import io.karma.pda.app.SettingsApp;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Function;
