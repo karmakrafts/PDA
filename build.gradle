@@ -217,7 +217,6 @@ shadowJar {
         include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-core')
         include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations')
         include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-databind')
-        include dependency(group: 'io.karma.sliced', name: 'sliced')
         include dependency(group: 'io.karma.material', name: 'material-color-utils')
         include dependency(group: 'org.lz4', name: 'lz4-java')
         include dependency(group: 'org.lwjgl', name: 'lwjgl-yoga')
@@ -242,7 +241,6 @@ task apiJar(type: ShadowJar) {
         include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-core')
         include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations')
         include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-databind')
-        include dependency(group: 'io.karma.sliced', name: 'sliced')
         include dependency(group: 'io.karma.material', name: 'material-color-utils')
         include dependency(group: 'org.jetbrains', name: 'annotations')
     }
@@ -286,7 +284,7 @@ task apiJavadocJar(type: Jar) {
     from dokkaHtml
 }
 
-if(docsDir != null) {
+if (docsDir != null) {
     task publishDocs(type: Copy) {
         dependsOn apiJavadocJar
         mustRunAfter apiJavadocJar
@@ -302,17 +300,17 @@ reobf {
 
 processResources {
     var replaceProperties = [
-            minecraft_version       : minecraft_version,
-            minecraft_version_range : minecraft_version_range,
-            forge_version           : forge_version,
-            forge_version_range     : forge_version_range,
-            loader_version_range    : loader_version_range,
-            mod_id                  : mod_id,
-            mod_name                : mod_name,
-            mod_license             : mod_license,
-            mod_version             : mod_version,
-            mod_authors             : mod_authors,
-            mod_description         : mod_description,
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            forge_version          : forge_version,
+            forge_version_range    : forge_version_range,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description,
     ]
     inputs.properties replaceProperties
     filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
