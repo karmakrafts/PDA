@@ -2,14 +2,15 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-@file:JvmName("ExtensionsKt")
+@file:JvmName("ComponentExtensionsKt")
 @file:JvmMultifileClass
 
-package io.karma.pda.composition
+package io.karma.pda.composition.component
 
 import io.karma.pda.api.app.component.Component
 import io.karma.pda.api.app.component.Container
 import io.karma.pda.api.util.Proxy
+import io.karma.pda.composition.ComposeDsl
 import java.util.*
 
 /**

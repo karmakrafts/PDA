@@ -2,10 +2,10 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-@file:JvmName("ExtensionsKt")
+@file:JvmName("FlexExtensionsKt")
 @file:JvmMultifileClass
 
-package io.karma.pda.composition
+package io.karma.pda.composition.flex
 
 import io.karma.pda.api.flex.FlexValue
 

@@ -5,9 +5,10 @@
 @file:JvmName("ExtensionsKt")
 @file:JvmMultifileClass
 
-package io.karma.pda.composition
+package io.karma.pda.composition.color
 
 import io.karma.pda.api.color.Color
+import io.karma.pda.composition.ColorRange
 
 /**
  * @author Alexander Hinze

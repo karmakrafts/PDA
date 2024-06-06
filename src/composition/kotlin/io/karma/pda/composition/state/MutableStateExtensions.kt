@@ -2,14 +2,15 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-@file:JvmName("ExtensionsKt")
+@file:JvmName("StateExtensionsKt")
 @file:JvmMultifileClass
 
-package io.karma.pda.composition
+package io.karma.pda.composition.state
 
 import io.karma.pda.api.color.Color
 import io.karma.pda.api.state.MutableState
 import io.karma.pda.api.state.State
+import io.karma.pda.composition.ComposeDsl
 import java.util.function.Supplier
 import kotlin.reflect.KProperty
 

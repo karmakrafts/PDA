@@ -14,6 +14,15 @@ import io.karma.pda.api.state.MutableState
 import io.karma.pda.api.state.Persistent
 import io.karma.pda.api.state.Synchronize
 import io.karma.pda.composition.*
+import io.karma.pda.composition.color.rangeTo
+import io.karma.pda.composition.color.rgb
+import io.karma.pda.composition.component.child
+import io.karma.pda.composition.flex.auto
+import io.karma.pda.composition.flex.percent
+import io.karma.pda.composition.flex.px
+import io.karma.pda.composition.state.mutableStateOf
+import io.karma.pda.composition.state.uses
+import io.karma.pda.composition.state.invoke
 import io.karma.pda.foundation.component.Spacer
 import io.karma.pda.foundation.component.Spinner
 
