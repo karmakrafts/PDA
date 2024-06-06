@@ -4,7 +4,7 @@
 
 package io.karma.pda.common.app
 
-import io.karma.pda.api.common.app.AppType
+import io.karma.pda.api.app.AppType
 import io.karma.pda.api.common.app.compose.Composable
 import io.karma.pda.api.common.app.compose.ComposableApp
 

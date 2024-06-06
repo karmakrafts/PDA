@@ -7,9 +7,9 @@
 
 package io.karma.pda.api.common.app.compose
 
-import io.karma.pda.api.common.color.Color
-import io.karma.pda.api.common.state.MutableState
-import io.karma.pda.api.common.state.State
+import io.karma.pda.api.color.Color
+import io.karma.pda.api.state.MutableState
+import io.karma.pda.api.state.State
 import java.util.function.Supplier
 import kotlin.reflect.KProperty
 

@@ -6,10 +6,10 @@ package io.karma.pda.client.state;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import io.karma.pda.api.common.session.Session;
-import io.karma.pda.api.common.state.MutableState;
-import io.karma.pda.api.common.state.State;
-import io.karma.pda.api.common.util.LogMarkers;
+import io.karma.pda.api.session.Session;
+import io.karma.pda.api.state.MutableState;
+import io.karma.pda.api.state.State;
+import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.network.sb.SPacketSyncValues;
 import io.karma.pda.common.state.DefaultStateHandler;

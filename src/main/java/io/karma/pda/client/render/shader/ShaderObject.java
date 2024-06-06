@@ -4,7 +4,7 @@
 
 package io.karma.pda.client.render.shader;
 
-import io.karma.pda.api.common.util.Exceptions;
+import io.karma.pda.api.util.Exceptions;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceProvider;

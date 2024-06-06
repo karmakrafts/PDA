@@ -4,7 +4,7 @@
 
 package io.karma.pda.client.screen;
 
-import io.karma.pda.api.common.util.Constants;
+import io.karma.pda.api.util.Constants;
 import io.karma.pda.client.util.ScreenUtils;
 import io.karma.pda.common.menu.PDAStorageMenu;
 import net.minecraft.client.gui.GuiGraphics;

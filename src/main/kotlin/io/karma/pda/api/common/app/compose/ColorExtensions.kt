@@ -7,7 +7,7 @@
 
 package io.karma.pda.api.common.app.compose
 
-import io.karma.pda.api.common.color.Color
+import io.karma.pda.api.color.Color
 
 /**
  * @author Alexander Hinze

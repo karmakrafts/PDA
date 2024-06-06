@@ -4,10 +4,10 @@
 
 package io.karma.pda.common.session;
 
-import io.karma.pda.api.common.app.Launcher;
-import io.karma.pda.api.common.session.Session;
-import io.karma.pda.api.common.session.SessionContext;
-import io.karma.pda.api.common.state.StateHandler;
+import io.karma.pda.api.app.Launcher;
+import io.karma.pda.api.session.Session;
+import io.karma.pda.api.session.SessionContext;
+import io.karma.pda.api.state.StateHandler;
 import io.karma.pda.common.app.DefaultLauncher;
 import io.karma.pda.common.state.DefaultStateHandler;
 

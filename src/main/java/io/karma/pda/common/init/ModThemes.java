@@ -4,10 +4,10 @@
 
 package io.karma.pda.common.init;
 
-import io.karma.pda.api.common.app.theme.DarkTheme;
-import io.karma.pda.api.common.app.theme.LightTheme;
-import io.karma.pda.api.common.app.theme.Theme;
-import io.karma.pda.api.common.util.Constants;
+import io.karma.pda.api.app.theme.DarkTheme;
+import io.karma.pda.api.app.theme.LightTheme;
+import io.karma.pda.api.app.theme.Theme;
+import io.karma.pda.api.util.Constants;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.resources.ResourceLocation;
 

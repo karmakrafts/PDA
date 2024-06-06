@@ -4,9 +4,12 @@
 
 package io.karma.pda.api.common.app.compose
 
-import io.karma.pda.api.common.app.component.*
-import io.karma.pda.api.common.flex.DefaultFlexNode
-import io.karma.pda.api.common.util.Proxy
+import io.karma.pda.api.app.component.Component
+import io.karma.pda.api.app.component.ComponentType
+import io.karma.pda.api.app.component.Container
+import io.karma.pda.api.flex.DefaultFlexNode
+import io.karma.pda.api.util.Proxy
+import io.karma.pda.foundation.component.*
 import java.util.*
 
 typealias LayoutProps = DefaultFlexNode.Builder.() -> Unit

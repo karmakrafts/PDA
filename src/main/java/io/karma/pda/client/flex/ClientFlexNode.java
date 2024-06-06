@@ -4,8 +4,8 @@
 
 package io.karma.pda.client.flex;
 
-import io.karma.pda.api.common.dispose.Disposable;
-import io.karma.pda.api.common.flex.*;
+import io.karma.pda.api.dispose.Disposable;
+import io.karma.pda.api.flex.*;
 import io.karma.pda.common.PDAMod;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

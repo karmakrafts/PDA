@@ -4,7 +4,7 @@
 
 package io.karma.pda.common.app.theme.font;
 
-import io.karma.pda.api.common.app.theme.font.*;
+import io.karma.pda.api.app.theme.font.*;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.resources.ResourceLocation;

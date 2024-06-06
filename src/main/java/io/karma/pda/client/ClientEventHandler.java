@@ -4,24 +4,24 @@
 
 package io.karma.pda.client;
 
+import io.karma.pda.api.app.App;
+import io.karma.pda.api.app.AppType;
+import io.karma.pda.api.app.DefaultApps;
+import io.karma.pda.api.app.component.Component;
+import io.karma.pda.api.app.component.ComponentType;
 import io.karma.pda.api.client.event.RegisterAppRenderersEvent;
 import io.karma.pda.api.client.event.RegisterComponentRenderersEvent;
 import io.karma.pda.api.client.render.app.AppRenderer;
 import io.karma.pda.api.client.render.app.AppRenderers;
 import io.karma.pda.api.client.render.component.ComponentRenderer;
 import io.karma.pda.api.client.render.component.ComponentRenderers;
-import io.karma.pda.api.common.app.App;
-import io.karma.pda.api.common.app.AppType;
-import io.karma.pda.api.common.app.DefaultApps;
-import io.karma.pda.api.common.app.component.Component;
-import io.karma.pda.api.common.app.component.ComponentType;
-import io.karma.pda.api.common.app.component.DefaultComponents;
-import io.karma.pda.api.common.util.Constants;
+import io.karma.pda.api.util.Constants;
 import io.karma.pda.client.render.app.DefaultAppRenderer;
-import io.karma.pda.client.render.component.*;
 import io.karma.pda.client.render.entity.DockBlockEntityRenderer;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.init.ModBlockEntities;
+import io.karma.pda.foundation.client.render.component.*;
+import io.karma.pda.foundation.component.DefaultComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

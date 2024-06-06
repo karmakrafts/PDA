@@ -8,7 +8,7 @@
 
 package io.karma.pda.api.common.app.compose
 
-import io.karma.pda.api.common.state.State
+import io.karma.pda.api.state.State
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest

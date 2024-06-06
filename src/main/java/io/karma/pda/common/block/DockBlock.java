@@ -4,8 +4,8 @@
 
 package io.karma.pda.common.block;
 
-import io.karma.pda.api.common.app.DefaultApps;
-import io.karma.pda.api.common.util.Constants;
+import io.karma.pda.api.app.DefaultApps;
+import io.karma.pda.api.util.Constants;
 import io.karma.pda.client.screen.DockScreen;
 import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.entity.DockBlockEntity;

@@ -4,11 +4,11 @@
 
 package io.karma.pda.common.state;
 
-import io.karma.pda.api.common.state.MutableState;
-import io.karma.pda.api.common.state.Persistent;
-import io.karma.pda.api.common.state.StateReflector;
-import io.karma.pda.api.common.state.Synchronize;
-import io.karma.pda.api.common.util.Exceptions;
+import io.karma.pda.api.state.MutableState;
+import io.karma.pda.api.state.Persistent;
+import io.karma.pda.api.state.StateReflector;
+import io.karma.pda.api.state.Synchronize;
+import io.karma.pda.api.util.Exceptions;
 import io.karma.pda.common.PDAMod;
 
 import javax.annotation.Nullable;

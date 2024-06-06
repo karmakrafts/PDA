@@ -7,7 +7,7 @@
 
 package io.karma.pda.api.common.app.compose
 
-import io.karma.pda.api.common.state.State
+import io.karma.pda.api.state.State
 
 /**
  * @author Alexander Hinze

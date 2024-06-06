@@ -4,9 +4,9 @@
 
 package io.karma.pda.common.init;
 
-import io.karma.pda.api.common.color.GradientFunction;
-import io.karma.pda.api.common.color.GradientType;
-import io.karma.pda.api.common.util.Constants;
+import io.karma.pda.api.color.GradientFunction;
+import io.karma.pda.api.color.GradientType;
+import io.karma.pda.api.util.Constants;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;

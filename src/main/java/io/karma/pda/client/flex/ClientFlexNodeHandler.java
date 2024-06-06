@@ -4,11 +4,11 @@
 
 package io.karma.pda.client.flex;
 
+import io.karma.pda.api.app.component.Component;
+import io.karma.pda.api.app.component.Container;
 import io.karma.pda.api.client.flex.FlexNodeHandler;
-import io.karma.pda.api.common.app.component.Component;
-import io.karma.pda.api.common.app.component.Container;
-import io.karma.pda.api.common.dispose.Disposable;
-import io.karma.pda.api.common.flex.FlexNode;
+import io.karma.pda.api.dispose.Disposable;
+import io.karma.pda.api.flex.FlexNode;
 import io.karma.pda.common.PDAMod;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

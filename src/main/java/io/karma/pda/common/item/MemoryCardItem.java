@@ -4,8 +4,8 @@
 
 package io.karma.pda.common.item;
 
-import io.karma.pda.api.common.util.Constants;
-import io.karma.pda.api.common.util.NBTUtils;
+import io.karma.pda.api.util.Constants;
+import io.karma.pda.api.util.NBTUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.network.chat.Component;

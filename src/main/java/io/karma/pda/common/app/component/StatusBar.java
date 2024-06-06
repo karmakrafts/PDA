@@ -4,8 +4,8 @@
 
 package io.karma.pda.common.app.component;
 
-import io.karma.pda.api.common.app.component.ComponentType;
-import io.karma.pda.api.common.app.component.DefaultContainer;
+import io.karma.pda.api.app.component.ComponentType;
+import io.karma.pda.foundation.component.DefaultContainer;
 
 import java.util.UUID;
 

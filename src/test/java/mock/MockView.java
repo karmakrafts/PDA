@@ -4,8 +4,8 @@
 
 package mock;
 
-import io.karma.pda.api.common.app.component.Container;
-import io.karma.pda.api.common.app.view.AppView;
+import io.karma.pda.api.app.component.Container;
+import io.karma.pda.api.app.view.AppView;
 
 /**
  * @author Alexander Hinze

@@ -4,10 +4,10 @@
 
 package io.karma.pda.client.render.graphics;
 
+import io.karma.pda.api.app.theme.font.Font;
 import io.karma.pda.api.client.render.graphics.Brush;
 import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.client.render.graphics.GraphicsState;
-import io.karma.pda.api.common.app.theme.font.Font;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 

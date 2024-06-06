@@ -3,10 +3,10 @@
  */
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.karma.pda.api.common.API;
-import io.karma.pda.api.common.app.component.AbstractComponent;
-import io.karma.pda.api.common.app.component.ComponentType;
-import io.karma.pda.api.common.app.component.DefaultContainer;
+import io.karma.pda.api.API;
+import io.karma.pda.api.app.component.AbstractComponent;
+import io.karma.pda.api.app.component.ComponentType;
+import io.karma.pda.foundation.component.DefaultContainer;
 import io.karma.pda.common.session.DefaultSessionHandler;
 import mock.MockForgeRegistry;
 import net.minecraft.resources.ResourceLocation;

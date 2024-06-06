@@ -4,9 +4,9 @@
 
 package io.karma.pda.common.network.sb;
 
-import io.karma.pda.api.common.state.MutableState;
-import io.karma.pda.api.common.state.State;
-import io.karma.pda.api.common.util.JSONUtils;
+import io.karma.pda.api.state.MutableState;
+import io.karma.pda.api.state.State;
+import io.karma.pda.api.util.JSONUtils;
 import io.karma.pda.common.util.PacketUtils;
 import net.minecraft.network.FriendlyByteBuf;
 

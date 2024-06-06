@@ -4,18 +4,18 @@
 
 package io.karma.pda.common.app
 
-import io.karma.pda.api.common.app.AppType
-import io.karma.pda.api.common.app.component.Spacer
-import io.karma.pda.api.common.app.component.Spinner
+import io.karma.pda.api.app.AppType
+import io.karma.pda.api.app.theme.font.DefaultFontFamilies
+import io.karma.pda.api.app.theme.font.FontStyle
+import io.karma.pda.api.color.Color
+import io.karma.pda.api.color.GradientType
 import io.karma.pda.api.common.app.compose.*
-import io.karma.pda.api.common.app.theme.font.DefaultFontFamilies
-import io.karma.pda.api.common.app.theme.font.FontStyle
-import io.karma.pda.api.common.color.Color
-import io.karma.pda.api.common.color.GradientType
-import io.karma.pda.api.common.flex.FlexDirection
-import io.karma.pda.api.common.state.MutableState
-import io.karma.pda.api.common.state.Persistent
-import io.karma.pda.api.common.state.Synchronize
+import io.karma.pda.api.flex.FlexDirection
+import io.karma.pda.api.state.MutableState
+import io.karma.pda.api.state.Persistent
+import io.karma.pda.api.state.Synchronize
+import io.karma.pda.foundation.component.Spacer
+import io.karma.pda.foundation.component.Spinner
 
 /**
  * @author Alexander Hinze

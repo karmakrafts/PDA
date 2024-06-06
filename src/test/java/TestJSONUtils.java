@@ -3,8 +3,8 @@
  */
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.karma.pda.api.common.API;
-import io.karma.pda.api.common.util.JSONUtils;
+import io.karma.pda.api.API;
+import io.karma.pda.api.util.JSONUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;

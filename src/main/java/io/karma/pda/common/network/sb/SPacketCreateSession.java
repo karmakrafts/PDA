@@ -4,8 +4,8 @@
 
 package io.karma.pda.common.network.sb;
 
-import io.karma.pda.api.common.session.SessionContext;
-import io.karma.pda.api.common.session.SessionType;
+import io.karma.pda.api.session.SessionContext;
+import io.karma.pda.api.session.SessionType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.InteractionHand;

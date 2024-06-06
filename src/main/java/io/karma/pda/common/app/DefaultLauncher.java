@@ -4,14 +4,14 @@
 
 package io.karma.pda.common.app;
 
-import io.karma.pda.api.common.app.App;
-import io.karma.pda.api.common.app.AppType;
-import io.karma.pda.api.common.app.Launcher;
-import io.karma.pda.api.common.app.component.Component;
-import io.karma.pda.api.common.app.component.Container;
-import io.karma.pda.api.common.session.Session;
-import io.karma.pda.api.common.util.Exceptions;
-import io.karma.pda.api.common.util.LogMarkers;
+import io.karma.pda.api.app.App;
+import io.karma.pda.api.app.AppType;
+import io.karma.pda.api.app.Launcher;
+import io.karma.pda.api.app.component.Component;
+import io.karma.pda.api.app.component.Container;
+import io.karma.pda.api.session.Session;
+import io.karma.pda.api.util.Exceptions;
+import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.common.PDAMod;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;

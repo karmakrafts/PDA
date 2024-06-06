@@ -4,7 +4,7 @@
 
 package io.karma.pda.common.app.theme.font;
 
-import io.karma.pda.api.common.app.theme.font.FontCharSet;
+import io.karma.pda.api.app.theme.font.FontCharSet;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
 
 /**

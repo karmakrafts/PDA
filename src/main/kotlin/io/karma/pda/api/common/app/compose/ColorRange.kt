@@ -4,9 +4,9 @@
 
 package io.karma.pda.api.common.app.compose
 
-import io.karma.pda.api.common.color.Color
-import io.karma.pda.api.common.color.Gradient
-import io.karma.pda.api.common.color.GradientFunction
+import io.karma.pda.api.color.Color
+import io.karma.pda.api.color.Gradient
+import io.karma.pda.api.color.GradientFunction
 
 /**
  * @author Alexander Hinze

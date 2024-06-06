@@ -8,8 +8,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import io.karma.pda.api.client.render.display.DisplayMode;
-import io.karma.pda.api.common.util.Constants;
-import io.karma.pda.client.ClientEventHandler;
+import io.karma.pda.api.util.Constants;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -43,17 +42,6 @@ public final class GraphicsRenderTypes {
                 .setLayeringState(RenderStateShard.POLYGON_OFFSET_LAYERING)
                 .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
                 .createCompositeState(false)));
-    public static final Function<DisplayMode, RenderType> SPINNER = Util.memoize(displayMode ->
-        RenderType.create(String.format("pda_display_spinner__%s", displayMode),
-            DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
-            RenderType.CompositeState.builder()
-                .setCullState(RenderStateShard.NO_CULL)
-                .setShaderState(new RenderStateShard.ShaderStateShard(() -> INSTANCE.getSpinnerShader(displayMode)))
-                .setOutputState(displayMode.getOutputState())
-                .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-                .setLayeringState(RenderStateShard.POLYGON_OFFSET_LAYERING)
-                .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
-                .createCompositeState(false)));
     private static final Function<ModeAndTextureKey, RenderType> COLOR_TEXTURE_TRIS = Util.memoize(key -> {
         final var texture = key.texture;
         final var displayMode = key.mode;
@@ -75,7 +63,6 @@ public final class GraphicsRenderTypes {
     });
     private ShaderInstance colorShader;
     private ShaderInstance colorTextureShader;
-    private ShaderInstance spinnerShader;
 
     private GraphicsRenderTypes() {}
     // @formatter:on
@@ -97,9 +84,6 @@ public final class GraphicsRenderTypes {
             event.registerShader(new ShaderInstance(event.getResourceProvider(),
                 new ResourceLocation(Constants.MODID, "display_color_tex"),
                 DefaultVertexFormat.POSITION_TEX_COLOR), shader -> colorTextureShader = shader);
-            event.registerShader(new ShaderInstance(event.getResourceProvider(),
-                new ResourceLocation(Constants.MODID, "display_spinner"),
-                DefaultVertexFormat.POSITION_TEX_COLOR), shader -> spinnerShader = shader);
         }
         catch (Throwable error) {
             PDAMod.LOGGER.error("Could not register default GFX render type shaders: {}", error.getMessage());
@@ -112,11 +96,6 @@ public final class GraphicsRenderTypes {
 
     public ShaderInstance getColorTextureShader(final DisplayMode displayMode) {
         return colorTextureShader;
-    }
-
-    public ShaderInstance getSpinnerShader(final DisplayMode displayMode) {
-        spinnerShader.safeGetUniform("Time").set(ClientEventHandler.INSTANCE.getShaderTime());
-        return spinnerShader;
     }
 
     private record ModeAndTextureKey(DisplayMode mode, ResourceLocation texture) {

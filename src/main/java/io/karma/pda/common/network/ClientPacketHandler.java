@@ -4,9 +4,9 @@
 
 package io.karma.pda.common.network;
 
-import io.karma.pda.api.common.API;
-import io.karma.pda.api.common.app.component.Component;
-import io.karma.pda.api.common.app.component.Container;
+import io.karma.pda.api.API;
+import io.karma.pda.api.app.component.Component;
+import io.karma.pda.api.app.component.Container;
 import io.karma.pda.client.app.ClientLauncher;
 import io.karma.pda.client.interaction.DockInteractionHandler;
 import io.karma.pda.client.interaction.PDAInteractionHandler;

@@ -4,7 +4,7 @@
 
 package io.karma.pda.common.inventory;
 
-import io.karma.pda.api.common.util.NBTUtils;
+import io.karma.pda.api.util.NBTUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;

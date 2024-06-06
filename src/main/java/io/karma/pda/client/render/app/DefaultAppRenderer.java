@@ -4,16 +4,16 @@
 
 package io.karma.pda.client.render.app;
 
+import io.karma.pda.api.app.App;
+import io.karma.pda.api.app.component.ComponentType;
+import io.karma.pda.api.app.component.Container;
+import io.karma.pda.api.app.theme.font.DefaultFontFamilies;
+import io.karma.pda.api.app.theme.font.FontStyle;
 import io.karma.pda.api.client.render.app.AppRenderer;
 import io.karma.pda.api.client.render.component.ComponentRenderers;
 import io.karma.pda.api.client.render.graphics.Graphics;
-import io.karma.pda.api.common.app.App;
-import io.karma.pda.api.common.app.component.ComponentType;
-import io.karma.pda.api.common.app.component.Container;
-import io.karma.pda.api.common.app.theme.font.DefaultFontFamilies;
-import io.karma.pda.api.common.app.theme.font.FontStyle;
-import io.karma.pda.api.common.color.Color;
-import io.karma.pda.api.common.flex.FlexValue;
+import io.karma.pda.api.color.Color;
+import io.karma.pda.api.flex.FlexValue;
 import io.karma.pda.client.flex.ClientFlexNodeHandler;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

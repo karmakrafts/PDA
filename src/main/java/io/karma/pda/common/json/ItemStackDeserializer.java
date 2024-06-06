@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.IntNode;
-import io.karma.pda.api.common.API;
+import io.karma.pda.api.API;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 

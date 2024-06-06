@@ -4,7 +4,7 @@
 
 package io.karma.pda.client.flex;
 
-import io.karma.pda.api.common.flex.*;
+import io.karma.pda.api.flex.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.util.yoga.YGValue;

@@ -4,10 +4,10 @@
 
 package io.karma.pda.common.session;
 
-import io.karma.pda.api.common.session.MuxedSession;
-import io.karma.pda.api.common.session.SelectiveSessionContext;
-import io.karma.pda.api.common.session.Session;
-import io.karma.pda.api.common.session.SessionContext;
+import io.karma.pda.api.session.MuxedSession;
+import io.karma.pda.api.session.SelectiveSessionContext;
+import io.karma.pda.api.session.Session;
+import io.karma.pda.api.session.SessionContext;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 

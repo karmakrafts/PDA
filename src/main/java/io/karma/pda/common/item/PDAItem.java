@@ -4,10 +4,10 @@
 
 package io.karma.pda.common.item;
 
-import io.karma.pda.api.common.API;
-import io.karma.pda.api.common.app.DefaultApps;
-import io.karma.pda.api.common.display.DisplayModeSpec;
-import io.karma.pda.api.common.util.Constants;
+import io.karma.pda.api.API;
+import io.karma.pda.api.app.DefaultApps;
+import io.karma.pda.api.display.DisplayModeSpec;
+import io.karma.pda.api.util.Constants;
 import io.karma.pda.client.screen.PDAScreen;
 import io.karma.pda.client.session.ClientSessionHandler;
 import io.karma.pda.common.init.ModItems;

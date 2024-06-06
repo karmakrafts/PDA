@@ -4,7 +4,7 @@
 
 package io.karma.pda.client.render.shader;
 
-import io.karma.pda.api.common.dispose.Disposable;
+import io.karma.pda.api.dispose.Disposable;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;

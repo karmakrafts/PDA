@@ -4,8 +4,8 @@
 
 package io.karma.pda.common.session;
 
-import io.karma.pda.api.common.session.SelectiveSessionContext;
-import io.karma.pda.api.common.session.SessionType;
+import io.karma.pda.api.session.SelectiveSessionContext;
+import io.karma.pda.api.session.SessionType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;

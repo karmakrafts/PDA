@@ -4,9 +4,9 @@
 
 package io.karma.pda.common.init;
 
-import io.karma.pda.api.common.display.DefaultDisplayResolution;
-import io.karma.pda.api.common.display.DefaultDisplayType;
-import io.karma.pda.api.common.display.DisplayModeSpec;
+import io.karma.pda.api.display.DefaultDisplayResolution;
+import io.karma.pda.api.display.DefaultDisplayType;
+import io.karma.pda.api.display.DisplayModeSpec;
 import io.karma.pda.common.PDAMod;
 import org.jetbrains.annotations.ApiStatus;
 

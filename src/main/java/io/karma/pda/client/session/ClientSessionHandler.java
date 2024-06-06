@@ -4,11 +4,11 @@
 
 package io.karma.pda.client.session;
 
-import io.karma.pda.api.common.session.MuxedSession;
-import io.karma.pda.api.common.session.SelectiveSessionContext;
-import io.karma.pda.api.common.session.Session;
-import io.karma.pda.api.common.session.SessionContext;
-import io.karma.pda.api.common.util.LogMarkers;
+import io.karma.pda.api.session.MuxedSession;
+import io.karma.pda.api.session.SelectiveSessionContext;
+import io.karma.pda.api.session.Session;
+import io.karma.pda.api.session.SessionContext;
+import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.network.sb.SPacketCreateSession;
 import io.karma.pda.common.network.sb.SPacketTerminateSession;

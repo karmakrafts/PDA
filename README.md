@@ -84,7 +84,6 @@ dependencies {
 ```java
 import io.karma.pda.api.common.state.*;
 import io.karma.pda.api.common.app.*;
-import io.karma.pda.api.common.app.component.*;
 
 public final class ExampleApp extends AbstractApp {
     @Persistent  // Means that the value will be saved/loaded from/to NBT

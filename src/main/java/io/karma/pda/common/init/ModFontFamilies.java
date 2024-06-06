@@ -4,8 +4,8 @@
 
 package io.karma.pda.common.init;
 
-import io.karma.pda.api.common.app.theme.font.FontFamily;
-import io.karma.pda.api.common.util.Constants;
+import io.karma.pda.api.app.theme.font.FontFamily;
+import io.karma.pda.api.util.Constants;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.app.theme.font.DefaultFontFamily;
 import net.minecraft.resources.ResourceLocation;

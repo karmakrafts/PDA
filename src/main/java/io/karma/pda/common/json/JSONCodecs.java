@@ -5,10 +5,10 @@
 package io.karma.pda.common.json;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import io.karma.pda.api.common.API;
-import io.karma.pda.api.common.app.theme.Theme;
-import io.karma.pda.api.common.color.GradientFunction;
-import io.karma.pda.api.common.util.Constants;
+import io.karma.pda.api.API;
+import io.karma.pda.api.app.theme.Theme;
+import io.karma.pda.api.color.GradientFunction;
+import io.karma.pda.api.util.Constants;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;

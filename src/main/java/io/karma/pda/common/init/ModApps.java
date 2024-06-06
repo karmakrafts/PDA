@@ -4,9 +4,9 @@
 
 package io.karma.pda.common.init;
 
-import io.karma.pda.api.common.app.App;
-import io.karma.pda.api.common.app.AppType;
-import io.karma.pda.api.common.util.Constants;
+import io.karma.pda.api.app.App;
+import io.karma.pda.api.app.AppType;
+import io.karma.pda.api.util.Constants;
 import io.karma.pda.common.PDAMod;
 import io.karma.pda.common.app.LauncherApp;
 import io.karma.pda.common.app.SettingsApp;

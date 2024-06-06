@@ -4,10 +4,10 @@
 
 package io.karma.pda.api.common.app.compose
 
-import io.karma.pda.api.common.app.AbstractApp
-import io.karma.pda.api.common.app.AppType
-import io.karma.pda.api.common.app.component.DefaultContainer
-import io.karma.pda.api.common.app.view.DefaultContainerView
+import io.karma.pda.api.app.AbstractApp
+import io.karma.pda.api.app.AppType
+import io.karma.pda.foundation.component.DefaultContainer
+import io.karma.pda.foundation.view.DefaultContainerView
 
 /**
  * @author Alexander Hinze

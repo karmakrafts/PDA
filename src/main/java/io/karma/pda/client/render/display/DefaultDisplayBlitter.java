@@ -10,7 +10,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import io.karma.pda.api.client.render.display.DisplayBlitter;
 import io.karma.pda.api.client.render.display.DisplayMode;
-import io.karma.pda.api.common.util.Constants;
+import io.karma.pda.api.util.Constants;
 import io.karma.pda.client.render.shader.ShaderInstanceAdaptor;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;

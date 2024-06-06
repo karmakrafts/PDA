@@ -4,7 +4,7 @@
 
 package io.karma.pda.client.screen;
 
-import io.karma.pda.api.common.session.Session;
+import io.karma.pda.api.session.Session;
 import io.karma.pda.client.interaction.DockInteractionHandler;
 import io.karma.pda.client.session.ClientSessionHandler;
 import net.minecraft.client.Minecraft;

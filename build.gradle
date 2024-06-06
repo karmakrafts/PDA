@@ -70,6 +70,21 @@ minecraft {
 // Run this task to launch both clients at the same time
 
 sourceSets {
+    api {
+        java { srcDirs = ['src/api/java', 'src/api/kotlin'] }
+        kotlin { srcDirs = ['src/api/java', 'src/api/kotlin'] }
+        resources { srcDirs = ['src/api/resources'] }
+    }
+    foundation {
+        java { srcDirs = ['src/foundation/java', 'src/foundation/kotlin'] }
+        kotlin { srcDirs = ['src/foundation/java', 'src/foundation/kotlin'] }
+        resources { srcDirs = ['src/foundation/resources'] }
+    }
+    dsl {
+        java { srcDirs = ['src/dsl/java', 'src/dsl/kotlin'] }
+        kotlin { srcDirs = ['src/dsl/java', 'src/dsl/kotlin'] }
+        resources { srcDirs = ['src/dsl/resources'] }
+    }
     main {
         java { srcDirs = ['src/main/java', 'src/main/kotlin'] }
         kotlin { srcDirs = ['src/main/java', 'src/main/kotlin'] }
@@ -79,9 +94,19 @@ sourceSets {
 
 configurations {
     annotationProcessor.extendsFrom minecraft
+
     library
     implementation.extendsFrom library
     compileClasspath.extendsFrom library
+    coreLibrary
+    implementation.extendsFrom coreLibrary
+    compileClasspath.extendsFrom coreLibrary
+
+    apiImplementation.extendsFrom minecraft
+    apiImplementation.extendsFrom coreLibrary
+
+    foundationImplementation.extendsFrom apiImplementation
+    dslImplementation.extendsFrom apiImplementation
 }
 
 minecraft.runs.all {
@@ -106,12 +131,12 @@ repositories {
 dependencies {
     minecraft group: 'net.minecraftforge', name: 'forge', version: "${minecraft_version}-${forge_version}"
 
-    library group: 'org.jetbrains', name: 'annotations', version: annotations_version
-    library group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jackson_version
-    library group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jackson_version
-    library group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
-    library group: 'io.karma.material', name: 'material-color-utils', version: mcu_version
-    library group: 'org.lz4', name: 'lz4-java', version: lz4_version
+    coreLibrary group: 'org.jetbrains', name: 'annotations', version: annotations_version
+    coreLibrary group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jackson_version
+    coreLibrary group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jackson_version
+    coreLibrary group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
+    coreLibrary group: 'io.karma.material', name: 'material-color-utils', version: mcu_version
+    coreLibrary group: 'org.lz4', name: 'lz4-java', version: lz4_version
 
     implementation group: 'thedarkcolour', name: 'kotlinforforge', version: kff_version
 
@@ -144,6 +169,15 @@ dependencies {
     library files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-windows.jar')
     compileOnly files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-javadoc.jar')
     compileOnly files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-sources.jar')
+
+    implementation sourceSets.api.output
+
+    foundationImplementation sourceSets.api.output
+    implementation sourceSets.foundation.output
+
+    dslImplementation sourceSets.api.output
+    dslImplementation sourceSets.foundation.output
+    implementation sourceSets.dsl.output
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit_version
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junit_version
@@ -200,7 +234,7 @@ shadowJar {
 
 task apiJar(type: ShadowJar) {
     dependsOn shadowJar
-    from sourceSets.main.output
+    from sourceSets.api.output
     archiveClassifier = 'api'
     configurations.addAll(tasks.shadowJar.configurations)
     dependencies {
@@ -211,8 +245,6 @@ task apiJar(type: ShadowJar) {
         include dependency(group: 'io.karma.material', name: 'material-color-utils')
         include dependency(group: 'org.jetbrains', name: 'annotations')
     }
-    exclude 'io/karma/pda/client/**'
-    exclude 'io/karma/pda/common/**'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -222,9 +254,7 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 task apiSourcesJar(type: Jar, dependsOn: classes) {
     archiveClassifier = 'api-sources'
-    from sourceSets.main.allSource
-    exclude 'io/karma/pda/client/**'
-    exclude 'io/karma/pda/common/**'
+    from sourceSets.api.allSource
 }
 
 dokkaHtml {
@@ -271,11 +301,17 @@ reobf {
 
 processResources {
     var replaceProperties = [
-            minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
-            forge_version       : forge_version, forge_version_range: forge_version_range,
-            loader_version_range: loader_version_range,
-            mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-            mod_authors         : mod_authors, mod_description: mod_description,
+            minecraft_version       : minecraft_version,
+            minecraft_version_range : minecraft_version_range,
+            forge_version           : forge_version,
+            forge_version_range     : forge_version_range,
+            loader_version_range    : loader_version_range,
+            mod_id                  : mod_id,
+            mod_name                : mod_name,
+            mod_license             : mod_license,
+            mod_version             : mod_version,
+            mod_authors             : mod_authors,
+            mod_description         : mod_description,
     ]
     inputs.properties replaceProperties
     filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {

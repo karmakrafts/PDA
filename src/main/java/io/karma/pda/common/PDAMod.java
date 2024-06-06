@@ -6,19 +6,19 @@ package io.karma.pda.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mojang.blaze3d.systems.RenderSystem;
+import io.karma.pda.api.API;
+import io.karma.pda.api.app.AppType;
+import io.karma.pda.api.app.component.ComponentType;
+import io.karma.pda.api.app.theme.Theme;
+import io.karma.pda.api.app.theme.font.FontFamily;
 import io.karma.pda.api.client.ClientAPI;
-import io.karma.pda.api.common.API;
-import io.karma.pda.api.common.app.AppType;
-import io.karma.pda.api.common.app.component.ComponentType;
-import io.karma.pda.api.common.app.theme.Theme;
-import io.karma.pda.api.common.app.theme.font.FontFamily;
-import io.karma.pda.api.common.color.GradientFunction;
-import io.karma.pda.api.common.display.DisplayModeSpec;
-import io.karma.pda.api.common.dispose.Disposable;
-import io.karma.pda.api.common.dispose.DispositionHandler;
-import io.karma.pda.api.common.state.StateReflector;
-import io.karma.pda.api.common.util.Constants;
-import io.karma.pda.api.common.util.RegistryUtils;
+import io.karma.pda.api.color.GradientFunction;
+import io.karma.pda.api.display.DisplayModeSpec;
+import io.karma.pda.api.dispose.Disposable;
+import io.karma.pda.api.dispose.DispositionHandler;
+import io.karma.pda.api.state.StateReflector;
+import io.karma.pda.api.util.Constants;
+import io.karma.pda.api.util.RegistryUtils;
 import io.karma.pda.client.ClientEventHandler;
 import io.karma.pda.client.flex.ClientFlexNodeHandler;
 import io.karma.pda.client.interaction.DockInteractionHandler;
@@ -38,6 +38,7 @@ import io.karma.pda.common.network.ClientPacketHandler;
 import io.karma.pda.common.network.CommonPacketHandler;
 import io.karma.pda.common.session.DefaultSessionHandler;
 import io.karma.pda.common.util.TabItemProvider;
+import io.karma.pda.foundation.client.render.ComponentRenderTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.Registries;
@@ -155,6 +156,7 @@ public class PDAMod {
 
     public PDAMod() {
         CommonEventHandler.INSTANCE.setup();
+        CommandHandler.INSTANCE.setup();
         DefaultSessionHandler.INSTANCE.setup();
 
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -240,6 +242,7 @@ public class PDAMod {
         PDAItemRenderer.INSTANCE.setup();
         DefaultFontRenderer.INSTANCE.setupEarly();
         GraphicsRenderTypes.INSTANCE.setupEarly();
+        ComponentRenderTypes.INSTANCE.setupEarly();
         initClientAPI();
     }
 

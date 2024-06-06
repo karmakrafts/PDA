@@ -7,7 +7,7 @@
 
 package io.karma.pda.api.common.app.compose
 
-import io.karma.pda.api.common.flex.FlexValue
+import io.karma.pda.api.flex.FlexValue
 
 /**
  * @author Alexander Hinze

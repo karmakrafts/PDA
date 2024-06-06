@@ -6,14 +6,14 @@ package io.karma.pda.client.render.display;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.karma.pda.api.app.App;
+import io.karma.pda.api.app.AppType;
 import io.karma.pda.api.client.render.app.AppRenderers;
 import io.karma.pda.api.client.render.display.DisplayMode;
 import io.karma.pda.api.client.render.display.DisplayRenderer;
 import io.karma.pda.api.client.render.display.Framebuffer;
-import io.karma.pda.api.common.app.App;
-import io.karma.pda.api.common.app.AppType;
-import io.karma.pda.api.common.display.DisplayModeSpec;
-import io.karma.pda.api.common.display.DisplayResolution;
+import io.karma.pda.api.display.DisplayModeSpec;
+import io.karma.pda.api.display.DisplayResolution;
 import io.karma.pda.client.render.graphics.DefaultGraphics;
 import io.karma.pda.client.render.graphics.DefaultGraphicsContext;
 import io.karma.pda.client.session.ClientSessionHandler;

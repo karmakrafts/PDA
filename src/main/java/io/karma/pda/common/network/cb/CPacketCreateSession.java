@@ -4,7 +4,7 @@
 
 package io.karma.pda.common.network.cb;
 
-import io.karma.pda.api.common.session.SessionType;
+import io.karma.pda.api.session.SessionType;
 import io.karma.pda.common.util.PacketUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;

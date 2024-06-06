@@ -4,9 +4,9 @@
 
 package io.karma.pda.common.session;
 
-import io.karma.pda.api.common.session.Session;
-import io.karma.pda.api.common.session.SessionHandler;
-import io.karma.pda.api.common.util.LogMarkers;
+import io.karma.pda.api.session.Session;
+import io.karma.pda.api.session.SessionHandler;
+import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.common.PDAMod;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;

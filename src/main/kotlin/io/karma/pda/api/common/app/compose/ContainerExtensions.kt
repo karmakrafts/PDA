@@ -7,9 +7,9 @@
 
 package io.karma.pda.api.common.app.compose
 
-import io.karma.pda.api.common.app.component.Component
-import io.karma.pda.api.common.app.component.Container
-import io.karma.pda.api.common.util.Proxy
+import io.karma.pda.api.app.component.Component
+import io.karma.pda.api.app.component.Container
+import io.karma.pda.api.util.Proxy
 import java.util.*
 
 /**
