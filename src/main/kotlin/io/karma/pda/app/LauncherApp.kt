@@ -18,7 +18,7 @@ import io.karma.pda.composition.app.ComposableApp
 import io.karma.pda.composition.color.gradient
 import io.karma.pda.composition.color.rangeTo
 import io.karma.pda.composition.color.rgb
-import io.karma.pda.composition.component.child
+import io.karma.pda.composition.component.*
 import io.karma.pda.composition.flex.auto
 import io.karma.pda.composition.flex.percent
 import io.karma.pda.composition.flex.px
