@@ -4,6 +4,8 @@
 
 package io.karma.pda.api.state;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -18,11 +20,22 @@ final class DerivedState<T, R> implements State<R> {
     private final AtomicReference<R> value = new AtomicReference<>(null);
     private final AtomicReference<BiConsumer<State<R>, R>> changeCallback = new AtomicReference<>((state, value) -> {
     });
+    private final AtomicReference<String> stateKey = new AtomicReference<>();
 
     DerivedState(final State<T> source, final Function<T, R> function, final Class<R> type) {
         this.type = type;
         name = source.getName();
         source.onChanged((state, value) -> this.value.set(function.apply(value)));
+    }
+
+    @Override
+    public @Nullable String getStateKey() {
+        return stateKey.get();
+    }
+
+    @Override
+    public void setStateKey(String key) {
+        stateKey.set(key);
     }
 
     @Override

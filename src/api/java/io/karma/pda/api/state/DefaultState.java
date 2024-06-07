@@ -22,6 +22,7 @@ final class DefaultState<T> implements MutableState<T> {
     });
     private final AtomicReference<String> name = new AtomicReference<>();
     private final AtomicBoolean isPersistent = new AtomicBoolean(true);
+    private final AtomicReference<String> stateKey = new AtomicReference<>();
 
     DefaultState(final Class<T> type, final @Nullable T initial) {
         this.type = type;
@@ -29,13 +30,13 @@ final class DefaultState<T> implements MutableState<T> {
     }
 
     @Override
-    public void setStateKey(String key) {
-
+    public @Nullable String getStateKey() {
+        return stateKey.get();
     }
 
     @Override
-    public @Nullable String getStateKey() {
-        return null;
+    public void setStateKey(final String key) {
+        stateKey.set(key);
     }
 
     @Override
