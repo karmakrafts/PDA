@@ -5,8 +5,10 @@
 package io.karma.pda.api.state;
 
 import io.karma.pda.api.util.TypedValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * An instance of this interface may behave like a regular property;
@@ -23,6 +25,12 @@ import java.util.function.BiConsumer;
  * @since 11/04/2024
  */
 public interface State<T> extends TypedValue<T> {
+    // TODO: document this
+    @Nullable String getStateKey();
+
+    // TODO: document this
+    void setStateKey(final String key);
+
     // TODO: document this
     BiConsumer<State<T>, T> getChangeCallback();
 
@@ -42,4 +50,9 @@ public interface State<T> extends TypedValue<T> {
 
     // TODO: document this
     void onChanged(final BiConsumer<State<T>, T> callback);
+
+    // TODO: document this
+    default <R> State<R> derive(final Class<R> type, final Function<T, R> mapper) {
+        return new DerivedState<>(this, mapper, type);
+    }
 }

@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 final class DefaultState<T> implements MutableState<T> {
     private final AtomicReference<Supplier<T>> value = new AtomicReference<>();
     private final Class<T> type;
-    private final AtomicReference<BiConsumer<State<T>, T>> changeCallback = new AtomicReference<>((prop, val) -> {
+    private final AtomicReference<BiConsumer<State<T>, T>> changeCallback = new AtomicReference<>((state, value) -> {
     });
     private final AtomicReference<String> name = new AtomicReference<>();
     private final AtomicBoolean isPersistent = new AtomicBoolean(true);
@@ -26,6 +26,16 @@ final class DefaultState<T> implements MutableState<T> {
     DefaultState(final Class<T> type, final @Nullable T initial) {
         this.type = type;
         value.set(() -> initial);
+    }
+
+    @Override
+    public void setStateKey(String key) {
+
+    }
+
+    @Override
+    public @Nullable String getStateKey() {
+        return null;
     }
 
     @Override
