@@ -15,3 +15,7 @@ import io.karma.pda.api.state.State
  */
 
 operator fun <T> State<T>.invoke(): T = get()
+
+inline infix fun <reified R, T> State<T>.derive(crossinline function: (T) -> R): State<R> {
+    return derive(R::class.java) { function(it) }
+}
