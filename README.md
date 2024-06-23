@@ -82,8 +82,7 @@ dependencies {
 **An example for a simple Hello World app in Java:**
 
 ```java
-import io.karma.pda.api.common.state.*;
-import io.karma.pda.api.common.app.*;
+
 
 public final class ExampleApp extends AbstractApp {
     @Persistent  // Means that the value will be saved/loaded from/to NBT

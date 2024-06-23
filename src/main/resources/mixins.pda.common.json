@@ -1,5 +1,5 @@
 {
-  "package": "io.karma.pda.common.mixin",
+  "package": "io.karma.pda.mod.mixin",
   "required": true,
   "refmap": "mixins.pda.refmap.json",
   "target": "@env(DEFAULT)",
@@ -9,6 +9,6 @@
     "maxShiftBy": 100
   },
   "mixins": [
-    "io.karma.pda.mixin.ClipContextMixin"
+    "ClipContextMixin"
   ]
 }

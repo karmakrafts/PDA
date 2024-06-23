@@ -1,5 +1,5 @@
 {
-  "package": "io.karma.pda.client.mixin",
+  "package": "io.karma.pda.mod.client.mixin",
   "required": true,
   "refmap": "mixins.pda.refmap.json",
   "target": "@env(DEFAULT)",
