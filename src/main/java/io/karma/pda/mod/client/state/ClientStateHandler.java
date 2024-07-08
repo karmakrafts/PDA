@@ -6,11 +6,11 @@ package io.karma.pda.mod.client.state;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import io.karma.pda.mod.PDAMod;
 import io.karma.pda.api.session.Session;
 import io.karma.pda.api.state.MutableState;
 import io.karma.pda.api.state.State;
 import io.karma.pda.api.util.LogMarkers;
+import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.network.sb.SPacketSyncValues;
 import io.karma.pda.mod.state.DefaultStateHandler;
 import net.minecraft.client.Minecraft;

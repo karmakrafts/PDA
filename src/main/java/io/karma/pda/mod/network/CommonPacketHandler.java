@@ -4,11 +4,11 @@
 
 package io.karma.pda.mod.network;
 
-import io.karma.pda.mod.PDAMod;
 import io.karma.pda.api.API;
 import io.karma.pda.api.app.component.Component;
 import io.karma.pda.api.app.component.Container;
 import io.karma.pda.api.util.Exceptions;
+import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.network.cb.CPacketCloseApp;
 import io.karma.pda.mod.network.cb.CPacketCreateSession;
 import io.karma.pda.mod.network.cb.CPacketOpenApp;

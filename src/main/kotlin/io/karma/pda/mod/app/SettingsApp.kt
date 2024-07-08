@@ -4,7 +4,6 @@
 
 package io.karma.pda.mod.app
 
-import io.karma.pda.api.app.AppType
 import io.karma.pda.composition.Composable
 import io.karma.pda.composition.app.ComposableApp
 
@@ -12,8 +11,8 @@ import io.karma.pda.composition.app.ComposableApp
  * @author Alexander Hinze
  * @since 13/04/2024
  */
-@Composable
-class SettingsApp(type: AppType<*>) : ComposableApp(type) {
+@io.karma.pda.composition.Composable
+class SettingsApp(type: io.karma.pda.api.app.AppType<*>) : ComposableApp(type) {
     override fun compose() {
         DefaultView {}
     }

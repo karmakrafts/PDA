@@ -4,9 +4,9 @@
 
 package io.karma.pda.mod.client.flex;
 
+import io.karma.pda.api.dispose.Disposable;
 import io.karma.pda.api.flex.*;
 import io.karma.pda.mod.PDAMod;
-import io.karma.pda.api.dispose.Disposable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;

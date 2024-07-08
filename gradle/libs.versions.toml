@@ -1,0 +1,37 @@
+[versions]
+pda = "1.4.0"
+kotlin = "1.9.22" # See KotlinForForge
+minecraft = "1.20.1"
+minecraftForge = "1.20.1-47.2.30"
+mappings = "2023.09.03" # https://parchmentmc.org/docs/getting-started
+forge = "47.2.30" # https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html
+forgeGradle = "6.0.25" # https://files.minecraftforge.net/net/minecraftforge/gradle/ForgeGradle/index.html
+spongeGradle = "0.7-SNAPSHOT" # https://github.com/SpongePowered/SpongeGradle/releases
+librarian = "1.2.0" # https://github.com/ParchmentMC/Librarian/tags
+shadow = "8.1.1" # https://github.com/johnrengelman/shadow/releases
+dokka = "1.9.20" # https://github.com/Kotlin/dokka/releases
+
+annotations = "24.1.0" # https://github.com/JetBrains/java-annotations/releases
+jackson = "2.17.2" # https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
+materialColorUtils = "1.0.0.3" # https://nexus.covers1624.net/#browse/browse:karmakrafts-releases:io%2Fkarma%2Fmaterial%2Fmaterial-color-utils
+lz4j = "1.8.0" # https://mvnrepository.com/artifact/org.lz4/lz4-java
+kotlinForForge = "4.10.0" # https://thedarkcolour.github.io/KotlinForForge/thedarkcolour/kotlinforforge/web.html
+lwjgl = "3.3.3" # https://mvnrepository.com/artifact/org.lwjgl/lwjgl
+
+[libraries]
+minecraftForge = { module = "net.minecraftforge:forge", version.ref = "minecraftForge" }
+annotations = { module = "org.jetbrains:annotations", version.ref = "annotations" }
+jacksonCore = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
+jacksonAnnotationns = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
+jacksonDatabind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+kotlinForForge = { module = "thedarkcolour:kotlinforforge", version.ref = "kotlinForForge" }
+lwjglYoga = { module = "org.lwjgl:lwjgl-yoga", version.ref = "lwjgl" }
+lwjglFreeType = { module = "org.lwjgl:lwjgl-freetype", version.ref = "lwjgl" }
+
+[plugins]
+forgeGradle = { id = "net.minecraftforge.gradle", version.ref = "forgeGradle" }
+spongeGradle = { id = "org.spongepowered.mixin", version.ref = "spongeGradle" }
+librarian = { id = "org.parchmentmc.librarian.forgegradle", version.ref = "librarian" }
+shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }

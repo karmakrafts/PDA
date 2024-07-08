@@ -4,13 +4,13 @@
 
 package io.karma.pda.mod.client.app;
 
-import io.karma.pda.mod.PDAMod;
 import io.karma.pda.api.app.App;
 import io.karma.pda.api.app.AppType;
 import io.karma.pda.api.app.component.Component;
 import io.karma.pda.api.app.component.Container;
 import io.karma.pda.api.session.Session;
 import io.karma.pda.api.util.LogMarkers;
+import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.app.DefaultLauncher;
 import io.karma.pda.mod.network.sb.SPacketCloseApp;
 import io.karma.pda.mod.network.sb.SPacketOpenApp;

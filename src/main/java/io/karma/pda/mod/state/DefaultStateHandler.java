@@ -4,10 +4,10 @@
 
 package io.karma.pda.mod.state;
 
-import io.karma.pda.api.state.*;
-import io.karma.pda.mod.PDAMod;
 import io.karma.pda.api.session.Session;
+import io.karma.pda.api.state.*;
 import io.karma.pda.api.util.Identifiable;
+import io.karma.pda.mod.PDAMod;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.lang.annotation.Annotation;

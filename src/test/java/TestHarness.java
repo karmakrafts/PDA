@@ -23,30 +23,16 @@ import java.util.concurrent.TimeUnit;
  * @since 16/04/2024
  */
 public final class TestHarness {
-    public static Logger logger;
-    public static ExecutorService executor;
-    private static boolean isInitialized;
-
-    public static final class TestComponent extends AbstractComponent {
-        public TestComponent(final ComponentType<?> type, final UUID id) {
-            super(type, id);
-        }
-    }
-
-    public static final class TestContainer extends DefaultContainer {
-        public TestContainer(final ComponentType<?> type, final UUID uuid) {
-            super(type, uuid);
-        }
-    }
-
     public static final MockForgeRegistry<ComponentType<?>> COMPONENT_REGISTRY = new MockForgeRegistry<>(new ResourceLocation(
         "test",
         "components"));
-
     public static final ComponentType<TestComponent> COMPONENT = new ComponentType<>(new ResourceLocation("test",
         "component"), TestComponent.class, TestComponent::new);
     public static final ComponentType<TestContainer> CONTAINER = new ComponentType<>(new ResourceLocation("test",
         "container"), TestContainer.class, TestContainer::new);
+    public static Logger logger;
+    public static ExecutorService executor;
+    private static boolean isInitialized;
 
     public static void init() {
         if (isInitialized) {
@@ -87,5 +73,17 @@ public final class TestHarness {
             logger.error("Could not shutdown test executor service: {}", error.getMessage());
         }
         isInitialized = false;
+    }
+
+    public static final class TestComponent extends AbstractComponent {
+        public TestComponent(final ComponentType<?> type, final UUID id) {
+            super(type, id);
+        }
+    }
+
+    public static final class TestContainer extends DefaultContainer {
+        public TestContainer(final ComponentType<?> type, final UUID uuid) {
+            super(type, uuid);
+        }
     }
 }

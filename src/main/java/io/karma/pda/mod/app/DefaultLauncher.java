@@ -4,7 +4,6 @@
 
 package io.karma.pda.mod.app;
 
-import io.karma.pda.mod.PDAMod;
 import io.karma.pda.api.app.App;
 import io.karma.pda.api.app.AppType;
 import io.karma.pda.api.app.Launcher;
@@ -13,6 +12,7 @@ import io.karma.pda.api.app.component.Container;
 import io.karma.pda.api.session.Session;
 import io.karma.pda.api.util.Exceptions;
 import io.karma.pda.api.util.LogMarkers;
+import io.karma.pda.mod.PDAMod;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 

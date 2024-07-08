@@ -8,7 +8,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import io.karma.pda.mod.PDAMod;
 import io.karma.pda.api.app.theme.font.Font;
 import io.karma.pda.api.app.theme.font.FontVariant;
 import io.karma.pda.api.client.render.graphics.FontAtlas;
@@ -17,6 +16,7 @@ import io.karma.pda.api.color.ColorProvider;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.api.util.Exceptions;
 import io.karma.pda.api.util.RectangleCorner;
+import io.karma.pda.mod.PDAMod;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -90,19 +90,13 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
 
         // Find scale factor and re-scale metrics
         final var scale = font.getSize() / atlas.getMaxGlyphHeight();
-        final var scaledWidth = scale * width;
-        final var scaledHeight = scale * height;
-        final var scaledAscent = scale * metrics.getAscent();
-        final var scaledDescent = scale * metrics.getDescent();
-        final var scaledBearingX = scale * metrics.getBearingX();
-        final var scaledBearingY = scale * metrics.getBearingY();
-        final var yOffset = scaledAscent - scaledBearingY + scaledDescent;
+        final var yOffset = (metrics.getAscent() - metrics.getBearingY() + metrics.getDescent()) * scale;
 
         // Compute vertex positions for glyph quad
-        final var minX = x + scaledBearingX;
+        final var minX = x + (scale * metrics.getBearingX());
         final var minY = y + yOffset;
-        final var maxX = minX + scaledWidth;
-        final var maxY = minY + scaledHeight;
+        final var maxX = minX + (scale * width);
+        final var maxY = minY + (scale * height);
         final var z = (float) zIndex; // Do cast once instead of per-vertex
 
         // Compute glyph UVs

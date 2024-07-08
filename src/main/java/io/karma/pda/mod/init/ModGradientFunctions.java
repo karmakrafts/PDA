@@ -4,10 +4,10 @@
 
 package io.karma.pda.mod.init;
 
-import io.karma.pda.mod.PDAMod;
 import io.karma.pda.api.color.GradientFunction;
 import io.karma.pda.api.color.GradientType;
 import io.karma.pda.api.util.Constants;
+import io.karma.pda.mod.PDAMod;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
 

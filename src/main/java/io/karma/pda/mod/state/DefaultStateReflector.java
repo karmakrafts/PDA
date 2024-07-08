@@ -4,12 +4,12 @@
 
 package io.karma.pda.mod.state;
 
-import io.karma.pda.mod.PDAMod;
 import io.karma.pda.api.state.MutableState;
 import io.karma.pda.api.state.Persistent;
 import io.karma.pda.api.state.StateReflector;
 import io.karma.pda.api.state.Synchronize;
 import io.karma.pda.api.util.Exceptions;
+import io.karma.pda.mod.PDAMod;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;

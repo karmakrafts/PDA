@@ -3,7 +3,7 @@
  */
 
 vec4 crtFadeOut(const vec2 uv, const vec2 size, const sampler2D tex, const float time, const float bufferFactor,
-                const float scaleSpeed, const vec4 fadeColor) {
+const float scaleSpeed, const vec4 fadeColor) {
     const float pixelScale = (size.y - 1.0) / size.y;
     const float s = 1.0 / scaleSpeed + 1.0;
     const float t = clamp(mod(time * 4.0, s + bufferFactor * 2.0) - bufferFactor, 0.0, s);
@@ -22,6 +22,6 @@ vec4 crtFadeOut(const vec2 uv, const vec2 size, const sampler2D tex, const float
 }
 
 vec4 crtFadeIn(const vec2 uv, const vec2 size, const sampler2D tex, const float time, const float bufferFactor,
-               const float scaleSpeed, const vec4 fadeColor) {
+const float scaleSpeed, const vec4 fadeColor) {
     return crtFadeOut(uv, size, tex, -time, bufferFactor, scaleSpeed, fadeColor);
 }

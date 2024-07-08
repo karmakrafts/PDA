@@ -78,7 +78,9 @@
       "name": "PxRange",
       "type": "float",
       "count": 1,
-      "values": [1.0]
+      "values": [
+        1.0
+      ]
     }
   ]
 }

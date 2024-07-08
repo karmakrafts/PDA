@@ -4,10 +4,10 @@
 
 package io.karma.pda.mod.session;
 
-import io.karma.pda.mod.PDAMod;
 import io.karma.pda.api.session.Session;
 import io.karma.pda.api.session.SessionHandler;
 import io.karma.pda.api.util.LogMarkers;
+import io.karma.pda.mod.PDAMod;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.ApiStatus;

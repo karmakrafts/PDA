@@ -1,0 +1,398 @@
+/*
+ * Copyright (C) 2024 Karma Krafts & associates
+ */
+
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '6.+'
+    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'org.jetbrains.kotlin.jvm' version '1.9.22'
+    id 'org.jetbrains.dokka' version '1.9.20'
+}
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+version = "${mod_version}.${(System.getenv("CI_PIPELINE_IID") ?: 0)}"
+group = mod_group_id
+def docsDir = System.properties['publishDocs.root']
+
+base {
+    archivesName = "${mod_id}-${minecraft_version}"
+}
+
+sourceSets {
+    main {
+        java { srcDirs = ['src/main/java', 'src/main/kotlin'] }
+        kotlin { srcDirs = ['src/main/java', 'src/main/kotlin'] }
+        resources { srcDirs = ['src/generated/resources', 'src/main/resources'] }
+    }
+    api {
+        java { srcDirs = ['src/api/java', 'src/api/kotlin'] }
+        kotlin { srcDirs = ['src/api/java', 'src/api/kotlin'] }
+        resources { srcDirs = ['src/api/resources'] }
+    }
+    foundation {
+        java { srcDirs = ['src/foundation/java', 'src/foundation/kotlin'] }
+        kotlin { srcDirs = ['src/foundation/java', 'src/foundation/kotlin'] }
+        resources { srcDirs = ['src/foundation/resources'] }
+    }
+    composable {
+        java { srcDirs = ['src/composable/java', 'src/composable/kotlin'] }
+        kotlin { srcDirs = ['src/composable/java', 'src/composable/kotlin'] }
+        resources { srcDirs = ['src/composable/resources'] }
+    }
+}
+
+minecraft {
+    mappings channel: mapping_channel, version: "${mapping_version}-${minecraft_version}"
+    accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
+    copyIdeResources = true
+    runs {
+        client {
+            property 'forge.enabledGameTestNamespaces', mod_id
+        }
+        server {
+            property 'forge.enabledGameTestNamespaces', mod_id
+            args '--nogui'
+        }
+        gameTestServer {
+            property 'forge.enabledGameTestNamespaces', mod_id
+        }
+        data {
+            workingDirectory project.file('run-data')
+            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+        }
+        clientAlt {
+            parent runs.client
+            args '--username', 'Dev2'
+        }
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'PDAAPI,PDAPRO'
+            property 'forge.logging.console.level', 'debug'
+            property 'mixin.debug', 'true'
+            property 'mixin.debug.dumpTargetOnFailure', 'true'
+            property 'mixin.debug.verbose', 'true'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                    source sourceSets.api
+                    source sourceSets.foundation
+                    source sourceSets.composable
+                }
+            }
+            jvmArgs '-Xms512M', '-Xmx4G'
+        }
+    }
+}
+
+configurations {
+    annotationProcessor.extendsFrom minecraft
+
+    coreLibrary
+    implementation.extendsFrom coreLibrary
+    compileClasspath.extendsFrom coreLibrary
+
+    library
+    library.extendsFrom coreLibrary
+    implementation.extendsFrom library
+    compileClasspath.extendsFrom library
+
+    apiCompileOnly.extendsFrom coreLibrary
+    apiCompileOnly.extendsFrom minecraft
+
+    foundationCompileOnly.extendsFrom coreLibrary
+    foundationCompileOnly.extendsFrom minecraft
+
+    composableCompileOnly.extendsFrom coreLibrary
+    composableCompileOnly.extendsFrom minecraft
+}
+
+minecraft.runs.all {
+    lazyToken('minecraft_classpath') {
+        configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
+    }
+}
+
+mixin {
+    add sourceSets.main, "mixins.${mod_id}.refmap.json"
+    config "mixins.${mod_id}.client.json"
+    config "mixins.${mod_id}.common.json"
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://thedarkcolour.github.io/KotlinForForge/' }
+    maven { url = 'https://maven.covers1624.net' }
+    maven { url = 'https://www.cursemaven.com/' }
+}
+
+dependencies {
+    minecraft group: 'net.minecraftforge', name: 'forge', version: "${minecraft_version}-${forge_version}"
+
+    coreLibrary group: 'org.jetbrains', name: 'annotations', version: annotations_version
+    coreLibrary group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jackson_version
+    coreLibrary group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jackson_version
+    coreLibrary group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
+    coreLibrary group: 'io.karma.material', name: 'material-color-utils', version: mcu_version
+    coreLibrary group: 'org.lz4', name: 'lz4-java', version: lz4_version
+
+    implementation group: 'thedarkcolour', name: 'kotlinforforge', version: kff_version
+
+    library group: 'org.lwjgl', name: 'lwjgl-yoga', version: lwjgl_version, transitive: false
+    library group: 'org.lwjgl', name: 'lwjgl-yoga', version: lwjgl_version, classifier: 'natives-linux-arm32', transitive: false
+    library group: 'org.lwjgl', name: 'lwjgl-yoga', version: lwjgl_version, classifier: 'natives-linux-arm64', transitive: false
+    library group: 'org.lwjgl', name: 'lwjgl-yoga', version: lwjgl_version, classifier: 'natives-linux', transitive: false
+    library group: 'org.lwjgl', name: 'lwjgl-yoga', version: lwjgl_version, classifier: 'natives-macos-arm64', transitive: false
+    library group: 'org.lwjgl', name: 'lwjgl-yoga', version: lwjgl_version, classifier: 'natives-macos', transitive: false
+    library group: 'org.lwjgl', name: 'lwjgl-yoga', version: lwjgl_version, classifier: 'natives-windows-arm64', transitive: false
+    library group: 'org.lwjgl', name: 'lwjgl-yoga', version: lwjgl_version, classifier: 'natives-windows-x86', transitive: false
+    library group: 'org.lwjgl', name: 'lwjgl-yoga', version: lwjgl_version, classifier: 'natives-windows', transitive: false
+
+    library files('libs/lwjgl-freetype-3.3.4-SNAPSHOT.jar')
+    compileOnly files('libs/lwjgl-freetype-3.3.4-SNAPSHOT-javadoc.jar')
+    compileOnly files('libs/lwjgl-freetype-3.3.4-SNAPSHOT-sources.jar')
+    library group: 'org.lwjgl', name: 'lwjgl-freetype', version: lwjgl_version, classifier: 'natives-linux-arm32', transitive: false
+    library group: 'org.lwjgl', name: 'lwjgl-freetype', version: lwjgl_version, classifier: 'natives-linux-arm64', transitive: false
+    library group: 'org.lwjgl', name: 'lwjgl-freetype', version: lwjgl_version, classifier: 'natives-linux', transitive: false
+    library group: 'org.lwjgl', name: 'lwjgl-freetype', version: lwjgl_version, classifier: 'natives-macos-arm64', transitive: false
+    library group: 'org.lwjgl', name: 'lwjgl-freetype', version: lwjgl_version, classifier: 'natives-macos', transitive: false
+    library group: 'org.lwjgl', name: 'lwjgl-freetype', version: lwjgl_version, classifier: 'natives-windows-arm64', transitive: false
+    library group: 'org.lwjgl', name: 'lwjgl-freetype', version: lwjgl_version, classifier: 'natives-windows-x86', transitive: false
+    library group: 'org.lwjgl', name: 'lwjgl-freetype', version: lwjgl_version, classifier: 'natives-windows', transitive: false
+
+    library files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT.jar')
+    library files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-linux.jar')
+    library files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-macos.jar')
+    library files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-macos-arm64.jar')
+    library files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-windows.jar')
+    compileOnly files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-javadoc.jar')
+    compileOnly files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-sources.jar')
+
+    compileOnly sourceSets.api.output
+
+    foundationCompileOnly sourceSets.api.output
+    compileOnly sourceSets.foundation.output
+
+    composableCompileOnly sourceSets.api.output
+    composableCompileOnly sourceSets.foundation.output
+    composableCompileOnly group: 'thedarkcolour', name: 'kotlinforforge', version: kff_version
+    compileOnly sourceSets.composable.output
+
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit_version
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: junit_version
+}
+
+test {
+    useJUnitPlatform()
+}
+
+def commonManifest = {
+    attributes([
+            'MixinConfigs'            : "mixins.${mod_id}.client.json,mixins.${mod_id}.common.json",
+            'Specification-Title'     : mod_id,
+            'Specification-Vendor'    : mod_authors,
+            'Specification-Version'   : '1', // We are version 1 of ourselves
+            'Implementation-Title'    : project.name,
+            'Implementation-Version'  : project.jar.archiveVersion,
+            'Implementation-Vendor'   : mod_authors,
+            'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+    ])
+}
+
+jar {
+    from sourceSets.main.output, sourceSets.api.output, sourceSets.foundation.output, sourceSets.composable.output
+    archiveClassifier = 'slim'
+    manifest commonManifest
+    finalizedBy 'reobfJar'
+}
+
+shadowJar {
+    from sourceSets.main.output, sourceSets.api.output, sourceSets.foundation.output, sourceSets.composable.output
+    archiveClassifier = ''
+    manifest commonManifest
+    finalizedBy 'reobfShadowJar'
+    dependencies {
+        include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-core')
+        include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations')
+        include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-databind')
+        include dependency(group: 'io.karma.material', name: 'material-color-utils')
+        include dependency(group: 'org.lz4', name: 'lz4-java')
+        include dependency(group: 'org.lwjgl', name: 'lwjgl-yoga')
+        include dependency(group: 'org.lwjgl', name: 'lwjgl-freetype')
+        include dependency(group: 'org.jetbrains', name: 'annotations')
+        // File dependencies to be shadowed
+        include dependency(files('libs/lwjgl-freetype-3.3.4-SNAPSHOT.jar'))
+        include dependency(files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT.jar'))
+        include dependency(files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-linux.jar'))
+        include dependency(files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-macos.jar'))
+        include dependency(files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-macos-arm64.jar'))
+        include dependency(files('libs/lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-windows.jar'))
+    }
+}
+
+task apiJar(type: ShadowJar) {
+    dependsOn shadowJar
+    from sourceSets.api.output
+    archiveClassifier = 'api'
+    configurations.addAll(tasks.shadowJar.configurations)
+    dependencies {
+        include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-core')
+        include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations')
+        include dependency(group: 'com.fasterxml.jackson.core', name: 'jackson-databind')
+        include dependency(group: 'io.karma.material', name: 'material-color-utils')
+        include dependency(group: 'org.jetbrains', name: 'annotations')
+    }
+
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.allSource, sourceSets.api.allSource, sourceSets.foundation.allSource, sourceSets.composable.allSource
+}
+
+task apiSourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier = 'api-sources'
+    from sourceSets.api.allSource
+}
+
+dokkaHtml {
+    dokkaSourceSets {
+        configureEach {
+            reportUndocumented.set(false)
+            jdkVersion.set(17)
+            noAndroidSdkLink.set(true)
+            externalDocumentationLink {
+                url.set(new URL("https://docs.karmakrafts.dev/pda"))
+            }
+            perPackageOption {
+                matchingRegex.set("(.*)io\\.karma\\.pda\\.client(.*)")
+                suppress.set(true)
+            }
+            perPackageOption {
+                matchingRegex.set("(.*)io\\.karma\\.pda\\.common(.*)")
+                suppress.set(true)
+            }
+        }
+    }
+}
+
+task apiJavadocJar(type: Jar) {
+    dependsOn dokkaHtml
+    mustRunAfter dokkaHtml
+    archiveClassifier = 'api-javadoc'
+    from dokkaHtml
+}
+
+if (docsDir != null) {
+    task publishDocs(type: Copy) {
+        dependsOn apiJavadocJar
+        mustRunAfter apiJavadocJar
+        from zipTree(file("${buildDir}/libs/${archivesBaseName}-${version}-api-javadoc.jar"))
+        into file(docsDir)
+    }
+}
+
+reobf {
+    shadowJar {}
+    apiJar {}
+}
+
+processResources {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            forge_version          : forge_version,
+            forge_version_range    : forge_version_range,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description,
+    ]
+    inputs.properties replaceProperties
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
+    }
+}
+
+artifacts {
+    archives jar
+    archives shadowJar
+    archives apiJar
+    archives sourcesJar
+    archives apiSourcesJar
+    archives apiJavadocJar
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+publishing {
+    repositories {
+        maven {
+            url "https://nexus.covers1624.net/repository/karmakrafts-releases/"
+
+            if (System.getenv('MAVEN_PASSWORD')) {
+                credentials {
+                    username 'kitsunealex'
+                    password System.getenv('MAVEN_PASSWORD')
+                }
+            }
+        }
+    }
+
+    publications {
+        pda(MavenPublication) {
+            groupId project.group
+            artifactId project.archivesBaseName
+            version project.version
+
+            artifact jar
+            artifact shadowJar
+            artifact apiJar
+            artifact sourcesJar
+            artifact apiSourcesJar
+            artifact apiJavadocJar
+
+            pom {
+                name = archivesBaseName
+                description = archivesBaseName
+                url = "https://git.karmakrafts.dev/kk/commissions/${mod_id}"
+
+                scm {
+                    url = "https://git.karmakrafts.dev/kk/commissions/${mod_id}"
+                }
+
+                issueManagement {
+                    system = 'gitlab'
+                    url = "https://git.karmakrafts.dev/kk/commissions/${mod_id}/issues"
+                }
+
+                licenses {
+                    license {
+                        name = "All Rights Reserved"
+                        distribution = 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'kitsunealex'
+                        name = 'KitsuneAlex'
+                    }
+                }
+            }
+        }
+    }
+}

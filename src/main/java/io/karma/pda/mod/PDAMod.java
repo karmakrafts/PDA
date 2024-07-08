@@ -179,7 +179,6 @@ public class PDAMod {
         MinecraftForge.EVENT_BUS.addListener(this::onGameShutdown);
         initAPI();
         JSONCodecs.register();
-        STATE_REFLECTORS.forEach(StateReflector::init);
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             onClientEarlySetup();
@@ -217,6 +216,7 @@ public class PDAMod {
 
     private void onCommonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            STATE_REFLECTORS.forEach(StateReflector::init);
             CommonPacketHandler.INSTANCE.registerPackets();
             ClientPacketHandler.INSTANCE.registerPackets();
         });

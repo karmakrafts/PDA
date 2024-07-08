@@ -4,12 +4,12 @@
 
 package io.karma.pda.mod.client.session;
 
-import io.karma.pda.mod.PDAMod;
 import io.karma.pda.api.app.App;
 import io.karma.pda.api.app.AppType;
 import io.karma.pda.api.client.render.app.AppRenderers;
 import io.karma.pda.api.session.SessionContext;
 import io.karma.pda.api.util.LogMarkers;
+import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.app.ClientLauncher;
 import io.karma.pda.mod.client.state.ClientStateHandler;
 import io.karma.pda.mod.session.DefaultSession;

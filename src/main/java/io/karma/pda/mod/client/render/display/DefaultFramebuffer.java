@@ -4,10 +4,10 @@
 
 package io.karma.pda.mod.client.render.display;
 
-import io.karma.pda.mod.PDAMod;
 import io.karma.pda.api.client.render.display.Framebuffer;
 import io.karma.pda.api.display.DisplayResolution;
 import io.karma.pda.api.dispose.Disposable;
+import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.util.TextureUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

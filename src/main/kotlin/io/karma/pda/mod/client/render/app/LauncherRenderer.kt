@@ -4,8 +4,6 @@
 
 package io.karma.pda.mod.client.render.app
 
-import io.karma.pda.api.client.render.app.AppRenderer
-import io.karma.pda.api.client.render.graphics.Graphics
 import io.karma.pda.mod.app.LauncherApp
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -15,8 +13,8 @@ import net.minecraftforge.api.distmarker.OnlyIn
  * @since 23/04/2024
  */
 @OnlyIn(Dist.CLIENT)
-object LauncherRenderer : AppRenderer<LauncherApp> {
-    override fun render(app: LauncherApp, graphics: Graphics) {
+object LauncherRenderer : io.karma.pda.api.client.render.app.AppRenderer<LauncherApp> {
+    override fun render(app: LauncherApp, graphics: io.karma.pda.api.client.render.graphics.Graphics) {
 
     }
 }

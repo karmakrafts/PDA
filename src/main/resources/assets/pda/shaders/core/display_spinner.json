@@ -64,7 +64,9 @@
       "name": "Time",
       "type": "float",
       "count": 1,
-      "values": [0.0]
+      "values": [
+        0.0
+      ]
     }
   ]
 }

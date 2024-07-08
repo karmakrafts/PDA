@@ -4,12 +4,12 @@
 
 package io.karma.pda.mod.init;
 
-import io.karma.pda.mod.PDAMod;
 import io.karma.pda.api.app.component.Component;
 import io.karma.pda.api.app.component.ComponentType;
 import io.karma.pda.api.util.Constants;
-import io.karma.pda.mod.app.component.StatusBar;
 import io.karma.pda.foundation.component.*;
+import io.karma.pda.mod.PDAMod;
+import io.karma.pda.mod.app.component.StatusBar;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.ApiStatus;

@@ -4,10 +4,10 @@
 
 package io.karma.pda.mod.init;
 
-import io.karma.pda.mod.PDAMod;
 import io.karma.pda.api.app.App;
 import io.karma.pda.api.app.AppType;
 import io.karma.pda.api.util.Constants;
+import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.app.LauncherApp;
 import io.karma.pda.mod.app.SettingsApp;
 import net.minecraft.resources.ResourceLocation;

@@ -4,11 +4,11 @@
 
 package io.karma.pda.mod.init;
 
-import io.karma.pda.mod.PDAMod;
 import io.karma.pda.api.app.theme.DarkTheme;
 import io.karma.pda.api.app.theme.LightTheme;
 import io.karma.pda.api.app.theme.Theme;
 import io.karma.pda.api.util.Constants;
+import io.karma.pda.mod.PDAMod;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Function;

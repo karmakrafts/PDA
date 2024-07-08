@@ -5,7 +5,6 @@
 package io.karma.pda.mod.client.render.shader;
 
 import com.mojang.blaze3d.vertex.VertexFormat;
-import io.karma.pda.api.client.render.shader.ShaderPreProcessor;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.uniform.Uniform;
 import io.karma.pda.api.client.render.shader.uniform.UniformCache;
@@ -27,7 +26,6 @@ import org.lwjgl.opengl.GL20;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * @author Alexander Hinze

@@ -4,10 +4,10 @@
 
 package io.karma.pda.mod.network;
 
-import io.karma.pda.mod.PDAMod;
 import io.karma.pda.api.API;
 import io.karma.pda.api.app.component.Component;
 import io.karma.pda.api.app.component.Container;
+import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.app.ClientLauncher;
 import io.karma.pda.mod.client.interaction.DockInteractionHandler;
 import io.karma.pda.mod.client.interaction.PDAInteractionHandler;

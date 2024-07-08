@@ -6,13 +6,13 @@ package io.karma.pda.mod.app.theme.font;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.karma.pda.mod.PDAMod;
 import io.karma.pda.api.API;
 import io.karma.pda.api.app.theme.font.FontFamily;
 import io.karma.pda.api.app.theme.font.FontStyle;
 import io.karma.pda.api.app.theme.font.FontVariant;
 import io.karma.pda.api.util.Exceptions;
 import io.karma.pda.api.util.JSONUtils;
+import io.karma.pda.mod.PDAMod;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.resources.ResourceLocation;

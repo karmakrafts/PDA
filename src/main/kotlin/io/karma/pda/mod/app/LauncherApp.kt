@@ -18,7 +18,11 @@ import io.karma.pda.composition.app.ComposableApp
 import io.karma.pda.composition.color.gradient
 import io.karma.pda.composition.color.rangeTo
 import io.karma.pda.composition.color.rgb
-import io.karma.pda.composition.component.*
+import io.karma.pda.composition.component.Box
+import io.karma.pda.composition.component.Spacer
+import io.karma.pda.composition.component.Spinner
+import io.karma.pda.composition.component.Text
+import io.karma.pda.composition.component.child
 import io.karma.pda.composition.flex.auto
 import io.karma.pda.composition.flex.percent
 import io.karma.pda.composition.flex.px
@@ -136,8 +140,9 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                             height(64.px)
                             margin(4.px)
                         }, localName = "spinner") {
-                            color((Color.WHITE..Color.RED).gradient(
-                                GradientType.VERTICAL))
+                            color(
+                                (Color.WHITE..Color.RED).gradient(GradientType.VERTICAL)
+                            )
                         }
                     }
                 }
@@ -148,10 +153,15 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                 }) {
                     font(
                         DefaultFontFamilies.NOTO_SANS.getFont(
-                            FontStyle.REGULAR, 24F))
+                            FontStyle.REGULAR, 24F
+                        )
+                    )
                     text("Hello World, this is a text wrapping example on the PDA, finally WORKING \\o/")
-                    color((Color.WHITE..Color.RED).gradient(
-                        GradientType.HORIZONTAL))
+                    color(
+                        (Color.WHITE..Color.RED).gradient(
+                            GradientType.HORIZONTAL
+                        )
+                    )
                 }
 
                 Text({
@@ -160,17 +170,9 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                 }) {
                     font(
                         DefaultFontFamilies.NOTO_SANS.getFont(
-                            FontStyle.REGULAR, 20F))
-                    text("Hello World, this is a text wrapping example on the PDA, finally WORKING \\o/")
-                }
-
-                Text({
-                    width(100.percent)
-                    grow(1F)
-                }) {
-                    font(
-                        DefaultFontFamilies.NOTO_SANS.getFont(
-                            FontStyle.REGULAR, 16F))
+                            FontStyle.REGULAR, 20F
+                        )
+                    )
                     text("Hello World, this is a text wrapping example on the PDA, finally WORKING \\o/")
                 }
 
@@ -180,7 +182,21 @@ class LauncherApp(type: AppType<*>) : ComposableApp(type) {
                 }) {
                     font(
                         DefaultFontFamilies.NOTO_SANS.getFont(
-                            FontStyle.REGULAR, 12F))
+                            FontStyle.REGULAR, 16F
+                        )
+                    )
+                    text("Hello World, this is a text wrapping example on the PDA, finally WORKING \\o/")
+                }
+
+                Text({
+                    width(100.percent)
+                    grow(1F)
+                }) {
+                    font(
+                        DefaultFontFamilies.NOTO_SANS.getFont(
+                            FontStyle.REGULAR, 12F
+                        )
+                    )
                     text("Hello World, this is a text wrapping example on the PDA, finally WORKING \\o/")
                 }
             }
