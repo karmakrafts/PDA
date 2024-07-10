@@ -17,6 +17,7 @@ materialColorUtils = "1.0.0.3" # https://nexus.covers1624.net/#browse/browse:kar
 lz4j = "1.8.0" # https://mvnrepository.com/artifact/org.lz4/lz4-java
 kotlinForForge = "4.10.0" # https://thedarkcolour.github.io/KotlinForForge/thedarkcolour/kotlinforforge/web.html
 lwjgl = "3.3.3" # https://mvnrepository.com/artifact/org.lwjgl/lwjgl
+junit = "5.10.3" # https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
 
 [libraries]
 minecraftForge = { module = "net.minecraftforge:forge", version.ref = "minecraftForge" }
@@ -29,6 +30,8 @@ lwjglYoga = { module = "org.lwjgl:lwjgl-yoga", version.ref = "lwjgl" }
 lwjglFreeType = { module = "org.lwjgl:lwjgl-freetype", version.ref = "lwjgl" }
 materialColorUtils = { module = "io.karma.material:material-color-utils", version.ref = "materialColorUtils" }
 lz4j = { module = "org.lz4:lz4-java", version.ref = "lz4j" }
+junitApi = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junitEngine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 
 [plugins]
 forgeGradle = { id = "net.minecraftforge.gradle", version.ref = "forgeGradle" }

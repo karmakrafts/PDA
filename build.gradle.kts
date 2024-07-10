@@ -1,4 +1,8 @@
+/*
+ * Copyright (C) 2024 Karma Krafts & associates
+ */
 
+import com.github.jengelman.gradle.plugins.shadow.internal.DependencyFilter
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.dokka.gradle.DokkaTask
@@ -11,10 +15,6 @@ import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.io.path.inputStream
 import kotlin.io.path.pathString
-
-/*
- * Copyright (C) 2024 Karma Krafts & associates
- */
 
 plugins {
     eclipse
@@ -41,9 +41,14 @@ val buildConfig: Properties = Properties().apply {
     Path("build.properties").inputStream(StandardOpenOption.READ).use(::load)
 }
 val modId: String = buildConfig["mod_id"] as String
+val license: String = buildConfig["license"] as String
 val mcVersion: String = libs.versions.minecraft.get()
 val buildNumber: Int = System.getenv("CI_PIPELINE_IID")?.toIntOrNull() ?: 0
 val buildTime: Instant = Instant.now()
+
+val yogaPlatforms: List<String> = (buildConfig["yoga_platforms"] as String).split(',')
+val freeTypePlatforms: List<String> = (buildConfig["freetype_platforms"] as String).split(',')
+val msdfgenPlatforms: List<String> = (buildConfig["msdfgen_platforms"] as String).split(',')
 
 version = "${libs.versions.pda.get()}.$buildNumber"
 group = buildConfig["group"] as String
@@ -84,10 +89,18 @@ val libraryConfig = configurations.create("library") {
 val minecraftConfig = configurations.getByName("minecraft")
 
 configurations {
-    annotationProcessor { extendsFrom(minecraftConfig) }
-    val implementation by getting { extendsFrom(coreLibraryConfig, libraryConfig) }
-    val compileClasspath by getting { extendsFrom(coreLibraryConfig, libraryConfig) }
-    val apiCompileOnly by getting { extendsFrom(coreLibraryConfig, minecraftConfig) }
+    annotationProcessor {
+        extendsFrom(minecraftConfig)
+    }
+    val implementation by getting {
+        extendsFrom(coreLibraryConfig, libraryConfig)
+    }
+    val compileClasspath by getting {
+        extendsFrom(coreLibraryConfig, libraryConfig)
+    }
+    val apiCompileOnly by getting {
+        extendsFrom(coreLibraryConfig, minecraftConfig)
+    }
 }
 
 val foundationCompileOnlyConfig = configurations.getByName("foundationCompileOnly") {
@@ -116,26 +129,20 @@ dependencies {
     coreLibraryConfig(libs.lz4j)
 
     libraryConfig(libs.lwjglYoga)
-    libraryConfig(files(projectPath / "libs" / "lwjgl-freetype-3.3.4-SNAPSHOT.jar"))
-    compileOnly(files(projectPath / "libs" / "lwjgl-freetype-3.3.4-SNAPSHOT-javadoc.jar"))
-    compileOnly(files(projectPath / "libs" / "lwjgl-freetype-3.3.4-SNAPSHOT-sources.jar"))
-    listOf(
-        "natives-linux-arm32",
-        "natives-linux-arm64",
-        "natives-linux",
-        "natives-macos-arm64",
-        "natives-macos",
-        "natives-windows-arm64",
-        "natives-windows-x86",
-        "natives-windows"
-    ).forEach { classifier ->
+    yogaPlatforms.forEach { platform ->
         libs.lwjglYoga.get().apply {
-            libraryConfig(module.group, module.name, version, classifier = classifier) {
+            libraryConfig(module.group, module.name, version, classifier = "natives-$platform") {
                 isTransitive = false
             }
         }
+    }
+
+    libraryConfig(files(projectPath / "libs" / "lwjgl-freetype-3.3.4-SNAPSHOT.jar"))
+    compileOnly(files(projectPath / "libs" / "lwjgl-freetype-3.3.4-SNAPSHOT-javadoc.jar"))
+    compileOnly(files(projectPath / "libs" / "lwjgl-freetype-3.3.4-SNAPSHOT-sources.jar"))
+    freeTypePlatforms.forEach { platform ->
         libs.lwjglFreeType.get().apply {
-            libraryConfig(module.group, module.name, version, classifier = classifier) {
+            libraryConfig(module.group, module.name, version, classifier = "natives-$platform") {
                 isTransitive = false
             }
         }
@@ -144,13 +151,8 @@ dependencies {
     libraryConfig(files(projectPath / "libs" / "lwjgl-msdfgen-3.3.4-SNAPSHOT.jar"))
     compileOnly(files(projectPath / "libs" / "lwjgl-msdfgen-3.3.4-SNAPSHOT-javadoc.jar"))
     compileOnly(files(projectPath / "libs" / "lwjgl-msdfgen-3.3.4-SNAPSHOT-sources.jar"))
-    listOf(
-        "natives-linux",
-        "natives-macos",
-        "natives-macos-arm64",
-        "natives-windows"
-    ).forEach { classifier ->
-        libraryConfig(files(projectPath / "libs" / "lwjgl-msdfgen-3.3.4-SNAPSHOT-$classifier.jar"))
+    msdfgenPlatforms.forEach { platform ->
+        libraryConfig(files(projectPath / "libs" / "lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-$platform.jar"))
     }
 
     compileOnly(apiSourceSet.output)
@@ -162,11 +164,18 @@ dependencies {
     composableCompileOnlyConfig(foundationSourceSet.output)
     composableCompileOnlyConfig(libs.kotlinForForge)
     compileOnly(composableSourceSet.output)
+
+    testImplementation(libs.junitApi)
+    testRuntimeOnly(libs.junitEngine)
+    testImplementation(apiSourceSet.output)
+    testImplementation(foundationSourceSet.output)
+    testImplementation(composableSourceSet.output)
+    testImplementation(libs.kotlinForForge)
 }
 
 minecraft {
     mappings(
-        buildConfig["mappings_channel"].toString(),
+        buildConfig["mappings_channel"] as String,
         "${libs.versions.mappings.get()}-$mcVersion"
     )
     accessTransformer(projectPath / "src" / "main" / "resources" / "META-INF" / "accesstransformer.cfg")
@@ -237,7 +246,7 @@ fun Manifest.applyCommonManifest() {
 }
 
 fun Provider<MinimalExternalModuleDependency>.toShadowInclude(): String {
-    return get().let { "${group}:${name}" }
+    return get().module.let { "${it.group}:${it.name}" }
 }
 
 tasks {
@@ -252,7 +261,7 @@ tasks {
             "loader_version_range" to forgeVersion.substringBefore("."),
             "mod_id" to modId,
             "mod_name" to buildConfig["mod_name"] as String,
-            "mod_license" to "Apache 2.0",
+            "mod_license" to license,
             "mod_version" to version,
             "mod_authors" to "Karma Krafts",
             "mod_description" to "Working pocket computers for Minecraft."
@@ -282,51 +291,69 @@ val dokkaHtmlTask = tasks.getByName<DokkaTask>("dokkaHtml")
 val classesTask = tasks.getByName("classes")
 
 val jarTask = tasks.getByName<Jar>("jar") {
-    archiveClassifier = "slim"
-    manifest.applyCommonManifest()
-    finalizedBy("reobfJar") // Lazy forward dependency
     from(
         mainSourceSet.output,
         apiSourceSet.output,
         foundationSourceSet.output,
         composableSourceSet.output
     )
+    archiveClassifier = "slim"
+    manifest.applyCommonManifest()
+    finalizedBy("reobfJar") // Lazy forward dependency
+}
+
+fun DependencyFilter.includeCoreLibs() {
+    include(dependency(libs.annotations.toShadowInclude()))
+    include(dependency(libs.jacksonCore.toShadowInclude()))
+    include(dependency(libs.jacksonAnnotationns.toShadowInclude()))
+    include(dependency(libs.jacksonDatabind.toShadowInclude()))
+    include(dependency(libs.materialColorUtils.toShadowInclude()))
+    include(dependency(libs.lz4j.toShadowInclude()))
 }
 
 val shadowJarTask = tasks.getByName<ShadowJar>("shadowJar") {
-    from(jarTask.source)
+    from(
+        mainSourceSet.output,
+        apiSourceSet.output,
+        foundationSourceSet.output,
+        composableSourceSet.output
+    )
     archiveClassifier = ""
     manifest.applyCommonManifest()
+    mergeServiceFiles()
     finalizedBy("reobfShadowJar") // Lazy forward dependency
     dependencies {
-        include(dependency(libs.annotations.toShadowInclude()))
-        include(dependency(libs.jacksonCore.toShadowInclude()))
-        include(dependency(libs.jacksonAnnotationns.toShadowInclude()))
-        include(dependency(libs.jacksonDatabind.toShadowInclude()))
-        include(dependency(libs.materialColorUtils.toShadowInclude()))
-        include(dependency(libs.lz4j.toShadowInclude()))
+        includeCoreLibs()
         include(dependency(libs.lwjglYoga.toShadowInclude()))
         include(dependency(libs.lwjglFreeType.toShadowInclude()))
+        include(dependency(files(projectPath / "libs" / "lwjgl-freetype-3.3.4-SNAPSHOT.jar")))
+        include(dependency(files(projectPath / "libs" / "lwjgl-msdfgen-3.3.4-SNAPSHOT.jar")))
+        msdfgenPlatforms.forEach { platform ->
+            include(dependency(files(projectPath / "libs" / "lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-$platform.jar")))
+        }
     }
 }
 val reobfShadowJarTask = reobf.create("shadowJar")
 
 val sourcesJarTask = tasks.create<Jar>("sourcesJar") {
-    dependsOn(classesTask)
-    archiveClassifier = "sources"
     from(
         mainSourceSet.allSource,
         apiSourceSet.allSource,
         foundationSourceSet.allSource,
         composableSourceSet.allSource
     )
+    dependsOn(classesTask)
+    archiveClassifier = "sources"
 }
 
 val apiJarTask = tasks.create<ShadowJar>("apiJar") {
     from(apiSourceSet.output)
     archiveClassifier = "api"
-    configurations.addAll(shadowJarTask.configurations)
     finalizedBy("reobfApiJar") // Lazy forward dependency
+    mergeServiceFiles()
+    dependencies {
+        includeCoreLibs()
+    }
 }
 val reobfApiJarTask = reobf.create("apiJar")
 
@@ -336,9 +363,9 @@ val apiSourcesJarTask = tasks.create<Jar>("apiSourcesJar") {
 }
 
 val apiJavadocJarTask = tasks.create<Jar>("apiJavadocJar") {
+    from(dokkaHtmlTask.outputs)
     dependsOn(dokkaHtmlTask)
     mustRunAfter(dokkaHtmlTask)
-    from(dokkaHtmlTask.outputs)
     archiveClassifier = "api-javadoc"
 }
 
@@ -349,4 +376,79 @@ artifacts {
     archives(apiJarTask)
     archives(apiSourcesJarTask)
     archives(apiJavadocJarTask)
+}
+
+tasks {
+    withType<Jar> {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
+
+    val archiveName = project.base.archivesName.get()
+
+    System.getProperty("publishDocs.root")?.let { docsDir ->
+        create<Copy>("publishDocs") {
+            dependsOn(apiJavadocJarTask)
+            mustRunAfter(apiJavadocJarTask)
+            from(zipTree(projectPath / "build" / "libs" / "$archiveName-$version-api-javadoc.jar"))
+            into(docsDir)
+        }
+    }
+
+    System.getenv("CI_API_V4_URL")?.let { apiUrl ->
+        publishing {
+            repositories {
+                maven {
+                    url = uri("${apiUrl.replace("http://", "https://")}/projects/264/packages/maven")
+                    name = "GitLab"
+                    credentials(HttpHeaderCredentials::class) {
+                        name = "Job-Token"
+                        value = System.getenv("CI_JOB_TOKEN")
+                    }
+                    authentication {
+                        create("header", HttpHeaderAuthentication::class)
+                    }
+                }
+            }
+
+            publications {
+                create<MavenPublication>(modId) {
+                    groupId = project.group as String
+                    artifactId = archiveName
+                    version = project.version as String
+
+                    artifact(jarTask)
+                    artifact(shadowJarTask)
+                    artifact(sourcesJarTask)
+                    artifact(apiJarTask)
+                    artifact(apiSourcesJarTask)
+                    artifact(apiJavadocJarTask)
+
+                    pom {
+                        name = artifactId
+                        url = "https://git.karmakrafts.dev/kk/commissions/$modId"
+                        scm {
+                            url = this@pom.url
+                        }
+                        issueManagement {
+                            system = "gitlab"
+                            url = "https://git.karmakrafts.dev/kk/commissions/$modId/issues"
+                        }
+                        licenses {
+                            license {
+                                name = license
+                                distribution = "repo"
+                            }
+                        }
+                        developers {
+                            developer {
+                                id = "kitsunealex"
+                                name = "KitsuneAlex"
+                                url = "https://git.karmakrafts.dev/KitsuneAlex"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
