@@ -273,15 +273,12 @@ tasks {
     }
     dokkaHtml {
         dokkaSourceSets {
-            configureEach {
+            named("main") {
+                sourceRoots.from(apiSourceSet)
                 reportUndocumented = false
                 jdkVersion = java.toolchain.languageVersion.get().asInt()
                 noAndroidSdkLink = true
                 externalDocumentationLink("https://docs.karmakrafts.dev/pda")
-                perPackageOption {
-                    matchingRegex = "(.*)$group\\.(.*)"
-                    suppress = true
-                }
             }
         }
     }
