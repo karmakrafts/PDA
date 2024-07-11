@@ -274,7 +274,7 @@ tasks {
     dokkaHtml {
         dokkaSourceSets {
             named("main") {
-                sourceRoots.from(apiSourceSet)
+                sourceRoots.from("src/api/java")
                 reportUndocumented = false
                 jdkVersion = java.toolchain.languageVersion.get().asInt()
                 noAndroidSdkLink = true
