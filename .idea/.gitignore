@@ -1,0 +1,7 @@
+/*
+!.gitignore
+!copyright/
+!copyright/**
+!fileTemplates/
+!fileTemplates/**
+!icon.png

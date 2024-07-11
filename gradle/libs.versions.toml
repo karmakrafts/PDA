@@ -6,7 +6,7 @@ minecraftForge = "1.20.1-47.2.30"
 mappings = "2023.09.03" # https://parchmentmc.org/docs/getting-started
 forge = "47.2.30" # https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html
 forgeGradle = "6.0.25" # https://files.minecraftforge.net/net/minecraftforge/gradle/ForgeGradle/index.html
-spongeGradle = "0.7-SNAPSHOT" # https://github.com/SpongePowered/SpongeGradle/releases
+mixinGradle = "0.7-SNAPSHOT" # https://github.com/SpongePowered/SpongeGradle/releases
 librarian = "1.2.0" # https://github.com/ParchmentMC/Librarian/tags
 shadow = "8.1.1" # https://github.com/johnrengelman/shadow/releases
 dokka = "1.9.20" # https://github.com/Kotlin/dokka/releases
@@ -35,7 +35,7 @@ junitEngine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref =
 
 [plugins]
 forgeGradle = { id = "net.minecraftforge.gradle", version.ref = "forgeGradle" }
-spongeGradle = { id = "org.spongepowered.mixin", version.ref = "spongeGradle" }
+mixinGradle = { id = "org.spongepowered.mixin", version.ref = "mixinGradle" }
 librarian = { id = "org.parchmentmc.librarian.forgegradle", version.ref = "librarian" }
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

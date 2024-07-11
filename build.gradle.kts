@@ -21,7 +21,7 @@ plugins {
     idea
     `maven-publish`
     alias(libs.plugins.forgeGradle)
-    alias(libs.plugins.spongeGradle)
+    alias(libs.plugins.mixinGradle)
     alias(libs.plugins.librarian)
     alias(libs.plugins.kotlin)
     alias(libs.plugins.shadow)
@@ -422,13 +422,13 @@ tasks {
 
                     pom {
                         name = artifactId
-                        url = "https://git.karmakrafts.dev/kk/commissions/$modId"
+                        url = "https://git.karmakrafts.dev/kk/mc-projects/$modId"
                         scm {
                             url = this@pom.url
                         }
                         issueManagement {
                             system = "gitlab"
-                            url = "https://git.karmakrafts.dev/kk/commissions/$modId/issues"
+                            url = "https://git.karmakrafts.dev/kk/mc-projects/$modId/issues"
                         }
                         licenses {
                             license {

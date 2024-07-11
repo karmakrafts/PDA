@@ -1,0 +1,7 @@
+<component name="CopyrightManager">
+  <copyright>
+    <option name="allowReplaceRegexp" value="Copyright" />
+    <option name="notice" value="Copyright (C) &amp;#36;{today.year} Karma Krafts &amp;amp; associates" />
+    <option name="myName" value="pda" />
+  </copyright>
+</component>
