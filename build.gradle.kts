@@ -113,8 +113,7 @@ val composableCompileOnlyConfig = configurations.getByName("composableCompileOnl
 repositories {
     mavenCentral()
     maven("https://thedarkcolour.github.io/KotlinForForge")
-    maven("https://maven.covers1624.net")
-    maven("https://cursemaven.com")
+    maven("https://git.karmakrafts.dev/api/v4/projects/267/packages/maven")
 }
 
 dependencies {
