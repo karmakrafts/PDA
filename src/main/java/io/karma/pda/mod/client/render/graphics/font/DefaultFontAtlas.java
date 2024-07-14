@@ -150,7 +150,7 @@ public final class DefaultFontAtlas implements FontAtlas {
                     context.shapes.put(c, MemoryUtil.NULL);
                     continue;
                 }
-                final var boundsBuffer = MSDFGenBounds.malloc(1, stack);
+                final var boundsBuffer = MSDFGenBounds.malloc(stack);
                 MSDFUtils.throwIfError(MSDFGen.msdf_shape_get_bounds(shape, boundsBuffer));
                 final var width = boundsBuffer.r() - boundsBuffer.l();
                 if (context.maxWidth < width) {
@@ -186,7 +186,7 @@ public final class DefaultFontAtlas implements FontAtlas {
                 final var totalSpriteBorder = spriteBorder << 1;
                 final var actualSpriteSize = spriteSize - totalSpriteBorder;
 
-                final var boundsBuffer = MSDFGenBounds.malloc(1, stack);
+                final var boundsBuffer = MSDFGenBounds.malloc(stack);
                 MSDFUtils.throwIfError(MSDFGen.msdf_shape_get_bounds(shape, boundsBuffer));
                 final var bbWidth = boundsBuffer.r() - boundsBuffer.l();
                 final var bbHeight = boundsBuffer.t() - boundsBuffer.b();

@@ -26,13 +26,13 @@ public final class MSDFUtils {
 
     public static void rewindShapeIfNeeded(final long shape) {
         try (final var stack = MemoryStack.stackPush()) {
-            final var bounds = MSDFGenBounds.malloc(1, stack);
+            final var bounds = MSDFGenBounds.malloc(stack);
             MSDFUtils.throwIfError(MSDFGen.msdf_shape_get_bounds(shape, bounds));
             final var outerPoint = new Vector2d(bounds.l() - (bounds.r() - bounds.l()) - 1,
                 bounds.b() - (bounds.t() - bounds.b()) - 1);
             final var distanceBuffer = stack.mallocDouble(1);
             MSDFUtils.throwIfError(MSDFGen.msdf_shape_one_shot_distance(shape,
-                MSDFGenVector2.malloc(1, stack).x(outerPoint.x).y(outerPoint.y),
+                MSDFGenVector2.malloc(stack).x(outerPoint.x).y(outerPoint.y),
                 distanceBuffer));
             if (distanceBuffer.get() > 0.0) {
                 PDAMod.LOGGER.debug("Shape wound incorrectly, correcting winding order");
@@ -81,7 +81,7 @@ public final class MSDFUtils {
                             final var pointCount = pointCountBuffer.get();
                             for (long k = 0; k < pointCount; k++) {
                                 try (final var pointStack = MemoryStack.stackPush()) {
-                                    final var pos = MSDFGenVector2.malloc(1, pointStack);
+                                    final var pos = MSDFGenVector2.malloc(pointStack);
                                     throwIfError(MSDFGen.msdf_segment_get_point(segment, k, pos));
                                     pos.x(pos.x() * scale);
                                     pos.y(pos.y() * scale);
@@ -114,7 +114,7 @@ public final class MSDFUtils {
         }
     }
 
-    public static void blitBitmapToImage(final MSDFGenBitmap.Buffer bitmap, final BufferedImage image, final int dstX,
+    public static void blitBitmapToImage(final MSDFGenBitmap bitmap, final BufferedImage image, final int dstX,
                                          final int dstY) {
         if (image.getType() != BufferedImage.TYPE_INT_ARGB) {
             throw new IllegalArgumentException("Invalid target image format");
@@ -157,9 +157,9 @@ public final class MSDFUtils {
                                           final double yOffset, final double range, final BufferedImage dst,
                                           final int dstX, final int dstY) {
         try (final var stack = MemoryStack.stackPush()) {
-            final var bitmap = MSDFGenBitmap.malloc(1, stack);
+            final var bitmap = MSDFGenBitmap.malloc(stack);
             throwIfError(MSDFGen.msdf_bitmap_alloc(type, width, height, bitmap));
-            final var transform = MSDFGenTransform.malloc(1, stack);
+            final var transform = MSDFGenTransform.malloc(stack);
             transform.scale().set(xScale, yScale);
             transform.translation().set(xOffset, yOffset);
             transform.distance_mapping().set(-0.5 * range, 0.5 * range);

@@ -45,10 +45,7 @@ val license: String = buildConfig["license"] as String
 val mcVersion: String = libs.versions.minecraft.get()
 val buildNumber: Int = System.getenv("CI_PIPELINE_IID")?.toIntOrNull() ?: 0
 val buildTime: Instant = Instant.now()
-
-val yogaPlatforms: List<String> = (buildConfig["yoga_platforms"] as String).split(',')
-val freeTypePlatforms: List<String> = (buildConfig["freetype_platforms"] as String).split(',')
-val msdfgenPlatforms: List<String> = (buildConfig["msdfgen_platforms"] as String).split(',')
+val platforms: List<String> = (buildConfig["platforms"] as String).split(',')
 
 version = "${libs.versions.pda.get()}.$buildNumber"
 group = buildConfig["group"] as String
@@ -116,6 +113,15 @@ repositories {
     maven("https://git.karmakrafts.dev/api/v4/projects/267/packages/maven")
 }
 
+fun DependencyHandlerScope.localLwjglModule(name: String) {
+    libraryConfig(files(projectPath / "libs" / "lwjgl-$name.jar"))
+    compileOnly(files(projectPath / "libs" / "lwjgl-$name-javadoc.jar"))
+    compileOnly(files(projectPath / "libs" / "lwjgl-$name-sources.jar"))
+    platforms.forEach { platform ->
+        libraryConfig(files(projectPath / "libs" / "lwjgl-$name-natives-$platform.jar"))
+    }
+}
+
 dependencies {
     minecraft(libs.minecraftForge)
     implementation(libs.kotlinForForge)
@@ -127,32 +133,9 @@ dependencies {
     coreLibraryConfig(libs.materialColorUtils)
     coreLibraryConfig(libs.lz4j)
 
-    libraryConfig(libs.lwjglYoga)
-    yogaPlatforms.forEach { platform ->
-        libs.lwjglYoga.get().apply {
-            libraryConfig(module.group, module.name, version, classifier = "natives-$platform") {
-                isTransitive = false
-            }
-        }
-    }
-
-    libraryConfig(files(projectPath / "libs" / "lwjgl-freetype-3.3.4-SNAPSHOT.jar"))
-    compileOnly(files(projectPath / "libs" / "lwjgl-freetype-3.3.4-SNAPSHOT-javadoc.jar"))
-    compileOnly(files(projectPath / "libs" / "lwjgl-freetype-3.3.4-SNAPSHOT-sources.jar"))
-    freeTypePlatforms.forEach { platform ->
-        libs.lwjglFreeType.get().apply {
-            libraryConfig(module.group, module.name, version, classifier = "natives-$platform") {
-                isTransitive = false
-            }
-        }
-    }
-
-    libraryConfig(files(projectPath / "libs" / "lwjgl-msdfgen-3.3.4-SNAPSHOT.jar"))
-    compileOnly(files(projectPath / "libs" / "lwjgl-msdfgen-3.3.4-SNAPSHOT-javadoc.jar"))
-    compileOnly(files(projectPath / "libs" / "lwjgl-msdfgen-3.3.4-SNAPSHOT-sources.jar"))
-    msdfgenPlatforms.forEach { platform ->
-        libraryConfig(files(projectPath / "libs" / "lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-$platform.jar"))
-    }
+    localLwjglModule("freetype")
+    localLwjglModule("msdfgen")
+    localLwjglModule("yoga")
 
     compileOnly(apiSourceSet.output)
 
@@ -307,6 +290,13 @@ fun DependencyFilter.includeCoreLibs() {
     include(dependency(libs.lz4j.toShadowInclude()))
 }
 
+fun DependencyFilter.includeLocalLwjglModule(name: String) {
+    include(dependency(files(projectPath / "libs" / "lwjgl-$name.jar")))
+    platforms.forEach { platform ->
+        include(dependency(files(projectPath / "libs" / "lwjgl-$name-natives-$platform.jar")))
+    }
+}
+
 val shadowJarTask = tasks.getByName<ShadowJar>("shadowJar") {
     from(
         mainSourceSet.output,
@@ -320,13 +310,9 @@ val shadowJarTask = tasks.getByName<ShadowJar>("shadowJar") {
     finalizedBy("reobfShadowJar") // Lazy forward dependency
     dependencies {
         includeCoreLibs()
-        include(dependency(libs.lwjglYoga.toShadowInclude()))
-        include(dependency(libs.lwjglFreeType.toShadowInclude()))
-        include(dependency(files(projectPath / "libs" / "lwjgl-freetype-3.3.4-SNAPSHOT.jar")))
-        include(dependency(files(projectPath / "libs" / "lwjgl-msdfgen-3.3.4-SNAPSHOT.jar")))
-        msdfgenPlatforms.forEach { platform ->
-            include(dependency(files(projectPath / "libs" / "lwjgl-msdfgen-3.3.4-SNAPSHOT-natives-$platform.jar")))
-        }
+        includeLocalLwjglModule("freetype")
+        includeLocalLwjglModule("msdfgen")
+        includeLocalLwjglModule("yoga")
     }
 }
 val reobfShadowJarTask = reobf.create("shadowJar")

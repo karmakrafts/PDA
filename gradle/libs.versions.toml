@@ -16,7 +16,6 @@ jackson = "2.17.2" # https://mvnrepository.com/artifact/com.fasterxml.jackson.co
 materialColorUtils = "1.1.0.8" # https://git.karmakrafts.dev/kk/material-color-utils/-/packages/
 lz4j = "1.8.0" # https://mvnrepository.com/artifact/org.lz4/lz4-java
 kotlinForForge = "4.10.0" # https://thedarkcolour.github.io/KotlinForForge/thedarkcolour/kotlinforforge/web.html
-lwjgl = "3.3.3" # https://mvnrepository.com/artifact/org.lwjgl/lwjgl
 junit = "5.10.3" # https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
 
 [libraries]
@@ -26,8 +25,6 @@ jacksonCore = { module = "com.fasterxml.jackson.core:jackson-core", version.ref 
 jacksonAnnotationns = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
 jacksonDatabind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 kotlinForForge = { module = "thedarkcolour:kotlinforforge", version.ref = "kotlinForForge" }
-lwjglYoga = { module = "org.lwjgl:lwjgl-yoga", version.ref = "lwjgl" }
-lwjglFreeType = { module = "org.lwjgl:lwjgl-freetype", version.ref = "lwjgl" }
 materialColorUtils = { module = "io.karma.material:material-color-utils", version.ref = "materialColorUtils" }
 lz4j = { module = "org.lz4:lz4-java", version.ref = "lz4j" }
 junitApi = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }

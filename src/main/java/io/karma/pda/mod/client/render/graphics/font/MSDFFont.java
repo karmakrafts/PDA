@@ -21,6 +21,7 @@ import org.lwjgl.util.freetype.FT_Face;
 import org.lwjgl.util.freetype.FT_GlyphSlot;
 import org.lwjgl.util.freetype.FreeType;
 import org.lwjgl.util.msdfgen.MSDFGen;
+import org.lwjgl.util.msdfgen.MSDFGenExt;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +51,7 @@ public final class MSDFFont implements AutoCloseable {
         LibFFI.ffi_type_pointer);
 
     static {
-        MSDFUtils.throwIfError(MSDFGen.msdf_ft_set_load_callback(nameAddress -> FreeType.getLibrary().getFunctionAddress(
+        MSDFUtils.throwIfError(MSDFGenExt.msdf_ft_set_load_callback(nameAddress -> FreeType.getLibrary().getFunctionAddress(
             MemoryUtil.memASCII(nameAddress))));
     }
 
@@ -112,8 +113,7 @@ public final class MSDFFont implements AutoCloseable {
 
             // Setup msdfgen to use LWJGL FreeType bindings
             final var fontAddressBuffer = stack.mallocPointer(1);
-            MSDFUtils.throwIfError(MSDFGen.msdf_ft_adopt_font(MemoryUtil.memByteBuffer(face.address(), face.sizeof()),
-                fontAddressBuffer));
+            MSDFUtils.throwIfError(MSDFGenExt.msdf_ft_adopt_font(face.address(), fontAddressBuffer));
             font = Checks.check(fontAddressBuffer.get());
         }
     }
@@ -130,7 +130,10 @@ public final class MSDFFont implements AutoCloseable {
         try (final var stack = MemoryStack.stackPush()) {
             final var addressBuffer = stack.mallocPointer(1);
             // Convert raw Java character to unicode codepoint to properly support surrogate pairs
-            MSDFUtils.throwIfError(MSDFGen.msdf_ft_font_load_glyph(font, c, addressBuffer));
+            MSDFUtils.throwIfError(MSDFGenExt.msdf_ft_font_load_glyph(font,
+                c,
+                MSDFGenExt.MSDF_FONT_SCALING_NONE,
+                addressBuffer));
             final var shape = Checks.check(addressBuffer.get());
             MSDFUtils.throwIfError(MSDFGen.msdf_shape_normalize(shape));
             MSDFUtils.rewindShapeIfNeeded(shape);
@@ -187,7 +190,7 @@ public final class MSDFFont implements AutoCloseable {
     @Override
     public void close() throws Exception {
         stream.close();
-        MSDFGen.msdf_ft_font_destroy(font);
+        MSDFGenExt.msdf_ft_font_destroy(font);
         PDAMod.LOGGER.debug("Freed font instance at 0x{}", Long.toHexString(font));
         FreeType.FT_Done_Face(face);
         PDAMod.LOGGER.debug("Freed font face instance at 0x{}", Long.toHexString(face.address()));
