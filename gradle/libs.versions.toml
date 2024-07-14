@@ -13,7 +13,7 @@ dokka = "1.9.20" # https://github.com/Kotlin/dokka/releases
 
 annotations = "24.1.0" # https://github.com/JetBrains/java-annotations/releases
 jackson = "2.17.2" # https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
-materialColorUtils = "1.1.0.5" # https://git.karmakrafts.dev/kk/material-color-utils/-/packages/
+materialColorUtils = "1.1.0.8" # https://git.karmakrafts.dev/kk/material-color-utils/-/packages/
 lz4j = "1.8.0" # https://mvnrepository.com/artifact/org.lz4/lz4-java
 kotlinForForge = "4.10.0" # https://thedarkcolour.github.io/KotlinForForge/thedarkcolour/kotlinforforge/web.html
 lwjgl = "3.3.3" # https://mvnrepository.com/artifact/org.lwjgl/lwjgl
