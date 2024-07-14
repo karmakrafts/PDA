@@ -20,18 +20,20 @@ The mod also makes use of [libffi](https://github.com/libffi/libffi) to mitigate
 Currently, the mod is built and tested on the following systems:
 
 | Platform | Architecture | Status |
-|----------|--------------|--------|
-| Windows  | i386         | ❌      |
-| Windows  | x64          | ✅      |
-| Windows  | arm64        | 🛠️    |
-| Linux    | i386         | ❌      |
-| Linux    | x64          | ✅      |
-| Linux    | arm32sf      | ❌      |
-| Linux    | arm32hf      | ❌      |
-| Linux    | arm64        | 🛠️    |
-| Linux    | riscv64      | 🛠️    |
-| macOS    | x64          | ✅      |
-| macOS    | arm64        | ✅    |
+|----------|--------------|------|
+| Windows  | i386         | ✅    |
+| Windows  | x64          | ✅    |
+| Windows  | arm64        | ✅   |
+| Linux    | i386         | ✅    |
+| Linux    | x64          | ✅    |
+| Linux    | arm32sf      | ❌    |
+| Linux    | arm32hf      | ✅    |
+| Linux    | arm64        | ✅  |
+| Linux    | riscv64      | ✅  |
+| Linux    | ppc64le      | ✅  |
+| macOS    | x64          | ✅    |
+| macOS    | arm64        | ✅   |
+| FreeBSD  | x64          | ✅   |
 
 ❌ Currently unsupported | 🛠️ Being worked on | ✅ Supported
 
