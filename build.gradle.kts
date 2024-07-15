@@ -256,7 +256,7 @@ tasks {
     dokkaHtml {
         dokkaSourceSets {
             named("main") {
-                sourceRoots.setFrom("src/api/java")
+                sourceRoots.setFrom("src/api/java", "src/foundation/java", "src/composable/kotlin")
                 reportUndocumented = false
                 jdkVersion = java.toolchain.languageVersion.get().asInt()
                 noAndroidSdkLink = true
