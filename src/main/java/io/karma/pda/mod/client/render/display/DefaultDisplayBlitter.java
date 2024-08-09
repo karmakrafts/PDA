@@ -66,8 +66,13 @@ public final class DefaultDisplayBlitter implements DisplayBlitter {
                         .defaultPreProcessor())
                     .shader(s -> s
                         .type(ShaderType.FRAGMENT)
-                        .location(Constants.MODID, String.format("shaders/display_blit_%s.fsh", mode.getSpec().type().getName()))
+                        .location(Constants.MODID, "shaders/display_blit.fsh")
                         .defaultPreProcessor())
+                    .constant("DISPLAY_TYPE", mode.getSpec().type().getIndex())
+                    .constant("GLITCH_RATE", 0.05F)
+                    .constant("GLITCH_FACTOR", 0.025F)
+                    .constant("GLITCH_BLOCKS", 64)
+                    .constant("PIXEL_FACTOR", 0.06F)
                     .defaultUniforms() // ProjMat, ModelViewMat, ColorModulator
                     .uniform("Time", DefaultUniformType.FLOAT)
                     .uniform("GlitchFactor", DefaultUniformType.FLOAT)

@@ -22,6 +22,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
@@ -41,6 +42,7 @@ import net.minecraftforge.registries.RegistryBuilder;
 import net.minecraftforge.registries.RegistryManager;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -161,12 +163,11 @@ public final class CommonEventHandler {
         });
     }
 
-    private void onBakeDisplayModes(final IForgeRegistryInternal<DisplayModeSpec> registry,
-                                    final RegistryManager manager) {
+    private void onAddDisplayMode(final IForgeRegistryInternal<DisplayModeSpec> registry, final RegistryManager manager,
+                                  final int reserved, final ResourceKey<DisplayModeSpec> key,
+                                  final DisplayModeSpec value, final @Nullable DisplayModeSpec existingValue) {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            Minecraft.getInstance().execute(() -> {
-                registry.getValues().forEach(DefaultDisplayRenderer.INSTANCE::createDisplayMode);
-            });
+            Minecraft.getInstance().execute(() -> DefaultDisplayRenderer.INSTANCE.createDisplayMode(value));
         });
     }
 
@@ -177,7 +178,7 @@ public final class CommonEventHandler {
         event.create(RegistryBuilder.of(Constants.THEME_REGISTRY_NAME));
         event.create(RegistryBuilder.<FontFamily>of(Constants.FONT_FAMILY_REGISTRY_NAME).onBake(this::onBakeFontFamilies));
         event.create(RegistryBuilder.of(Constants.GRADIENT_FUNCTION_REGISTRY_NAME));
-        event.create(RegistryBuilder.<DisplayModeSpec>of(Constants.DISPLAY_MODE_REGISTRY_NAME).onBake(this::onBakeDisplayModes));
+        event.create(RegistryBuilder.<DisplayModeSpec>of(Constants.DISPLAY_MODE_REGISTRY_NAME).onAdd(this::onAddDisplayMode));
     }
 
     private void onRightClickBlock(final PlayerInteractEvent.RightClickBlock event) {

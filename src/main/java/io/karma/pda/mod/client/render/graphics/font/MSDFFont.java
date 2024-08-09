@@ -25,8 +25,6 @@ import org.lwjgl.util.msdfgen.MSDFGenExt;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
@@ -116,10 +114,6 @@ public final class MSDFFont implements AutoCloseable {
             MSDFUtils.throwIfError(MSDFGenExt.msdf_ft_adopt_font(face.address(), fontAddressBuffer));
             font = Checks.check(fontAddressBuffer.get());
         }
-    }
-
-    public MSDFFont(final Path filePath) throws IOException {
-        this(Files.newInputStream(filePath));
     }
 
     public boolean isGlyphEmpty(final int c) {

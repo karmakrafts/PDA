@@ -41,7 +41,7 @@ public final class DefaultShaderProgramBuilder implements ShaderProgramBuilder {
     // @formatter:on
 
     DefaultShaderProgram build() {
-        return new DefaultShaderProgram(format, objects, uniforms, bindCallback, unbindCallback, samplers);
+        return new DefaultShaderProgram(format, objects, uniforms, bindCallback, unbindCallback, samplers, constants);
     }
 
     @Override

@@ -27,6 +27,11 @@ public enum DefaultDisplayType implements DisplayType {
     }
 
     @Override
+    public int getIndex() {
+        return ordinal();
+    }
+
+    @Override
     public String getName() {
         return name().toLowerCase();
     }

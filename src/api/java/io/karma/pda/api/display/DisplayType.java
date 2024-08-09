@@ -11,6 +11,8 @@ import net.minecraft.network.chat.Component;
  * @since 05/06/2024
  */
 public interface DisplayType {
+    int getIndex();
+
     String getName();
 
     String getTranslatedName();

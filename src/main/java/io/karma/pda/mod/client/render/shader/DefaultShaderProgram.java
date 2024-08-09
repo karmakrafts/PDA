@@ -25,6 +25,8 @@ import org.lwjgl.opengl.GL20;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
@@ -41,18 +43,21 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     private final Consumer<ShaderProgram> unbindCallback;
     private final DefaultUniformCache uniformCache;
     private final Object2IntOpenHashMap<String> samplers;
-    private boolean isLinked;
-    private boolean isRelinkRequested = false;
+    private final HashMap<String, Object> constants;
+    private final AtomicBoolean isLinked = new AtomicBoolean(false);
+    private final AtomicBoolean isRelinkRequested = new AtomicBoolean(false);
 
     DefaultShaderProgram(final VertexFormat vertexFormat, final ArrayList<DefaultShaderObject> objects,
                          final HashMap<String, Uniform> uniforms, final @Nullable Consumer<ShaderProgram> bindCallback,
                          final @Nullable Consumer<ShaderProgram> unbindCallback,
-                         final Object2IntOpenHashMap<String> samplers) {
+                         final Object2IntOpenHashMap<String> samplers,
+                         final HashMap<String, Object> constants) {
         this.vertexFormat = vertexFormat;
         this.objects = objects;
         this.bindCallback = bindCallback;
         this.unbindCallback = unbindCallback;
         this.samplers = samplers;
+        this.constants = constants;
         uniformCache = new DefaultUniformCache(this, uniforms);
         id = GL20.glCreateProgram();
         PDAMod.DISPOSITION_HANDLER.addObject(this);
@@ -60,6 +65,11 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         for (final var object : objects) {
             GL20.glAttachShader(id, object.getId()); // Attach all objects right in-place
         }
+    }
+
+    @Override
+    public Map<String, Object> getConstants() {
+        return constants;
     }
 
     @Override
@@ -100,9 +110,8 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public void bind() {
-        if (isRelinkRequested) {
+        if (isRelinkRequested.compareAndSet(true, false)) {
             relink(Minecraft.getInstance().getResourceManager());
-            isRelinkRequested = false;
         }
         for (final var object : objects) {
             object.onBindProgram(this);
@@ -125,7 +134,7 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public boolean isLinked() {
-        return isLinked;
+        return isLinked.get();
     }
 
     @Override
@@ -140,31 +149,32 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public void onResourceManagerReload(final @NotNull ResourceManager resourceManager) {
-        Minecraft.getInstance().execute(this::requestRelink);
+        relink(resourceManager);
     }
 
     @Override
     public void requestRelink() {
-        isRelinkRequested = true;
+        isRelinkRequested.set(true);
     }
 
     @Override
     public boolean isRelinkRequested() {
-        return isRelinkRequested;
+        return isRelinkRequested.get();
     }
 
     private void relink(final ResourceProvider provider) {
-        isLinked = false;
+        isLinked.set(false);
         for (final var object : objects) {
-            object.recompile(provider);
+            object.recompile(this, provider);
         }
-        GL20.glLinkProgram(id);
-        if (GL11.glGetInteger(GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
-            final var length = GL11.glGetInteger(GL20.GL_INFO_LOG_LENGTH);
-            final var log = GL20.glGetProgramInfoLog(id, length);
-            PDAMod.LOGGER.error("Could not link shader program {}: {}", id, log);
-            return;
-        }
-        isLinked = true;
+        Minecraft.getInstance().execute(() -> {
+            GL20.glLinkProgram(id);
+            if (GL20.glGetProgrami(id, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
+                final var length = GL11.glGetInteger(GL20.GL_INFO_LOG_LENGTH);
+                final var log = GL20.glGetProgramInfoLog(id, length);
+                PDAMod.LOGGER.error("Could not link shader program {}: {}", id, log);
+            }
+            isLinked.set(true);
+        });
     }
 }

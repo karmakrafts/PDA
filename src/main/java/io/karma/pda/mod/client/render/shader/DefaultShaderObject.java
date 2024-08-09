@@ -10,6 +10,7 @@ import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.ShaderType;
 import io.karma.pda.api.util.Exceptions;
 import io.karma.pda.mod.PDAMod;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import net.minecraftforge.api.distmarker.Dist;
@@ -40,25 +41,35 @@ public final class DefaultShaderObject implements ShaderObject {
         this.shaderPreProcessorSupplier = shaderPreProcessorSupplier;
     }
 
-    void recompile(final ResourceProvider provider) {
-        isCompiled = false;
+    private static String loadSource(final ResourceProvider provider, final ResourceLocation location) {
         try (final var reader = provider.openAsReader(location)) {
-            final var source = shaderPreProcessorSupplier.get().process(location.toString(),
-                reader.lines().collect(Collectors.joining("\n")));
+            return reader.lines().collect(Collectors.joining("\n"));
+        }
+        catch (Throwable error) {
+            PDAMod.LOGGER.error("Could not load shader source {}: {}", location, Exceptions.toFancyString(error));
+            return "";
+        }
+    }
+
+    void recompile(final ShaderProgram program, final ResourceProvider provider) {
+        final var unprocessedSource = loadSource(provider, location);
+        final var source = shaderPreProcessorSupplier.get().process(unprocessedSource,
+            program,
+            this,
+            subLocation -> loadSource(provider, subLocation));
+        Minecraft.getInstance().execute(() -> {
+            isCompiled = false;
             PDAMod.LOGGER.debug("Processed shader source for {}:\n{}", location, source);
             GL20.glShaderSource(id, source);
             GL20.glCompileShader(id);
-            if (GL11.glGetInteger(GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
+            if (GL20.glGetShaderi(id, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
                 final var length = GL11.glGetInteger(GL20.GL_INFO_LOG_LENGTH);
                 final var log = GL20.glGetShaderInfoLog(id, length);
                 PDAMod.LOGGER.error("Could not recompile shader {}: {}", location, log);
                 return;
             }
             isCompiled = true;
-        }
-        catch (Throwable error) {
-            PDAMod.LOGGER.error("Could not load shader {}: {}", location, Exceptions.toFancyString(error));
-        }
+        });
     }
 
     @Override

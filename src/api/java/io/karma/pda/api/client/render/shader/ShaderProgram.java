@@ -11,6 +11,8 @@ import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.Map;
+
 /**
  * @author Alexander Hinze
  * @since 13/06/2024
@@ -36,4 +38,6 @@ public interface ShaderProgram extends Disposable {
     void requestRelink();
 
     boolean isRelinkRequested();
+
+    Map<String, Object> getConstants();
 }

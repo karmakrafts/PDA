@@ -57,6 +57,9 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
 
     @ApiStatus.Internal
     public void createDisplayMode(final DisplayModeSpec modeSpec) {
+        if (displayModes.containsKey(modeSpec)) {
+            return;
+        }
         PDAMod.LOGGER.debug("Creating display mode {}", modeSpec);
         displayModes.put(modeSpec,
             new DefaultDisplayMode(modeSpec, getFramebuffer(modeSpec.resolution()), this::getGlitchFactor));

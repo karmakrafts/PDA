@@ -4,8 +4,11 @@
 
 package io.karma.pda.api.client.render.shader;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import java.util.function.Function;
 
 /**
  * @author Alexander Hinze
@@ -13,5 +16,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  */
 @OnlyIn(Dist.CLIENT)
 public interface ShaderPreProcessor {
-    String process(final String resourceName, final String source);
+    String process(final String source, final ShaderProgram program,
+                   final ShaderObject object, final Function<ResourceLocation, String> loader);
 }
