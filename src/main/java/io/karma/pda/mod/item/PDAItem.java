@@ -35,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -61,7 +62,8 @@ public final class PDAItem extends Item implements TabItemProvider {
         if (stack.isEmpty()) {
             return;
         }
-        stack.getOrCreateTag().putString(TAG_DISPLAY_MODE, spec.name());
+        stack.getOrCreateTag().putString(TAG_DISPLAY_MODE,
+            Objects.requireNonNull(API.getDisplayModeRegistry().getKey(spec)).toString());
     }
 
     public static Optional<DisplayModeSpec> getDisplayMode(final ItemStack stack) {

@@ -165,8 +165,7 @@ public final class CommonEventHandler {
                                     final RegistryManager manager) {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             Minecraft.getInstance().execute(() -> {
-                PDAMod.LOGGER.info("Creating display modes");
-                DefaultDisplayRenderer.INSTANCE.createDisplayModes(registry.getValues());
+                registry.getValues().forEach(DefaultDisplayRenderer.INSTANCE::createDisplayMode);
             });
         });
     }

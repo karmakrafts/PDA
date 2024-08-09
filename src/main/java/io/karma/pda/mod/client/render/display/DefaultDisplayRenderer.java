@@ -26,7 +26,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -57,12 +56,10 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
     }
 
     @ApiStatus.Internal
-    public void createDisplayModes(final Collection<DisplayModeSpec> modeSpecs) {
-        for (final var modeSpec : modeSpecs) {
-            PDAMod.LOGGER.debug("Creating display mode {}", modeSpec);
-            displayModes.put(modeSpec,
-                new DefaultDisplayMode(modeSpec, getFramebuffer(modeSpec.resolution()), this::getGlitchFactor));
-        }
+    public void createDisplayMode(final DisplayModeSpec modeSpec) {
+        PDAMod.LOGGER.debug("Creating display mode {}", modeSpec);
+        displayModes.put(modeSpec,
+            new DefaultDisplayMode(modeSpec, getFramebuffer(modeSpec.resolution()), this::getGlitchFactor));
     }
 
     @Override
@@ -81,7 +78,7 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
 
     @Override
     public Optional<DisplayMode> getDisplayMode(final ItemStack stack) {
-        return PDAItem.getDisplayMode(stack).map(displayModes::get);
+        return PDAItem.getDisplayMode(stack).map(this::getDisplayMode);
     }
 
     @Override

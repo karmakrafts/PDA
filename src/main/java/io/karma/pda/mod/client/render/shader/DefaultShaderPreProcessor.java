@@ -113,7 +113,7 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
 
     private void processIncludes(final String resourceName, final StringBuffer buffer) {
         processGreedy(buffer, INCLUDE_PATTERN, (matcher, currentBuffer) -> {
-            String replacement = "";
+            var replacement = "";
             if (matcher.groupCount() >= 8) { // We have a relative include path
                 final var path = matcher.group(8);
                 LOGGER.debug("Processing relative include '{}' in {}", path, resourceName);

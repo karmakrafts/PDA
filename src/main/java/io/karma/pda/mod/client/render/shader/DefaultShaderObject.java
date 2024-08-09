@@ -10,7 +10,6 @@ import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.ShaderType;
 import io.karma.pda.api.util.Exceptions;
 import io.karma.pda.mod.PDAMod;
-import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import net.minecraftforge.api.distmarker.Dist;
@@ -32,7 +31,6 @@ public final class DefaultShaderObject implements ShaderObject {
     private final ResourceLocation location;
     private final Supplier<ShaderPreProcessor> shaderPreProcessorSupplier;
     private boolean isCompiled;
-    private boolean isRecompileRequested;
 
     DefaultShaderObject(final ShaderType type, final ResourceLocation location,
                         final Supplier<ShaderPreProcessor> shaderPreProcessorSupplier) {
@@ -47,6 +45,7 @@ public final class DefaultShaderObject implements ShaderObject {
         try (final var reader = provider.openAsReader(location)) {
             final var source = shaderPreProcessorSupplier.get().process(location.toString(),
                 reader.lines().collect(Collectors.joining("\n")));
+            PDAMod.LOGGER.debug("Processed shader source for {}:\n{}", location, source);
             GL20.glShaderSource(id, source);
             GL20.glCompileShader(id);
             if (GL11.glGetInteger(GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
@@ -83,21 +82,7 @@ public final class DefaultShaderObject implements ShaderObject {
     }
 
     @Override
-    public void requestRecompile() {
-        isRecompileRequested = true;
-    }
-
-    @Override
-    public boolean isRecompileRequested() {
-        return isRecompileRequested;
-    }
-
-    @Override
     public void onBindProgram(final ShaderProgram program) {
-        if (isRecompileRequested) {
-            recompile(Minecraft.getInstance().getResourceManager());
-            isRecompileRequested = false;
-        }
     }
 
     @Override

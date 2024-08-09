@@ -42,7 +42,7 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     private final DefaultUniformCache uniformCache;
     private final Object2IntOpenHashMap<String> samplers;
     private boolean isLinked;
-    private boolean isRelinkRequested = true;
+    private boolean isRelinkRequested = false;
 
     DefaultShaderProgram(final VertexFormat vertexFormat, final ArrayList<DefaultShaderObject> objects,
                          final HashMap<String, Uniform> uniforms, final @Nullable Consumer<ShaderProgram> bindCallback,
@@ -55,8 +55,11 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         this.samplers = samplers;
         uniformCache = new DefaultUniformCache(this, uniforms);
         id = GL20.glCreateProgram();
-        ((ReloadableResourceManager) Minecraft.getInstance().getResourceManager()).registerReloadListener(this);
         PDAMod.DISPOSITION_HANDLER.addObject(this);
+        ((ReloadableResourceManager) Minecraft.getInstance().getResourceManager()).registerReloadListener(this);
+        for (final var object : objects) {
+            GL20.glAttachShader(id, object.getId()); // Attach all objects right in-place
+        }
     }
 
     @Override
@@ -97,13 +100,12 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public void bind() {
-        for (final var object : objects) {
-            object.onBindProgram(this);
-        }
         if (isRelinkRequested) {
-            // Lazily relink/recompile is really needed
             relink(Minecraft.getInstance().getResourceManager());
             isRelinkRequested = false;
+        }
+        for (final var object : objects) {
+            object.onBindProgram(this);
         }
         GL20.glUseProgram(id);
         if (bindCallback != null) {
@@ -127,16 +129,6 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     }
 
     @Override
-    public void requestRelink() {
-        isRelinkRequested = true;
-    }
-
-    @Override
-    public boolean isRelinkRequested() {
-        return isRelinkRequested;
-    }
-
-    @Override
     public void setupRenderState() {
         bind();
     }
@@ -148,7 +140,17 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public void onResourceManagerReload(final @NotNull ResourceManager resourceManager) {
-        relink(resourceManager);
+        Minecraft.getInstance().execute(this::requestRelink);
+    }
+
+    @Override
+    public void requestRelink() {
+        isRelinkRequested = true;
+    }
+
+    @Override
+    public boolean isRelinkRequested() {
+        return isRelinkRequested;
     }
 
     private void relink(final ResourceProvider provider) {

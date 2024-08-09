@@ -183,7 +183,7 @@ minecraft {
             properties(
                 mapOf(
                     "forge.logging.markers" to "SCAN,LOADING,CORE",
-                    "forge.logging.console.level" to "debug",
+                    "forge.logging.console.level" to "DEBUG",
                     "mixin.debug" to "true",
                     "mixin.debug.dumpTargetOnFailure" to "true",
                     "mixin.debug.verbose" to "true",

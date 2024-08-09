@@ -22,10 +22,6 @@ public interface ShaderObject {
 
     boolean isCompiled();
 
-    void requestRecompile();
-
-    boolean isRecompileRequested();
-
     void onBindProgram(final ShaderProgram program);
 
     void onUnbindProgram(final ShaderProgram program);
