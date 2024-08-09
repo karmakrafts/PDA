@@ -20,8 +20,7 @@ import org.jetbrains.annotations.Nullable;
 public interface Brush extends ColorProvider {
     RenderType getRenderType(final DisplayMode displayMode);
 
-    @Nullable
-    ResourceLocation getTexture();
+    @Nullable ResourceLocation getTexture();
 
     default boolean isVisible() {
         return true;

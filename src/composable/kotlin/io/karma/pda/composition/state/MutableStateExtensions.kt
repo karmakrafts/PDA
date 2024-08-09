@@ -22,11 +22,11 @@ operator fun <T : Any?> MutableState<T>.invoke(value: T) = set(value)
 operator fun <T : Any?> MutableState<T>.invoke(): T = get()
 
 operator fun MutableState<Color>.invoke(value: Int) = set(
-    io.karma.pda.api.color.Color.unpackARGB(value)
+    Color.unpackARGB(value)
 )
 
 operator fun MutableState<Color>.invoke(value: UInt) = set(
-    io.karma.pda.api.color.Color.unpackARGB(value.toInt())
+    Color.unpackARGB(value.toInt())
 )
 
 inline fun <reified T : Any?> mutableStateOf(value: T? = null): MutableState<T?> {

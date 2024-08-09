@@ -4,7 +4,6 @@
 
 package io.karma.pda.mod.app
 
-import io.karma.pda.composition.Composable
 import io.karma.pda.composition.app.ComposableApp
 
 /**

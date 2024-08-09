@@ -23,13 +23,11 @@ public interface Component extends Identifiable {
 
     void setId(final UUID id);
 
-    @Nullable
-    String getLocalName();
+    @Nullable String getLocalName();
 
     void setLocalName(final @Nullable String localName);
 
-    @Nullable
-    Container getParent();
+    @Nullable Container getParent();
 
     void setParent(final @Nullable Container parent);
 

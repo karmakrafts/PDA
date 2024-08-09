@@ -26,8 +26,7 @@ import java.util.function.Function;
  */
 public interface State<T> extends TypedValue<T> {
     // TODO: document this
-    @Nullable
-    String getStateKey();
+    @Nullable String getStateKey();
 
     // TODO: document this
     void setStateKey(final String key);

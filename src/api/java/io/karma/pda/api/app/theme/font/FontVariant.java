@@ -27,16 +27,19 @@ public interface FontVariant extends Font {
 
     default String getVariantString() { // @formatter:off
         final var builder = new StringBuilder();
-        builder.append(getLocation())
-            .append('$')
-            .append(getStyle())
-            .append('$')
-            .append(getSize());
+        final var path = getLocation().getPath();
+        final var lastIndex = path.contains(".") ? path.lastIndexOf(".") : path.length() - 1;
+        final var name = path.substring(path.lastIndexOf('/') + 1, lastIndex);
+        builder.append(name)
+            .append('_')
+            .append(getStyle().name().toLowerCase())
+            .append('_')
+            .append(Float.toString(getSize()).replace('.', '_'));
         for(final var var : getVariationAxes().object2FloatEntrySet()) {
-            builder.append('$')
-                .append(var.getKey())
-                .append(':')
-                .append(var.getFloatValue());
+            builder.append('_')
+                .append(var.getKey().toLowerCase())
+                .append('_')
+                .append(Float.toString(var.getFloatValue()).replace('.', '_'));
         }
         return builder.toString();
     } // @formatter:on

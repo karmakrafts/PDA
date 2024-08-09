@@ -4,7 +4,6 @@
 
 package io.karma.pda.mod.state
 
-import io.karma.pda.composition.Composable
 import io.karma.pda.mod.PDAMod
 import kotlin.reflect.KProperty
 import kotlin.reflect.KVisibility
