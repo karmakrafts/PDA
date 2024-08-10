@@ -69,6 +69,8 @@ public final class DefaultDisplayBlitter implements DisplayBlitter {
                         .location(Constants.MODID, "shaders/display_blit.frag.glsl")
                         .defaultPreProcessor())
                     .define("DISPLAY_TYPE", mode.getSpec().type().getIndex())
+                    .constant("DISPLAY_WIDTH", mode.getResolution().getWidth())
+                    .constant("DISPLAY_HEIGHT", mode.getResolution().getHeight())
                     .constant("GLITCH_RATE", 0.05F)
                     .constant("GLITCH_FACTOR", 0.025F)
                     .constant("GLITCH_BLOCKS", 64)

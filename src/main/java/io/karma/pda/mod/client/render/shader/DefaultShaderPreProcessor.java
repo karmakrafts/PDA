@@ -15,6 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Stack;
@@ -49,7 +50,7 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         while (matcher.find()) {
             count++;
             if (!callback.apply(matcher, buffer)) {
-                continue;
+                break;
             }
             matcher = pattern.matcher(buffer);
         }
@@ -127,7 +128,8 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
     }
 
     private String insertIncludesRecursively(final ResourceLocation location, final String source,
-                                             final Function<ResourceLocation, String> loader) {
+                                             final Function<ResourceLocation, String> loader,
+                                             final HashSet<ResourceLocation> includedLocations) {
         final var buffer = new StringBuffer(source);
         processGreedy(buffer, INCLUDE_PATTERN, (matcher, currentBuffer) -> {
             ResourceLocation targetLocation;
@@ -146,10 +148,15 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
                     throw new IllegalStateException(String.format("Malformed include location '%s'", path));
                 }
             }
+            if (includedLocations.contains(targetLocation)) {
+                LOGGER.debug("Include from {} already expanded, skipping", targetLocation);
+                return true;
+            }
             LOGGER.debug("Loading include from {}", targetLocation);
             currentBuffer.replace(matcher.start(),
                 matcher.end(),
-                insertIncludesRecursively(targetLocation, loader.apply(targetLocation), loader));
+                insertIncludesRecursively(targetLocation, loader.apply(targetLocation), loader, includedLocations));
+            includedLocations.add(targetLocation);
             return true;
         });
         return buffer.toString();
@@ -159,7 +166,7 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
                                  final Function<ResourceLocation, String> loader) {
         final var source = buffer.toString();
         buffer.delete(0, buffer.length());
-        buffer.append(insertIncludesRecursively(location, source, loader));
+        buffer.append(insertIncludesRecursively(location, source, loader, new HashSet<>()));
     }
 
     private void processSpecializationConstants(final ResourceLocation location, final Map<String, Object> constants,

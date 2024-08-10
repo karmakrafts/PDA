@@ -9,6 +9,7 @@ import io.karma.pda.api.app.DefaultApps;
 import io.karma.pda.api.display.DefaultDisplayModeSpecs;
 import io.karma.pda.api.display.DisplayModeSpec;
 import io.karma.pda.api.util.Constants;
+import io.karma.pda.mod.client.interaction.PDAInteractionHandler;
 import io.karma.pda.mod.client.screen.PDAScreen;
 import io.karma.pda.mod.client.session.ClientSessionHandler;
 import io.karma.pda.mod.init.ModItems;
@@ -47,13 +48,6 @@ public final class PDAItem extends Item implements TabItemProvider {
     public static final String TAG_HAS_CARD = "has_card";
     public static final String TAG_IS_ON = "is_on";
     public static final String TAG_DISPLAY_MODE = "display_mode";
-    /*
-     * This flag tracks the immediate state of the UI to prevent double openScreen invocations
-     * caused by vanilla invoking use twice, once for each hand.
-     * << If you touch this flag, things will most likely break in horrible ways. >>
-     */
-    @OnlyIn(Dist.CLIENT)
-    public static boolean isScreenOpen; // TODO: Move to PDAInteractionHandler
 
     public PDAItem() {
         super(new Properties().stacksTo(1));
@@ -144,7 +138,8 @@ public final class PDAItem extends Item implements TabItemProvider {
     private void openScreen(final Player player, final InteractionHand defaultHand,
                             final EnumSet<InteractionHand> hands) {
         final var game = Minecraft.getInstance();
-        if (isScreenOpen || game.player != player || !game.options.getCameraType().isFirstPerson()) {
+        final var interactionHandler = PDAInteractionHandler.INSTANCE;
+        if (interactionHandler.isScreenOpen() || game.player != player || !game.options.getCameraType().isFirstPerson()) {
             return;
         }
         final var sessionHandler = ClientSessionHandler.INSTANCE;
@@ -161,9 +156,9 @@ public final class PDAItem extends Item implements TabItemProvider {
                     game.setScreen(new PDAScreen(hands,
                         sessionHandler.getActiveSession()));
                     player.playSound(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, 0.3F, 1.75F);
+                    interactionHandler.setIsScreenOpen(true);
                 });
             });
         // @formatter:on
-        isScreenOpen = true;
     }
 }

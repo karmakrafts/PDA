@@ -6,7 +6,6 @@ package io.karma.pda.mod.client.interaction;
 
 import io.karma.pda.mod.client.screen.PDAScreen;
 import io.karma.pda.mod.client.session.ClientSessionHandler;
-import io.karma.pda.mod.item.PDAItem;
 import io.karma.pda.mod.util.Easings;
 import io.karma.pda.mod.util.PlayerUtils;
 import net.minecraft.client.Minecraft;
@@ -19,9 +18,10 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityTeleportEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Alexander Hinze
@@ -37,18 +37,28 @@ public final class PDAInteractionHandler {
     private final float[] previousOffset = new float[InteractionHand.values().length];
     private final float[] offset = new float[InteractionHand.values().length];
     private final boolean[] isEngaged = new boolean[InteractionHand.values().length];
+    private final AtomicBoolean isScreenOpen = new AtomicBoolean(false);
 
     // @formatter:off
     private PDAInteractionHandler() {}
     // @formatter:on
 
-    @ApiStatus.Internal
+    @Internal
     public void setup() {
         final var forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addListener(this::onClientTick);
         forgeBus.addListener(this::onLivingDeath);
         forgeBus.addListener(this::onPlayerChangeDimension);
         forgeBus.addListener(this::onEntityTeleport);
+    }
+
+    @Internal
+    public void setIsScreenOpen(final boolean isScreenOpen) {
+        this.isScreenOpen.set(isScreenOpen);
+    }
+
+    public boolean isScreenOpen() {
+        return isScreenOpen.get();
     }
 
     public void setEngaged(final InteractionHand hand, final boolean isEngaged) {
@@ -65,7 +75,6 @@ public final class PDAInteractionHandler {
 
     private void reset() {
         resetAnimation();
-        PDAItem.isScreenOpen = false;
         final var sessionHandler = ClientSessionHandler.INSTANCE;
         final var session = sessionHandler.getActiveSession();
         if (session == null) {
@@ -73,6 +82,7 @@ public final class PDAInteractionHandler {
         }
         sessionHandler.terminateSession(session).thenAccept(v -> {
             sessionHandler.setActiveSession(null); // Reset client session
+            isScreenOpen.set(false);
         });
     }
 

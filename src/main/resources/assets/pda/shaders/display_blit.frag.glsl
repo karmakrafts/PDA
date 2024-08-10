@@ -5,7 +5,6 @@
  */
 
 #include "include/utils.glsl"
-#include "include/display.glsl"
 #include "include/dither.glsl"
 #include "include/crt.glsl"
 
@@ -25,14 +24,18 @@ in vec4 vertexColor;
 
 out vec4 fragColor;
 
+special const int DISPLAY_WIDTH = 256;
+special const int DISPLAY_HEIGHT = 288;
 special const float GLITCH_RATE = 0.05;
 special const float GLITCH_FACTOR = 0.025;
 special const int GLITCH_BLOCKS = 64;
 special const float PIXEL_FACTOR = 0.06;
 
+const vec2 DISPLAY_RES = vec2(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+
 float getSampleOffset(vec2 coord, float offset, float glitchMultiplier) {
     return goldNoise(vec2(Time * (GLITCH_RATE * 0.1 * glitchMultiplier) + offset,
-        floor(coord.y * GLITCH_BLOCKS) - (offset * 0.5)));
+    floor(coord.y * GLITCH_BLOCKS) - (offset * 0.5)));
 }
 
 void main() {
