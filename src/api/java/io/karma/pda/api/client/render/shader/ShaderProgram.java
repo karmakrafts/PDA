@@ -7,6 +7,7 @@ package io.karma.pda.api.client.render.shader;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import io.karma.pda.api.client.render.shader.uniform.UniformCache;
 import io.karma.pda.api.dispose.Disposable;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -40,4 +41,6 @@ public interface ShaderProgram extends Disposable {
     boolean isRelinkRequested();
 
     Map<String, Object> getConstants();
+
+    Object2IntMap<String> getDefines();
 }

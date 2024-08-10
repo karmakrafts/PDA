@@ -9,6 +9,7 @@ import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.uniform.Uniform;
 import io.karma.pda.api.client.render.shader.uniform.UniformCache;
 import io.karma.pda.mod.PDAMod;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -44,20 +45,22 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     private final DefaultUniformCache uniformCache;
     private final Object2IntOpenHashMap<String> samplers;
     private final HashMap<String, Object> constants;
+    private final Object2IntOpenHashMap<String> defines;
     private final AtomicBoolean isLinked = new AtomicBoolean(false);
     private final AtomicBoolean isRelinkRequested = new AtomicBoolean(false);
 
     DefaultShaderProgram(final VertexFormat vertexFormat, final ArrayList<DefaultShaderObject> objects,
                          final HashMap<String, Uniform> uniforms, final @Nullable Consumer<ShaderProgram> bindCallback,
                          final @Nullable Consumer<ShaderProgram> unbindCallback,
-                         final Object2IntOpenHashMap<String> samplers,
-                         final HashMap<String, Object> constants) {
+                         final Object2IntOpenHashMap<String> samplers, final HashMap<String, Object> constants,
+                         final Object2IntOpenHashMap<String> defines) {
         this.vertexFormat = vertexFormat;
         this.objects = objects;
         this.bindCallback = bindCallback;
         this.unbindCallback = unbindCallback;
         this.samplers = samplers;
         this.constants = constants;
+        this.defines = defines;
         uniformCache = new DefaultUniformCache(this, uniforms);
         id = GL20.glCreateProgram();
         PDAMod.DISPOSITION_HANDLER.addObject(this);
@@ -65,6 +68,11 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         for (final var object : objects) {
             GL20.glAttachShader(id, object.getId()); // Attach all objects right in-place
         }
+    }
+
+    @Override
+    public Object2IntMap<String> getDefines() {
+        return defines;
     }
 
     @Override
@@ -170,7 +178,7 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         Minecraft.getInstance().execute(() -> {
             GL20.glLinkProgram(id);
             if (GL20.glGetProgrami(id, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
-                final var length = GL11.glGetInteger(GL20.GL_INFO_LOG_LENGTH);
+                final var length = GL20.glGetProgrami(id, GL20.GL_INFO_LOG_LENGTH);
                 final var log = GL20.glGetProgramInfoLog(id, length);
                 PDAMod.LOGGER.error("Could not link shader program {}: {}", id, log);
             }

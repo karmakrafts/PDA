@@ -63,7 +63,7 @@ public final class DefaultShaderObject implements ShaderObject {
             GL20.glShaderSource(id, source);
             GL20.glCompileShader(id);
             if (GL20.glGetShaderi(id, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
-                final var length = GL11.glGetInteger(GL20.GL_INFO_LOG_LENGTH);
+                final var length = GL20.glGetShaderi(id, GL20.GL_INFO_LOG_LENGTH);
                 final var log = GL20.glGetShaderInfoLog(id, length);
                 PDAMod.LOGGER.error("Could not recompile shader {}: {}", location, log);
                 return;

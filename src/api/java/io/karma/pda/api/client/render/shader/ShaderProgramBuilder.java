@@ -33,6 +33,12 @@ public interface ShaderProgramBuilder {
 
     ShaderProgramBuilder constant(final String name, final boolean value);
 
+    ShaderProgramBuilder define(final String name);
+
+    ShaderProgramBuilder define(final String name, final boolean value);
+
+    ShaderProgramBuilder define(final String name, final int value);
+
     ShaderProgramBuilder onBind(final Consumer<ShaderProgram> bindCallback);
 
     ShaderProgramBuilder onUnbind(final Consumer<ShaderProgram> unbindCallback);

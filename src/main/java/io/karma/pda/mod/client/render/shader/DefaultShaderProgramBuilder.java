@@ -32,6 +32,7 @@ public final class DefaultShaderProgramBuilder implements ShaderProgramBuilder {
     private final HashMap<String, Uniform> uniforms = new HashMap<>();
     private final HashMap<String, Object> constants = new HashMap<>(); // Don't care about (un)boxing here
     private final Object2IntOpenHashMap<String> samplers = new Object2IntOpenHashMap<>();
+    private final Object2IntOpenHashMap<String> defines = new Object2IntOpenHashMap<>();
     private VertexFormat format = DefaultVertexFormat.POSITION;
     private Consumer<ShaderProgram> bindCallback;
     private Consumer<ShaderProgram> unbindCallback;
@@ -41,7 +42,32 @@ public final class DefaultShaderProgramBuilder implements ShaderProgramBuilder {
     // @formatter:on
 
     DefaultShaderProgram build() {
-        return new DefaultShaderProgram(format, objects, uniforms, bindCallback, unbindCallback, samplers, constants);
+        return new DefaultShaderProgram(format,
+            objects,
+            uniforms,
+            bindCallback,
+            unbindCallback,
+            samplers,
+            constants,
+            defines);
+    }
+
+    @Override
+    public ShaderProgramBuilder define(final String name) {
+        defines.put(name, 1);
+        return this;
+    }
+
+    @Override
+    public ShaderProgramBuilder define(final String name, final boolean value) {
+        defines.put(name, value ? 1 : 0);
+        return this;
+    }
+
+    @Override
+    public ShaderProgramBuilder define(final String name, final int value) {
+        defines.put(name, value);
+        return this;
     }
 
     @Override

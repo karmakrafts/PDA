@@ -8,6 +8,7 @@ import io.karma.pda.api.client.render.shader.ShaderObject;
 import io.karma.pda.api.client.render.shader.ShaderPreProcessor;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.util.ToBooleanBiFunction;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -34,20 +35,25 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         "\\b(special)\\s+(const)\\s+(\\w+)\\s+(\\w+)(\\s*?=\\s*?([\\w.\"'+]+))?\\s*?;");
     private static final Pattern INCLUDE_PATTERN = Pattern.compile(
         "(#include)\\s*?((\\s*?<((\\w+(:))?[\\w/._\\-]+)\\s*?>)|(\"\\s*?([\\w/._\\-]+)\\s*?\"))");
+    private static final Pattern VERSION_PATTERN = Pattern.compile(
+        "(#version)\\s+([0-9]+)(\\s+((\\w+(:))?[\\w/._\\-]+))?");
 
     // @formatter:off
     private DefaultShaderPreProcessor() {}
     // @formatter:on
 
-    private static void processGreedy(final StringBuffer buffer, final Pattern pattern,
-                                      final ToBooleanBiFunction<Matcher, StringBuffer> callback) {
+    private static int processGreedy(final StringBuffer buffer, final Pattern pattern,
+                                     final ToBooleanBiFunction<Matcher, StringBuffer> callback) {
         var matcher = pattern.matcher(buffer);
+        var count = 0;
         while (matcher.find()) {
+            count++;
             if (!callback.apply(matcher, buffer)) {
                 continue;
             }
             matcher = pattern.matcher(buffer);
         }
+        return count;
     }
 
     public static DefaultShaderPreProcessor getInstance() {
@@ -72,6 +78,44 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
     }
 
     private void minify(final StringBuffer buffer) {
+        final var unstripped = buffer.toString();
+        buffer.delete(0, buffer.length());
+        var isBlockComment = false;
+        var isLineComment = false;
+        var skipNext = false;
+        for (var i = 0; i < unstripped.length(); i++) {
+            final var c = unstripped.charAt(i);
+            // Pop/skip logic
+            if (skipNext) {
+                skipNext = false;
+                continue;
+            }
+            final var hasNext = i < unstripped.length() - 1;
+            final var next = hasNext ? unstripped.charAt(i + 1) : ' ';
+            if (isBlockComment) {
+                if (c == '*' && hasNext && next == '/') {
+                    isBlockComment = false;
+                    skipNext = true;
+                }
+                continue;
+            }
+            else if (isLineComment) {
+                if (c == '\n') {
+                    isLineComment = false;
+                }
+                continue;
+            }
+            // Push logic
+            if (c == '/' && hasNext && next == '*') {
+                isBlockComment = true;
+                continue;
+            }
+            if (c == '/' && hasNext && next == '/') {
+                isLineComment = true;
+                continue;
+            }
+            buffer.append(c);
+        }
         final var lines = buffer.toString().split("\n");
         buffer.delete(0, buffer.length());
         for (final var line : lines) {
@@ -145,6 +189,15 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         });
     }
 
+    private void processDefines(final Object2IntMap<String> defines, final StringBuffer buffer) {
+        final var defineBlock = new StringBuilder();
+        for (final var define : defines.object2IntEntrySet()) {
+            defineBlock.append(String.format("#define %s %d\n", define.getKey(), define.getIntValue()));
+        }
+        buffer.insert(buffer.indexOf("\n", buffer.indexOf("#version")) + 1,
+            defineBlock); // Always skip the first line for the version
+    }
+
     @Override
     public String process(final String source, final ShaderProgram program, final ShaderObject object,
                           final Function<ResourceLocation, String> loader) {
@@ -152,6 +205,7 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         final var location = object.getLocation();
         processIncludes(location, buffer, loader);
         processSpecializationConstants(location, program.getConstants(), buffer);
+        processDefines(program.getDefines(), buffer);
         minify(buffer);
         return buffer.toString();
     }
