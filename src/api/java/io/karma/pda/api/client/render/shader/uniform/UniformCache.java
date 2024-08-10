@@ -50,4 +50,12 @@ public interface UniformCache {
         }
         return (Vector4fUniform) uniform;
     }
+
+    default Matrix4fUniform getMatrix4f(final String name) {
+        final var uniform = get(name);
+        if (uniform.getType() != DefaultUniformType.FLOAT_MAT4) {
+            throw new IllegalStateException(String.format("Uniform %s is not a float matrix4 uniform", name));
+        }
+        return (Matrix4fUniform) uniform;
+    }
 }

@@ -4,6 +4,7 @@
 
 package io.karma.pda.mod.client.render.shader;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import io.karma.pda.api.client.render.shader.ShaderObjectBuilder;
@@ -111,6 +112,12 @@ public final class DefaultShaderProgramBuilder implements ShaderProgramBuilder {
         uniform("ModelViewMat", DefaultUniformType.FLOAT_MAT4.derive(new Matrix4f().identity()));
         uniform("ProjMat", DefaultUniformType.FLOAT_MAT4.derive(new Matrix4f().identity()));
         uniform("ColorModulator", DefaultUniformType.FLOAT_VEC4.derive(new Vector4f(1F)));
+        onBind(program -> {
+            final var uniformCache = program.getUniformCache();
+            uniformCache.getMatrix4f("ModelViewMat").set(RenderSystem.getModelViewMatrix());
+            uniformCache.getMatrix4f("ProjMat").set(RenderSystem.getProjectionMatrix());
+            uniformCache.getVector4f("ColorModulator").set(new Vector4f(RenderSystem.getShaderColor()));
+        });
         return this;
     }
 
@@ -136,13 +143,21 @@ public final class DefaultShaderProgramBuilder implements ShaderProgramBuilder {
 
     @Override
     public ShaderProgramBuilder onBind(final Consumer<ShaderProgram> bindCallback) {
-        this.bindCallback = bindCallback;
+        if (this.bindCallback == null) {
+            this.bindCallback = bindCallback;
+            return this;
+        }
+        this.bindCallback = this.bindCallback.andThen(bindCallback);
         return this;
     }
 
     @Override
     public ShaderProgramBuilder onUnbind(final Consumer<ShaderProgram> unbindCallback) {
-        this.unbindCallback = unbindCallback;
+        if (this.unbindCallback == null) {
+            this.unbindCallback = unbindCallback;
+            return this;
+        }
+        this.unbindCallback = this.unbindCallback.andThen(unbindCallback);
         return this;
     }
 }
