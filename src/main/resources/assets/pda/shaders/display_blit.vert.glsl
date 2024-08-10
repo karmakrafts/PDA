@@ -4,7 +4,7 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-#include "utils/utils.glsl"
+#include "include/utils.glsl"
 
 in vec3 Position;// position
 in vec2 UV0;// uv

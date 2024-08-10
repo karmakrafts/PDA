@@ -18,6 +18,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,7 @@ public final class DefaultShaderObject implements ShaderObject {
     private final int id;
     private final ResourceLocation location;
     private final Supplier<ShaderPreProcessor> shaderPreProcessorSupplier;
-    private boolean isCompiled;
+    private final AtomicBoolean isCompiled = new AtomicBoolean(false);
 
     DefaultShaderObject(final ShaderType type, final ResourceLocation location,
                         final Supplier<ShaderPreProcessor> shaderPreProcessorSupplier) {
@@ -52,13 +53,13 @@ public final class DefaultShaderObject implements ShaderObject {
     }
 
     void recompile(final ShaderProgram program, final ResourceProvider provider) {
+        isCompiled.set(false);
         final var unprocessedSource = loadSource(provider, location);
         final var source = shaderPreProcessorSupplier.get().process(unprocessedSource,
             program,
             this,
             subLocation -> loadSource(provider, subLocation));
         Minecraft.getInstance().execute(() -> {
-            isCompiled = false;
             PDAMod.LOGGER.debug("Processed shader source for {}:\n{}", location, source);
             GL20.glShaderSource(id, source);
             GL20.glCompileShader(id);
@@ -68,7 +69,7 @@ public final class DefaultShaderObject implements ShaderObject {
                 PDAMod.LOGGER.error("Could not recompile shader {}: {}", location, log);
                 return;
             }
-            isCompiled = true;
+            isCompiled.set(true);
         });
     }
 
@@ -89,7 +90,7 @@ public final class DefaultShaderObject implements ShaderObject {
 
     @Override
     public boolean isCompiled() {
-        return isCompiled;
+        return isCompiled.get();
     }
 
     @Override

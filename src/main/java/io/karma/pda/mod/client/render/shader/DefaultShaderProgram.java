@@ -132,6 +132,7 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public void dispose() {
+        isLinked.set(false);
         for (final var object : objects) {
             final var objectId = object.getId();
             GL20.glDetachShader(id, objectId);

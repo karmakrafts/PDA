@@ -62,11 +62,11 @@ public final class DefaultDisplayBlitter implements DisplayBlitter {
                     .format(DefaultVertexFormat.POSITION_TEX_COLOR)
                     .shader(s -> s
                         .type(ShaderType.VERTEX)
-                        .location(Constants.MODID, "shaders/display_blit.vsh")
+                        .location(Constants.MODID, "shaders/display_blit.vert.glsl")
                         .defaultPreProcessor())
                     .shader(s -> s
                         .type(ShaderType.FRAGMENT)
-                        .location(Constants.MODID, "shaders/display_blit.fsh")
+                        .location(Constants.MODID, "shaders/display_blit.frag.glsl")
                         .defaultPreProcessor())
                     .define("DISPLAY_TYPE", mode.getSpec().type().getIndex())
                     .constant("GLITCH_RATE", 0.05F)

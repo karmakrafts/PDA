@@ -6,6 +6,7 @@ package io.karma.pda.mod.item;
 
 import io.karma.pda.api.API;
 import io.karma.pda.api.app.DefaultApps;
+import io.karma.pda.api.display.DefaultDisplayModeSpecs;
 import io.karma.pda.api.display.DisplayModeSpec;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.mod.client.screen.PDAScreen;
@@ -79,6 +80,13 @@ public final class PDAItem extends Item implements TabItemProvider {
             return Optional.empty();
         }
         return Optional.ofNullable(API.getDisplayModeRegistry().getValue(name));
+    }
+
+    @Override
+    public @NotNull ItemStack getDefaultInstance() {
+        final var stack = new ItemStack(this);
+        setDisplayMode(stack, DefaultDisplayModeSpecs.SD_BW_LCD);
+        return stack;
     }
 
     @Override
