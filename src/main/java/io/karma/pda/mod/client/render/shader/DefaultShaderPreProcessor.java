@@ -36,25 +36,20 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         "\\b(special)\\s+(const)\\s+(\\w+)\\s+(\\w+)(\\s*?=\\s*?([\\w.\"'+]+))?\\s*?;");
     private static final Pattern INCLUDE_PATTERN = Pattern.compile(
         "(#include)\\s*?((\\s*?<((\\w+(:))?[\\w/._\\-]+)\\s*?>)|(\"\\s*?([\\w/._\\-]+)\\s*?\"))");
-    private static final Pattern VERSION_PATTERN = Pattern.compile(
-        "(#version)\\s+([0-9]+)(\\s+((\\w+(:))?[\\w/._\\-]+))?");
 
     // @formatter:off
     private DefaultShaderPreProcessor() {}
     // @formatter:on
 
-    private static int processGreedy(final StringBuffer buffer, final Pattern pattern,
+    private static void processGreedy(final StringBuffer buffer, final Pattern pattern,
                                      final ToBooleanBiFunction<Matcher, StringBuffer> callback) {
         var matcher = pattern.matcher(buffer);
-        var count = 0;
         while (matcher.find()) {
-            count++;
             if (!callback.apply(matcher, buffer)) {
                 break;
             }
             matcher = pattern.matcher(buffer);
         }
-        return count;
     }
 
     public static DefaultShaderPreProcessor getInstance() {
@@ -127,7 +122,7 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         }
     }
 
-    private String insertIncludesRecursively(final ResourceLocation location, final String source,
+    private String expandIncludesRecursively(final ResourceLocation location, final String source,
                                              final Function<ResourceLocation, String> loader,
                                              final HashSet<ResourceLocation> includedLocations) {
         final var buffer = new StringBuffer(source);
@@ -155,7 +150,7 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
             LOGGER.debug("Loading include from {}", targetLocation);
             currentBuffer.replace(matcher.start(),
                 matcher.end(),
-                insertIncludesRecursively(targetLocation, loader.apply(targetLocation), loader, includedLocations));
+                expandIncludesRecursively(targetLocation, loader.apply(targetLocation), loader, includedLocations));
             includedLocations.add(targetLocation);
             return true;
         });
@@ -166,7 +161,7 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
                                  final Function<ResourceLocation, String> loader) {
         final var source = buffer.toString();
         buffer.delete(0, buffer.length());
-        buffer.append(insertIncludesRecursively(location, source, loader, new HashSet<>()));
+        buffer.append(expandIncludesRecursively(location, source, loader, new HashSet<>()));
     }
 
     private void processSpecializationConstants(final ResourceLocation location, final Map<String, Object> constants,

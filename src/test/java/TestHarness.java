@@ -70,7 +70,7 @@ public final class TestHarness {
             }
         }
         catch (Throwable error) {
-            logger.error("Could not shutdown test executor service: {}", error.getMessage());
+            logger.error("Could not shutdown test executor service", error);
         }
         isInitialized = false;
     }

@@ -25,6 +25,6 @@ public final class Exceptions {
     }
 
     public static String toFancyString(final Throwable error) {
-        return String.format("%s\n%s", error.getMessage(), getStackTrace(error));
+        return String.format("%s\n%s", error, getStackTrace(error));
     }
 }

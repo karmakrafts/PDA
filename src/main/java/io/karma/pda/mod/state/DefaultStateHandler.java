@@ -9,6 +9,8 @@ import io.karma.pda.api.state.*;
 import io.karma.pda.api.util.Identifiable;
 import io.karma.pda.mod.PDAMod;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
  * @since 24/04/2024
  */
 public class DefaultStateHandler implements StateHandler {
+    private static final Logger LOGGER = LogManager.getLogger();
+
     // @formatter:off
     protected static final Map<Class<? extends Annotation>, StateReflector> REFLECTORS = PDAMod.STATE_REFLECTORS.stream()
         .map(p -> {
@@ -31,7 +35,7 @@ public class DefaultStateHandler implements StateHandler {
                 throw new IllegalStateException("Missing @Reflector annotation");
             }
             final var annotation = reflectorType.getAnnotation(Reflector.class);
-            PDAMod.LOGGER.debug("Initialized state reflector {} for @{}", reflector, annotation.value().getName());
+            LOGGER.debug("Initialized state reflector {} for @{}", reflector, annotation.value().getName());
             return Pair.of(annotation.value(), reflector);
         })
         .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));

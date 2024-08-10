@@ -17,6 +17,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,6 +32,8 @@ import java.util.stream.Collectors;
  */
 @OnlyIn(Dist.CLIENT)
 public final class ClientStateHandler extends DefaultStateHandler {
+    private static final Logger LOGGER = LogManager.getLogger();
+
     private final Multimap<String, String> queue = Multimaps.newMultimap(new ConcurrentHashMap<>(),
         ConcurrentLinkedDeque::new);
 
@@ -71,10 +75,13 @@ public final class ClientStateHandler extends DefaultStateHandler {
                     .collect(Collectors.toMap(State::getName, s -> s))))
                 .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
             // @formatter:on
-            PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Synchronizing {} changed values", values.size());
+            LOGGER.debug(LogMarkers.PROTOCOL, "Synchronizing {} changed values", values.size());
             Minecraft.getInstance().execute(() -> PDAMod.CHANNEL.sendToServer(new SPacketSyncValues(session.getId(),
                 values)));
+            return (Void) null;
+        }, PDAMod.EXECUTOR_SERVICE).exceptionally(error -> {
+            LOGGER.error("Could not flush UI state", error);
             return null;
-        }, PDAMod.EXECUTOR_SERVICE);
+        });
     }
 }

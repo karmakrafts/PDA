@@ -137,15 +137,15 @@ dependencies {
     localLwjglModule("msdfgen")
     localLwjglModule("yoga")
 
-    compileOnly(apiSourceSet.output)
+    implementation(apiSourceSet.output)
 
     foundationCompileOnlyConfig(apiSourceSet.output)
-    compileOnly(foundationSourceSet.output)
+    implementation(foundationSourceSet.output)
 
     composableCompileOnlyConfig(apiSourceSet.output)
     composableCompileOnlyConfig(foundationSourceSet.output)
     composableCompileOnlyConfig(libs.kotlinForForge)
-    compileOnly(composableSourceSet.output)
+    implementation(composableSourceSet.output)
 
     testImplementation(libs.junitApi)
     testRuntimeOnly(libs.junitEngine)
@@ -182,7 +182,7 @@ minecraft {
             workingDirectory(project.file("run"))
             properties(
                 mapOf(
-                    "forge.logging.markers" to "SCAN,LOADING,CORE",
+                    "forge.logging.markers" to "PDAPRO,PDAAPI,SCAN,LOADING,CORE",
                     "forge.logging.console.level" to "DEBUG",
                     "mixin.debug" to "true",
                     "mixin.debug.dumpTargetOnFailure" to "true",

@@ -16,7 +16,7 @@ import java.util.function.Function;
  */
 final class DerivedState<T, R> implements State<R> {
     private final Class<R> type;
-    private final String name;
+    private final State<T> source;
     private final AtomicReference<R> value = new AtomicReference<>(null);
     private final AtomicReference<BiConsumer<State<R>, R>> changeCallback = new AtomicReference<>((state, value) -> {
     });
@@ -24,7 +24,7 @@ final class DerivedState<T, R> implements State<R> {
 
     DerivedState(final State<T> source, final Function<T, R> function, final Class<R> type) {
         this.type = type;
-        name = source.getName();
+        this.source = source;
         source.onChanged((state, value) -> this.value.set(function.apply(value)));
     }
 
@@ -45,7 +45,7 @@ final class DerivedState<T, R> implements State<R> {
 
     @Override
     public String getName() {
-        return name;
+        return source.getName();
     }
 
     @Override

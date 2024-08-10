@@ -86,7 +86,7 @@ public final class GraphicsRenderTypes {
                 DefaultVertexFormat.POSITION_TEX_COLOR), shader -> colorTextureShader = shader);
         }
         catch (Throwable error) {
-            PDAMod.LOGGER.error("Could not register default GFX render type shaders: {}", error.getMessage());
+            PDAMod.LOGGER.error("Could not register default GFX render type shaders", error);
         }
     }
 

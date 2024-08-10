@@ -210,7 +210,7 @@ public class PDAMod {
             }
         }
         catch (Throwable error) {
-            LOGGER.error("Could not shutdown executor service: {}", error.getMessage());
+            LOGGER.error("Could not shutdown executor service", error);
         }
     }
 

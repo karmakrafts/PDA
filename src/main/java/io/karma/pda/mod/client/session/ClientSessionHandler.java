@@ -17,6 +17,8 @@ import io.karma.pda.mod.util.BlockingHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,6 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @OnlyIn(value = Dist.CLIENT)
 public final class ClientSessionHandler extends AbstractSessionHandler {
     public static final ClientSessionHandler INSTANCE = new ClientSessionHandler();
+    private static final Logger LOGGER = LogManager.getLogger();
     private final BlockingHashMap<UUID, UUID> pendingSessions = new BlockingHashMap<>();
     private final AtomicReference<Session> session = new AtomicReference<>(null);
     private final BlockingHashMap<UUID, Session> terminatedSessions = new BlockingHashMap<>();
@@ -45,26 +48,26 @@ public final class ClientSessionHandler extends AbstractSessionHandler {
     @ApiStatus.Internal
     public void addTerminatedSession(final UUID sessionId) {
         if (terminatedSessions.containsKey(sessionId)) {
-            PDAMod.LOGGER.warn(LogMarkers.PROTOCOL, "Session {} already terminated, ignoring", sessionId);
+            LOGGER.warn(LogMarkers.PROTOCOL, "Session {} already terminated, ignoring", sessionId);
             return;
         }
         final var session = activeSessions.get(sessionId);
         if (session == null) {
-            PDAMod.LOGGER.warn(LogMarkers.PROTOCOL, "Session {} does not exist, ignoring", sessionId);
+            LOGGER.warn(LogMarkers.PROTOCOL, "Session {} does not exist, ignoring", sessionId);
             return;
         }
         terminatedSessions.put(sessionId, session);
-        PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Added terminated session {}", sessionId);
+        LOGGER.debug(LogMarkers.PROTOCOL, "Added terminated session {}", sessionId);
     }
 
     @ApiStatus.Internal
     public void addPendingSession(final UUID requestId, final UUID sessionId) {
         if (pendingSessions.containsKey(requestId)) {
-            PDAMod.LOGGER.warn(LogMarkers.PROTOCOL, "Session {} is already pending, ignoring", sessionId);
+            LOGGER.warn(LogMarkers.PROTOCOL, "Session {} is already pending, ignoring", sessionId);
             return;
         }
         pendingSessions.put(requestId, sessionId);
-        PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Added pending session {}", sessionId);
+        LOGGER.debug(LogMarkers.PROTOCOL, "Added pending session {}", sessionId);
     }
 
     @Override
@@ -74,18 +77,21 @@ public final class ClientSessionHandler extends AbstractSessionHandler {
         final var future = pendingSessions.removeLater(requestId, 30, TimeUnit.SECONDS, PDAMod.EXECUTOR_SERVICE)
             .thenApply(sessionId -> {
                 if (sessionId == null) {
-                    PDAMod.LOGGER.error(LogMarkers.PROTOCOL, "Server didn't send session ID back in time for request {}, ignoring", requestId);
+                    LOGGER.error(LogMarkers.PROTOCOL, "Server didn't send session ID back in time for request {}, ignoring", requestId);
                     return null;
                 }
-                PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Received session ID {} from server", sessionId);
+                LOGGER.debug(LogMarkers.PROTOCOL, "Received session ID {} from server", sessionId);
                 final var session = new ClientSession(sessionId, context);
                 addActiveSession(sessionId, session);
                 session.onEstablished();
                 return (Session) session;
+            }).exceptionally(error -> {
+                LOGGER.error(LogMarkers.PROTOCOL, "Could not complete session handshake", error);
+                return null;
             });
         // @formatter:on
         Minecraft.getInstance().execute(() -> {
-            PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Requesting new session from server");
+            LOGGER.debug(LogMarkers.PROTOCOL, "Requesting new session from server");
             PDAMod.CHANNEL.sendToServer(SPacketCreateSession.fromContext(requestId, context));
         });
         return future;
@@ -94,7 +100,7 @@ public final class ClientSessionHandler extends AbstractSessionHandler {
     @Override
     public <S> CompletableFuture<MuxedSession<S>> createSession(
         final Collection<? extends SelectiveSessionContext<S>> contexts, final S initial) {
-        PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Requesting muxed session with {} contexts", contexts.size());
+        LOGGER.debug(LogMarkers.PROTOCOL, "Requesting muxed session with {} contexts", contexts.size());
         return CompletableFuture.supplyAsync(() -> {
             final var mux = new MuxedSession<>(initial, ConcurrentHashMap::new);
             // @formatter:off
@@ -103,9 +109,7 @@ public final class ClientSessionHandler extends AbstractSessionHandler {
                     .thenAccept(session -> mux.addTarget(context.getSelector(), session)))
                 .toArray(CompletableFuture[]::new)).join();
             // @formatter:on
-            PDAMod.LOGGER.debug(LogMarkers.PROTOCOL,
-                "Created session multiplexer with {} sessions",
-                mux.getTargets().size());
+            LOGGER.debug(LogMarkers.PROTOCOL, "Created session multiplexer with {} sessions", mux.getTargets().size());
             return mux;
         }, PDAMod.EXECUTOR_SERVICE);
     }
@@ -123,7 +127,7 @@ public final class ClientSessionHandler extends AbstractSessionHandler {
         final var future = terminatedSessions.removeLater(sessionId, 30, TimeUnit.SECONDS, PDAMod.EXECUTOR_SERVICE)
             .thenAccept(sess -> {
                 if (sess == null) {
-                    PDAMod.LOGGER.warn(LogMarkers.PROTOCOL, "Server didn't send acknowledgement back in time, ignoring");
+                    LOGGER.warn(LogMarkers.PROTOCOL, "Server didn't send acknowledgement back in time, ignoring");
                     return;
                 }
                 sess.onTerminated();
@@ -132,7 +136,7 @@ public final class ClientSessionHandler extends AbstractSessionHandler {
         // @formatter:on
         // ..otherwise this is a single-ended session, so we send a packet and wait for acknowledgement
         Minecraft.getInstance().execute(() -> {
-            PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Requesting termination for session {}", sessionId);
+            LOGGER.debug(LogMarkers.PROTOCOL, "Requesting termination for session {}", sessionId);
             PDAMod.CHANNEL.sendToServer(new SPacketTerminateSession(sessionId));
         });
         return future;
@@ -146,7 +150,7 @@ public final class ClientSessionHandler extends AbstractSessionHandler {
 
     @Override
     public void setActiveSession(final @Nullable Session session) {
-        PDAMod.LOGGER.debug(LogMarkers.PROTOCOL,
+        LOGGER.debug(LogMarkers.PROTOCOL,
             "Setting active session to {}",
             session != null ? session.getId().toString() : "null");
         this.session.set(session);
