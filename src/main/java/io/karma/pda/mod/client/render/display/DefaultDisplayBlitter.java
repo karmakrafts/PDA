@@ -80,8 +80,8 @@ public final class DefaultDisplayBlitter implements DisplayBlitter {
                     .uniform("GlitchFactor", DefaultUniformType.FLOAT)
                     .sampler("Sampler0", 0) // Actual framebuffer texture
                     .sampler("Sampler1", 1) // Pixel filter texture
-                    .onBind(prog -> {
-                        final var uniformCache = prog.getUniformCache();
+                    .onBind(program -> {
+                        final var uniformCache = program.getUniformCache();
                         uniformCache.getFloat("Time").setFloat(ClientEventHandler.INSTANCE.getShaderTime());
                         uniformCache.getFloat("GlitchFactor").setFloat(glitchFactorSupplier.get());
                     })).asStateShard())

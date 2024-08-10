@@ -255,6 +255,7 @@ public class PDAMod {
         ClientAPI.setDisplayRenderer(DefaultDisplayRenderer.INSTANCE);
         ClientAPI.setShaderFactory(DefaultShaderFactory.INSTANCE);
         ClientAPI.setShaderPreProcessorSupplier(DefaultShaderPreProcessor::getInstance);
+        ClientAPI.setShaderTimeProvider(ClientEventHandler.INSTANCE::getShaderTime);
         ClientAPI.init();
     }
 

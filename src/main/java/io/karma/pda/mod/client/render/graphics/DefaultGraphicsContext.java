@@ -73,7 +73,7 @@ public final class DefaultGraphicsContext implements GraphicsContext {
     @Override
     public GraphicsContext derive(final int width, final int height) {
         final var context = new DefaultGraphicsContext();
-        context.setup(poseStack, bufferSource, width, height, defaultZIndex + 1, context.displayMode);
+        context.setup(poseStack, bufferSource, width, height, defaultZIndex + 1, displayMode);
         return context;
     }
 
