@@ -13,6 +13,7 @@ import io.karma.pda.api.client.render.shader.ShaderType;
 import io.karma.pda.api.client.render.shader.uniform.DefaultUniformType;
 import io.karma.pda.api.client.render.shader.uniform.Uniform;
 import io.karma.pda.api.client.render.shader.uniform.UniformCache;
+import io.karma.pda.api.util.Exceptions;
 import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.hook.ExtendedRenderSystem;
 import io.karma.pda.mod.client.hook.ExtendedShader;
@@ -36,6 +37,8 @@ import org.lwjgl.opengl.GL20;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
@@ -56,8 +59,8 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     private final HashMap<String, Object> constants;
     private final Object2IntLinkedOpenHashMap<String> defines;
     private final HashMap<ShaderObject, ProgramAdaptor> adaptorCache = new HashMap<>();
-    private boolean isLinked;
-    private boolean isRelinkRequested;
+    private final AtomicBoolean isLinked = new AtomicBoolean(false);
+    private final AtomicBoolean isRelinkRequested = new AtomicBoolean(false);
     private int previousTextureUnit;
     private boolean isBound;
 
@@ -196,7 +199,11 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public void unbind() {
-        if (!isLinked || !isBound) {
+        if (!isBound) {
+            PDAMod.LOGGER.warn("Double unbind detected for shader program {}", id);
+            return;
+        }
+        if (!isLinked.get()) {
             return;
         }
         for (final var object : objects) {
@@ -217,12 +224,15 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public void bind() {
-        if (!isLinked || isBound) {
+        if (isBound) {
+            PDAMod.LOGGER.warn("Double bind detected for shader program {}, ignoring", id);
             return;
         }
-        if (isRelinkRequested) {
+        if (!isLinked.get()) {
+            return;
+        }
+        if (isRelinkRequested.compareAndSet(true, false)) {
             relink(Minecraft.getInstance().getResourceManager());
-            isRelinkRequested = false;
         }
         for (final var object : objects) {
             object.onBindProgram(this);
@@ -245,7 +255,7 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public void dispose() {
-        isLinked = false;
+        isLinked.set(false);
         for (final var object : objects) {
             final var objectId = object.getId();
             GL20.glDetachShader(id, objectId);
@@ -256,7 +266,7 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public boolean isLinked() {
-        return isLinked;
+        return isLinked.get();
     }
 
     @Override
@@ -271,12 +281,12 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public void requestRelink() {
-        isRelinkRequested = true;
+        isRelinkRequested.set(true);
     }
 
     @Override
     public boolean isRelinkRequested() {
-        return isRelinkRequested;
+        return isRelinkRequested.get();
     }
 
     @Override
@@ -294,17 +304,25 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     private void relink(final ResourceProvider provider) {
         unbind();
-        isLinked = false;
-        for (final var object : objects) { // @formatter:off
-            object.recompile(this, provider);
-        } // @formatter:on
-        GL20.glLinkProgram(id);
-        if (GL20.glGetProgrami(id, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
-            PDAMod.LOGGER.error("Could not link shader program {}: {}", id, GL20.glGetProgramInfoLog(id));
-        }
-        uniformCache.clear();
-        uniformCache.updateAll(); // Flag all uniforms to be re-applied statically
-        isLinked = true;
+        isLinked.set(false);
+        // @formatter:off
+        CompletableFuture.allOf(objects.stream()
+            .map(object -> object.recompile(this, provider))
+            .toArray(CompletableFuture[]::new))
+            .exceptionally(error -> {
+                PDAMod.LOGGER.error("Could not recompile shader program {}: {}", id, Exceptions.toFancyString(error));
+                return null;
+            })
+            .thenAccept(result -> Minecraft.getInstance().execute(() -> {
+                GL20.glLinkProgram(id);
+                if (GL20.glGetProgrami(id, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
+                    PDAMod.LOGGER.error("Could not link shader program {}: {}", id, GL20.glGetProgramInfoLog(id));
+                }
+                uniformCache.clear();
+                uniformCache.updateAll(); // Flag all uniforms to be re-applied statically
+                isLinked.set(true);
+            }));
+        // @formatter:on
     }
 
     private static final class ProgramAdaptor extends Program {

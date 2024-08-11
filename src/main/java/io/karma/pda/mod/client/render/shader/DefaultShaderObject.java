@@ -12,6 +12,7 @@ import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.ShaderType;
 import io.karma.pda.api.util.Exceptions;
 import io.karma.pda.mod.PDAMod;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import net.minecraftforge.api.distmarker.Dist;
@@ -20,6 +21,8 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -32,8 +35,8 @@ public final class DefaultShaderObject extends Program implements ShaderObject {
     private final ShaderType type;
     private final ResourceLocation location;
     private final Supplier<ShaderPreProcessor> shaderPreProcessorSupplier;
-    private boolean isCompiled;
-    private boolean isAttached;
+    private final AtomicBoolean isCompiled = new AtomicBoolean(false);
+    private final AtomicBoolean isAttached = new AtomicBoolean(false);
 
     DefaultShaderObject(final ShaderType type, final ResourceLocation location,
                         final Supplier<ShaderPreProcessor> shaderPreProcessorSupplier) {
@@ -60,6 +63,34 @@ public final class DefaultShaderObject extends Program implements ShaderObject {
         }
     }
 
+    CompletableFuture<Void> recompile(final ShaderProgram program, final ResourceProvider provider) {
+        isCompiled.set(false);
+        return CompletableFuture.runAsync(() -> {
+            PDAMod.LOGGER.debug("Processing shader source for {}", location);
+            final var unprocessedSource = loadSource(provider, location);
+            final var source = shaderPreProcessorSupplier.get().process(unprocessedSource,
+                program,
+                this,
+                subLocation -> loadSource(provider, subLocation));
+            PDAMod.LOGGER.debug("Processed shader source for {}", location);
+            Minecraft.getInstance().execute(() -> {
+                detach(program);
+                GL20.glShaderSource(id, source);
+                GL20.glCompileShader(id);
+                if (GL20.glGetShaderi(id, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
+                    PDAMod.LOGGER.error("Could not recompile shader {}: {}", location, GL20.glGetShaderInfoLog(id));
+                    return;
+                }
+                isCompiled.set(true);
+                attach(program);
+                PDAMod.LOGGER.debug("Compiled shader object {} for program {}", location, program.getId());
+            });
+        }, PDAMod.EXECUTOR_SERVICE).exceptionally(error -> {
+            PDAMod.LOGGER.error("Could not recompile shader object", error);
+            return null;
+        });
+    }
+
     @Override
     public void attachToShader(final @NotNull Shader shader) {
     }
@@ -68,43 +99,20 @@ public final class DefaultShaderObject extends Program implements ShaderObject {
     public void close() {
     }
 
-    void recompile(final ShaderProgram program, final ResourceProvider provider) {
-        isCompiled = false;
-        PDAMod.LOGGER.debug("Processing shader source for {}", location);
-        final var unprocessedSource = loadSource(provider, location);
-        final var source = shaderPreProcessorSupplier.get().process(unprocessedSource,
-            program,
-            this,
-            subLocation -> loadSource(provider, subLocation));
-        PDAMod.LOGGER.debug("Processed shader source for {}", location);
-        detach(program);
-        GL20.glShaderSource(id, source);
-        GL20.glCompileShader(id);
-        if (GL20.glGetShaderi(id, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
-            PDAMod.LOGGER.error("Could not recompile shader {}: {}", location, GL20.glGetShaderInfoLog(id));
-            return;
-        }
-        isCompiled = true;
-        attach(program);
-        PDAMod.LOGGER.debug("Compiled shader object {} for program {}", location, program.getId());
-    }
-
     @Override
     public void attach(final ShaderProgram program) {
-        if (isAttached) {
+        if (!isAttached.compareAndSet(false, true)) {
             return;
         }
         GL20.glAttachShader(program.getId(), id);
-        isAttached = true;
     }
 
     @Override
     public void detach(final ShaderProgram program) {
-        if (!isAttached) {
+        if (!isAttached.compareAndSet(true, false)) {
             return;
         }
         GL20.glDetachShader(program.getId(), id);
-        isAttached = false;
     }
 
     @Override
@@ -124,7 +132,7 @@ public final class DefaultShaderObject extends Program implements ShaderObject {
 
     @Override
     public boolean isCompiled() {
-        return isCompiled;
+        return isCompiled.get();
     }
 
     @Override

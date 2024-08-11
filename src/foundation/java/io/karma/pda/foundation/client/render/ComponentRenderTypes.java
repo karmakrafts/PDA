@@ -10,14 +10,12 @@ import io.karma.pda.api.client.ClientAPI;
 import io.karma.pda.api.client.render.display.DisplayMode;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.ShaderType;
-import io.karma.pda.api.client.render.shader.uniform.DefaultUniformType;
 import io.karma.pda.api.util.Constants;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.util.function.Function;
@@ -30,7 +28,7 @@ import java.util.function.Function;
 @OnlyIn(Dist.CLIENT)
 public final class ComponentRenderTypes {
     // @formatter:off
-    private static ShaderProgram SPINNER_SHADER = ClientAPI.getShaderFactory().create(builder -> builder
+    private static final ShaderProgram SPINNER_SHADER = ClientAPI.getShaderFactory().create(builder -> builder
         .shader(object -> object
             .type(ShaderType.VERTEX)
             .location(Constants.MODID, "shaders/spinner.vert.glsl")
@@ -42,11 +40,7 @@ public final class ComponentRenderTypes {
             .defaultPreProcessor()
         )
         .defaultUniforms()
-        .uniform("Time", DefaultUniformType.FLOAT)
-        .onBind(program -> {
-            final var uniformCache = program.getUniformCache();
-            uniformCache.getFloat("Time").setFloat(ClientAPI.getShaderTime());
-        })
+        .uniformTime()
     );
     public static final Function<DisplayMode, RenderType> SPINNER = Util.memoize(displayMode ->
         RenderType.create(String.format("pda_display_spinner__%s", displayMode),
@@ -65,5 +59,6 @@ public final class ComponentRenderTypes {
     }
 
     @Internal
-    public static void createShaders() {}
+    public static void createShaders() {
+    }
 }
