@@ -9,7 +9,7 @@ import io.karma.pda.api.color.GradientType;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.mod.PDAMod;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.util.function.Function;
 
@@ -22,7 +22,7 @@ public final class ModGradientFunctions {
     private ModGradientFunctions() {}
     // @formatter:on
 
-    @ApiStatus.Internal
+    @Internal
     public static void register() {
         PDAMod.LOGGER.debug("Registering gradient functions");
         for (final var type : GradientType.values()) {

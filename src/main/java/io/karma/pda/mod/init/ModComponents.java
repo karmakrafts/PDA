@@ -12,7 +12,7 @@ import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.app.component.StatusBar;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.RegistryObject;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -28,7 +28,7 @@ public final class ModComponents {
     private ModComponents() {}
     // @formatter:on
 
-    @ApiStatus.Internal
+    @Internal
     public static void register() {
         PDAMod.LOGGER.info("Registering components");
         register("container", DefaultContainer.class, DefaultContainer::new);

@@ -34,7 +34,7 @@ import net.minecraftforge.event.entity.EntityTeleportEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -91,7 +91,7 @@ public final class DockInteractionHandler {
     private DockInteractionHandler() {}
     // @formatter:on
 
-    @ApiStatus.Internal
+    @Internal
     public void setup() {
         final var forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addListener(this::onRenderGuiOverlay);

@@ -24,7 +24,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -55,7 +55,7 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
         displayPoseStack.setIdentity();
     }
 
-    @ApiStatus.Internal
+    @Internal
     public void createDisplayMode(final DisplayModeSpec modeSpec) {
         if (displayModes.containsKey(modeSpec)) {
             return;
@@ -107,7 +107,6 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
         graphics.setContext(graphicsContext);
 
         final var session = ClientSessionHandler.INSTANCE.findByDevice(stack);
-
         if (session != null) {
             final var launcher = session.getLauncher();
             final var app = launcher.getCurrentApp();
@@ -128,7 +127,7 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
             renderIntoDisplayBuffer(stack, displayMode);
             final var blitter = displayMode.getBlitter();
             blitter.blit(poseStack.last().pose(), blitBufferSource.getBuffer(blitter.getRenderType()));
-            blitBufferSource.endBatch(blitter.getRenderType());
+            blitBufferSource.endBatch();
         });
     }
 }

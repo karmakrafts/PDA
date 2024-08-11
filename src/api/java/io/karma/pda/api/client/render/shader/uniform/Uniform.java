@@ -19,4 +19,6 @@ public interface Uniform {
     String getName();
 
     void apply(final ShaderProgram program);
+
+    void notifyUpdate();
 }

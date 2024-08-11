@@ -9,7 +9,7 @@ import io.karma.pda.mod.item.DockBlockItem;
 import io.karma.pda.mod.item.MemoryCardItem;
 import io.karma.pda.mod.item.PDAItem;
 import net.minecraftforge.registries.RegistryObject;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 /**
  * @author Alexander Hinze
@@ -23,7 +23,7 @@ public final class ModItems {
     private ModItems() {}
     // @formatter:on
 
-    @ApiStatus.Internal
+    @Internal
     public static void register() {
         PDAMod.LOGGER.info("Registering items");
         pda = PDAMod.ITEMS.register("pda", PDAItem::new);

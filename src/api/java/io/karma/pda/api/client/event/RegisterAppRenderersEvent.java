@@ -10,7 +10,7 @@ import io.karma.pda.api.client.render.app.AppRenderer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.Event;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.util.function.BiConsumer;
 
@@ -22,7 +22,7 @@ import java.util.function.BiConsumer;
 public final class RegisterAppRenderersEvent extends Event {
     private final BiConsumer<AppType<?>, AppRenderer<?>> register;
 
-    @ApiStatus.Internal
+    @Internal
     public RegisterAppRenderersEvent(final BiConsumer<AppType<?>, AppRenderer<?>> register) {
         this.register = register;
     }

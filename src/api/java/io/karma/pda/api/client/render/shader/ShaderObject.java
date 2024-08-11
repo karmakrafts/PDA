@@ -25,4 +25,8 @@ public interface ShaderObject {
     void onBindProgram(final ShaderProgram program);
 
     void onUnbindProgram(final ShaderProgram program);
+
+    void attach(final ShaderProgram program);
+
+    void detach(final ShaderProgram program);
 }

@@ -45,6 +45,11 @@ public final class Vector3fUniform implements GenericUniform<Vector3f> {
     }
 
     @Override
+    public void notifyUpdate() {
+        hasChanged = true;
+    }
+
+    @Override
     public DefaultUniformType getType() {
         return DefaultUniformType.FLOAT_VEC3;
     }

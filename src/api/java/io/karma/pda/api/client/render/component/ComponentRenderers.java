@@ -8,7 +8,7 @@ import io.karma.pda.api.app.component.Component;
 import io.karma.pda.api.app.component.ComponentType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.util.HashMap;
 
@@ -24,7 +24,7 @@ public final class ComponentRenderers {
     private ComponentRenderers() {}
     // @formatter:on
 
-    @ApiStatus.Internal
+    @Internal
     public static <C extends Component> void register(final ComponentType<C> type,
                                                       final ComponentRenderer<C> renderer) {
         if (RENDERERS.containsKey(type)) {

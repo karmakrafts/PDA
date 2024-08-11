@@ -10,7 +10,7 @@ import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -53,7 +53,7 @@ public abstract class AbstractSessionHandler implements SessionHandler {
         return null;
     }
 
-    @ApiStatus.Internal
+    @Internal
     public void addActiveSession(final UUID sessionId, final Session session) {
         if (activeSessions.containsKey(sessionId)) {
             PDAMod.LOGGER.warn(LogMarkers.PROTOCOL, "Session {} already exists, ignoring", sessionId);
@@ -63,13 +63,13 @@ public abstract class AbstractSessionHandler implements SessionHandler {
         PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Added active session {}", sessionId);
     }
 
-    @ApiStatus.Internal
+    @Internal
     public void removeActiveSession(final UUID sessionId) {
         activeSessions.remove(sessionId);
         PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Removed active session {}", sessionId);
     }
 
-    @ApiStatus.Internal
+    @Internal
     public Map<UUID, Session> getActiveSessions() {
         return Collections.unmodifiableMap(activeSessions);
     }

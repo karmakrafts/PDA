@@ -8,7 +8,7 @@ import io.karma.pda.api.display.DefaultDisplayResolution;
 import io.karma.pda.api.display.DefaultDisplayType;
 import io.karma.pda.api.display.DisplayModeSpec;
 import io.karma.pda.mod.PDAMod;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 /**
  * @author Alexander Hinze
@@ -19,7 +19,7 @@ public final class ModDisplayModes {
     private ModDisplayModes() {}
     // @formatter:on
 
-    @ApiStatus.Internal
+    @Internal
     public static void register() {
         PDAMod.LOGGER.info("Registering display modes");
         for (final var type : DefaultDisplayType.values()) {

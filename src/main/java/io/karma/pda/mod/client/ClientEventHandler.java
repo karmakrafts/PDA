@@ -30,7 +30,7 @@ import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 /**
  * @author Alexander Hinze
@@ -49,7 +49,7 @@ public final class ClientEventHandler {
     private ClientEventHandler() {}
     // @formatter:on
 
-    @ApiStatus.Internal
+    @Internal
     public void setup() {
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         final var forgeBus = MinecraftForge.EVENT_BUS;
@@ -60,7 +60,7 @@ public final class ClientEventHandler {
     }
 
     @SuppressWarnings("all")
-    @ApiStatus.Internal
+    @Internal
     public void fireRegisterEvents() {
         // Components
         PDAMod.LOGGER.info("Registering component renderers");

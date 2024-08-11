@@ -21,7 +21,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -41,7 +41,7 @@ public class ClientLauncher extends DefaultLauncher {
         super(session);
     }
 
-    @ApiStatus.Internal
+    @Internal
     public void addPendingApp(final App app) {
         final var name = app.getType().getName();
         if (pendingApps.containsKey(name)) {
@@ -51,7 +51,7 @@ public class ClientLauncher extends DefaultLauncher {
         PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Added pending app {}", app.getType().getName());
     }
 
-    @ApiStatus.Internal
+    @Internal
     public void addTerminatedApp(final App app) {
         final var name = app.getType().getName();
         if (terminatedApps.containsKey(name)) {

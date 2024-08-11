@@ -43,6 +43,11 @@ public final class DefaultFloatUniform implements FloatUniform {
     }
 
     @Override
+    public void notifyUpdate() {
+        hasChanged = true;
+    }
+
+    @Override
     public UniformType getType() {
         return DefaultUniformType.FLOAT;
     }

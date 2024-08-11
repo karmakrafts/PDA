@@ -13,7 +13,7 @@ import io.karma.pda.api.session.Session;
 import io.karma.pda.api.util.Exceptions;
 import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -58,7 +58,7 @@ public class DefaultLauncher implements Launcher {
         }
     }
 
-    @ApiStatus.Internal
+    @Internal
     public <A extends App> A openNow(final AppType<A> type) {
         final var app = type.create();
         tryCompose(app);
@@ -69,14 +69,14 @@ public class DefaultLauncher implements Launcher {
         return app;
     }
 
-    @ApiStatus.Internal
+    @Internal
     public void addOpenApp(final App app) {
         synchronized (appStackLock) {
             appStack.push(app);
         }
     }
 
-    @ApiStatus.Internal
+    @Internal
     public void removeOpenApp(final App app) {
         synchronized (appStackLock) {
             appStack.remove(app);

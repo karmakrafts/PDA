@@ -20,7 +20,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
@@ -44,11 +44,11 @@ public class API {
     private static boolean isInitialized;
 
     // @formatter:off
-    @ApiStatus.Internal
+    @Internal
     protected API() {}
     // @formatter:on
 
-    @ApiStatus.Internal
+    @Internal
     public static void init() {
         if (isInitialized) {
             throw new IllegalStateException("Already initialized");
@@ -67,13 +67,13 @@ public class API {
         }
     }
 
-    @ApiStatus.Internal
+    @Internal
     public static Logger getLogger() {
         assertInitialized();
         return logger;
     }
 
-    @ApiStatus.Internal
+    @Internal
     public static void setLogger(final Logger logger) {
         API.logger = logger;
     }
@@ -83,7 +83,7 @@ public class API {
         return objectMapper;
     }
 
-    @ApiStatus.Internal
+    @Internal
     public static void setObjectMapper(final ObjectMapper objectMapper) {
         API.objectMapper = objectMapper;
     }
@@ -98,7 +98,7 @@ public class API {
         return sessionHandler;
     }
 
-    @ApiStatus.Internal
+    @Internal
     public static void setSessionHandler(final SessionHandler sessionHandler) {
         API.sessionHandler = sessionHandler;
     }
@@ -108,7 +108,7 @@ public class API {
         return executorService;
     }
 
-    @ApiStatus.Internal
+    @Internal
     public static void setExecutorService(final ExecutorService executorService) {
         API.executorService = executorService;
     }
@@ -143,7 +143,7 @@ public class API {
         return componentTypeRegistry.get();
     }
 
-    @ApiStatus.Internal
+    @Internal
     public static void setComponentTypeRegistry(
         final Supplier<IForgeRegistry<ComponentType<?>>> componentTypeRegistry) {
         API.componentTypeRegistry = componentTypeRegistry;
@@ -154,7 +154,7 @@ public class API {
         return appTypeRegistry.get();
     }
 
-    @ApiStatus.Internal
+    @Internal
     public static void setAppTypeRegistry(final Supplier<IForgeRegistry<AppType<?>>> appTypeRegistry) {
         API.appTypeRegistry = appTypeRegistry;
     }
@@ -164,7 +164,7 @@ public class API {
         return themeRegistry.get();
     }
 
-    @ApiStatus.Internal
+    @Internal
     public static void setThemeRegistry(final Supplier<IForgeRegistry<Theme>> themeRegistry) {
         API.themeRegistry = themeRegistry;
     }
@@ -174,7 +174,7 @@ public class API {
         return fontFamilyRegistry.get();
     }
 
-    @ApiStatus.Internal
+    @Internal
     public static void setFontFamilyRegistry(final Supplier<IForgeRegistry<FontFamily>> fontFamilyRegistry) {
         API.fontFamilyRegistry = fontFamilyRegistry;
     }
@@ -184,7 +184,7 @@ public class API {
         return gradientFunctionRegistry.get();
     }
 
-    @ApiStatus.Internal
+    @Internal
     public static void setGradientFunctionRegistry(
         final Supplier<IForgeRegistry<GradientFunction>> gradientFunctionRegistry) {
         API.gradientFunctionRegistry = gradientFunctionRegistry;
@@ -195,7 +195,7 @@ public class API {
         return displayModeRegistry.get();
     }
 
-    @ApiStatus.Internal
+    @Internal
     public static void setDisplayModeRegistry(final Supplier<IForgeRegistry<DisplayModeSpec>> displayModeRegistry) {
         API.displayModeRegistry = displayModeRegistry;
     }

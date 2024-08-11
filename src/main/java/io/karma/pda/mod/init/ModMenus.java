@@ -13,7 +13,7 @@ import io.karma.pda.mod.menu.PDAStorageMenu;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.registries.RegistryObject;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 /**
  * @author Alexander Hinze
@@ -27,7 +27,7 @@ public final class ModMenus {
     private ModMenus() {}
     // @formatter:on
 
-    @ApiStatus.Internal
+    @Internal
     public static void register() {
         PDAMod.LOGGER.info("Registering menus");
         pdaStorage = PDAMod.MENU_TYPES.register("pda_storage",

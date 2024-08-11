@@ -25,7 +25,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.network.PacketDistributor;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -42,7 +42,7 @@ public final class CommandHandler {
     private CommandHandler() {}
     // @formatter:on
 
-    @ApiStatus.Internal
+    @Internal
     public void setup() {
         MinecraftForge.EVENT_BUS.addListener(this::onRegisterCommands);
     }

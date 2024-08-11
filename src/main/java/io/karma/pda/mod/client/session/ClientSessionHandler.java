@@ -17,7 +17,7 @@ import io.karma.pda.mod.util.BlockingHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -42,7 +42,7 @@ public final class ClientSessionHandler extends AbstractSessionHandler {
     private ClientSessionHandler() {}
     // @formatter:on
 
-    @ApiStatus.Internal
+    @Internal
     public void addTerminatedSession(final UUID sessionId) {
         if (terminatedSessions.containsKey(sessionId)) {
             PDAMod.LOGGER.warn(LogMarkers.PROTOCOL, "Session {} already terminated, ignoring", sessionId);
@@ -57,7 +57,7 @@ public final class ClientSessionHandler extends AbstractSessionHandler {
         PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Added terminated session {}", sessionId);
     }
 
-    @ApiStatus.Internal
+    @Internal
     public void addPendingSession(final UUID requestId, final UUID sessionId) {
         if (pendingSessions.containsKey(requestId)) {
             PDAMod.LOGGER.warn(LogMarkers.PROTOCOL, "Session {} is already pending, ignoring", sessionId);
@@ -106,7 +106,9 @@ public final class ClientSessionHandler extends AbstractSessionHandler {
                     .thenAccept(session -> mux.addTarget(context.getSelector(), session)))
                 .toArray(CompletableFuture[]::new)).join();
             // @formatter:on
-            PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Created session multiplexer with {} sessions", mux.getTargets().size());
+            PDAMod.LOGGER.debug(LogMarkers.PROTOCOL,
+                "Created session multiplexer with {} sessions",
+                mux.getTargets().size());
             return mux;
         }, PDAMod.EXECUTOR_SERVICE);
     }

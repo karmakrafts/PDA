@@ -24,7 +24,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkEvent;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -71,7 +71,7 @@ public final class ClientPacketHandler extends CommonPacketHandler {
         }
     }
 
-    @ApiStatus.Internal
+    @Internal
     public void registerPackets() { // @formatter:off
         registerPacket(PacketIDs.CB_CREATE_SESSION,
             CPacketCreateSession.class, CPacketCreateSession::encode, CPacketCreateSession::decode,

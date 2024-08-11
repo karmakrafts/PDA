@@ -12,7 +12,7 @@ import io.karma.pda.api.session.SessionHandler;
 import io.karma.pda.api.util.FloatSupplier;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.util.function.Supplier;
 
@@ -34,7 +34,7 @@ public final class ClientAPI {
     private ClientAPI() {}
     // @formatter:on
 
-    @ApiStatus.Internal
+    @Internal
     public static void init() {
         if (isInitialized) {
             throw new IllegalStateException("Already initialized");
@@ -53,7 +53,7 @@ public final class ClientAPI {
         return sessionHandler;
     }
 
-    @ApiStatus.Internal
+    @Internal
     public static void setSessionHandler(final SessionHandler sessionHandler) {
         ClientAPI.sessionHandler = sessionHandler;
     }
@@ -63,7 +63,7 @@ public final class ClientAPI {
         return displayRenderer;
     }
 
-    @ApiStatus.Internal
+    @Internal
     public static void setDisplayRenderer(final DisplayRenderer displayRenderer) {
         ClientAPI.displayRenderer = displayRenderer;
     }
@@ -73,7 +73,7 @@ public final class ClientAPI {
         return flexNodeHandler;
     }
 
-    @ApiStatus.Internal
+    @Internal
     public static void setFlexNodeHandler(final FlexNodeHandler flexNodeHandler) {
         ClientAPI.flexNodeHandler = flexNodeHandler;
     }
@@ -82,7 +82,7 @@ public final class ClientAPI {
         return shaderTimeProvider.get();
     }
 
-    @ApiStatus.Internal
+    @Internal
     public static void setShaderTimeProvider(final FloatSupplier shaderTimeProvider) {
         ClientAPI.shaderTimeProvider = shaderTimeProvider;
     }
@@ -91,7 +91,7 @@ public final class ClientAPI {
         return shaderFactory;
     }
 
-    @ApiStatus.Internal
+    @Internal
     public static void setShaderFactory(final ShaderFactory shaderFactory) {
         ClientAPI.shaderFactory = shaderFactory;
     }
@@ -100,7 +100,7 @@ public final class ClientAPI {
         return shaderPreProcessorSupplier.get();
     }
 
-    @ApiStatus.Internal
+    @Internal
     public static void setShaderPreProcessorSupplier(final Supplier<ShaderPreProcessor> shaderPreProcessorSupplier) {
         ClientAPI.shaderPreProcessorSupplier = shaderPreProcessorSupplier;
     }

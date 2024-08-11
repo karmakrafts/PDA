@@ -9,7 +9,7 @@ import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.entity.DockBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.RegistryObject;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 /**
  * @author Alexander Hinze
@@ -23,7 +23,7 @@ public final class ModBlockEntities {
     // @formatter:on
 
     @SuppressWarnings("all")
-    @ApiStatus.Internal
+    @Internal
     public static void register() {
         PDAMod.LOGGER.info("Registering block entity types");
         dock = PDAMod.BLOCK_ENTITIES.register("dock",

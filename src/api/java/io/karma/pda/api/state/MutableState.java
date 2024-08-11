@@ -5,7 +5,7 @@
 package io.karma.pda.api.state;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -68,7 +68,7 @@ public interface MutableState<T> extends State<T>, Consumer<T> {
      *
      * @param name The name of this property.
      */
-    @ApiStatus.Internal
+    @Internal
     void setName(final String name);
 
     /**

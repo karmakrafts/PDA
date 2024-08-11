@@ -8,7 +8,7 @@ import io.karma.pda.api.session.MuxedSession;
 import io.karma.pda.api.session.SelectiveSessionContext;
 import io.karma.pda.api.session.Session;
 import io.karma.pda.api.session.SessionContext;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -63,7 +63,7 @@ public class DefaultSessionHandler extends AbstractSessionHandler {
         throw new UnsupportedOperationException();
     }
 
-    @ApiStatus.Internal
+    @Internal
     public void setup() {
 
     }

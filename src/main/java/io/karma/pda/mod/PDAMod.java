@@ -242,8 +242,6 @@ public class PDAMod {
         DockInteractionHandler.INSTANCE.setup();
         PDAInteractionHandler.INSTANCE.setup();
         PDAItemRenderer.INSTANCE.setup();
-        GraphicsRenderTypes.INSTANCE.setupEarly();
-        ComponentRenderTypes.INSTANCE.setupEarly();
         initClientAPI();
     }
 
@@ -261,6 +259,8 @@ public class PDAMod {
     @OnlyIn(Dist.CLIENT)
     private void onClientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
+            GraphicsRenderTypes.createShaders();
+            ComponentRenderTypes.createShaders();
             DefaultFontRenderer.INSTANCE.setup();
             LOGGER.info("Registering screens");
             MenuScreens.register(ModMenus.pdaStorage.get(),

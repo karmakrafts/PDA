@@ -45,6 +45,11 @@ public final class Vector4fUniform implements GenericUniform<Vector4f> {
     }
 
     @Override
+    public void notifyUpdate() {
+        hasChanged = true;
+    }
+
+    @Override
     public DefaultUniformType getType() {
         return DefaultUniformType.FLOAT_VEC4;
     }

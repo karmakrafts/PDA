@@ -36,9 +36,16 @@ public final class DefaultUniformCache implements UniformCache {
     }
 
     @Override
-    public void updateAll() {
+    public void applyAll() {
         for (final var uniform : uniforms.values()) {
             uniform.apply(program);
+        }
+    }
+
+    @Override
+    public void updateAll() {
+        for (final var uniform : uniforms.values()) {
+            uniform.notifyUpdate();
         }
     }
 

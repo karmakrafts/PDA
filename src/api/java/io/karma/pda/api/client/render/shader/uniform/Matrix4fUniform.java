@@ -45,6 +45,11 @@ public final class Matrix4fUniform implements GenericUniform<Matrix4f> {
     }
 
     @Override
+    public void notifyUpdate() {
+        hasChanged = true;
+    }
+
+    @Override
     public DefaultUniformType getType() {
         return DefaultUniformType.FLOAT_MAT4;
     }

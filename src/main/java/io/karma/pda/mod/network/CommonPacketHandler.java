@@ -125,14 +125,18 @@ public class CommonPacketHandler {
         final var mappings = new HashMap<String, ArrayList<UUID>>();
 
         if (app == null) {
-            PDAMod.LOGGER.error(LogMarkers.PROTOCOL, "Could not open launcher app for session {}", packet.getSessionId());
+            PDAMod.LOGGER.error(LogMarkers.PROTOCOL,
+                "Could not open launcher app for session {}",
+                packet.getSessionId());
             return;
         }
         for (final var view : app.getViews()) {
             final var viewName = view.getName();
             final var oldIds = packet.getOldIds().get(viewName);
             if (oldIds == null) {
-                PDAMod.LOGGER.error("Could not find component IDs for view {} in session {}", viewName, packet.getSessionId());
+                PDAMod.LOGGER.error("Could not find component IDs for view {} in session {}",
+                    viewName,
+                    packet.getSessionId());
                 continue;
             }
             // @formatter:off

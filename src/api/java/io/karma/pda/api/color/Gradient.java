@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import io.karma.pda.api.util.RectangleCorner;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 /**
  * @author Alexander Hinze
@@ -23,7 +23,7 @@ public final class Gradient implements ColorProvider {
     @JsonIgnore
     private GradientFunction gradientFunction;
 
-    @ApiStatus.Internal
+    @Internal
     @JsonCreator
     public Gradient() {
     }

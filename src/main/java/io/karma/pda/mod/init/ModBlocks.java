@@ -7,7 +7,7 @@ package io.karma.pda.mod.init;
 import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.block.DockBlock;
 import net.minecraftforge.registries.RegistryObject;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 /**
  * @author Alexander Hinze
@@ -20,7 +20,7 @@ public final class ModBlocks {
     private ModBlocks() {}
     // @formatter:on
 
-    @ApiStatus.Internal
+    @Internal
     public static void register() {
         PDAMod.LOGGER.info("Registering blocks");
         dock = PDAMod.BLOCKS.register("dock", DockBlock::new);

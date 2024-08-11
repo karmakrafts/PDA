@@ -17,10 +17,10 @@ import java.util.function.Supplier;
 @OnlyIn(Dist.CLIENT)
 public interface ExtendedRenderSystem {
     static ExtendedRenderSystem getInstance() {
-        return (ExtendedRenderSystem)RenderSystemUtils.getInstance();
+        return (ExtendedRenderSystem) RenderSystemUtils.getInstance();
     }
 
-    void setExtendedShader(final Supplier<ExtendedShader> shader);
-
     ExtendedShader getExtendedShader();
+
+    void setExtendedShader(final Supplier<ExtendedShader> shader);
 }

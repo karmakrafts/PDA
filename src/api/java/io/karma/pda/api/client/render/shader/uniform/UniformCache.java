@@ -17,6 +17,8 @@ import java.util.Map;
 public interface UniformCache {
     void clear();
 
+    void applyAll();
+
     void updateAll();
 
     Map<String, Uniform> getAll();

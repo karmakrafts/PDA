@@ -8,9 +8,9 @@ import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.util.FontVariationAxis;
 import io.karma.pda.mod.client.util.FreeTypeUtils;
 import io.karma.pda.mod.client.util.MSDFUtils;
+import io.karma.pda.mod.util.MemoryUtils;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.system.APIUtil;
 import org.lwjgl.system.Checks;
 import org.lwjgl.system.MemoryStack;
@@ -74,10 +74,8 @@ public final class MSDFFont implements AutoCloseable {
             // Create the font face and load it
             final var data = stream.readAllBytes();
             final var dataSize = data.length;
-            final var buffer = BufferUtils.createByteBuffer(dataSize);
-            buffer.put(data);
-            buffer.flip();
-            final var dataAddress = MemoryUtil.memAddress(buffer);
+            final var dataAddress = MemoryUtil.nmemAlloc(dataSize);
+            MemoryUtils.wrap(dataAddress, dataSize).put(data);
             PDAMod.LOGGER.debug("Created font memory at 0x{}", Long.toHexString(dataAddress));
 
             final var resultBuffer = stack.mallocInt(1);
@@ -93,6 +91,7 @@ public final class MSDFFont implements AutoCloseable {
                     stack.pointers(faceAddressBuffer.address()).address()
                 ));
             // @formatter:on
+            MemoryUtil.nmemFree(dataAddress); // Free heap memory for file contents
             if (resultBuffer.get() != FreeType.FT_Err_Ok) {
                 throw new IllegalStateException("Could not create FreeType face");
             }

@@ -31,7 +31,7 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
     private static final ThreadLocal<DefaultShaderPreProcessor> INSTANCE = ThreadLocal.withInitial(
         DefaultShaderPreProcessor::new);
     private static final Pattern SPECIAL_CONST_PATTERN = Pattern.compile(
-        "\\b(special)\\s+(const)\\s+(\\w+)\\s+(\\w+)(\\s*?=\\s*?([\\w.\"'+]+))?\\s*?;");
+        "\\b(special)\\s+(const)\\s+(\\w+)\\s+(\\w+)(\\s*?=\\s*?([\\w.\"'+\\-*/%]+))?\\s*?;");
     private static final Pattern INCLUDE_PATTERN = Pattern.compile(
         "(#include)\\s*?((\\s*?<((\\w+(:))?[\\w/._\\-]+)\\s*?>)|(\"\\s*?([\\w/._\\-]+)\\s*?\"))");
 

@@ -45,6 +45,11 @@ public final class Vector2fUniform implements GenericUniform<Vector2f> {
     }
 
     @Override
+    public void notifyUpdate() {
+        hasChanged = true;
+    }
+
+    @Override
     public DefaultUniformType getType() {
         return DefaultUniformType.FLOAT_VEC2;
     }

@@ -16,7 +16,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 /**
  * @author Alexander Hinze
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.ApiStatus;
 public final class PDAItemRenderer {
     public static final PDAItemRenderer INSTANCE = new PDAItemRenderer();
 
-    @ApiStatus.Internal
+    @Internal
     public void setup() {
         final var forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addListener(this::onRenderItem);

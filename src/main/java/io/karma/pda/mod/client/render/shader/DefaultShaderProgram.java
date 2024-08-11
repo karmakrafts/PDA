@@ -22,12 +22,11 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.RegisterShadersEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
@@ -37,7 +36,6 @@ import org.lwjgl.opengl.GL20;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
@@ -46,7 +44,7 @@ import java.util.function.Consumer;
  */
 @OnlyIn(Dist.CLIENT)
 public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShard
-    implements ShaderProgram, ResourceManagerReloadListener {
+    implements ShaderProgram, ExtendedShader {
     private final int id;
     private final VertexFormat vertexFormat;
     private final ArrayList<DefaultShaderObject> objects;
@@ -57,10 +55,11 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     private final Int2IntArrayMap samplerTextures = new Int2IntArrayMap();
     private final HashMap<String, Object> constants;
     private final Object2IntLinkedOpenHashMap<String> defines;
-    private final AtomicBoolean isLinked = new AtomicBoolean(false);
-    private final AtomicBoolean isRelinkRequested = new AtomicBoolean(false);
-    private final ExtendedShaderAdaptor extendedShader;
+    private final HashMap<ShaderObject, ProgramAdaptor> adaptorCache = new HashMap<>();
+    private boolean isLinked;
+    private boolean isRelinkRequested;
     private int previousTextureUnit;
+    private boolean isBound;
 
     DefaultShaderProgram(final VertexFormat vertexFormat, final ArrayList<DefaultShaderObject> objects,
                          final HashMap<String, Uniform> uniforms, final @Nullable Consumer<ShaderProgram> bindCallback,
@@ -74,15 +73,14 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         this.samplers = samplers;
         this.constants = constants;
         this.defines = defines;
-        extendedShader = new ExtendedShaderAdaptor(); // Objects must be initialized before constructing this
 
         id = GL20.glCreateProgram();
+        setupAttributes();
         PDAMod.DISPOSITION_HANDLER.addObject(this);
-        ((ReloadableResourceManager) Minecraft.getInstance().getResourceManager()).registerReloadListener(this);
 
         // Attach shader objects to program
         for (final var object : objects) {
-            GL20.glAttachShader(id, object.getId()); // Attach all objects right in-place
+            object.attach(this);
         }
         // Set up uniform cache with combined samplers
         final var combinedUniforms = new HashMap<>(uniforms);
@@ -91,6 +89,62 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
             combinedUniforms.put(samplerName, DefaultUniformType.INT.create(samplerName, sampler.getIntValue()));
         }
         uniformCache = new DefaultUniformCache(this, combinedUniforms);
+
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::reload);
+    }
+
+    private void setupAttributes() {
+        // Bind vertex format attribute locations for VS ins
+        final var attribs = vertexFormat.getElementAttributeNames();
+        for (var i = 0; i < attribs.size(); i++) {
+            final var attrib = attribs.get(i);
+            GL20.glBindAttribLocation(id, i, attrib);
+            PDAMod.LOGGER.debug("Bound vertex format attribute {}={} for program {}", attrib, i, id);
+        }
+    }
+
+    private void reload(final RegisterShadersEvent event) {
+        relink(Minecraft.getInstance().getResourceManager());
+    }
+
+    @Override
+    public void apply() {
+        bind();
+    }
+
+    @Override
+    public void clear() {
+        unbind();
+    }
+
+    @Override
+    public void setSampler(final String name, final Object id) {
+    }
+
+    @Override
+    public void markDirty() {
+    }
+
+    @Override
+    public @NotNull Program getVertexProgram() {
+        final var object = getObject(ShaderType.VERTEX);
+        if (object instanceof Program) {
+            return (Program) object;
+        }
+        return adaptorCache.computeIfAbsent(object, ProgramAdaptor::new);
+    }
+
+    @Override
+    public @NotNull Program getFragmentProgram() {
+        final var object = getObject(ShaderType.FRAGMENT);
+        if (object instanceof Program) {
+            return (Program) object;
+        }
+        return adaptorCache.computeIfAbsent(object, ProgramAdaptor::new);
+    }
+
+    @Override
+    public void attachToProgram() {
     }
 
     @Override
@@ -136,8 +190,13 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     }
 
     @Override
+    public int getId() {
+        return id;
+    }
+
+    @Override
     public void unbind() {
-        if (!isLinked.get()) {
+        if (!isLinked || !isBound) {
             return;
         }
         for (final var object : objects) {
@@ -153,20 +212,17 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         }
         GL13.glActiveTexture(previousTextureUnit);
         GL20.glUseProgram(0);
-    }
-
-    @Override
-    public int getId() {
-        return id;
+        isBound = false;
     }
 
     @Override
     public void bind() {
-        if (!isLinked.get()) {
+        if (!isLinked || isBound) {
             return;
         }
-        if (isRelinkRequested.compareAndSet(true, false)) {
+        if (isRelinkRequested) {
             relink(Minecraft.getInstance().getResourceManager());
+            isRelinkRequested = false;
         }
         for (final var object : objects) {
             object.onBindProgram(this);
@@ -176,7 +232,7 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
             bindCallback.accept(this);
         }
         // Update uniforms
-        uniformCache.updateAll();
+        uniformCache.applyAll();
         // Bind/enable samplers
         previousTextureUnit = GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE);
         for (final var sample : samplers.object2IntEntrySet()) {
@@ -184,11 +240,12 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
             GL13.glActiveTexture(GL13.GL_TEXTURE0 + index);
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, samplerTextures.get(index));
         }
+        isBound = true;
     }
 
     @Override
     public void dispose() {
-        isLinked.set(false);
+        isLinked = false;
         for (final var object : objects) {
             final var objectId = object.getId();
             GL20.glDetachShader(id, objectId);
@@ -199,12 +256,12 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public boolean isLinked() {
-        return isLinked.get();
+        return isLinked;
     }
 
     @Override
     public void setupRenderState() {
-        ExtendedRenderSystem.getInstance().setExtendedShader(() -> extendedShader);
+        ExtendedRenderSystem.getInstance().setExtendedShader(() -> this);
     }
 
     @Override
@@ -213,18 +270,13 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     }
 
     @Override
-    public void onResourceManagerReload(final @NotNull ResourceManager resourceManager) {
-        relink(resourceManager);
-    }
-
-    @Override
     public void requestRelink() {
-        isRelinkRequested.set(true);
+        isRelinkRequested = true;
     }
 
     @Override
     public boolean isRelinkRequested() {
-        return isRelinkRequested.get();
+        return isRelinkRequested;
     }
 
     @Override
@@ -241,31 +293,26 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     }
 
     private void relink(final ResourceProvider provider) {
-        isLinked.set(false);
-        for (final var object : objects) {
+        unbind();
+        isLinked = false;
+        for (final var object : objects) { // @formatter:off
             object.recompile(this, provider);
+        } // @formatter:on
+        GL20.glLinkProgram(id);
+        if (GL20.glGetProgrami(id, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
+            PDAMod.LOGGER.error("Could not link shader program {}: {}", id, GL20.glGetProgramInfoLog(id));
         }
-        Minecraft.getInstance().execute(() -> {
-            // Bind vertex format attribute locations for VS ins
-            final var attribs = vertexFormat.getElementAttributeNames();
-            for (var i = 0; i < attribs.size(); i++) {
-                final var attrib = attribs.get(i);
-                GL20.glBindAttribLocation(id, i, attrib);
-                PDAMod.LOGGER.debug("Bound vertex format attribute {}={} for program {}", attrib, i, id);
-            }
-            GL20.glLinkProgram(id);
-            if (GL20.glGetProgrami(id, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
-                final var length = GL20.glGetProgrami(id, GL20.GL_INFO_LOG_LENGTH);
-                final var log = GL20.glGetProgramInfoLog(id, length);
-                PDAMod.LOGGER.error("Could not link shader program {}: {}", id, log);
-            }
-            isLinked.set(true);
-        });
+        uniformCache.clear();
+        uniformCache.updateAll(); // Flag all uniforms to be re-applied statically
+        isLinked = true;
     }
 
     private static final class ProgramAdaptor extends Program {
+        private final ShaderObject object;
+
         public ProgramAdaptor(final ShaderObject object) {
             super(getType(object.getType()), object.getId(), object.getLocation().toString());
+            this.object = object;
         }
 
         private static Type getType(final ShaderType type) {
@@ -276,54 +323,21 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         }
 
         @Override
+        public int getId() {
+            return object.getId();
+        }
+
+        @Override
+        public @NotNull String getName() {
+            return object.getLocation().toString();
+        }
+
+        @Override
         public void attachToShader(final @NotNull Shader shader) {
         }
 
         @Override
         public void close() {
-        }
-    }
-
-    private final class ExtendedShaderAdaptor implements ExtendedShader {
-        private final ProgramAdaptor vertexProgram = new ProgramAdaptor(getObject(ShaderType.VERTEX));
-        private final ProgramAdaptor fragmentProgram = new ProgramAdaptor(getObject(ShaderType.FRAGMENT));
-
-        @Override
-        public void setSampler(String name, Object id) {
-            // TODO: implement sampler support
-        }
-
-        @Override
-        public void apply() {
-            bind();
-        }
-
-        @Override
-        public void clear() {
-            unbind();
-        }
-
-        @Override
-        public int getId() {
-            return id;
-        }
-
-        @Override
-        public void markDirty() {
-        }
-
-        @Override
-        public @NotNull Program getVertexProgram() {
-            return vertexProgram;
-        }
-
-        @Override
-        public @NotNull Program getFragmentProgram() {
-            return fragmentProgram;
-        }
-
-        @Override
-        public void attachToProgram() {
         }
     }
 }

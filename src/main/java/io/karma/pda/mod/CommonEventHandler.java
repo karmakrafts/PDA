@@ -41,7 +41,7 @@ import net.minecraftforge.registries.NewRegistryEvent;
 import net.minecraftforge.registries.RegistryBuilder;
 import net.minecraftforge.registries.RegistryManager;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -61,7 +61,7 @@ public final class CommonEventHandler {
     private CommonEventHandler() {}
     // @formatter:on
 
-    @ApiStatus.Internal
+    @Internal
     public void setup() {
         final var forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addListener(this::onRightClickBlock);

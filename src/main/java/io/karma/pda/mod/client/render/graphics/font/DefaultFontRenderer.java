@@ -11,6 +11,7 @@ import io.karma.pda.api.app.theme.font.Font;
 import io.karma.pda.api.app.theme.font.FontVariant;
 import io.karma.pda.api.client.render.graphics.FontAtlas;
 import io.karma.pda.api.client.render.graphics.FontRenderer;
+import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.ShaderType;
 import io.karma.pda.api.client.render.shader.uniform.DefaultUniformType;
 import io.karma.pda.api.color.ColorProvider;
@@ -22,6 +23,7 @@ import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.client.renderer.RenderStateShard.EmptyTextureStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
@@ -29,7 +31,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.lwjgl.util.msdfgen.MSDFGen;
@@ -47,6 +49,21 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     public static final DefaultFontRenderer INSTANCE = new DefaultFontRenderer();
 
     // @formatter:off
+    private static final ShaderProgram SHADER = DefaultShaderFactory.INSTANCE.create(builder -> builder
+        .shader(object -> object
+            .type(ShaderType.VERTEX)
+            .location(Constants.MODID, "shaders/font.vert.glsl")
+            .defaultPreProcessor()
+        )
+        .shader(object -> object
+            .type(ShaderType.FRAGMENT)
+            .location(Constants.MODID, "shaders/font.frag.glsl")
+            .defaultPreProcessor()
+        )
+        .sampler("Sampler0", 0)
+        .defaultUniforms()
+        .uniform("PxRange", DefaultUniformType.FLOAT)
+    );
     private static final Function<FontAtlasContext, RenderType> RENDER_TYPE = Util.memoize(ctx -> {
         final var fontAtlas = ctx.atlas;
         final var fontLocation = fontAtlas.getFont().getLocation();
@@ -54,30 +71,21 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
             DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
             RenderType.CompositeState.builder()
                 .setCullState(RenderStateShard.NO_CULL)
-                .setShaderState(DefaultShaderFactory.INSTANCE.create(builder -> builder
-                    .shader(object -> object
-                        .type(ShaderType.VERTEX)
-                        .location(Constants.MODID, "shaders/display_font.vert.glsl")
-                    )
-                    .shader(object -> object
-                        .type(ShaderType.FRAGMENT)
-                        .location(Constants.MODID, "shaders/display_font.frag.glsl")
-                    )
-                    .sampler("Sampler0", 0)
-                    .defaultUniforms()
-                    .uniform("PxRange", DefaultUniformType.FLOAT)
-                    .onBind(program -> {
-                        program.setSampler("Sampler0", fontAtlas.getTextureId());
-                        final var uniformCache = program.getUniformCache();
-                        final var range = fontAtlas.getSDFRange() * ctx.atlas.getFont().getFamily().getDistanceFieldRange();
-                        uniformCache.getFloat("PxRange").setFloat((ctx.scale / fontAtlas.getSpriteSize()) * range);
-                    })
-                ).asStateShard())
+                .setShaderState(SHADER.asStateShard())
                 .setOutputState(ctx.outputState)
                 .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
                 .setTexturingState(RenderStateShard.DEFAULT_TEXTURING)
                 .setLayeringState(RenderStateShard.POLYGON_OFFSET_LAYERING)
                 .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                .setTextureState(new EmptyTextureStateShard(
+                    () -> {
+                        SHADER.setSampler("Sampler0", fontAtlas.getTextureId());
+                        final var uniformCache = SHADER.getUniformCache();
+                        final var range = fontAtlas.getSDFRange() * ctx.atlas.getFont().getFamily().getDistanceFieldRange();
+                        uniformCache.getFloat("PxRange").setFloat((ctx.scale / fontAtlas.getSpriteSize()) * range);
+                    },
+                    () -> {}
+                ))
                 .createCompositeState(false));
     });
     // @formatter:on
@@ -293,7 +301,7 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
         }
     }
 
-    @ApiStatus.Internal
+    @Internal
     public void setup() {
         ((ReloadableResourceManager) Minecraft.getInstance().getResourceManager()).registerReloadListener(this);
     }

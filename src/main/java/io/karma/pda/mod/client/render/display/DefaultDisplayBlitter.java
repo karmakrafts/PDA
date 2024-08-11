@@ -49,11 +49,11 @@ public final class DefaultDisplayBlitter implements DisplayBlitter {
                 .setCullState(RenderStateShard.CULL)
                 .setShaderState(DefaultShaderFactory.INSTANCE.create(builder -> builder
                     .format(DefaultVertexFormat.POSITION_TEX_COLOR)
-                    .shader(s -> s
+                    .shader(object -> object
                         .type(ShaderType.VERTEX)
                         .location(Constants.MODID, "shaders/display_blit.vert.glsl")
                         .defaultPreProcessor())
-                    .shader(s -> s
+                    .shader(object -> object
                         .type(ShaderType.FRAGMENT)
                         .location(Constants.MODID, "shaders/display_blit.frag.glsl")
                         .defaultPreProcessor())

@@ -397,7 +397,10 @@ public final class DefaultFontAtlas implements FontAtlas {
 
     @Override
     public String toString() {
-        return String.format("DefaultFontAtlas[textureId=%d,spriteSize=%d,sizeInSlots=%d]", textureId, spriteBorder, sizeInSlots);
+        return String.format("DefaultFontAtlas[textureId=%d,spriteSize=%d,sizeInSlots=%d]",
+            textureId,
+            spriteBorder,
+            sizeInSlots);
     }
 
     private final class StitchContext {

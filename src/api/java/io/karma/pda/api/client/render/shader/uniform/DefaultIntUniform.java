@@ -4,7 +4,6 @@
 
 package io.karma.pda.api.client.render.shader.uniform;
 
-import io.karma.pda.api.API;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -43,6 +42,11 @@ public class DefaultIntUniform implements IntUniform {
     }
 
     @Override
+    public void notifyUpdate() {
+        hasChanged = true;
+    }
+
+    @Override
     public UniformType getType() {
         return DefaultUniformType.INT;
     }
@@ -58,7 +62,6 @@ public class DefaultIntUniform implements IntUniform {
             return;
         }
         GL20.glUniform1i(program.getUniformCache().getLocation(name), value);
-        API.getLogger().debug("Updated int uniform {}={} in program {}", name, value, program.getId());
         hasChanged = false;
     }
 }

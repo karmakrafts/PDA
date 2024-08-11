@@ -45,12 +45,6 @@ public abstract class RenderSystemMixin implements ExtendedRenderSystem {
         new RenderSystem();
     }
 
-    @Inject(method = "<init>", at = @At("TAIL"))
-    private void onInit(final CallbackInfo cbi) {
-        pda$instance = RenderSystem.class.cast(this);
-        PDAMod.LOGGER.debug("Created extended RenderSystem instance");
-    }
-
     @Inject(method = "setShader", at = @At("HEAD"))
     private static void onSetShader(final Supplier<ShaderInstance> shader, final CallbackInfo cbi) {
         if (isOnRenderThread()) {
@@ -63,6 +57,17 @@ public abstract class RenderSystemMixin implements ExtendedRenderSystem {
         }
     }
 
+    @Inject(method = "<init>", at = @At("TAIL"))
+    private void onInit(final CallbackInfo cbi) {
+        pda$instance = RenderSystem.class.cast(this);
+        PDAMod.LOGGER.debug("Created extended RenderSystem instance");
+    }
+
+    @Override
+    public ExtendedShader getExtendedShader() {
+        return pda$extendedShader;
+    }
+
     @Override
     public void setExtendedShader(final Supplier<ExtendedShader> shader) {
         if (isOnRenderThread()) {
@@ -72,10 +77,5 @@ public abstract class RenderSystemMixin implements ExtendedRenderSystem {
         recordRenderCall(() -> {
             pda$extendedShader = shader.get();
         });
-    }
-
-    @Override
-    public ExtendedShader getExtendedShader() {
-        return pda$extendedShader;
     }
 }
