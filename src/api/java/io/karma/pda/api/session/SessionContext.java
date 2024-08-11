@@ -37,9 +37,11 @@ public interface SessionContext {
 
     Level getLevel();
 
-    @Nullable BlockPos getPos();
+    @Nullable
+    BlockPos getPos();
 
-    @Nullable InteractionHand getHand();
+    @Nullable
+    InteractionHand getHand();
 
     default ItemStack getItem() {
         final var hand = getHand();

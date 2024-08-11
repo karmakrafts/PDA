@@ -7,6 +7,8 @@ package io.karma.pda.api.client.render.shader.uniform;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.Map;
+
 /**
  * @author Alexander Hinze
  * @since 13/06/2024
@@ -14,6 +16,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public interface UniformCache {
     void clear();
+
+    void updateAll();
+
+    Map<String, Uniform> getAll();
 
     Uniform get(final String name);
 
@@ -57,5 +63,13 @@ public interface UniformCache {
             throw new IllegalStateException(String.format("Uniform %s is not a float matrix4 uniform", name));
         }
         return (Matrix4fUniform) uniform;
+    }
+
+    default DefaultIntUniform getInt(final String name) {
+        final var uniform = get(name);
+        if (uniform.getType() != DefaultUniformType.INT) {
+            throw new IllegalStateException(String.format("Uniform %s is not an integer uniform", name));
+        }
+        return (DefaultIntUniform) uniform;
     }
 }

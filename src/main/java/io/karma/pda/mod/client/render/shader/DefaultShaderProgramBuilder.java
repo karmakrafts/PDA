@@ -13,7 +13,7 @@ import io.karma.pda.api.client.render.shader.ShaderProgramBuilder;
 import io.karma.pda.api.client.render.shader.uniform.DefaultUniformType;
 import io.karma.pda.api.client.render.shader.uniform.Uniform;
 import io.karma.pda.api.client.render.shader.uniform.UniformType;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
@@ -32,8 +32,8 @@ public final class DefaultShaderProgramBuilder implements ShaderProgramBuilder {
     private final ArrayList<DefaultShaderObject> objects = new ArrayList<>();
     private final HashMap<String, Uniform> uniforms = new HashMap<>();
     private final HashMap<String, Object> constants = new HashMap<>(); // Don't care about (un)boxing here
-    private final Object2IntOpenHashMap<String> samplers = new Object2IntOpenHashMap<>();
-    private final Object2IntOpenHashMap<String> defines = new Object2IntOpenHashMap<>();
+    private final Object2IntLinkedOpenHashMap<String> samplers = new Object2IntLinkedOpenHashMap<>();
+    private final Object2IntLinkedOpenHashMap<String> defines = new Object2IntLinkedOpenHashMap<>();
     private VertexFormat format = DefaultVertexFormat.POSITION;
     private Consumer<ShaderProgram> bindCallback;
     private Consumer<ShaderProgram> unbindCallback;

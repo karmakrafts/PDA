@@ -128,7 +128,7 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
             renderIntoDisplayBuffer(stack, displayMode);
             final var blitter = displayMode.getBlitter();
             blitter.blit(poseStack.last().pose(), blitBufferSource.getBuffer(blitter.getRenderType()));
-            blitBufferSource.endBatch(); // Flush buffer data
+            blitBufferSource.endBatch(blitter.getRenderType());
         });
     }
 }

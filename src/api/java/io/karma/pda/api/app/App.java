@@ -48,11 +48,13 @@ public interface App {
         addView(DEFAULT_VIEW, view);
     }
 
-    @Nullable AppView removeView(final String name);
+    @Nullable
+    AppView removeView(final String name);
 
     void pushView(final String name);
 
-    @Nullable AppView popView();
+    @Nullable
+    AppView popView();
 
     String getViewName();
 

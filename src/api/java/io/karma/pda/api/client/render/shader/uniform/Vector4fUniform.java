@@ -5,6 +5,7 @@
 package io.karma.pda.api.client.render.shader.uniform;
 
 import io.karma.pda.api.client.render.shader.ShaderProgram;
+import io.karma.pda.api.util.MathUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Vector4f;
@@ -19,7 +20,7 @@ import org.lwjgl.opengl.GL20;
 public final class Vector4fUniform implements GenericUniform<Vector4f> {
     private final String name;
     private final Vector4f value = new Vector4f();
-    private boolean hasChanged;
+    private boolean hasChanged = true;
 
     Vector4fUniform(final String name, final Object defaultValue) {
         this.name = name;
@@ -31,6 +32,9 @@ public final class Vector4fUniform implements GenericUniform<Vector4f> {
 
     @Override
     public void set(final Vector4f value) {
+        if (this.value.equals(value, MathUtils.EPSILON)) {
+            return;
+        }
         this.value.set(value);
         hasChanged = true;
     }
@@ -56,6 +60,6 @@ public final class Vector4fUniform implements GenericUniform<Vector4f> {
             return;
         }
         GL20.glUniform4f(program.getUniformCache().getLocation(name), value.x, value.y, value.z, value.w);
-        hasChanged = true;
+        hasChanged = false;
     }
 }

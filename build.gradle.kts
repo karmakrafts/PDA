@@ -191,6 +191,7 @@ minecraft {
                     "mixin.env.refMapRemappingFile" to (projectPath / "build" / "createSrgToMcp" / "output.srg").pathString
                 )
             )
+            jvmArgs("-Xms512M", "-Xmx4096M")
             mods {
                 create(modId) {
                     sources(

@@ -22,8 +22,6 @@ import io.karma.pda.mod.util.TreeGraph;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.util.ArrayList;
@@ -39,7 +37,6 @@ import java.util.function.Function;
  */
 public class CommonPacketHandler {
     public static final CommonPacketHandler INSTANCE = new CommonPacketHandler();
-    private static final Logger LOGGER = LogManager.getLogger();
 
     // @formatter:off
     protected CommonPacketHandler() {}
@@ -75,7 +72,7 @@ public class CommonPacketHandler {
                     handler.accept(packet, context);
                 }
                 catch (Throwable error) {
-                    LOGGER.error(LogMarkers.PROTOCOL,
+                    PDAMod.LOGGER.error(LogMarkers.PROTOCOL,
                         "Could not handle packet {}: {}",
                         packet,
                         Exceptions.toFancyString(error));
@@ -116,7 +113,7 @@ public class CommonPacketHandler {
         final var sessionHandler = DefaultSessionHandler.INSTANCE;
         final var session = sessionHandler.findById(packet.getSessionId());
         if (session == null) {
-            LOGGER.error(LogMarkers.PROTOCOL, "Could not find session with ID {}", packet.getSessionId());
+            PDAMod.LOGGER.error(LogMarkers.PROTOCOL, "Could not find session with ID {}", packet.getSessionId());
             return;
         }
 
@@ -128,14 +125,14 @@ public class CommonPacketHandler {
         final var mappings = new HashMap<String, ArrayList<UUID>>();
 
         if (app == null) {
-            LOGGER.error(LogMarkers.PROTOCOL, "Could not open launcher app for session {}", packet.getSessionId());
+            PDAMod.LOGGER.error(LogMarkers.PROTOCOL, "Could not open launcher app for session {}", packet.getSessionId());
             return;
         }
         for (final var view : app.getViews()) {
             final var viewName = view.getName();
             final var oldIds = packet.getOldIds().get(viewName);
             if (oldIds == null) {
-                LOGGER.error("Could not find component IDs for view {} in session {}", viewName, packet.getSessionId());
+                PDAMod.LOGGER.error("Could not find component IDs for view {} in session {}", viewName, packet.getSessionId());
                 continue;
             }
             // @formatter:off
@@ -143,7 +140,7 @@ public class CommonPacketHandler {
                 Container.class, Container::getChildren, Component::getId).flatten();
             // @formatter:on
             if (oldIds.size() != newIds.size()) {
-                LOGGER.error("Component ID count in view {} does not match for session {}",
+                PDAMod.LOGGER.error("Component ID count in view {} does not match for session {}",
                     viewName,
                     packet.getSessionId());
                 continue;

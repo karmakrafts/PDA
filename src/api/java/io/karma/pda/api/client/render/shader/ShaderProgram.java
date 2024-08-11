@@ -9,6 +9,7 @@ import io.karma.pda.api.client.render.shader.uniform.UniformCache;
 import io.karma.pda.api.dispose.Disposable;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -28,6 +29,10 @@ public interface ShaderProgram extends Disposable {
 
     UniformCache getUniformCache();
 
+    void setSampler(final String name, final int textureId);
+
+    void setSampler(final String name, final ResourceLocation location);
+
     int getSampler(final String name);
 
     VertexFormat getVertexFormat();
@@ -43,4 +48,6 @@ public interface ShaderProgram extends Disposable {
     Map<String, Object> getConstants();
 
     Object2IntMap<String> getDefines();
+
+    ShaderObject getObject(final ShaderType type);
 }

@@ -12,6 +12,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL20;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -27,6 +28,18 @@ public final class DefaultUniformCache implements UniformCache {
     DefaultUniformCache(final DefaultShaderProgram program, final HashMap<String, Uniform> uniforms) {
         this.program = program;
         this.uniforms = uniforms;
+    }
+
+    @Override
+    public Map<String, Uniform> getAll() {
+        return uniforms;
+    }
+
+    @Override
+    public void updateAll() {
+        for (final var uniform : uniforms.values()) {
+            uniform.apply(program);
+        }
     }
 
     @Override

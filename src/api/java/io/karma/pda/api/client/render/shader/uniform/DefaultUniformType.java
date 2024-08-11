@@ -20,11 +20,12 @@ import java.util.function.BiFunction;
 @OnlyIn(Dist.CLIENT)
 public enum DefaultUniformType implements UniformType {
     // @formatter:off
-    FLOAT       (DefaultFloatUniform::new,  Float.BYTES, 1,  0F),
-    FLOAT_VEC2  (Vector2fUniform::new,      Float.BYTES, 2,  new Vector2f()),
-    FLOAT_VEC3  (Vector3fUniform::new,      Float.BYTES, 3,  new Vector3f()),
-    FLOAT_VEC4  (Vector4fUniform::new,      Float.BYTES, 4,  new Vector4f()),
-    FLOAT_MAT4  (Matrix4fUniform::new,      Float.BYTES, 12, new Matrix4f());
+    FLOAT       (DefaultFloatUniform::new,  Float.BYTES,    1,  0F),
+    FLOAT_VEC2  (Vector2fUniform::new,      Float.BYTES,    2,  new Vector2f()),
+    FLOAT_VEC3  (Vector3fUniform::new,      Float.BYTES,    3,  new Vector3f()),
+    FLOAT_VEC4  (Vector4fUniform::new,      Float.BYTES,    4,  new Vector4f()),
+    FLOAT_MAT4  (Matrix4fUniform::new,      Float.BYTES,    12, new Matrix4f()),
+    INT         (DefaultIntUniform::new,    Integer.BYTES,  1,  0);
     // @formatter:on
 
     private final BiFunction<String, Object, Uniform> factory;

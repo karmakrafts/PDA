@@ -32,7 +32,7 @@ public final class GraphicsRenderTypes {
     public static final GraphicsRenderTypes INSTANCE = new GraphicsRenderTypes();
     // @formatter:off
     public static final Function<DisplayMode, RenderType> COLOR_TRIS = Util.memoize(displayMode ->
-        RenderType.create(String.format("pda_display_color_tris__%s", displayMode),
+        RenderType.create(String.format("pda_display_color_tris__%s", displayMode.getSpec().name()),
             DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
             RenderType.CompositeState.builder()
                 .setCullState(RenderStateShard.NO_CULL)
@@ -45,7 +45,7 @@ public final class GraphicsRenderTypes {
     private static final Function<ModeAndTextureKey, RenderType> COLOR_TEXTURE_TRIS = Util.memoize(key -> {
         final var texture = key.texture;
         final var displayMode = key.mode;
-        return RenderType.create(String.format("pda_display_color_tex_tris__%s__%s_%s", displayMode, texture.getNamespace(), texture.getPath()),
+        return RenderType.create(String.format("pda_display_color_tex_tris__%s__%s_%s", displayMode.getSpec().name(), texture.getNamespace(), texture.getPath()),
             DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
             RenderType.CompositeState.builder()
                 .setCullState(RenderStateShard.NO_CULL)
@@ -57,7 +57,7 @@ public final class GraphicsRenderTypes {
                 .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
                 .setTextureState(new RenderStateShard.EmptyTextureStateShard(
                     () -> RenderSystem.setShaderTexture(0, texture),
-                    () -> {}
+                    () -> RenderSystem.setShaderTexture(0, 0)
                 ))
                 .createCompositeState(false));
     });

@@ -5,6 +5,7 @@
 package io.karma.pda.api.client.render.shader.uniform;
 
 import io.karma.pda.api.client.render.shader.ShaderProgram;
+import io.karma.pda.api.util.MathUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Vector2f;
@@ -19,7 +20,7 @@ import org.lwjgl.opengl.GL20;
 public final class Vector2fUniform implements GenericUniform<Vector2f> {
     private final String name;
     private final Vector2f value = new Vector2f();
-    private boolean hasChanged;
+    private boolean hasChanged = true;
 
     Vector2fUniform(final String name, final Object defaultValue) {
         this.name = name;
@@ -31,6 +32,9 @@ public final class Vector2fUniform implements GenericUniform<Vector2f> {
 
     @Override
     public void set(final Vector2f value) {
+        if (this.value.equals(value, MathUtils.EPSILON)) {
+            return;
+        }
         this.value.set(value);
         hasChanged = true;
     }

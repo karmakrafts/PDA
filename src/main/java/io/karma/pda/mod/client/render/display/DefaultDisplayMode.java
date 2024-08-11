@@ -18,6 +18,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
+import java.util.Objects;
+
 /**
  * @author Alexander Hinze
  * @since 02/06/2024
@@ -102,12 +104,12 @@ public final class DefaultDisplayMode implements DisplayMode {
         if (!(obj instanceof DefaultDisplayMode mode)) {
             return false;
         }
-        return mode.spec.equals(spec);
+        return mode.spec.equals(spec) && mode.framebuffer == framebuffer;
     }
 
     @Override
     public int hashCode() {
-        return spec.hashCode();
+        return Objects.hash(spec, framebuffer);
     }
 
     @Override

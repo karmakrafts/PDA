@@ -2,7 +2,7 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.mod.util;
+package io.karma.pda.api.util;
 
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
@@ -20,6 +20,7 @@ public final class MathUtils {
     public static final Vector3f Z_NEG = new Vector3f(0F, 0F, -1F);
     public static final Vector3f CENTER = new Vector3f(0.5F);
     public static final Vector3f CENTER_NEG = new Vector3f(-0.5F);
+    public static final float EPSILON = 1E-6F;
 
     // @formatter:off
     private MathUtils() {}
@@ -27,5 +28,9 @@ public final class MathUtils {
 
     public static Vector3f toVector3f(final Vec3 value) {
         return new Vector3f((float) value.x, (float) value.y, (float) value.z);
+    }
+
+    public static boolean equals(final float a, final float b, final float epsilon) {
+        return a >= b - epsilon && a <= b + epsilon;
     }
 }

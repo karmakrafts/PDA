@@ -5,12 +5,12 @@
 package io.karma.pda.api.client.render.shader.uniform;
 
 import io.karma.pda.api.client.render.shader.ShaderProgram;
+import io.karma.pda.api.util.MathUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.lwjgl.opengl.GL20;
-import org.lwjgl.system.MemoryStack;
 
 /**
  * @author Alexander Hinze
@@ -20,7 +20,7 @@ import org.lwjgl.system.MemoryStack;
 public final class Matrix4fUniform implements GenericUniform<Matrix4f> {
     private final String name;
     private final Matrix4f value = new Matrix4f();
-    private boolean hasChanged;
+    private boolean hasChanged = true;
 
     Matrix4fUniform(final String name, final Object defaultValue) {
         this.name = name;
@@ -32,6 +32,9 @@ public final class Matrix4fUniform implements GenericUniform<Matrix4f> {
 
     @Override
     public void set(final Matrix4f value) {
+        if (this.value.equals(value, MathUtils.EPSILON)) {
+            return;
+        }
         this.value.set(value);
         hasChanged = true;
     }
@@ -56,10 +59,7 @@ public final class Matrix4fUniform implements GenericUniform<Matrix4f> {
         if (!hasChanged) {
             return;
         }
-        final var stack = MemoryStack.stackGet();
-        final var previousSp = stack.getPointer();
-        GL20.glUniformMatrix4fv(program.getUniformCache().getLocation(name), false, value.get(stack.mallocFloat(12)));
-        stack.setPointer(previousSp);
+        GL20.glUniformMatrix4fv(program.getUniformCache().getLocation(name), false, value.get(new float[16]));
         hasChanged = false;
     }
 }

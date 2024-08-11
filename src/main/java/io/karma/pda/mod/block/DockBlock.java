@@ -14,7 +14,7 @@ import io.karma.pda.mod.init.ModItems;
 import io.karma.pda.mod.menu.DockStorageMenu;
 import io.karma.pda.mod.session.DockedSessionContext;
 import io.karma.pda.mod.util.HorizontalDirection;
-import io.karma.pda.mod.util.MathUtils;
+import io.karma.pda.api.util.MathUtils;
 import io.karma.pda.mod.util.PlayerUtils;
 import io.karma.pda.mod.util.ShapeUtils;
 import net.minecraft.client.Minecraft;

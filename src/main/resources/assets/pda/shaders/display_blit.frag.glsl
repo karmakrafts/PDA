@@ -1,4 +1,4 @@
-#version 150
+#version 330 core
 
 /*
  * Copyright (C) 2024 Karma Krafts & associates
@@ -6,7 +6,6 @@
 
 #include "include/utils.glsl"
 #include "include/dither.glsl"
-#include "include/crt.glsl"
 
 #define DISPLAY_TYPE_BW_LCD 0
 #define DISPLAY_TYPE_SRGB_LCD 1

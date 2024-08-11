@@ -4,7 +4,6 @@
 
 package io.karma.pda.mod.client.render.display;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -44,20 +43,10 @@ public final class DefaultDisplayBlitter implements DisplayBlitter {
     DefaultDisplayBlitter(final DisplayMode mode, final FloatSupplier glitchFactorSupplier) {
         this.mode = mode;
         // @formatter:off
-        renderType = RenderType.create(String.format("%s:display_blit_%s", Constants.MODID, mode),
+        renderType = RenderType.create(String.format("%s:display_blit_%s", Constants.MODID, mode.getSpec().name()),
             DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 6, false, false,
             RenderType.CompositeState.builder()
                 .setCullState(RenderStateShard.CULL)
-                .setTextureState(new RenderStateShard.EmptyTextureStateShard(
-                    () -> {
-                        RenderSystem.setShaderTexture(0, mode.getFramebuffer().getColorTexture());
-                        RenderSystem.setShaderTexture(1, PIXEL_TEXTURE);
-                    },
-                    () -> {
-                        RenderSystem.setShaderTexture(0, 0);
-                        RenderSystem.setShaderTexture(1, 0);
-                    }
-                ))
                 .setShaderState(DefaultShaderFactory.INSTANCE.create(builder -> builder
                     .format(DefaultVertexFormat.POSITION_TEX_COLOR)
                     .shader(s -> s
@@ -81,6 +70,8 @@ public final class DefaultDisplayBlitter implements DisplayBlitter {
                     .sampler("Sampler0", 0) // Actual framebuffer texture
                     .sampler("Sampler1", 1) // Pixel filter texture
                     .onBind(program -> {
+                        program.setSampler("Sampler0", mode.getFramebuffer().getColorTexture());
+                        program.setSampler("Sampler1", PIXEL_TEXTURE);
                         final var uniformCache = program.getUniformCache();
                         uniformCache.getFloat("Time").setFloat(ClientEventHandler.INSTANCE.getShaderTime());
                         uniformCache.getFloat("GlitchFactor").setFloat(glitchFactorSupplier.get());
