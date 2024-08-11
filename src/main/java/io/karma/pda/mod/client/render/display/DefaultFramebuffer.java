@@ -115,4 +115,9 @@ public final class DefaultFramebuffer implements Framebuffer, Disposable {
     public int getHeight() {
         return height;
     }
+
+    @Override
+    public String toString() {
+        return String.format("DefaultFramebuffer[id=%d,textureId=%d,depthTextureId=%d]", id, textureId, depthTextureId);
+    }
 }

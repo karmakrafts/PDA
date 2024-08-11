@@ -242,7 +242,6 @@ public class PDAMod {
         DockInteractionHandler.INSTANCE.setup();
         PDAInteractionHandler.INSTANCE.setup();
         PDAItemRenderer.INSTANCE.setup();
-        DefaultFontRenderer.INSTANCE.setupEarly();
         GraphicsRenderTypes.INSTANCE.setupEarly();
         ComponentRenderTypes.INSTANCE.setupEarly();
         initClientAPI();

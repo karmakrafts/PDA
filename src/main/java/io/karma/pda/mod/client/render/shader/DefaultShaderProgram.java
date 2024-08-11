@@ -235,6 +235,11 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
             .orElseThrow();
     } // @formatter:on
 
+    @Override
+    public @NotNull String toString() {
+        return String.format("DefaultShaderProgram[id=%d,objects=%s]", id, objects);
+    }
+
     private void relink(final ResourceProvider provider) {
         isLinked.set(false);
         for (final var object : objects) {

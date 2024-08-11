@@ -100,4 +100,9 @@ public final class DefaultShaderObject implements ShaderObject {
     @Override
     public void onUnbindProgram(final ShaderProgram program) {
     }
+
+    @Override
+    public String toString() {
+        return String.format("DefaultShaderObject[id=%d]", id);
+    }
 }

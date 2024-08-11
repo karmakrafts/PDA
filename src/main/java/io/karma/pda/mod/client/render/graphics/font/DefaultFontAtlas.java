@@ -395,6 +395,11 @@ public final class DefaultFontAtlas implements FontAtlas {
         return Objects.hash(font.getLocation(), spriteSize, sizeInSlots, spriteBorder, sdfRange, renderType);
     }
 
+    @Override
+    public String toString() {
+        return String.format("DefaultFontAtlas[textureId=%d,spriteSize=%d,sizeInSlots=%d]", textureId, spriteBorder, sizeInSlots);
+    }
+
     private final class StitchContext {
         final Char2LongLinkedOpenHashMap shapes = new Char2LongLinkedOpenHashMap();
         final BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
