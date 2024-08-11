@@ -317,6 +317,7 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
                 GL20.glLinkProgram(id);
                 if (GL20.glGetProgrami(id, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
                     PDAMod.LOGGER.error("Could not link shader program {}: {}", id, GL20.glGetProgramInfoLog(id));
+                    return;
                 }
                 uniformCache.clear();
                 uniformCache.updateAll(); // Flag all uniforms to be re-applied statically
