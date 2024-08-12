@@ -14,7 +14,6 @@ import io.karma.pda.mod.client.render.graphics.font.DefaultFontRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.util.Objects;
 import java.util.Stack;

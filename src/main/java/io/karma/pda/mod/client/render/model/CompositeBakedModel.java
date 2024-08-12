@@ -26,7 +26,6 @@ import net.minecraftforge.client.model.QuadTransformers;
 import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.sampling.BestCandidateSampling.Quad;
 
 import java.util.ArrayList;
 import java.util.Collections;

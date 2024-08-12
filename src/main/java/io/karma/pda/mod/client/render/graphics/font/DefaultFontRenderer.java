@@ -48,8 +48,6 @@ import java.util.function.IntFunction;
  */
 @OnlyIn(Dist.CLIENT)
 public final class DefaultFontRenderer implements FontRenderer, ResourceManagerReloadListener {
-    private final Graphics graphics;
-
     // @formatter:off
     private static ShaderProgram shader;
     private static final Function<FontAtlasContext, RenderType> RENDER_TYPE = Util.memoize(ctx -> {
@@ -76,6 +74,7 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
                 ))
                 .createCompositeState(false));
     });
+    private final Graphics graphics;
     // @formatter:on
     private final HashMap<FontAtlasKey, DefaultFontAtlas> fontAtlasCache = new HashMap<>();
 
