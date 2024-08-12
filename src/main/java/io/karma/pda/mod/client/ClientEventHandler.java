@@ -21,7 +21,11 @@ import io.karma.pda.foundation.component.DefaultComponents;
 import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.render.app.DefaultAppRenderer;
 import io.karma.pda.mod.client.render.entity.DockBlockEntityRenderer;
+import io.karma.pda.mod.client.render.model.CompositeBakedModel;
 import io.karma.pda.mod.init.ModBlockEntities;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -32,6 +36,9 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author Alexander Hinze
  * @since 12/02/2024
@@ -41,6 +48,9 @@ public final class ClientEventHandler {
     public static final ClientEventHandler INSTANCE = new ClientEventHandler();
     public static final ResourceLocation PDA_MODEL_V = new ResourceLocation(Constants.MODID, "item/pda_v");
     public static final ResourceLocation PDA_MODEL_H = new ResourceLocation(Constants.MODID, "item/pda_h");
+    public static final ResourceLocation PDA_FULLBRIGHT = new ResourceLocation(Constants.MODID, "item/pda_fullbright");
+    public static final ResourceLocation DOCK_FULLBRIGHT = new ResourceLocation(Constants.MODID,
+        "block/dock_fullbright");
 
     private float frameTime;
     private int clientTick;
@@ -55,6 +65,7 @@ public final class ClientEventHandler {
         final var forgeBus = MinecraftForge.EVENT_BUS;
         modBus.addListener(this::onRegisterEntityRenderers);
         modBus.addListener(this::onRegisterAdditionalModels);
+        modBus.addListener(this::onModifyBakingResult);
         forgeBus.addListener(this::onRenderTick);
         forgeBus.addListener(this::onClientTick);
     }
@@ -120,5 +131,40 @@ public final class ClientEventHandler {
         PDAMod.LOGGER.info("Registering models");
         event.register(PDA_MODEL_V);
         event.register(PDA_MODEL_H);
+        event.register(PDA_FULLBRIGHT);
+        event.register(DOCK_FULLBRIGHT);
+    }
+
+    // Splice together multipart models after baking
+    private void onModifyBakingResult(final ModelEvent.ModifyBakingResult event) {
+        PDAMod.LOGGER.debug("Splicing baked multipart models");
+        final var models = event.getModels();
+        spliceDockModels(models);
+        splicePDAModels(models);
+    }
+
+    private void splicePDAModels(final Map<ResourceLocation, BakedModel> models) {
+        // TODO: ...
+    }
+
+    private void spliceDockModels(final Map<ResourceLocation, BakedModel> models) {
+        final var dockFullBright = models.get(DOCK_FULLBRIGHT);
+        final var pdaFullBright = models.get(PDA_FULLBRIGHT);
+        for (final var side : Direction.values()) {
+            if (side.getAxis().isVertical()) {
+                continue;
+            }
+            final var sideName = side.getName();
+            // Compute empty models
+            models.compute(new ModelResourceLocation(Constants.MODID,
+                    "dock",
+                    String.format("has_item=false,orientation=%s", sideName)),
+                (k, model) -> new CompositeBakedModel(model, List.of(dockFullBright), side));
+            // Compute populated models
+            models.compute(new ModelResourceLocation(Constants.MODID,
+                    "dock",
+                    String.format("has_item=true,orientation=%s", sideName)),
+                (k, model) -> new CompositeBakedModel(model, List.of(dockFullBright, pdaFullBright), side));
+        }
     }
 }

@@ -48,7 +48,7 @@ public final class DefaultFontAtlas implements FontAtlas {
     private final int textureId;
     private final Image missingGlyphImage;
 
-    private final Char2ObjectOpenHashMap<DefaultGlyphSprite> glyphSprites = new Char2ObjectOpenHashMap<>();
+    private final Char2ObjectArrayMap<DefaultGlyphSprite> glyphSprites = new Char2ObjectArrayMap<>();
     private boolean isReady = false;
     private float maxGlyphWidth;
     private float maxGlyphHeight;

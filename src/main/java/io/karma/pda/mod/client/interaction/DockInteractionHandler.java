@@ -132,7 +132,7 @@ public final class DockInteractionHandler {
         usesCameraCurve = isPositiveCameraAngle || displayToCameraAngle < -90F;
 
         // Compute the destination point
-        final var normalFactor = 0.4F + ((80F - ((float) game.options.fov().get() - 30F)) / 80F);
+        final var normalFactor = 0.2F + ((80F - ((float) game.options.fov().get() - 30F)) / 80F);
         final var xOffset = (float) normal.getX() * normalFactor;
         final var zOffset = (float) normal.getZ() * normalFactor;
         final var x = (float) pos.getX() + 0.5F - xOffset;
