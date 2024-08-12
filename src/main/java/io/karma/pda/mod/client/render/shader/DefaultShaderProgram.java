@@ -45,8 +45,7 @@ import java.util.function.Consumer;
  * @since 02/06/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShard
-    implements ShaderProgram, ExtendedShader {
+public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShard implements ShaderProgram {
     private final int id;
     private final VertexFormat vertexFormat;
     private final ArrayList<DefaultShaderObject> objects;
@@ -60,6 +59,7 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     private final HashMap<ShaderObject, ProgramAdaptor> adaptorCache = new HashMap<>();
     private final AtomicBoolean isLinked = new AtomicBoolean(false);
     private final AtomicBoolean isRelinkRequested = new AtomicBoolean(false);
+    private final ExtendedShaderAdaptor extendedShaderAdaptor = new ExtendedShaderAdaptor();
     private int previousTextureUnit;
     private boolean isBound;
 
@@ -107,46 +107,6 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
             GL20.glBindAttribLocation(id, i, attrib);
             PDAMod.LOGGER.debug("Bound vertex format attribute {}={} for program {}", attrib, i, id);
         }
-    }
-
-    @Override
-    public void apply() {
-        bind();
-    }
-
-    @Override
-    public void clear() {
-        unbind();
-    }
-
-    @Override
-    public void setSampler(final String name, final Object id) {
-    }
-
-    @Override
-    public void markDirty() {
-    }
-
-    @Override
-    public @NotNull Program getVertexProgram() {
-        final var object = getObject(ShaderType.VERTEX);
-        if (object instanceof Program) {
-            return (Program) object;
-        }
-        return adaptorCache.computeIfAbsent(object, ProgramAdaptor::new);
-    }
-
-    @Override
-    public @NotNull Program getFragmentProgram() {
-        final var object = getObject(ShaderType.FRAGMENT);
-        if (object instanceof Program) {
-            return (Program) object;
-        }
-        return adaptorCache.computeIfAbsent(object, ProgramAdaptor::new);
-    }
-
-    @Override
-    public void attachToProgram() {
     }
 
     @Override
@@ -267,7 +227,7 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public void setupRenderState() {
-        ExtendedRenderSystem.getInstance().setExtendedShader(() -> this);
+        ExtendedRenderSystem.getInstance().setExtendedShader(() -> extendedShaderAdaptor);
     }
 
     @Override
@@ -353,6 +313,53 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
         @Override
         public void close() {
+        }
+    }
+
+    private final class ExtendedShaderAdaptor implements ExtendedShader {
+        @Override
+        public int getId() {
+            return id;
+        }
+
+        @Override
+        public void apply() {
+            bind();
+        }
+
+        @Override
+        public void clear() {
+            unbind();
+        }
+
+        @Override
+        public void setSampler(final String name, final Object id) {
+        }
+
+        @Override
+        public void markDirty() {
+        }
+
+        @Override
+        public @NotNull Program getVertexProgram() {
+            final var object = getObject(ShaderType.VERTEX);
+            if (object instanceof Program) {
+                return (Program) object;
+            }
+            return adaptorCache.computeIfAbsent(object, ProgramAdaptor::new);
+        }
+
+        @Override
+        public @NotNull Program getFragmentProgram() {
+            final var object = getObject(ShaderType.FRAGMENT);
+            if (object instanceof Program) {
+                return (Program) object;
+            }
+            return adaptorCache.computeIfAbsent(object, ProgramAdaptor::new);
+        }
+
+        @Override
+        public void attachToProgram() {
         }
     }
 }

@@ -6,12 +6,13 @@ package io.karma.pda.mod.client.app;
 
 import io.karma.pda.api.app.App;
 import io.karma.pda.api.app.AppType;
+import io.karma.pda.api.app.Launcher;
 import io.karma.pda.api.app.component.Component;
 import io.karma.pda.api.app.component.Container;
 import io.karma.pda.api.session.Session;
+import io.karma.pda.api.util.Exceptions;
 import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
-import io.karma.pda.mod.app.DefaultLauncher;
 import io.karma.pda.mod.network.sb.SPacketCloseApp;
 import io.karma.pda.mod.network.sb.SPacketOpenApp;
 import io.karma.pda.mod.util.BlockingHashMap;
@@ -24,6 +25,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -33,12 +37,106 @@ import java.util.stream.Collectors;
  * @since 14/04/2024
  */
 @OnlyIn(Dist.CLIENT)
-public class ClientLauncher extends DefaultLauncher {
+public final class ClientLauncher implements Launcher {
     private final BlockingHashMap<ResourceLocation, App> pendingApps = new BlockingHashMap<>();
     private final BlockingHashMap<ResourceLocation, App> terminatedApps = new BlockingHashMap<>();
+    private final Session session;
+    private final Stack<App> appStack = new Stack<>();
+    private final Object appStackLock = new Object();
 
     public ClientLauncher(final Session session) {
-        super(session);
+        this.session = session;
+    }
+
+    @Internal
+    public <A extends App> A openNow(final AppType<A> type) {
+        final var app = type.create();
+        tryCompose(app);
+        synchronized (appStackLock) {
+            appStack.push(app); // Push app when composed initially
+        }
+        registerSyncedFields(app);
+        return app;
+    }
+
+    @Internal
+    public void addOpenApp(final App app) {
+        synchronized (appStackLock) {
+            appStack.push(app);
+        }
+    }
+
+    @Internal
+    public void removeOpenApp(final App app) {
+        synchronized (appStackLock) {
+            appStack.remove(app);
+        }
+    }
+
+    private void tryCompose(final App app) {
+        try {
+            app.compose();
+        }
+        catch (Throwable error) {
+            PDAMod.LOGGER.error("Composition for {} in session {} failed: {}",
+                app.getType().getName(),
+                session.getId(),
+                Exceptions.toFancyString(error));
+        }
+    }
+
+    private void tryInit(final App app) {
+        try {
+            app.init(session);
+        }
+        catch (Throwable error) {
+            PDAMod.LOGGER.error("Initialization for {} in session {} failed: {}",
+                app.getType().getName(),
+                session.getId(),
+                Exceptions.toFancyString(error));
+        }
+    }
+
+    private void registerSyncedComponents(final Component component) {
+        final var stateHandler = session.getStateHandler();
+        stateHandler.register(component);
+        if (component instanceof Container container) {
+            for (final var child : container.getChildren()) {
+                registerSyncedComponents(child);
+            }
+        }
+    }
+
+    private void registerSyncedFields(final App app) {
+        final var stateHandler = session.getStateHandler();
+        final var appOwnerName = String.format("%s:%s", session.getId(), app.getType().getName());
+        stateHandler.register(appOwnerName, app);
+        for (final var view : app.getViews()) {
+            final var viewOwnerName = String.format("%s:%s", appOwnerName, view.getName());
+            stateHandler.register(viewOwnerName, view);
+            registerSyncedComponents(view.getContainer());
+        }
+    }
+
+    private void unregisterSyncedComponents(final Component component) {
+        final var stateHandler = session.getStateHandler();
+        stateHandler.unregister(component);
+        if (component instanceof Container container) {
+            for (final var child : container.getChildren()) {
+                unregisterSyncedComponents(child);
+            }
+        }
+    }
+
+    private void unregisterSyncedFields(final App app) {
+        final var stateHandler = session.getStateHandler();
+        final var appOwnerName = String.format("%s:%s", session.getId(), app.getType().getName());
+        stateHandler.unregister(appOwnerName, app);
+        for (final var view : app.getViews()) {
+            final var viewOwnerName = String.format("%s:%s", appOwnerName, view.getName());
+            stateHandler.unregister(viewOwnerName, view);
+            unregisterSyncedComponents(view.getContainer());
+        }
     }
 
     @Internal
@@ -135,5 +233,36 @@ public class ClientLauncher extends DefaultLauncher {
             }
         });
         return future;
+    }
+
+    @Override
+    public @Nullable App getCurrentApp() {
+        synchronized (appStackLock) {
+            if (appStack.isEmpty()) {
+                return null;
+            }
+            return appStack.peek();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <A extends App> @Nullable A getOpenApp(final AppType<A> type) {
+        synchronized (appStackLock) {
+            for (final var app : appStack) {
+                if (app.getType() != type) {
+                    continue;
+                }
+                return (A) app;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<App> getOpenApps() {
+        synchronized (appStackLock) {
+            return Collections.unmodifiableList(appStack);
+        }
     }
 }

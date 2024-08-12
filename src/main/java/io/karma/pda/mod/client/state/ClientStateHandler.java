@@ -9,10 +9,14 @@ import com.google.common.collect.Multimaps;
 import io.karma.pda.api.session.Session;
 import io.karma.pda.api.state.MutableState;
 import io.karma.pda.api.state.State;
+import io.karma.pda.api.state.StateHandler;
+import io.karma.pda.api.state.StateReflector;
+import io.karma.pda.api.util.Identifiable;
 import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.network.sb.SPacketSyncValues;
-import io.karma.pda.mod.state.DefaultStateHandler;
+import io.karma.pda.mod.state.DefaultStateReflector;
+import io.karma.pda.mod.state.Reflectors;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -29,29 +33,78 @@ import java.util.stream.Collectors;
  * @since 11/04/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class ClientStateHandler extends DefaultStateHandler {
+public final class ClientStateHandler implements StateHandler {
     private final Multimap<String, String> queue = Multimaps.newMultimap(new ConcurrentHashMap<>(),
         ConcurrentLinkedDeque::new);
+    private final ConcurrentHashMap<String, ConcurrentHashMap<String, MutableState<?>>> fields = new ConcurrentHashMap<>();
+    private final Session session;
 
     public ClientStateHandler(final Session session) {
-        super(session);
+        super();
+        this.session = session;
     }
 
-    @Override
-    protected void addProperty(final String ownerId, final MutableState<?> value) {
+    private StateReflector getReflector(final Class<?> type) {
+        final var annotations = type.getAnnotations();
+        for (final var annotation : annotations) {
+            final var reflector = Reflectors.get().get(annotation.annotationType());
+            if (reflector == null) {
+                continue;
+            }
+            return reflector;
+        }
+        return DefaultStateReflector.INSTANCE;
+    }
+
+    private ConcurrentHashMap<String, MutableState<?>> getOrCreateProps(final String ownerId) {
+        return fields.computeIfAbsent(ownerId, id -> new ConcurrentHashMap<>());
+    }
+
+    private void addProperty(final String ownerId, final MutableState<?> value) {
         value.onChanged((prop, newValue) -> {
             if (prop.get().equals(newValue)) {
                 return;
             }
             queue.put(ownerId, prop.getName());
         });
-        super.register(ownerId, value);
+        register(ownerId, value);
+    }
+
+    private void removeProperty(final String ownerId, final MutableState<?> value) {
+        queue.remove(ownerId, value.getName());
+        unregister(ownerId, value);
     }
 
     @Override
-    protected void removeProperty(final String ownerId, final MutableState<?> value) {
-        queue.remove(ownerId, value.getName());
-        super.unregister(ownerId, value);
+    public void register(final String owner, final Object instance) {
+        final var type = instance.getClass();
+        for (final var state : getReflector(type).getStates(type, instance, this::getReflector)) {
+            addProperty(owner, state);
+        }
+    }
+
+    @Override
+    public void register(final Identifiable instance) {
+        final var type = instance.getClass();
+        for (final var state : getReflector(type).getStates(type, instance, this::getReflector)) {
+            addProperty(instance.getId().toString(), state);
+        }
+    }
+
+    @Override
+    public void unregister(final String owner, final Object instance) {
+        final var type = instance.getClass();
+        for (final var state : getReflector(type).getStates(type, instance, this::getReflector)) {
+            removeProperty(owner, state);
+        }
+    }
+
+    @Override
+    public void unregister(final Identifiable instance) {
+        final var type = instance.getClass();
+        for (final var state : getReflector(type).getStates(type, instance, this::getReflector)) {
+            removeProperty(instance.getId().toString(), state);
+        }
     }
 
     @Override

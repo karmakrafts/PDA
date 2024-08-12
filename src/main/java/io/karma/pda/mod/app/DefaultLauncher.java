@@ -25,16 +25,16 @@ import java.util.concurrent.CompletableFuture;
  * @author Alexander Hinze
  * @since 14/04/2024
  */
-public class DefaultLauncher implements Launcher {
-    protected final Session session;
-    protected final Stack<App> appStack = new Stack<>();
-    protected final Object appStackLock = new Object();
+public final class DefaultLauncher implements Launcher {
+    private final Session session;
+    private final Stack<App> appStack = new Stack<>();
+    private final Object appStackLock = new Object();
 
     public DefaultLauncher(final Session session) {
         this.session = session;
     }
 
-    protected void tryCompose(final App app) {
+    private void tryCompose(final App app) {
         try {
             app.compose();
         }
@@ -46,7 +46,7 @@ public class DefaultLauncher implements Launcher {
         }
     }
 
-    protected void tryInit(final App app) {
+    private void tryInit(final App app) {
         try {
             app.init(session);
         }
@@ -83,7 +83,7 @@ public class DefaultLauncher implements Launcher {
         }
     }
 
-    protected void registerSyncedComponents(final Component component) {
+    private void registerSyncedComponents(final Component component) {
         final var stateHandler = session.getStateHandler();
         stateHandler.register(component);
         if (component instanceof Container container) {
@@ -93,7 +93,7 @@ public class DefaultLauncher implements Launcher {
         }
     }
 
-    protected void registerSyncedFields(final App app) {
+    private void registerSyncedFields(final App app) {
         final var stateHandler = session.getStateHandler();
         final var appOwnerName = String.format("%s:%s", session.getId(), app.getType().getName());
         stateHandler.register(appOwnerName, app);
@@ -104,7 +104,7 @@ public class DefaultLauncher implements Launcher {
         }
     }
 
-    protected void unregisterSyncedComponents(final Component component) {
+    private void unregisterSyncedComponents(final Component component) {
         final var stateHandler = session.getStateHandler();
         stateHandler.unregister(component);
         if (component instanceof Container container) {
@@ -114,7 +114,7 @@ public class DefaultLauncher implements Launcher {
         }
     }
 
-    protected void unregisterSyncedFields(final App app) {
+    private void unregisterSyncedFields(final App app) {
         final var stateHandler = session.getStateHandler();
         final var appOwnerName = String.format("%s:%s", session.getId(), app.getType().getName());
         stateHandler.unregister(appOwnerName, app);

@@ -13,31 +13,27 @@ import io.karma.pda.mod.state.DefaultStateHandler;
 
 import java.time.Instant;
 import java.util.UUID;
-import java.util.function.Function;
 
 /**
  * @author Alexander Hinze
  * @since 10/04/2024
  */
-public class DefaultSession implements Session {
-    protected final UUID id;
-    protected final SessionContext context;
-    protected final StateHandler stateHandler;
-    protected final Launcher launcher;
-    protected final Instant creationTime;
+public final class DefaultSession implements Session {
+    private final DefaultStateHandler stateHandler = new DefaultStateHandler(this);
+    private final DefaultLauncher launcher = new DefaultLauncher(this);
+    private final UUID id;
+    private final SessionContext context;
+    private final Instant creationTime;
 
-    public DefaultSession(final UUID id, final SessionContext context,
-                          final Function<Session, StateHandler> synchronizerFactory,
-                          final Function<Session, Launcher> launcherFactory) {
+    DefaultSession(final UUID id, final SessionContext context) {
         this.id = id;
         this.context = context;
-        stateHandler = synchronizerFactory.apply(this);
-        launcher = launcherFactory.apply(this);
         creationTime = Instant.now();
     }
 
-    public DefaultSession(final UUID id, final SessionContext context) {
-        this(id, context, DefaultStateHandler::new, DefaultLauncher::new);
+    @Override
+    public SessionContext getContext() {
+        return context;
     }
 
     @Override
@@ -48,11 +44,6 @@ public class DefaultSession implements Session {
     @Override
     public UUID getId() {
         return id;
-    }
-
-    @Override
-    public SessionContext getContext() {
-        return context;
     }
 
     @Override

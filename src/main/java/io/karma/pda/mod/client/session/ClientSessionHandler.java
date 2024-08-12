@@ -15,8 +15,6 @@ import io.karma.pda.mod.network.sb.SPacketTerminateSession;
 import io.karma.pda.mod.session.AbstractSessionHandler;
 import io.karma.pda.mod.util.BlockingHashMap;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,7 +29,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Alexander Hinze
  * @since 10/04/2024
  */
-@OnlyIn(value = Dist.CLIENT)
 public final class ClientSessionHandler extends AbstractSessionHandler {
     public static final ClientSessionHandler INSTANCE = new ClientSessionHandler();
     private final BlockingHashMap<UUID, UUID> pendingSessions = new BlockingHashMap<>();

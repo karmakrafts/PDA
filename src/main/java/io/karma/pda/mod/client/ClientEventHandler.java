@@ -65,6 +65,24 @@ public final class ClientEventHandler {
     private ClientEventHandler() {}
     // @formatter:on
 
+    private static BakedQuad transformDockButtonQuad(final BakedQuad quad, final Direction orientation) {
+        // @formatter:off
+        return QuadTransformers.applyingLightmap(LightTexture.FULL_BRIGHT)
+            .andThen(BakedQuadUtils.applyRotation(orientation))
+            // Stolen from item models to save space, need to offset by 3 pixels up
+            .andThen(BakedQuadUtils.applyTranslation(new Vector3f(0F, 3F / 16F, 0F)))
+            .process(quad);
+        // @formatter:on
+    }
+
+    private static BakedQuad transformDockQuad(final BakedQuad quad, final Direction orientation) {
+        // @formatter:off
+        return QuadTransformers.applyingLightmap(LightTexture.FULL_BRIGHT)
+            .andThen(BakedQuadUtils.applyRotation(orientation))
+            .process(quad);
+        // @formatter:on
+    }
+
     @Internal
     public void setup() {
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -146,24 +164,6 @@ public final class ClientEventHandler {
         PDAMod.LOGGER.debug("Splicing baked multipart models");
         final var models = event.getModels();
         spliceDockModels(models);
-    }
-
-    private static BakedQuad transformDockButtonQuad(final BakedQuad quad, final Direction orientation) {
-        // @formatter:off
-        return QuadTransformers.applyingLightmap(LightTexture.FULL_BRIGHT)
-            .andThen(BakedQuadUtils.applyRotation(orientation))
-            // Stolen from item models to save space, need to offset by 3 pixels up
-            .andThen(BakedQuadUtils.applyTranslation(new Vector3f(0F, 3F / 16F, 0F)))
-            .process(quad);
-        // @formatter:on
-    }
-
-    private static BakedQuad transformDockQuad(final BakedQuad quad, final Direction orientation) {
-        // @formatter:off
-        return QuadTransformers.applyingLightmap(LightTexture.FULL_BRIGHT)
-            .andThen(BakedQuadUtils.applyRotation(orientation))
-            .process(quad);
-        // @formatter:on
     }
 
     private void spliceDockModels(final Map<ResourceLocation, BakedModel> models) {

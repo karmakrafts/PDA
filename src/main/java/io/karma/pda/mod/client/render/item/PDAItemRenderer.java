@@ -55,8 +55,7 @@ public final class PDAItemRenderer {
         poseStack.pushPose();
 
         final var buttonModel = game.getModelManager().getModel(ClientEventHandler.PDA_FULLBRIGHT);
-        final var baseModel = game.getModelManager().getModel(ClientEventHandler.PDA_V).applyTransform(
-            displayContext,
+        final var baseModel = game.getModelManager().getModel(ClientEventHandler.PDA_V).applyTransform(displayContext,
             poseStack,
             hand == InteractionHand.OFF_HAND);
 
