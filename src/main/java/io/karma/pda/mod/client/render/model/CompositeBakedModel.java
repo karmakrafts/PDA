@@ -6,7 +6,6 @@ package io.karma.pda.mod.client.render.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.karma.pda.mod.client.util.BakedQuadUtils;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
@@ -22,16 +21,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ChunkRenderTypeSet;
-import net.minecraftforge.client.model.QuadTransformers;
 import net.minecraftforge.client.model.data.ModelData;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
 
 /**
  * @author Alexander Hinze
@@ -39,59 +36,26 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @OnlyIn(Dist.CLIENT)
 public class CompositeBakedModel implements BakedModel {
+    private final List<Pair<BakedModel, BiFunction<BakedQuad, Direction, BakedQuad>>> models;
     private final BakedModel delegate;
-    private final List<BakedModel> fullBrightModels;
-    private final Direction orientation;
-    private final ConcurrentHashMap<Direction, ArrayList<BakedQuad>> sideQuads = new ConcurrentHashMap<>();
-    private final AtomicReference<List<BakedQuad>> quads = new AtomicReference<>();
 
-    public CompositeBakedModel(final BakedModel delegate, final List<BakedModel> fullBrightModels,
-                               final Direction orientation) {
-        this.delegate = delegate;
-        this.fullBrightModels = fullBrightModels;
-        this.orientation = orientation;
+    public CompositeBakedModel(final List<Pair<BakedModel, BiFunction<BakedQuad, Direction, BakedQuad>>> models) {
+        this.models = models;
+        delegate = models.get(0).getLeft();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @NotNull List<BakedQuad> getQuads(final @Nullable BlockState state, final @Nullable Direction side,
-                                             final @NotNull RandomSource random) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public @NotNull List<BakedQuad> getQuads(final @Nullable BlockState state, final @Nullable Direction side,
-                                             final @NotNull RandomSource rand, final @NotNull ModelData data,
-                                             final @Nullable RenderType renderType) {
-        // Handle side-less quads
-        if (side == null) {
-            if (quads.compareAndSet(null, new ArrayList<>())) {
-                final var quads = this.quads.get();
-                for (final var model : fullBrightModels) {
-                    // @formatter:off
-                    BakedQuadUtils.transformQuads(model.getQuads(state, null, rand, data, renderType), quads,
-                        QuadTransformers.applyingLightmap(LightTexture.FULL_BRIGHT)
-                            .andThen(BakedQuadUtils.applyRotation(orientation))::process);
-                    // @formatter:on
-                }
-                quads.addAll(delegate.getQuads(state, null, rand, data, renderType));
-            }
-            return quads.get();
+                                             final @NotNull RandomSource rand) {
+        final var quads = new ArrayList<BakedQuad>();
+        for (final var model : models) {
+            // @formatter:off
+            BakedQuadUtils.transformQuads(model.getLeft().getQuads(state, side, rand), quads,
+                q -> model.getRight().apply(q, q.getDirection()));
+            // @formatter:on
         }
-        // Handle sided quads
-        var sideQuads = this.sideQuads.get(side);
-        if (sideQuads == null) {
-            sideQuads = new ArrayList<>();
-            for (final var model : fullBrightModels) {
-                // @formatter:off
-                BakedQuadUtils.transformQuads(model.getQuads(state, side, rand, data, renderType), sideQuads,
-                    QuadTransformers.applyingLightmap(LightTexture.FULL_BRIGHT)
-                        .andThen(BakedQuadUtils.applyRotation(orientation))::process);
-                // @formatter:on
-            }
-            sideQuads.addAll(delegate.getQuads(state, side, rand, data, renderType));
-            this.sideQuads.put(side, sideQuads);
-        }
-        return sideQuads;
+        return quads;
     }
 
     @Override

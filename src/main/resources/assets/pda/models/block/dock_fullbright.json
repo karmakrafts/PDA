@@ -3,6 +3,7 @@
 	"parent": "block/block",
 	"textures": {
 		"0": "pda:block/dock_1",
+		"1": "pda:block/dock_3",
 		"particle": "pda:block/dock_1"
 	},
 	"elements": [

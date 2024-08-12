@@ -9,8 +9,10 @@ import io.karma.pda.mod.client.ClientEventHandler;
 import io.karma.pda.mod.client.event.ItemRenderEvent;
 import io.karma.pda.mod.client.interaction.PDAInteractionHandler;
 import io.karma.pda.mod.client.render.display.DefaultDisplayRenderer;
+import io.karma.pda.mod.client.render.model.CompositeBakedModel;
 import io.karma.pda.mod.init.ModItems;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.InteractionHand;
 import net.minecraftforge.api.distmarker.Dist;
@@ -25,6 +27,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 @OnlyIn(Dist.CLIENT)
 public final class PDAItemRenderer {
     public static final PDAItemRenderer INSTANCE = new PDAItemRenderer();
+    private CompositeBakedModel model;
 
     @Internal
     public void setup() {
@@ -50,10 +53,13 @@ public final class PDAItemRenderer {
         final var hand = event.getHand();
 
         poseStack.pushPose();
-        // @formatter:off
-        final var model = game.getModelManager().getModel(ClientEventHandler.PDA_MODEL_V)
-            .applyTransform(displayContext, poseStack, hand == InteractionHand.OFF_HAND);
-        // @formatter:on
+
+        final var buttonModel = game.getModelManager().getModel(ClientEventHandler.PDA_FULLBRIGHT);
+        final var baseModel = game.getModelManager().getModel(ClientEventHandler.PDA_V).applyTransform(
+            displayContext,
+            poseStack,
+            hand == InteractionHand.OFF_HAND);
+
         if (displayContext.firstPerson()) {
             poseStack.translate(-0.5,
                 -0.5 + PDAInteractionHandler.INSTANCE.getAnimationOffset(hand, event.getFrameTime()),
@@ -62,7 +68,10 @@ public final class PDAItemRenderer {
         else {
             poseStack.translate(-0.5, -0.5, -0.5);
         }
-        itemRenderer.renderModelLists(model, stack, packedLight, packedOverlay, poseStack, buffer);
+
+        itemRenderer.renderModelLists(buttonModel, stack, LightTexture.FULL_BRIGHT, packedOverlay, poseStack, buffer);
+        itemRenderer.renderModelLists(baseModel, stack, packedLight, packedOverlay, poseStack, buffer);
+
         //Render out display on top of the baked model dynamically
         final var displayRenderer = DefaultDisplayRenderer.INSTANCE;
         final var player = game.player;

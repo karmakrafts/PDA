@@ -16,6 +16,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -35,15 +36,25 @@ public final class BakedQuadUtils {
         }
     }
 
-    public static IQuadTransformer applyRotation(final float angle, final Vector3f axis, final Vector3f origin) {
+    public static IQuadTransformer applyTransform(final Consumer<Matrix4f> callback) {
         final var matrix = new Matrix4f().identity();
-        matrix.translate(origin);
-        matrix.rotate((float) Math.toRadians(angle), axis);
-        matrix.translate(origin.negate(new Vector3f()));
+        callback.accept(matrix);
         return QuadTransformers.applying(new Transformation(matrix));
+    }
+
+    public static IQuadTransformer applyRotation(final float angle, final Vector3f axis, final Vector3f origin) {
+        return applyTransform(matrix -> {
+            matrix.translate(origin);
+            matrix.rotate((float) Math.toRadians(angle), axis);
+            matrix.translate(origin.negate(new Vector3f()));
+        });
     }
 
     public static IQuadTransformer applyRotation(final Direction direction) {
         return applyRotation(direction.toYRot(), MathUtils.Y_POS, MathUtils.CENTER);
+    }
+
+    public static IQuadTransformer applyTranslation(final Vector3f translation) {
+        return applyTransform(matrix -> matrix.translate(translation));
     }
 }
