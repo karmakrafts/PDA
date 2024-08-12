@@ -4,14 +4,17 @@
 
 package io.karma.pda.mod.client.render.graphics;
 
+import io.karma.pda.api.client.render.graphics.FontRenderer;
 import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.client.render.graphics.GraphicsContext;
 import io.karma.pda.api.client.render.graphics.GraphicsState;
 import io.karma.pda.api.color.ColorProvider;
 import io.karma.pda.api.util.RectangleCorner;
+import io.karma.pda.mod.client.render.graphics.font.DefaultFontRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.util.Objects;
 import java.util.Stack;
@@ -24,10 +27,21 @@ import java.util.function.IntFunction;
 @OnlyIn(Dist.CLIENT)
 public final class DefaultGraphics implements Graphics {
     private final Stack<GraphicsState> stateStack = new Stack<>();
+    private DefaultFontRenderer fontRenderer;
     private GraphicsContext context;
 
     public DefaultGraphics() {
         stateStack.push(new DefaultGraphicsState(this));
+    }
+
+    @Internal
+    public void init() {
+        fontRenderer = new DefaultFontRenderer(this);
+    }
+
+    @Override
+    public FontRenderer getFontRenderer() {
+        return fontRenderer;
     }
 
     @Override
@@ -231,71 +245,70 @@ public final class DefaultGraphics implements Graphics {
     }
 
     @Override
-    public void text(final int x, final int y, final char c) {
+    public int text(int x, int y, char c) {
         final var state = getState();
-        context.getFontRenderer().render(x, y, c, state.getFont(), state.getBrush());
+        return fontRenderer.render(x, y, c, state.getFont(), state.getBrush());
     }
 
     @Override
-    public void text(final int x, final int y, final CharSequence text) {
+    public int text(int x, int y, CharSequence text) {
         final var state = getState();
-        context.getFontRenderer().render(x, y, text, state.getFont(), state.getBrush());
+        return fontRenderer.render(x, y, text, state.getFont(), state.getBrush());
     }
 
     @Override
-    public void text(final int x, final int y, final int maxWidth, final CharSequence text) {
+    public int text(int x, int y, int maxWidth, CharSequence text) {
         final var state = getState();
-        context.getFontRenderer().render(x, y, maxWidth, text, state.getFont(), state.getBrush());
+        return fontRenderer.render(x, y, maxWidth, text, state.getFont(), state.getBrush());
     }
 
     @Override
-    public void text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text) {
+    public int text(int x, int y, int maxWidth, int maxHeight, CharSequence text) {
         final var state = getState();
-        context.getFontRenderer().render(x, y, maxWidth, maxHeight, text, state.getFont(), state.getBrush());
+        return fontRenderer.render(x, y, maxWidth, maxHeight, text, state.getFont(), state.getBrush());
     }
 
     @Override
-    public void text(final int x, final int y, final int maxWidth, final CharSequence text,
-                     final CharSequence cutoffSuffix) {
+    public int text(int x, int y, int maxWidth, CharSequence text, CharSequence cutoffSuffix) {
         final var state = getState();
-        context.getFontRenderer().render(x, y, maxWidth, text, state.getFont(), state.getBrush());
+        return fontRenderer.render(x, y, maxWidth, text, cutoffSuffix, state.getFont(), state.getBrush());
     }
 
     @Override
-    public void text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
-                     final CharSequence cutoffSuffix) {
+    public int text(int x, int y, int maxWidth, int maxHeight, CharSequence text, CharSequence cutoffSuffix) {
         final var state = getState();
-        context.getFontRenderer().render(x, y, maxWidth, maxHeight, text, state.getFont(), state.getBrush());
-    }
-
-    // Extended text rendering with per-glyph colors
-
-    @Override
-    public void text(final int x, final int y, final CharSequence text, final IntFunction<ColorProvider> color) {
-        context.getFontRenderer().render(x, y, text, getState().getFont(), color);
+        return fontRenderer.render(x, y, maxWidth, maxHeight, text, cutoffSuffix, state.getFont(), state.getBrush());
     }
 
     @Override
-    public void text(final int x, final int y, final int maxWidth, final CharSequence text,
-                     final IntFunction<ColorProvider> color) {
-        context.getFontRenderer().render(x, y, maxWidth, text, getState().getFont(), color);
+    public int text(int x, int y, CharSequence text, IntFunction<ColorProvider> color) {
+        final var state = getState();
+        return fontRenderer.render(x, y, text, state.getFont(), color);
     }
 
     @Override
-    public void text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
-                     final IntFunction<ColorProvider> color) {
-        context.getFontRenderer().render(x, y, maxWidth, maxHeight, text, getState().getFont(), color);
+    public int text(int x, int y, int maxWidth, CharSequence text, IntFunction<ColorProvider> color) {
+        final var state = getState();
+        return fontRenderer.render(x, y, maxWidth, text, state.getFont(), color);
     }
 
     @Override
-    public void text(final int x, final int y, final int maxWidth, final CharSequence text,
-                     final CharSequence cutoffSuffix, final IntFunction<ColorProvider> color) {
-        context.getFontRenderer().render(x, y, maxWidth, text, getState().getFont(), color);
+    public int text(int x, int y, int maxWidth, int maxHeight, CharSequence text, IntFunction<ColorProvider> color) {
+        final var state = getState();
+        return fontRenderer.render(x, y, maxWidth, maxHeight, text, state.getFont(), color);
     }
 
     @Override
-    public void text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
-                     final CharSequence cutoffSuffix, final IntFunction<ColorProvider> color) {
-        context.getFontRenderer().render(x, y, maxWidth, maxHeight, text, getState().getFont(), color);
+    public int text(int x, int y, int maxWidth, CharSequence text, CharSequence cutoffSuffix,
+                    IntFunction<ColorProvider> color) {
+        final var state = getState();
+        return fontRenderer.render(x, y, maxWidth, text, cutoffSuffix, state.getFont(), color);
+    }
+
+    @Override
+    public int text(int x, int y, int maxWidth, int maxHeight, CharSequence text, CharSequence cutoffSuffix,
+                    IntFunction<ColorProvider> color) {
+        final var state = getState();
+        return fontRenderer.render(x, y, maxWidth, maxHeight, text, cutoffSuffix, state.getFont(), color);
     }
 }

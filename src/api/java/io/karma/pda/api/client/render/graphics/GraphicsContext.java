@@ -38,8 +38,6 @@ public interface GraphicsContext {
 
     BrushFactory getBrushFactory();
 
-    FontRenderer getFontRenderer();
-
     default Matrix4f getTransform() {
         return getPoseStack().last().pose();
     }

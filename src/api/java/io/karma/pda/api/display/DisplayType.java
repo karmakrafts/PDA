@@ -17,6 +17,14 @@ public interface DisplayType {
 
     String getTranslatedName();
 
+    float getGlitchFactor();
+
+    int getGlitchBlocks();
+
+    float getGlitchRate();
+
+    float getPixelationFactor();
+
     default Component getTranslatedNameComponent() {
         return Component.literal(getTranslatedName());
     }

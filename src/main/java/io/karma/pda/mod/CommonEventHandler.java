@@ -12,7 +12,6 @@ import io.karma.pda.api.app.theme.font.FontVariant;
 import io.karma.pda.api.display.DisplayModeSpec;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.mod.client.render.display.DefaultDisplayRenderer;
-import io.karma.pda.mod.client.render.graphics.font.DefaultFontRenderer;
 import io.karma.pda.mod.init.ModBlocks;
 import io.karma.pda.mod.network.cb.CPacketCreateSession;
 import io.karma.pda.mod.network.cb.CPacketOpenApp;
@@ -157,7 +156,7 @@ public final class CommonEventHandler {
                 registry.getValues().stream()
                     .flatMap(family -> Arrays.stream(FontStyle.values())
                         .map(style -> family.getFont(style, FontVariant.DEFAULT_SIZE)))
-                    .forEach(DefaultFontRenderer.INSTANCE::getFontAtlas);
+                    .forEach(DefaultDisplayRenderer.INSTANCE.getGraphics().getFontRenderer()::getFontAtlas);
                 // @formatter:on
             });
         });

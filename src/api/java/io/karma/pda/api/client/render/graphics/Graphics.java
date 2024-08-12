@@ -31,6 +31,8 @@ public interface Graphics {
 
     GraphicsState pushState();
 
+    FontRenderer getFontRenderer();
+
     void popState();
 
     void point(final int x, final int y);
@@ -53,33 +55,33 @@ public interface Graphics {
 
     void fillTriangle(final int x1, final int y1, final int x2, final int y2, final int x3, final int y3);
 
-    void text(final int x, final int y, final char c);
+    int text(final int x, final int y, final char c);
 
-    void text(final int x, final int y, final CharSequence text);
+    int text(final int x, final int y, final CharSequence text);
 
-    void text(final int x, final int y, final int maxWidth, final CharSequence text);
+    int text(final int x, final int y, final int maxWidth, final CharSequence text);
 
-    void text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text);
+    int text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text);
 
-    void text(final int x, final int y, final int maxWidth, final CharSequence text, final CharSequence cutoffSuffix);
+    int text(final int x, final int y, final int maxWidth, final CharSequence text, final CharSequence cutoffSuffix);
 
-    void text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
+    int text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
               final CharSequence cutoffSuffix);
 
     // Extended text rendering with per-glyph colors
 
-    void text(final int x, final int y, final CharSequence text, final IntFunction<ColorProvider> color);
+    int text(final int x, final int y, final CharSequence text, final IntFunction<ColorProvider> color);
 
-    void text(final int x, final int y, final int maxWidth, final CharSequence text,
+    int text(final int x, final int y, final int maxWidth, final CharSequence text,
               final IntFunction<ColorProvider> color);
 
-    void text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
+    int text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
               final IntFunction<ColorProvider> color);
 
-    void text(final int x, final int y, final int maxWidth, final CharSequence text, final CharSequence cutoffSuffix,
+    int text(final int x, final int y, final int maxWidth, final CharSequence text, final CharSequence cutoffSuffix,
               final IntFunction<ColorProvider> color);
 
-    void text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
+    int text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
               final CharSequence cutoffSuffix, final IntFunction<ColorProvider> color);
 
     default VertexConsumer getBuffer() {

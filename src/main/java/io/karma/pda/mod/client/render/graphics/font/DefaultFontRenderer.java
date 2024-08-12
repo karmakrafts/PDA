@@ -9,8 +9,10 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import io.karma.pda.api.app.theme.font.Font;
 import io.karma.pda.api.app.theme.font.FontVariant;
+import io.karma.pda.api.client.render.display.DisplayMode;
 import io.karma.pda.api.client.render.graphics.FontAtlas;
 import io.karma.pda.api.client.render.graphics.FontRenderer;
+import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.ShaderType;
 import io.karma.pda.api.client.render.shader.uniform.DefaultUniformType;
@@ -31,7 +33,6 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.lwjgl.util.msdfgen.MSDFGen;
@@ -46,7 +47,7 @@ import java.util.function.IntFunction;
  */
 @OnlyIn(Dist.CLIENT)
 public final class DefaultFontRenderer implements FontRenderer, ResourceManagerReloadListener {
-    public static final DefaultFontRenderer INSTANCE = new DefaultFontRenderer();
+    private final Graphics graphics;
 
     // @formatter:off
     private static final ShaderProgram SHADER = DefaultShaderFactory.INSTANCE.create(builder -> builder
@@ -72,7 +73,7 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
             RenderType.CompositeState.builder()
                 .setCullState(RenderStateShard.NO_CULL)
                 .setShaderState(SHADER.asStateShard())
-                .setOutputState(ctx.outputState)
+                .setOutputState(ctx.displayMode.getOutputState())
                 .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
                 .setTexturingState(RenderStateShard.DEFAULT_TEXTURING)
                 .setLayeringState(RenderStateShard.POLYGON_OFFSET_LAYERING)
@@ -90,6 +91,11 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     });
     // @formatter:on
     private final HashMap<FontAtlasKey, DefaultFontAtlas> fontAtlasCache = new HashMap<>();
+
+    public DefaultFontRenderer(final Graphics graphics) {
+        this.graphics = graphics;
+        ((ReloadableResourceManager) Minecraft.getInstance().getResourceManager()).registerReloadListener(this);
+    }
 
     private float renderGlyph(final float x, final float y, final int zIndex, final char c, final FontVariant font,
                               final Matrix4f matrix, final VertexConsumer buffer, final ColorProvider colorProvider) {
@@ -151,9 +157,11 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
         return scale * metrics.getAdvanceX();
     }
 
-    private RenderType getRenderType(final Font font, final RenderStateShard.OutputStateShard outputState) {
+    private RenderType getRenderType(final Font font) {
         final var variant = font.asVariant();
-        return RENDER_TYPE.apply(new FontAtlasContext(getFontAtlas(variant), variant.getSize(), outputState));
+        return RENDER_TYPE.apply(new FontAtlasContext(getFontAtlas(variant),
+            variant.getSize(),
+            graphics.getContext().getDisplayMode()));
     }
 
     @Override
@@ -233,7 +241,11 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
 
     @Override
     public int render(int x, int y, char c, Font font, ColorProvider color) {
-        return 0;
+        final var context = graphics.getContext();
+        final var state = graphics.getState();
+        final var buffer = context.getBufferSource().getBuffer(getRenderType(font));
+        final var matrix = context.getTransform();
+        return (int) renderGlyph(x, y, state.getZIndex(), c, font.asVariant(), matrix, buffer, color);
     }
 
     @Override
@@ -301,11 +313,6 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
         }
     }
 
-    @Internal
-    public void setup() {
-        ((ReloadableResourceManager) Minecraft.getInstance().getResourceManager()).registerReloadListener(this);
-    }
-
     /*
 
     @Override
@@ -359,6 +366,6 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     private record FontAtlasKey(ResourceLocation location, Object2FloatMap<String> variationAxes) {
     }
 
-    private record FontAtlasContext(FontAtlas atlas, float scale, RenderStateShard.OutputStateShard outputState) {
+    private record FontAtlasContext(FontAtlas atlas, float scale, DisplayMode displayMode) {
     }
 }

@@ -7,11 +7,9 @@ package io.karma.pda.mod.client.render.graphics;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.karma.pda.api.client.render.display.DisplayMode;
 import io.karma.pda.api.client.render.graphics.BrushFactory;
-import io.karma.pda.api.client.render.graphics.FontRenderer;
 import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.client.render.graphics.GraphicsContext;
 import io.karma.pda.mod.PDAMod;
-import io.karma.pda.mod.client.render.graphics.font.DefaultFontRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -58,11 +56,6 @@ public final class DefaultGraphicsContext implements GraphicsContext {
     @Override
     public BrushFactory getBrushFactory() {
         return brushFactory;
-    }
-
-    @Override
-    public FontRenderer getFontRenderer() {
-        return DefaultFontRenderer.INSTANCE;
     }
 
     @Override

@@ -56,6 +56,11 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
     }
 
     @Internal
+    public DefaultGraphics getGraphics() {
+        return graphics;
+    }
+
+    @Internal
     public void createDisplayMode(final DisplayModeSpec modeSpec) {
         if (displayModes.containsKey(modeSpec)) {
             return;
