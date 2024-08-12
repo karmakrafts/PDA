@@ -45,19 +45,14 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
         displayBuilders,
         displayBuilder);
     private final PoseStack displayPoseStack = new PoseStack();
-    private final DefaultGraphicsContext graphicsContext = new DefaultGraphicsContext();
-    private final DefaultGraphics graphics = new DefaultGraphics();
     private final HashMap<DisplayResolution, DefaultFramebuffer> framebuffers = new HashMap<>();
     private final HashMap<DisplayModeSpec, DefaultDisplayMode> displayModes = new HashMap<>();
+    private final DefaultGraphicsContext graphicsContext = new DefaultGraphicsContext();
+    private final DefaultGraphics graphics = new DefaultGraphics();
     private float glitchFactor;
 
     private DefaultDisplayRenderer() {
         displayPoseStack.setIdentity();
-    }
-
-    @Internal
-    public DefaultGraphics getGraphics() {
-        return graphics;
     }
 
     @Internal
@@ -68,6 +63,11 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
         PDAMod.LOGGER.debug("Creating display mode {}", modeSpec);
         displayModes.put(modeSpec,
             new DefaultDisplayMode(modeSpec, getFramebuffer(modeSpec.resolution()), this::getGlitchFactor));
+    }
+
+    @Override
+    public DefaultGraphics getGraphics() {
+        return graphics;
     }
 
     @Override

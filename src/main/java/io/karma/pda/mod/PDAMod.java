@@ -26,6 +26,7 @@ import io.karma.pda.mod.client.interaction.DockInteractionHandler;
 import io.karma.pda.mod.client.interaction.PDAInteractionHandler;
 import io.karma.pda.mod.client.render.display.DefaultDisplayRenderer;
 import io.karma.pda.mod.client.render.graphics.GraphicsRenderTypes;
+import io.karma.pda.mod.client.render.graphics.font.DefaultFontRenderer;
 import io.karma.pda.mod.client.render.item.PDAItemRenderer;
 import io.karma.pda.mod.client.render.shader.DefaultShaderFactory;
 import io.karma.pda.mod.client.render.shader.DefaultShaderPreProcessor;
@@ -260,7 +261,7 @@ public class PDAMod {
         event.enqueueWork(() -> {
             GraphicsRenderTypes.createShaders();
             ComponentRenderTypes.createShaders();
-            DefaultDisplayRenderer.INSTANCE.getGraphics().init();
+            DefaultFontRenderer.createShaders();
             LOGGER.info("Registering screens");
             MenuScreens.register(ModMenus.pdaStorage.get(),
                 (PDAStorageMenu menu, Inventory inventory, Component title) -> new PDAStorageScreen(menu, inventory));

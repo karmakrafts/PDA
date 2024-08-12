@@ -17,7 +17,6 @@ import io.karma.pda.api.util.Exceptions;
 import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.hook.ExtendedRenderSystem;
 import io.karma.pda.mod.client.hook.ExtendedShader;
-import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.client.Minecraft;
@@ -55,7 +54,7 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     private final Consumer<ShaderProgram> unbindCallback;
     private final DefaultUniformCache uniformCache;
     private final Object2IntLinkedOpenHashMap<String> samplers;
-    private final Int2IntArrayMap samplerTextures = new Int2IntArrayMap();
+    private final int[] samplerTextures;
     private final HashMap<String, Object> constants;
     private final Object2IntLinkedOpenHashMap<String> defines;
     private final HashMap<ShaderObject, ProgramAdaptor> adaptorCache = new HashMap<>();
@@ -74,12 +73,14 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         this.bindCallback = bindCallback;
         this.unbindCallback = unbindCallback;
         this.samplers = samplers;
+        samplerTextures = new int[samplers.size()]; // Pre-allocate sampler texture buffer
         this.constants = constants;
         this.defines = defines;
 
         id = GL20.glCreateProgram();
         setupAttributes();
         PDAMod.DISPOSITION_HANDLER.addObject(this);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::reload);
 
         // Attach shader objects to program
         for (final var object : objects) {
@@ -92,8 +93,10 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
             combinedUniforms.put(samplerName, DefaultUniformType.INT.create(samplerName, sampler.getIntValue()));
         }
         uniformCache = new DefaultUniformCache(this, combinedUniforms);
+    }
 
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::reload);
+    private void reload(final RegisterShadersEvent event) {
+        relink(Minecraft.getInstance().getResourceManager());
     }
 
     private void setupAttributes() {
@@ -104,10 +107,6 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
             GL20.glBindAttribLocation(id, i, attrib);
             PDAMod.LOGGER.debug("Bound vertex format attribute {}={} for program {}", attrib, i, id);
         }
-    }
-
-    private void reload(final RegisterShadersEvent event) {
-        relink(Minecraft.getInstance().getResourceManager());
     }
 
     @Override
@@ -162,19 +161,19 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public void setSampler(final String name, final int textureId) {
-        samplerTextures.put(samplers.getInt(name), textureId);
+        samplerTextures[samplers.getInt(name)] = textureId;
     }
 
     @Override
     public void setSampler(final String name, final ResourceLocation location) {
         final var textureManager = Minecraft.getInstance().getTextureManager();
         final var texture = textureManager.getTexture(location);
-        samplerTextures.put(samplers.getInt(name), texture.getId());
+        samplerTextures[samplers.getInt(name)] = texture.getId();
     }
 
     @Override
     public int getSampler(final String name) {
-        return samplerTextures.getOrDefault(samplers.getInt(name), -1);
+        return samplerTextures[samplers.getInt(name)];
     }
 
     @Override
@@ -200,7 +199,6 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     @Override
     public void unbind() {
         if (!isBound) {
-            PDAMod.LOGGER.warn("Double unbind detected for shader program {}", id);
             return;
         }
         if (!isLinked.get()) {
@@ -213,8 +211,8 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
             unbindCallback.accept(this);
         }
         // Unbind/disable samplers
-        for (final var sample : samplers.object2IntEntrySet()) {
-            GL13.glActiveTexture(GL13.GL_TEXTURE0 + sample.getIntValue());
+        for (final var sampler : samplers.values()) {
+            GL13.glActiveTexture(GL13.GL_TEXTURE0 + sampler);
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
         }
         GL13.glActiveTexture(previousTextureUnit);
@@ -225,14 +223,13 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     @Override
     public void bind() {
         if (isBound) {
-            PDAMod.LOGGER.warn("Double bind detected for shader program {}, ignoring", id);
-            return;
-        }
-        if (!isLinked.get()) {
             return;
         }
         if (isRelinkRequested.compareAndSet(true, false)) {
             relink(Minecraft.getInstance().getResourceManager());
+        }
+        if (!isLinked.get()) {
+            return;
         }
         for (final var object : objects) {
             object.onBindProgram(this);
@@ -245,10 +242,9 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         uniformCache.applyAll();
         // Bind/enable samplers
         previousTextureUnit = GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE);
-        for (final var sample : samplers.object2IntEntrySet()) {
-            final var index = sample.getIntValue();
-            GL13.glActiveTexture(GL13.GL_TEXTURE0 + index);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, samplerTextures.get(index));
+        for (final var sampler : samplers.values()) {
+            GL13.glActiveTexture(GL13.GL_TEXTURE0 + sampler);
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, samplerTextures[sampler]);
         }
         isBound = true;
     }

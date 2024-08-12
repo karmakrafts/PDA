@@ -27,16 +27,11 @@ import java.util.function.IntFunction;
 @OnlyIn(Dist.CLIENT)
 public final class DefaultGraphics implements Graphics {
     private final Stack<GraphicsState> stateStack = new Stack<>();
-    private DefaultFontRenderer fontRenderer;
+    private final DefaultFontRenderer fontRenderer = new DefaultFontRenderer(this);
     private GraphicsContext context;
 
     public DefaultGraphics() {
         stateStack.push(new DefaultGraphicsState(this));
-    }
-
-    @Internal
-    public void init() {
-        fontRenderer = new DefaultFontRenderer(this);
     }
 
     @Override

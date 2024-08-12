@@ -33,6 +33,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.lwjgl.util.msdfgen.MSDFGen;
@@ -50,21 +51,7 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     private final Graphics graphics;
 
     // @formatter:off
-    private static final ShaderProgram SHADER = DefaultShaderFactory.INSTANCE.create(builder -> builder
-        .shader(object -> object
-            .type(ShaderType.VERTEX)
-            .location(Constants.MODID, "shaders/font.vert.glsl")
-            .defaultPreProcessor()
-        )
-        .shader(object -> object
-            .type(ShaderType.FRAGMENT)
-            .location(Constants.MODID, "shaders/font.frag.glsl")
-            .defaultPreProcessor()
-        )
-        .sampler("Sampler0", 0)
-        .defaultUniforms()
-        .uniform("PxRange", DefaultUniformType.FLOAT)
-    );
+    private static ShaderProgram shader;
     private static final Function<FontAtlasContext, RenderType> RENDER_TYPE = Util.memoize(ctx -> {
         final var fontAtlas = ctx.atlas;
         final var fontLocation = fontAtlas.getFont().getLocation();
@@ -72,7 +59,7 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
             DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
             RenderType.CompositeState.builder()
                 .setCullState(RenderStateShard.NO_CULL)
-                .setShaderState(SHADER.asStateShard())
+                .setShaderState(shader.asStateShard())
                 .setOutputState(ctx.displayMode.getOutputState())
                 .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
                 .setTexturingState(RenderStateShard.DEFAULT_TEXTURING)
@@ -80,8 +67,8 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
                 .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
                 .setTextureState(new EmptyTextureStateShard(
                     () -> {
-                        SHADER.setSampler("Sampler0", fontAtlas.getTextureId());
-                        final var uniformCache = SHADER.getUniformCache();
+                        shader.setSampler("Sampler0", fontAtlas.getTextureId());
+                        final var uniformCache = shader.getUniformCache();
                         final var range = fontAtlas.getSDFRange() * ctx.atlas.getFont().getFamily().getDistanceFieldRange();
                         uniformCache.getFloat("PxRange").setFloat((ctx.scale / fontAtlas.getSpriteSize()) * range);
                     },
@@ -96,6 +83,25 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
         this.graphics = graphics;
         ((ReloadableResourceManager) Minecraft.getInstance().getResourceManager()).registerReloadListener(this);
     }
+
+    @Internal
+    public static void createShaders() { // @formatter:off
+        shader = DefaultShaderFactory.INSTANCE.create(builder -> builder
+            .shader(object -> object
+                .type(ShaderType.VERTEX)
+                .location(Constants.MODID, "shaders/font.vert.glsl")
+                .defaultPreProcessor()
+            )
+            .shader(object -> object
+                .type(ShaderType.FRAGMENT)
+                .location(Constants.MODID, "shaders/font.frag.glsl")
+                .defaultPreProcessor()
+            )
+            .sampler("Sampler0", 0)
+            .defaultUniforms()
+            .uniform("PxRange", DefaultUniformType.FLOAT)
+        );
+    } // @formatter:on
 
     private float renderGlyph(final float x, final float y, final int zIndex, final char c, final FontVariant font,
                               final Matrix4f matrix, final VertexConsumer buffer, final ColorProvider colorProvider) {

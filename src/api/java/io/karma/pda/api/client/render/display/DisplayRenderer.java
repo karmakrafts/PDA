@@ -4,6 +4,7 @@
 
 package io.karma.pda.api.client.render.display;
 
+import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.display.DisplayModeSpec;
 import io.karma.pda.api.display.DisplayResolution;
 import net.minecraft.world.item.ItemStack;
@@ -18,6 +19,8 @@ import java.util.Optional;
  */
 @OnlyIn(Dist.CLIENT)
 public interface DisplayRenderer {
+    Graphics getGraphics();
+
     float getGlitchFactor();
 
     DisplayMode getDisplayMode(final DisplayModeSpec modeSpec);
