@@ -6,6 +6,7 @@ package io.karma.pda.mod.client.flex;
 
 import io.karma.pda.api.dispose.Disposable;
 import io.karma.pda.api.flex.*;
+import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -36,7 +37,7 @@ public final class ClientFlexNode implements FlexNode, Disposable {
         if (address == MemoryUtil.NULL) {
             throw new IllegalStateException("Could not allocate layout node");
         }
-        PDAMod.LOGGER.debug("Allocated flex node at {}", String.format("0x%08X", address));
+        PDAMod.LOGGER.debug(LogMarkers.FLEX, "Allocated flex node at {}", String.format("0x%08X", address));
     }
 
     @Override
@@ -479,7 +480,7 @@ public final class ClientFlexNode implements FlexNode, Disposable {
             }
             disposable.dispose();
         }
-        PDAMod.LOGGER.debug("Freeing flex node at {}", String.format("0x%08X", address));
+        PDAMod.LOGGER.debug(LogMarkers.FLEX, "Freeing flex node at {}", String.format("0x%08X", address));
         Yoga.YGNodeFree(address);
         isDisposed = true;
     }

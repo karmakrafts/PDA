@@ -44,11 +44,11 @@ public final class DefaultDisplayBlitter implements DisplayBlitter {
         this.mode = mode;
         // @formatter:off
         renderType = RenderType.create(String.format("%s:display_blit_%s", Constants.MODID, mode.getSpec().name()),
-            DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 6, false, false,
+            DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL, VertexFormat.Mode.TRIANGLES, 6, false, false,
             RenderType.CompositeState.builder()
-                .setCullState(RenderStateShard.CULL)
+                .setCullState(RenderStateShard.NO_CULL)
                 .setShaderState(DefaultShaderFactory.INSTANCE.create(builder -> builder
-                    .format(DefaultVertexFormat.POSITION_TEX_COLOR)
+                    .format(DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL)
                     .shader(object -> object
                         .type(ShaderType.VERTEX)
                         .location(Constants.MODID, "shaders/display_blit.vert.glsl")
@@ -67,28 +67,25 @@ public final class DefaultDisplayBlitter implements DisplayBlitter {
                     .defaultUniforms() // ProjMat, ModelViewMat, ColorModulator
                     .uniform("Time", DefaultUniformType.FLOAT)
                     .uniform("GlitchFactor", DefaultUniformType.FLOAT)
-                    .sampler("Sampler0", 0) // Actual framebuffer texture
-                    .sampler("Sampler1", 1) // Pixel filter texture
+                    .sampler("Sampler0", mode.getFramebuffer()::getColorTexture)
+                    .sampler("Sampler1", PIXEL_TEXTURE) // Pixel filter texture
                     .onBind(program -> {
-                        program.setSampler("Sampler0", mode.getFramebuffer().getColorTexture());
-                        program.setSampler("Sampler1", PIXEL_TEXTURE);
                         final var uniformCache = program.getUniformCache();
                         uniformCache.getFloat("Time").setFloat(ClientEventHandler.INSTANCE.getShaderTime());
                         uniformCache.getFloat("GlitchFactor").setFloat(glitchFactorSupplier.get());
                     })).asStateShard())
-                .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
                 .createCompositeState(false));
         // @formatter:on
     }
 
     @Override
     public void blit(final Matrix4f matrix, final VertexConsumer consumer) {
-        consumer.vertex(matrix, MIN_X, MIN_Y, OFFSET_Z).uv(0F, 0F).color(-1).endVertex();
-        consumer.vertex(matrix, MAX_X, MIN_Y, OFFSET_Z).uv(1F, 0F).color(-1).endVertex();
-        consumer.vertex(matrix, MIN_X, MAX_Y, OFFSET_Z).uv(0F, 1F).color(-1).endVertex();
-        consumer.vertex(matrix, MAX_X, MIN_Y, OFFSET_Z).uv(1F, 0F).color(-1).endVertex();
-        consumer.vertex(matrix, MAX_X, MAX_Y, OFFSET_Z).uv(1F, 1F).color(-1).endVertex();
-        consumer.vertex(matrix, MIN_X, MAX_Y, OFFSET_Z).uv(0F, 1F).color(-1).endVertex();
+        consumer.vertex(matrix, MIN_X, MIN_Y, OFFSET_Z).uv(0F, 0F).color(-1).normal(0F, 0F, -1F).endVertex();
+        consumer.vertex(matrix, MAX_X, MIN_Y, OFFSET_Z).uv(1F, 0F).color(-1).normal(0F, 0F, -1F).endVertex();
+        consumer.vertex(matrix, MIN_X, MAX_Y, OFFSET_Z).uv(0F, 1F).color(-1).normal(0F, 0F, -1F).endVertex();
+        consumer.vertex(matrix, MAX_X, MIN_Y, OFFSET_Z).uv(1F, 0F).color(-1).normal(0F, 0F, -1F).endVertex();
+        consumer.vertex(matrix, MAX_X, MAX_Y, OFFSET_Z).uv(1F, 1F).color(-1).normal(0F, 0F, -1F).endVertex();
+        consumer.vertex(matrix, MIN_X, MAX_Y, OFFSET_Z).uv(0F, 1F).color(-1).normal(0F, 0F, -1F).endVertex();
     }
 
     @Override

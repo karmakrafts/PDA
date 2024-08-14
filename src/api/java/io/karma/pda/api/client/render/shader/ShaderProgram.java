@@ -33,7 +33,7 @@ public interface ShaderProgram extends Disposable {
 
     void setSampler(final String name, final ResourceLocation location);
 
-    int getSampler(final String name);
+    Sampler getSampler(final String name);
 
     VertexFormat getVertexFormat();
 

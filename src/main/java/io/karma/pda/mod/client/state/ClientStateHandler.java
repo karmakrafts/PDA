@@ -12,7 +12,6 @@ import io.karma.pda.api.state.State;
 import io.karma.pda.api.state.StateHandler;
 import io.karma.pda.api.state.StateReflector;
 import io.karma.pda.api.util.Identifiable;
-import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.network.sb.SPacketSyncValues;
 import io.karma.pda.mod.state.DefaultStateReflector;
@@ -40,7 +39,6 @@ public final class ClientStateHandler implements StateHandler {
     private final Session session;
 
     public ClientStateHandler(final Session session) {
-        super();
         this.session = session;
     }
 
@@ -124,12 +122,12 @@ public final class ClientStateHandler implements StateHandler {
                     .collect(Collectors.toMap(State::getName, s -> s))))
                 .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
             // @formatter:on
-            PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Synchronizing {} changed values", values.size());
+            PDAMod.LOGGER.debug("Synchronizing {} changed values", values.size());
             Minecraft.getInstance().execute(() -> PDAMod.CHANNEL.sendToServer(new SPacketSyncValues(session.getId(),
                 values)));
             return (Void) null;
         }, PDAMod.EXECUTOR_SERVICE).exceptionally(error -> {
-            PDAMod.LOGGER.error(LogMarkers.PROTOCOL, "Could not flush UI state", error);
+            PDAMod.LOGGER.error("Could not flush UI state", error);
             return null;
         });
     }

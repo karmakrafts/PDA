@@ -14,6 +14,7 @@ import io.karma.pda.api.client.render.display.DisplayRenderer;
 import io.karma.pda.api.client.render.display.Framebuffer;
 import io.karma.pda.api.display.DisplayModeSpec;
 import io.karma.pda.api.display.DisplayResolution;
+import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.render.graphics.DefaultGraphics;
 import io.karma.pda.mod.client.render.graphics.DefaultGraphicsContext;
@@ -37,10 +38,12 @@ import java.util.Optional;
 public final class DefaultDisplayRenderer implements DisplayRenderer {
     public static final DefaultDisplayRenderer INSTANCE = new DefaultDisplayRenderer();
 
-    private final BufferBuilder blitBuilder = new BufferBuilder(48);
-    private final MultiBufferSource.BufferSource blitBufferSource = MultiBufferSource.immediate(blitBuilder);
+    private final BufferBuilder blitBuffer = new BufferBuilder(128);
+    private final HashMap<RenderType, BufferBuilder> blitBuilders = new HashMap<>();
+    private final MultiBufferSource.BufferSource blitBufferSource = MultiBufferSource.immediateWithBuffers(blitBuilders,
+        blitBuffer);
     private final HashMap<RenderType, BufferBuilder> displayBuilders = new HashMap<>();
-    private final BufferBuilder displayBuilder = new BufferBuilder(10000);
+    private final BufferBuilder displayBuilder = new BufferBuilder(100000);
     private final MultiBufferSource.BufferSource displayBufferSource = MultiBufferSource.immediateWithBuffers(
         displayBuilders,
         displayBuilder);
@@ -60,7 +63,7 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
         if (displayModes.containsKey(modeSpec)) {
             return;
         }
-        PDAMod.LOGGER.debug("Creating display mode {}", modeSpec);
+        PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Creating display mode {}", modeSpec);
         displayModes.put(modeSpec,
             new DefaultDisplayMode(modeSpec, getFramebuffer(modeSpec.resolution()), this::getGlitchFactor));
     }

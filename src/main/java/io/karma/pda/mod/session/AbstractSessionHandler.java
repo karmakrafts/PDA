@@ -6,7 +6,6 @@ package io.karma.pda.mod.session;
 
 import io.karma.pda.api.session.Session;
 import io.karma.pda.api.session.SessionHandler;
-import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -56,17 +55,17 @@ public abstract class AbstractSessionHandler implements SessionHandler {
     @Internal
     public void addActiveSession(final UUID sessionId, final Session session) {
         if (activeSessions.containsKey(sessionId)) {
-            PDAMod.LOGGER.warn(LogMarkers.PROTOCOL, "Session {} already exists, ignoring", sessionId);
+            PDAMod.LOGGER.warn("Session {} already exists, ignoring", sessionId);
             return;
         }
         activeSessions.put(sessionId, session);
-        PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Added active session {}", sessionId);
+        PDAMod.LOGGER.debug("Added active session {}", sessionId);
     }
 
     @Internal
     public void removeActiveSession(final UUID sessionId) {
         activeSessions.remove(sessionId);
-        PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Removed active session {}", sessionId);
+        PDAMod.LOGGER.debug("Removed active session {}", sessionId);
     }
 
     @Internal

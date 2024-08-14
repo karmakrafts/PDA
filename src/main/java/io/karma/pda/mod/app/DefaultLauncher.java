@@ -11,9 +11,7 @@ import io.karma.pda.api.app.component.Component;
 import io.karma.pda.api.app.component.Container;
 import io.karma.pda.api.session.Session;
 import io.karma.pda.api.util.Exceptions;
-import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
-import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -55,31 +53,6 @@ public final class DefaultLauncher implements Launcher {
                 app.getType().getName(),
                 session.getId(),
                 Exceptions.toFancyString(error));
-        }
-    }
-
-    @Internal
-    public <A extends App> A openNow(final AppType<A> type) {
-        final var app = type.create();
-        tryCompose(app);
-        synchronized (appStackLock) {
-            appStack.push(app); // Push app when composed initially
-        }
-        registerSyncedFields(app);
-        return app;
-    }
-
-    @Internal
-    public void addOpenApp(final App app) {
-        synchronized (appStackLock) {
-            appStack.push(app);
-        }
-    }
-
-    @Internal
-    public void removeOpenApp(final App app) {
-        synchronized (appStackLock) {
-            appStack.remove(app);
         }
     }
 
@@ -132,7 +105,7 @@ public final class DefaultLauncher implements Launcher {
             if (appStack.isEmpty()) {
                 return CompletableFuture.completedFuture(null);
             }
-            PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Closing app {}", type.getName());
+            PDAMod.LOGGER.debug("Closing app {}", type.getName());
             App toRemove = null;
             for (final var app : appStack) {
                 if (app.getType() != type) {
@@ -160,7 +133,7 @@ public final class DefaultLauncher implements Launcher {
                 }
                 return CompletableFuture.completedFuture(null);
             }
-            PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Opening app {}", type.getName());
+            PDAMod.LOGGER.debug("Opening app {}", type.getName());
             final var app = type.create();
             tryCompose(app);
             tryInit(app);

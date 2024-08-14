@@ -53,15 +53,13 @@ public final class MSDFFont implements AutoCloseable {
             MemoryUtil.memASCII(nameAddress))));
     }
 
-    private final InputStream stream;
     private final long library; // FT_Library
+    private final long faceDataAddress;
     private final FT_Face face;
     private final long font; // msdf_ft_font_handle
     private final List<FontVariationAxis> variationAxes;
 
     public MSDFFont(final InputStream stream) throws IOException {
-        this.stream = stream;
-
         try (final var stack = MemoryStack.stackPush()) {
             final var ftAddressBuffer = stack.mallocPointer(1);
 
@@ -73,10 +71,11 @@ public final class MSDFFont implements AutoCloseable {
 
             // Create the font face and load it
             final var data = stream.readAllBytes();
+            stream.close(); // Close stream when we're done reading
             final var dataSize = data.length;
-            final var dataAddress = MemoryUtil.nmemAlloc(dataSize);
-            MemoryUtils.wrap(dataAddress, dataSize).put(data);
-            PDAMod.LOGGER.debug("Created font memory at 0x{}", Long.toHexString(dataAddress));
+            faceDataAddress = Checks.check(MemoryUtil.nmemAlloc(dataSize));
+            MemoryUtils.wrap(faceDataAddress, dataSize).put(data);
+            PDAMod.LOGGER.debug("Created font memory at 0x{}", Long.toHexString(faceDataAddress));
 
             final var resultBuffer = stack.mallocInt(1);
             final var faceAddressBuffer = stack.mallocPointer(1);
@@ -86,13 +85,12 @@ public final class MSDFFont implements AutoCloseable {
                 MemoryUtil.memByteBuffer(resultBuffer),
                 stack.pointers(
                     stack.pointers(library).address(),
-                    stack.pointers(dataAddress).address(),
+                    stack.pointers(faceDataAddress).address(),
                     MemoryUtil.memAddress(stack.longs(dataSize)),
                     MemoryUtil.memAddress(stack.longs(0)),
                     stack.pointers(faceAddressBuffer.address()).address()
                 ));
             // @formatter:on
-            MemoryUtil.nmemFree(dataAddress); // Free heap memory for file contents
             if (resultBuffer.get() != FreeType.FT_Err_Ok) {
                 throw new IllegalStateException("Could not create FreeType face");
             }
@@ -183,11 +181,12 @@ public final class MSDFFont implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        stream.close();
         MSDFGenExt.msdf_ft_font_destroy(font);
         PDAMod.LOGGER.debug("Freed font instance at 0x{}", Long.toHexString(font));
         FreeType.FT_Done_Face(face);
         PDAMod.LOGGER.debug("Freed font face instance at 0x{}", Long.toHexString(face.address()));
+        MemoryUtil.nmemFree(faceDataAddress);
+        PDAMod.LOGGER.debug("Freed font face data at 0x{}", Long.toHexString(faceDataAddress));
         FreeType.FT_Done_FreeType(library);
         PDAMod.LOGGER.debug("Freed FreeType instance at 0x{}", Long.toHexString(library));
     }

@@ -9,6 +9,7 @@
 in vec3 Position;// position
 in vec2 UV0;// uv
 in vec4 Color;// color
+in vec3 Normal;// normal
 
 uniform mat4 ModelViewMat;// model_view_matrix
 uniform mat4 ProjMat;// projection_matrix

@@ -6,7 +6,6 @@ package io.karma.pda.mod.state;
 
 import io.karma.pda.api.state.Reflector;
 import io.karma.pda.api.state.StateReflector;
-import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -28,7 +27,7 @@ public final class Reflectors {
                 throw new IllegalStateException("Missing @Reflector annotation");
             }
             final var annotation = reflectorType.getAnnotation(Reflector.class);
-            PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Initialized state reflector {} for @{}", reflector, annotation.value().getName());
+            PDAMod.LOGGER.debug("Initialized state reflector {} for @{}", reflector, annotation.value().getName());
             return Pair.of(annotation.value(), reflector);
         })
         .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));

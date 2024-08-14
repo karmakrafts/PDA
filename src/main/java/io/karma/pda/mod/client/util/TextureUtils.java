@@ -14,8 +14,6 @@ import org.lwjgl.opengl.GL11;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.file.Files;
 
 /**
@@ -39,13 +37,9 @@ public final class TextureUtils {
         return id;
     }
 
-    public static ByteBuffer toBuffer(final BufferedImage image) {
+    public static int[] toArray(final BufferedImage image) {
         final var width = image.getWidth();
-        final var data = image.getRGB(0, 0, width, image.getHeight(), null, 0, width);
-        final var buffer = ByteBuffer.allocateDirect(data.length << 2).order(ByteOrder.nativeOrder());
-        buffer.asIntBuffer().put(data);
-        buffer.flip();
-        return buffer;
+        return image.getRGB(0, 0, width, image.getHeight(), null, 0, width);
     }
 
     public static void dump(final BufferedImage image, final ResourceLocation location) {

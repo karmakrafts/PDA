@@ -7,6 +7,7 @@ package io.karma.pda.mod.client.render.shader;
 import io.karma.pda.api.client.render.shader.ShaderObject;
 import io.karma.pda.api.client.render.shader.ShaderPreProcessor;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
+import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.api.util.ToBooleanBiFunction;
 import io.karma.pda.mod.PDAMod;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -128,24 +129,27 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
             ResourceLocation targetLocation;
             final var relativePath = matcher.group(8);
             if (relativePath != null) { // We have a relative include path
-                PDAMod.LOGGER.debug("Processing relative include '{}' in {}", relativePath, location);
+                PDAMod.LOGGER.debug(LogMarkers.RENDERER,
+                    "Processing relative include '{}' in {}",
+                    relativePath,
+                    location);
                 final var parentPath = getParentPath(location.getPath());
                 final var joinedPath = String.format("%s/%s", parentPath, relativePath);
                 targetLocation = new ResourceLocation(location.getNamespace(), resolveRelativePath(joinedPath));
             }
             else {
                 final var path = matcher.group(4); // Otherwise grab the absolute one
-                PDAMod.LOGGER.debug("Processing absolute include '{}' in {}", path, location);
+                PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Processing absolute include '{}' in {}", path, location);
                 targetLocation = ResourceLocation.tryParse(path);
                 if (targetLocation == null) {
                     throw new IllegalStateException(String.format("Malformed include location '%s'", path));
                 }
             }
             if (includedLocations.contains(targetLocation)) {
-                PDAMod.LOGGER.debug("Include from {} already expanded, skipping", targetLocation);
+                PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Include from {} already expanded, skipping", targetLocation);
                 return true;
             }
-            PDAMod.LOGGER.debug("Loading include from {}", targetLocation);
+            PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Loading include from {}", targetLocation);
             currentBuffer.replace(matcher.start(),
                 matcher.end(),
                 expandIncludesRecursively(targetLocation, loader.apply(targetLocation), loader, includedLocations));
@@ -168,7 +172,7 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
             final var replacement = new StringBuilder();
             final var type = matcher.group(3);
             final var name = matcher.group(4);
-            PDAMod.LOGGER.debug("Processing constant '{}' in {}", name, location);
+            PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Processing constant '{}' in {}", name, location);
             replacement.append(String.format("const %s %s", type, name));
             final var defaultValue = matcher.group(6);
             final var value = constants.get(name);

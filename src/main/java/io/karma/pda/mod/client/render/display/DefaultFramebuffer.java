@@ -7,12 +7,15 @@ package io.karma.pda.mod.client.render.display;
 import io.karma.pda.api.client.render.display.Framebuffer;
 import io.karma.pda.api.display.DisplayResolution;
 import io.karma.pda.api.dispose.Disposable;
+import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.util.TextureUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
+
+import java.util.Objects;
 
 /**
  * @author Alexander Hinze
@@ -35,6 +38,11 @@ public final class DefaultFramebuffer implements Framebuffer, Disposable {
         id = GL30.glGenFramebuffers();
         resize(resolution.getWidth(), resolution.getHeight());
         PDAMod.DISPOSITION_HANDLER.addObject(this);
+        PDAMod.LOGGER.debug(LogMarkers.RENDERER,
+            "Created display framebuffer {}, color={}, depth={}",
+            id,
+            textureId,
+            depthTextureId);
     }
 
     @Override
@@ -61,6 +69,9 @@ public final class DefaultFramebuffer implements Framebuffer, Disposable {
         GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, GL11.GL_TEXTURE_2D,
             depthTextureId, 0);
         // @formatter:on
+        if (GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER) != GL30.GL_FRAMEBUFFER_COMPLETE) {
+            PDAMod.LOGGER.error("Could not create framebuffer");
+        }
         unbind();
         // Update internal size
         this.width = width;
@@ -114,6 +125,11 @@ public final class DefaultFramebuffer implements Framebuffer, Disposable {
     @Override
     public int getHeight() {
         return height;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(textureId, depthTextureId, width, height);
     }
 
     @Override

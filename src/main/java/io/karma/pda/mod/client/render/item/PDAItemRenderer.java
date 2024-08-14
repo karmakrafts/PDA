@@ -9,7 +9,6 @@ import io.karma.pda.mod.client.ClientEventHandler;
 import io.karma.pda.mod.client.event.ItemRenderEvent;
 import io.karma.pda.mod.client.interaction.PDAInteractionHandler;
 import io.karma.pda.mod.client.render.display.DefaultDisplayRenderer;
-import io.karma.pda.mod.client.render.model.CompositeBakedModel;
 import io.karma.pda.mod.init.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -27,7 +26,6 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 @OnlyIn(Dist.CLIENT)
 public final class PDAItemRenderer {
     public static final PDAItemRenderer INSTANCE = new PDAItemRenderer();
-    private CompositeBakedModel model;
 
     @Internal
     public void setup() {
@@ -45,7 +43,7 @@ public final class PDAItemRenderer {
         final var game = Minecraft.getInstance();
         final var itemRenderer = game.getItemRenderer();
         final var bufferSource = event.getBufferSource();
-        final var buffer = bufferSource.getBuffer(RenderType.translucent());
+        final var buffer = bufferSource.getBuffer(RenderType.solid());
         final var poseStack = event.getPoseStack();
         final var displayContext = event.getDisplayContext();
         final var packedLight = event.getPackedLight();

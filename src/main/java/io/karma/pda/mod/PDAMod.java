@@ -83,7 +83,7 @@ import java.util.concurrent.TimeUnit;
 @Mod(Constants.MODID)
 public class PDAMod {
     public static final Logger LOGGER = LogManager.getLogger();
-    public static final ExecutorService EXECUTOR_SERVICE = Executors.newWorkStealingPool();
+    public static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
     public static final DispositionHandler DISPOSITION_HANDLER = new DispositionHandler(PDAMod::handleDisposition);
 
     // @formatter:off

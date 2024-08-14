@@ -7,18 +7,21 @@ package io.karma.pda.mod.client.render.shader;
 import com.mojang.blaze3d.shaders.Program;
 import com.mojang.blaze3d.shaders.Shader;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import io.karma.pda.api.client.render.shader.Sampler;
 import io.karma.pda.api.client.render.shader.ShaderObject;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.ShaderType;
-import io.karma.pda.api.client.render.shader.uniform.DefaultUniformType;
 import io.karma.pda.api.client.render.shader.uniform.Uniform;
 import io.karma.pda.api.client.render.shader.uniform.UniformCache;
 import io.karma.pda.api.util.Exceptions;
+import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.hook.ExtendedRenderSystem;
 import io.karma.pda.mod.client.hook.ExtendedShader;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.resources.ResourceLocation;
@@ -28,9 +31,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterShadersEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.function.IntSupplier;
 
 /**
  * @author Alexander Hinze
@@ -52,32 +54,32 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     private final Consumer<ShaderProgram> bindCallback;
     private final Consumer<ShaderProgram> unbindCallback;
     private final DefaultUniformCache uniformCache;
-    private final Object2IntLinkedOpenHashMap<String> samplers;
-    private final int[] samplerTextures;
+    private final Object2IntOpenHashMap<String> samplerIds;
+    private final Int2ObjectArrayMap<Sampler> samplers;
+    private final ArrayList<Sampler> dynamicSamplers = new ArrayList<>();
     private final HashMap<String, Object> constants;
     private final Object2IntLinkedOpenHashMap<String> defines;
     private final HashMap<ShaderObject, ProgramAdaptor> adaptorCache = new HashMap<>();
     private final AtomicBoolean isLinked = new AtomicBoolean(false);
     private final AtomicBoolean isRelinkRequested = new AtomicBoolean(false);
     private final ExtendedShaderAdaptor extendedShaderAdaptor = new ExtendedShaderAdaptor();
-    private int previousTextureUnit;
     private boolean isBound;
 
     DefaultShaderProgram(final VertexFormat vertexFormat, final ArrayList<DefaultShaderObject> objects,
-                         final HashMap<String, Uniform> uniforms, final @Nullable Consumer<ShaderProgram> bindCallback,
-                         final @Nullable Consumer<ShaderProgram> unbindCallback,
-                         final Object2IntLinkedOpenHashMap<String> samplers, final HashMap<String, Object> constants,
-                         final Object2IntLinkedOpenHashMap<String> defines) {
+                         final HashMap<String, Uniform> uniforms, Consumer<ShaderProgram> bindCallback,
+                         final Consumer<ShaderProgram> unbindCallback, final Object2IntOpenHashMap<String> samplerIds,
+                         final HashMap<String, Object> constants, final Object2IntLinkedOpenHashMap<String> defines,
+                         final Int2ObjectArrayMap<IntSupplier> staticSamplers) {
         this.vertexFormat = vertexFormat;
         this.objects = objects;
         this.bindCallback = bindCallback;
         this.unbindCallback = unbindCallback;
-        this.samplers = samplers;
-        samplerTextures = new int[samplers.size()]; // Pre-allocate sampler texture buffer
+        this.samplerIds = samplerIds;
+        samplers = new Int2ObjectArrayMap<>(samplerIds.size()); // Pre-allocate sampler texture buffer
         this.constants = constants;
         this.defines = defines;
-
         id = GL20.glCreateProgram();
+        uniformCache = new DefaultUniformCache(this, uniforms);
         setupAttributes();
         PDAMod.DISPOSITION_HANDLER.addObject(this);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::reload);
@@ -86,13 +88,34 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         for (final var object : objects) {
             object.attach(this);
         }
-        // Set up uniform cache with combined samplers
-        final var combinedUniforms = new HashMap<>(uniforms);
-        for (final var sampler : samplers.object2IntEntrySet()) {
-            final var samplerName = sampler.getKey();
-            combinedUniforms.put(samplerName, DefaultUniformType.INT.create(samplerName, sampler.getIntValue()));
+
+        // Set up static samplers
+        for (final var sampler : staticSamplers.int2ObjectEntrySet()) {
+            final var samplerId = sampler.getIntKey();
+            final var textureId = sampler.getValue();
+            // @formatter:off
+            final var name = samplerIds.object2IntEntrySet()
+                .stream()
+                .filter(e -> e.getIntValue() == samplerId)
+                .findFirst()
+                .map(Map.Entry::getKey)
+                .orElseThrow();
+            // @formatter:on
+            samplers.put(samplerId, StaticSampler.create(samplerId, name, textureId));
         }
-        uniformCache = new DefaultUniformCache(this, combinedUniforms);
+
+        // Set up dynamic samplers
+        for (final var sampler : samplerIds.object2IntEntrySet()) {
+            final var samplerId = sampler.getIntValue();
+            if (staticSamplers.containsKey(samplerId)) {
+                continue; // We don't want to process the static samplers
+            }
+            final var samplerInstance = new DynamicSampler(samplerId, sampler.getKey());
+            samplers.put(samplerId, samplerInstance);
+            dynamicSamplers.add(samplerInstance);
+        }
+
+        PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Created {} sampler objects for program {}", samplers.size(), id);
     }
 
     private void reload(final RegisterShadersEvent event) {
@@ -105,7 +128,11 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         for (var i = 0; i < attribs.size(); i++) {
             final var attrib = attribs.get(i);
             GL20.glBindAttribLocation(id, i, attrib);
-            PDAMod.LOGGER.debug("Bound vertex format attribute {}={} for program {}", attrib, i, id);
+            PDAMod.LOGGER.debug(LogMarkers.RENDERER,
+                "Bound vertex format attribute {}={} for program {}",
+                attrib,
+                i,
+                id);
         }
     }
 
@@ -121,19 +148,23 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public void setSampler(final String name, final int textureId) {
-        samplerTextures[samplers.getInt(name)] = textureId;
+        final var sampler = getSampler(name);
+        if (!(sampler instanceof DynamicSampler dynamicSampler)) {
+            throw new IllegalArgumentException(String.format("Sampler '%s' is not dynamic", name));
+        }
+        dynamicSampler.setTextureId(() -> textureId);
     }
 
     @Override
     public void setSampler(final String name, final ResourceLocation location) {
-        final var textureManager = Minecraft.getInstance().getTextureManager();
-        final var texture = textureManager.getTexture(location);
-        samplerTextures[samplers.getInt(name)] = texture.getId();
+        final var manager = Minecraft.getInstance().getTextureManager();
+        final var texture = manager.getTexture(location);
+        setSampler(name, texture.getId());
     }
 
     @Override
-    public int getSampler(final String name) {
-        return samplerTextures[samplers.getInt(name)];
+    public Sampler getSampler(final String name) {
+        return samplers.get(samplerIds.getInt(name));
     }
 
     @Override
@@ -158,24 +189,17 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public void unbind() {
-        if (!isBound) {
-            return;
-        }
-        if (!isLinked.get()) {
+        if (!isBound || !isLinked.get()) {
             return;
         }
         for (final var object : objects) {
             object.onUnbindProgram(this);
         }
-        if (unbindCallback != null) {
-            unbindCallback.accept(this);
-        }
+        unbindCallback.accept(this);
         // Unbind/disable samplers
-        for (final var sampler : samplers.values()) {
-            GL13.glActiveTexture(GL13.GL_TEXTURE0 + sampler);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+        for (final var sampler : dynamicSamplers) {
+            sampler.unbind(this);
         }
-        GL13.glActiveTexture(previousTextureUnit);
         GL20.glUseProgram(0);
         isBound = false;
     }
@@ -185,33 +209,30 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         if (isBound) {
             return;
         }
-        if (isRelinkRequested.compareAndSet(true, false)) {
-            relink(Minecraft.getInstance().getResourceManager());
-        }
         if (!isLinked.get()) {
+            if (isRelinkRequested.compareAndSet(true, false)) {
+                relink(Minecraft.getInstance().getResourceManager());
+            }
             return;
         }
         for (final var object : objects) {
             object.onBindProgram(this);
         }
         GL20.glUseProgram(id);
-        if (bindCallback != null) {
-            bindCallback.accept(this);
+        // Bind/enable samplers
+        for (final var sampler : dynamicSamplers) {
+            sampler.bind(this);
         }
+        bindCallback.accept(this);
         // Update uniforms
         uniformCache.applyAll();
-        // Bind/enable samplers
-        previousTextureUnit = GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE);
-        for (final var sampler : samplers.values()) {
-            GL13.glActiveTexture(GL13.GL_TEXTURE0 + sampler);
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, samplerTextures[sampler]);
-        }
         isBound = true;
     }
 
     @Override
     public void dispose() {
         isLinked.set(false);
+        // Detach and free all shader objects
         for (final var object : objects) {
             final var objectId = object.getId();
             GL20.glDetachShader(id, objectId);
@@ -277,6 +298,9 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
                 }
                 uniformCache.clear();
                 uniformCache.updateAll(); // Flag all uniforms to be re-applied statically
+                for (final var sampler : samplers.values()) {
+                    sampler.setup(this);
+                }
                 isLinked.set(true);
             }));
         // @formatter:on

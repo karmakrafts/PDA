@@ -11,7 +11,6 @@ import io.karma.pda.api.client.render.app.AppRenderers;
 import io.karma.pda.api.session.Session;
 import io.karma.pda.api.session.SessionContext;
 import io.karma.pda.api.state.StateHandler;
-import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.app.ClientLauncher;
 import io.karma.pda.mod.client.state.ClientStateHandler;
@@ -67,7 +66,7 @@ public final class ClientSession implements Session {
 
     @Override
     public void onEstablished() {
-        PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Established session {} on client", id);
+        PDAMod.LOGGER.debug("Established session {} on client", id);
     }
 
     @SuppressWarnings("unchecked")
@@ -77,6 +76,6 @@ public final class ClientSession implements Session {
         for (final var app : launcher.getOpenApps()) {
             Minecraft.getInstance().execute(() -> AppRenderers.get((AppType<App>) app.getType()).dispose(app));
         }
-        PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Terminated session {} on client", id);
+        PDAMod.LOGGER.debug("Terminated session {} on client", id);
     }
 }

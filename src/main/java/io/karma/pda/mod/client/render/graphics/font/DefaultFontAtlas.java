@@ -19,8 +19,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GL33;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.msdfgen.MSDFGen;
@@ -99,16 +97,22 @@ public final class DefaultFontAtlas implements FontAtlas {
 
     private void uploadTexture(final BufferedImage image) {
         bind();
-        final var w = image.getWidth();
-        final var h = image.getHeight();
-        final var buffer = TextureUtils.toBuffer(image);
-        PDAMod.LOGGER.debug("Uploading {} bytes of texture data", buffer.capacity());
-        try (final var stack = MemoryStack.stackPush()) {
-            GL11.glTexParameteriv(GL11.GL_TEXTURE_2D,
-                GL33.GL_TEXTURE_SWIZZLE_RGBA,
-                stack.ints(GL11.GL_BLUE, GL11.GL_GREEN, GL11.GL_RED, GL11.GL_ALPHA));
-        }
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, w, h, 0, GL12.GL_BGRA, GL11.GL_UNSIGNED_BYTE, buffer);
+        final var data = TextureUtils.toArray(image);
+        // TODO: FIXME
+        //PDAMod.LOGGER.debug("Uploading {} bytes of texture data", data.length << 2);
+        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_R, GL11.GL_BLUE);
+        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_G, GL11.GL_GREEN);
+        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_B, GL11.GL_RED);
+        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_A, GL11.GL_ALPHA);
+        //GL11.glTexImage2D(GL11.GL_TEXTURE_2D,
+        //    0,
+        //    GL30.GL_RGBA8,
+        //    image.getWidth(),
+        //    image.getHeight(),
+        //    0,
+        //    GL30.GL_BGRA,
+        //    GL30.GL_UNSIGNED_INT_8_8_8_8,
+        //    data);
         unbind();
     }
 

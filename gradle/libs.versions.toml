@@ -10,6 +10,8 @@ mixinGradle = "0.7-SNAPSHOT" # https://github.com/SpongePowered/SpongeGradle/rel
 librarian = "1.2.0" # https://github.com/ParchmentMC/Librarian/tags
 shadow = "8.1.1" # https://github.com/johnrengelman/shadow/releases
 dokka = "1.9.20" # https://github.com/Kotlin/dokka/releases
+embeddium = "0.3.30-beta.48+mc1.20.1" # https://maven.blamejared.com/org/embeddedt/
+oculus = "5299671" # https://www.curseforge.com/minecraft/mc-mods/oculus/files/all?page=1&pageSize=20
 
 annotations = "24.1.0" # https://github.com/JetBrains/java-annotations/releases
 jackson = "2.17.2" # https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
@@ -29,6 +31,8 @@ materialColorUtils = { module = "io.karma.material:material-color-utils", versio
 lz4j = { module = "org.lz4:lz4-java", version.ref = "lz4j" }
 junitApi = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junitEngine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+embeddium = { module = "org.embeddedt:embeddium-1.20.1", version.ref = "embeddium" }
+oculus = { module = "curse.maven:oculus-581495", version.ref = "oculus" }
 
 [plugins]
 forgeGradle = { id = "net.minecraftforge.gradle", version.ref = "forgeGradle" }

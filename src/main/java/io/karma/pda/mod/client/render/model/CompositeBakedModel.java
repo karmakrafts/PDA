@@ -35,7 +35,7 @@ import java.util.function.BiFunction;
  * @since 12/08/2024
  */
 @OnlyIn(Dist.CLIENT)
-public class CompositeBakedModel implements BakedModel {
+public final class CompositeBakedModel implements BakedModel {
     private final List<Pair<BakedModel, BiFunction<BakedQuad, Direction, BakedQuad>>> models;
     private final BakedModel delegate;
 

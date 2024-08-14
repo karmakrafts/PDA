@@ -4,6 +4,7 @@
 
 package io.karma.pda.api.dispose;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,9 +44,10 @@ public final class DispositionHandler {
     }
 
     public void disposeAll() {
-        while (!objects.isEmpty()) {
-            callback.accept(objects.remove());
-        }
+        final var sortedObjects = new ArrayList<>(objects);
+        Collections.sort(sortedObjects);
+        sortedObjects.forEach(callback);
+        objects.clear();
         delegatedObjects.clear();
     }
 

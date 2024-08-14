@@ -104,12 +104,12 @@ public final class DefaultDisplayMode implements DisplayMode {
         if (!(obj instanceof DefaultDisplayMode mode)) {
             return false;
         }
-        return mode.spec.equals(spec) && mode.framebuffer == framebuffer;
+        return mode.spec.equals(spec) && framebuffer == mode.framebuffer && blitter == mode.blitter;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(spec, framebuffer);
+        return Objects.hash(spec, framebuffer, blitter);
     }
 
     @Override

@@ -13,7 +13,11 @@ import io.karma.pda.api.client.render.shader.ShaderProgramBuilder;
 import io.karma.pda.api.client.render.shader.uniform.DefaultUniformType;
 import io.karma.pda.api.client.render.shader.uniform.Uniform;
 import io.karma.pda.api.client.render.shader.uniform.UniformType;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
@@ -22,6 +26,7 @@ import org.joml.Vector4f;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.Consumer;
+import java.util.function.IntSupplier;
 
 /**
  * @author Alexander Hinze
@@ -29,14 +34,19 @@ import java.util.function.Consumer;
  */
 @OnlyIn(Dist.CLIENT)
 public final class DefaultShaderProgramBuilder implements ShaderProgramBuilder {
+    private static final Consumer<ShaderProgram> IDENTITY_CALLBACK = program -> {
+    };
+
     private final ArrayList<DefaultShaderObject> objects = new ArrayList<>();
     private final HashMap<String, Uniform> uniforms = new HashMap<>();
     private final HashMap<String, Object> constants = new HashMap<>(); // Don't care about (un)boxing here
-    private final Object2IntLinkedOpenHashMap<String> samplers = new Object2IntLinkedOpenHashMap<>();
+    private final Object2IntOpenHashMap<String> samplers = new Object2IntOpenHashMap<>();
+    private final Int2ObjectArrayMap<IntSupplier> staticSamplers = new Int2ObjectArrayMap<>();
     private final Object2IntLinkedOpenHashMap<String> defines = new Object2IntLinkedOpenHashMap<>();
     private VertexFormat format = DefaultVertexFormat.POSITION;
-    private Consumer<ShaderProgram> bindCallback;
-    private Consumer<ShaderProgram> unbindCallback;
+    private Consumer<ShaderProgram> bindCallback = IDENTITY_CALLBACK;
+    private Consumer<ShaderProgram> unbindCallback = IDENTITY_CALLBACK;
+    private int currentSamplerId;
 
     // @formatter:off
     DefaultShaderProgramBuilder() {}
@@ -50,7 +60,8 @@ public final class DefaultShaderProgramBuilder implements ShaderProgramBuilder {
             unbindCallback,
             samplers,
             constants,
-            defines);
+            defines,
+            staticSamplers);
     }
 
     @Override
@@ -99,12 +110,28 @@ public final class DefaultShaderProgramBuilder implements ShaderProgramBuilder {
     }
 
     @Override
-    public ShaderProgramBuilder sampler(final String name, final int id) {
+    public ShaderProgramBuilder sampler(final String name) {
         if (samplers.containsKey(name)) {
             throw new IllegalArgumentException(String.format("Sampler '%s' is already defined", name));
         }
-        samplers.put(name, id);
+        samplers.put(name, currentSamplerId++);
         return this;
+    }
+
+    @Override
+    public ShaderProgramBuilder sampler(final String name, final IntSupplier textureId) {
+        if (samplers.containsKey(name)) {
+            throw new IllegalArgumentException(String.format("Sampler '%s' is already defined", name));
+        }
+        final var id = currentSamplerId++;
+        samplers.put(name, id);
+        staticSamplers.put(id, textureId);
+        return this;
+    }
+
+    @Override
+    public ShaderProgramBuilder sampler(final String name, final ResourceLocation location) {
+        return sampler(name, () -> Minecraft.getInstance().getTextureManager().getTexture(location).getId());
     }
 
     @Override
@@ -143,7 +170,7 @@ public final class DefaultShaderProgramBuilder implements ShaderProgramBuilder {
 
     @Override
     public ShaderProgramBuilder onBind(final Consumer<ShaderProgram> bindCallback) {
-        if (this.bindCallback == null) {
+        if (this.bindCallback == IDENTITY_CALLBACK) {
             this.bindCallback = bindCallback;
             return this;
         }
@@ -153,7 +180,7 @@ public final class DefaultShaderProgramBuilder implements ShaderProgramBuilder {
 
     @Override
     public ShaderProgramBuilder onUnbind(final Consumer<ShaderProgram> unbindCallback) {
-        if (this.unbindCallback == null) {
+        if (this.unbindCallback == IDENTITY_CALLBACK) {
             this.unbindCallback = unbindCallback;
             return this;
         }

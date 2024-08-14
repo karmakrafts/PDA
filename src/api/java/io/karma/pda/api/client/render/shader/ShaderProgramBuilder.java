@@ -8,10 +8,12 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import io.karma.pda.api.client.ClientAPI;
 import io.karma.pda.api.client.render.shader.uniform.DefaultUniformType;
 import io.karma.pda.api.client.render.shader.uniform.UniformType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.function.Consumer;
+import java.util.function.IntSupplier;
 
 /**
  * @author Alexander Hinze
@@ -27,7 +29,11 @@ public interface ShaderProgramBuilder {
 
     ShaderProgramBuilder defaultUniforms();
 
-    ShaderProgramBuilder sampler(final String name, final int id);
+    ShaderProgramBuilder sampler(final String name);
+
+    ShaderProgramBuilder sampler(final String name, final IntSupplier textureId);
+
+    ShaderProgramBuilder sampler(final String name, final ResourceLocation location);
 
     ShaderProgramBuilder constant(final String name, final int value);
 

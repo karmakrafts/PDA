@@ -110,7 +110,9 @@ val composableCompileOnlyConfig = configurations.getByName("composableCompileOnl
 repositories {
     mavenCentral()
     maven("https://thedarkcolour.github.io/KotlinForForge")
+    maven("https://maven.blamejared.com")
     maven("https://git.karmakrafts.dev/api/v4/projects/267/packages/maven")
+    maven("https://cursemaven.com")
 }
 
 fun DependencyHandlerScope.localLwjglModule(name: String) {
@@ -125,6 +127,8 @@ fun DependencyHandlerScope.localLwjglModule(name: String) {
 dependencies {
     minecraft(libs.minecraftForge)
     implementation(libs.kotlinForForge)
+    //implementation(fg.deobf(libs.embeddium.get().toString()))
+    //implementation(fg.deobf(libs.oculus.get().toString()))
 
     coreLibraryConfig(libs.annotations)
     coreLibraryConfig(libs.jacksonCore)
@@ -182,8 +186,8 @@ minecraft {
             workingDirectory(project.file("run"))
             properties(
                 mapOf(
-                    "forge.logging.markers" to "PDAPRO,PDAAPI,SCAN,LOADING,CORE",
-                    "forge.logging.console.level" to "DEBUG",
+                    "forge.logging.markers" to "SCAN,LOADING,CORE",
+                    "forge.logging.console.level" to "debug",
                     "mixin.debug" to "true",
                     "mixin.debug.dumpTargetOnFailure" to "true",
                     "mixin.debug.verbose" to "true",

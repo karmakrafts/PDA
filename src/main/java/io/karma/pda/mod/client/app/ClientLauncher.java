@@ -11,7 +11,6 @@ import io.karma.pda.api.app.component.Component;
 import io.karma.pda.api.app.component.Container;
 import io.karma.pda.api.session.Session;
 import io.karma.pda.api.util.Exceptions;
-import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.network.sb.SPacketCloseApp;
 import io.karma.pda.mod.network.sb.SPacketOpenApp;
@@ -146,7 +145,7 @@ public final class ClientLauncher implements Launcher {
             return;
         }
         pendingApps.put(name, app);
-        PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Added pending app {}", app.getType().getName());
+        PDAMod.LOGGER.debug("Added pending app {}", app.getType().getName());
     }
 
     @Internal
@@ -156,7 +155,7 @@ public final class ClientLauncher implements Launcher {
             return;
         }
         terminatedApps.put(name, app);
-        PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Added terminated app {}", app.getType().getName());
+        PDAMod.LOGGER.debug("Added terminated app {}", app.getType().getName());
     }
 
     @SuppressWarnings("unchecked")
@@ -181,7 +180,7 @@ public final class ClientLauncher implements Launcher {
         // @formatter:on
         Minecraft.getInstance().execute(() -> {
             final var sessionId = session.getId();
-            PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Requesting topmost app to close for session {}", sessionId);
+            PDAMod.LOGGER.debug("Requesting topmost app to close for session {}", sessionId);
             PDAMod.CHANNEL.sendToServer(new SPacketCloseApp(sessionId, name));
         });
         return future;
@@ -217,7 +216,7 @@ public final class ClientLauncher implements Launcher {
         // @formatter:on
         game.execute(() -> {
             final var sessionId = session.getId();
-            PDAMod.LOGGER.debug(LogMarkers.PROTOCOL, "Requesting app {} to open for session {}", name, sessionId);
+            PDAMod.LOGGER.debug("Requesting app {} to open for session {}", name, sessionId);
             synchronized (appStackLock) {
                 // @formatter:off
                 PDAMod.CHANNEL.sendToServer(new SPacketOpenApp(sessionId, name, appStack.stream()

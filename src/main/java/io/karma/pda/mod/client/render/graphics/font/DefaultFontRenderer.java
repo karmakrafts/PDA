@@ -19,7 +19,6 @@ import io.karma.pda.api.client.render.shader.uniform.DefaultUniformType;
 import io.karma.pda.api.color.ColorProvider;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.api.util.RectangleCorner;
-import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.render.shader.DefaultShaderFactory;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.Util;
@@ -96,7 +95,7 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
                 .location(Constants.MODID, "shaders/font.frag.glsl")
                 .defaultPreProcessor()
             )
-            .sampler("Sampler0", 0)
+            .sampler("Sampler0")
             .defaultUniforms()
             .uniform("PxRange", DefaultUniformType.FLOAT)
         );
@@ -312,7 +311,6 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
 
     @Override
     public void onResourceManagerReload(final @NotNull ResourceManager manager) {
-        PDAMod.LOGGER.debug("Rebuilding font atlas cache");
         for (final var fontAtlas : fontAtlasCache.values()) {
             Minecraft.getInstance().execute(fontAtlas::rebuild);
         }

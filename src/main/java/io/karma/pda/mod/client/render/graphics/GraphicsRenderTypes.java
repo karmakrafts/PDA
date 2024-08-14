@@ -90,7 +90,7 @@ public final class GraphicsRenderTypes {
                 .location(Constants.MODID, "shaders/display_color_tex.frag.glsl")
                 .defaultPreProcessor()
             )
-            .sampler("Sampler0", 0)
+            .sampler("Sampler0")
             .defaultUniforms()
         );
     } // @formatter:on

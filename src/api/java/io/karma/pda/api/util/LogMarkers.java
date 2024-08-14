@@ -14,6 +14,8 @@ import org.apache.logging.log4j.MarkerManager;
 public final class LogMarkers {
     public static final Marker API = MarkerManager.getMarker("PDAAPI");
     public static final Marker PROTOCOL = MarkerManager.getMarker("PDAPRO");
+    public static final Marker RENDERER = MarkerManager.getMarker("PDAREN");
+    public static final Marker FLEX = MarkerManager.getMarker("PDAFLX");
 
     // @formatter:off
     private LogMarkers() {}

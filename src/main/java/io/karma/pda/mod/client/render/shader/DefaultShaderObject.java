@@ -11,6 +11,7 @@ import io.karma.pda.api.client.render.shader.ShaderPreProcessor;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.ShaderType;
 import io.karma.pda.api.util.Exceptions;
+import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -66,13 +67,13 @@ public final class DefaultShaderObject extends Program implements ShaderObject {
     CompletableFuture<Void> recompile(final ShaderProgram program, final ResourceProvider provider) {
         isCompiled.set(false);
         return CompletableFuture.runAsync(() -> {
-            PDAMod.LOGGER.debug("Processing shader source for {}", location);
+            PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Processing shader source for {}", location);
             final var unprocessedSource = loadSource(provider, location);
             final var source = shaderPreProcessorSupplier.get().process(unprocessedSource,
                 program,
                 this,
                 subLocation -> loadSource(provider, subLocation));
-            PDAMod.LOGGER.debug("Processed shader source for {}", location);
+            PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Processed shader source for {}", location);
             Minecraft.getInstance().execute(() -> {
                 detach(program);
                 GL20.glShaderSource(id, source);
@@ -83,7 +84,10 @@ public final class DefaultShaderObject extends Program implements ShaderObject {
                 }
                 isCompiled.set(true);
                 attach(program);
-                PDAMod.LOGGER.debug("Compiled shader object {} for program {}", location, program.getId());
+                PDAMod.LOGGER.debug(LogMarkers.RENDERER,
+                    "Compiled shader object {} for program {}",
+                    location,
+                    program.getId());
             });
         }, PDAMod.EXECUTOR_SERVICE).exceptionally(error -> {
             PDAMod.LOGGER.error("Could not recompile shader object", error);
