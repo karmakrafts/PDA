@@ -61,7 +61,8 @@ public class CommonPacketHandler {
             this::onSyncValues);
     } // @formatter:on
 
-    protected <MSG> void registerPacket(final int id, final Class<MSG> type,
+    protected <MSG> void registerPacket(final int id,
+                                        final Class<MSG> type,
                                         final BiConsumer<MSG, FriendlyByteBuf> encoder,
                                         final Function<FriendlyByteBuf, MSG> decoder,
                                         final BiConsumer<MSG, NetworkEvent.Context> handler) {

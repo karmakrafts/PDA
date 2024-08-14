@@ -22,7 +22,9 @@ public final class CPacketOpenApp {
     private final ResourceLocation name;
     private final Map<String, ? extends List<UUID>> newIds;
 
-    public CPacketOpenApp(final UUID sessionId, final UUID playerId, final ResourceLocation name,
+    public CPacketOpenApp(final UUID sessionId,
+                          final UUID playerId,
+                          final ResourceLocation name,
                           final Map<String, ? extends List<UUID>> newIds) {
         this.sessionId = sessionId;
         this.playerId = playerId;

@@ -25,7 +25,9 @@ public final class ShapeUtils {
         return new AABB(min.x, min.y, min.z, max.x, max.y, max.z);
     }
 
-    public static VoxelShape rotate(final VoxelShape shape, final Vector3f axis, final Vector3f origin,
+    public static VoxelShape rotate(final VoxelShape shape,
+                                    final Vector3f axis,
+                                    final Vector3f origin,
                                     final float angle) {
         final var matrix = new Matrix4f().rotate((float) Math.toRadians(angle), axis);
         final var boxes = new ArrayList<AABB>();

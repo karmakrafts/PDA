@@ -81,8 +81,14 @@ public final class DefaultGraphics implements Graphics {
         return graphics;
     }
 
-    private void fillRect(final int x, final int y, final int width, final int height, final int colorTL,
-                          final int colorTR, final int colorBL, final int colorBR) {
+    private void fillRect(final int x,
+                          final int y,
+                          final int width,
+                          final int height,
+                          final int colorTL,
+                          final int colorTR,
+                          final int colorBL,
+                          final int colorBR) {
         final var matrix = context.getTransform();
         final var state = getState();
         final var texture = state.getBrush().getTexture();
@@ -263,14 +269,21 @@ public final class DefaultGraphics implements Graphics {
     }
 
     @Override
-    public int text(final int x, final int y, final int maxWidth, final CharSequence text,
+    public int text(final int x,
+                    final int y,
+                    final int maxWidth,
+                    final CharSequence text,
                     final CharSequence cutoffSuffix) {
         final var state = getState();
         return fontRenderer.render(x, y, maxWidth, text, cutoffSuffix, state.getFont(), state.getBrush());
     }
 
     @Override
-    public int text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
+    public int text(final int x,
+                    final int y,
+                    final int maxWidth,
+                    final int maxHeight,
+                    final CharSequence text,
                     final CharSequence cutoffSuffix) {
         final var state = getState();
         return fontRenderer.render(x, y, maxWidth, maxHeight, text, cutoffSuffix, state.getFont(), state.getBrush());
@@ -283,29 +296,45 @@ public final class DefaultGraphics implements Graphics {
     }
 
     @Override
-    public int text(final int x, final int y, final int maxWidth, final CharSequence text,
+    public int text(final int x,
+                    final int y,
+                    final int maxWidth,
+                    final CharSequence text,
                     final IntFunction<ColorProvider> color) {
         final var state = getState();
         return fontRenderer.render(x, y, maxWidth, text, state.getFont(), color);
     }
 
     @Override
-    public int text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
+    public int text(final int x,
+                    final int y,
+                    final int maxWidth,
+                    final int maxHeight,
+                    final CharSequence text,
                     final IntFunction<ColorProvider> color) {
         final var state = getState();
         return fontRenderer.render(x, y, maxWidth, maxHeight, text, state.getFont(), color);
     }
 
     @Override
-    public int text(final int x, final int y, final int maxWidth, final CharSequence text,
-                    final CharSequence cutoffSuffix, final IntFunction<ColorProvider> color) {
+    public int text(final int x,
+                    final int y,
+                    final int maxWidth,
+                    final CharSequence text,
+                    final CharSequence cutoffSuffix,
+                    final IntFunction<ColorProvider> color) {
         final var state = getState();
         return fontRenderer.render(x, y, maxWidth, text, cutoffSuffix, state.getFont(), color);
     }
 
     @Override
-    public int text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
-                    final CharSequence cutoffSuffix, final IntFunction<ColorProvider> color) {
+    public int text(final int x,
+                    final int y,
+                    final int maxWidth,
+                    final int maxHeight,
+                    final CharSequence text,
+                    final CharSequence cutoffSuffix,
+                    final IntFunction<ColorProvider> color) {
         final var state = getState();
         return fontRenderer.render(x, y, maxWidth, maxHeight, text, cutoffSuffix, state.getFont(), color);
     }

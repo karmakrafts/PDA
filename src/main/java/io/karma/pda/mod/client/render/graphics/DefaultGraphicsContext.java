@@ -29,8 +29,12 @@ public final class DefaultGraphicsContext implements GraphicsContext {
     private int defaultZIndex;
     private DisplayMode displayMode;
 
-    public void setup(final PoseStack poseStack, final MultiBufferSource bufferSource, final int width,
-                      final int height, final int defaultZIndex, final DisplayMode displayMode) {
+    public void setup(final PoseStack poseStack,
+                      final MultiBufferSource bufferSource,
+                      final int width,
+                      final int height,
+                      final int defaultZIndex,
+                      final DisplayMode displayMode) {
         this.poseStack = poseStack;
         this.bufferSource = bufferSource;
         this.width = width;

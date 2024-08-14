@@ -21,7 +21,8 @@ public final class ResourceLocationSerializer extends StdSerializer<ResourceLoca
     }
 
     @Override
-    public void serialize(final ResourceLocation location, final JsonGenerator generator,
+    public void serialize(final ResourceLocation location,
+                          final JsonGenerator generator,
                           final SerializerProvider serializerProvider) throws IOException {
         generator.writeString(location.toString());
     }

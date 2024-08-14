@@ -74,7 +74,8 @@ public final class DefaultStateReflector implements StateReflector {
     }
 
     @Override
-    public List<? extends MutableState<?>> getStates(final Class<?> type, final Object instance,
+    public List<? extends MutableState<?>> getStates(final Class<?> type,
+                                                     final Object instance,
                                                      final Function<Class<?>, StateReflector> reflectorGetter) {
         final var superType = type.getSuperclass();
         final var stream = findFields(type).stream().map(p -> getState(instance, p));

@@ -162,9 +162,12 @@ public final class CommonEventHandler {
         });
     }
 
-    private void onAddDisplayMode(final IForgeRegistryInternal<DisplayModeSpec> registry, final RegistryManager manager,
-                                  final int reserved, final ResourceKey<DisplayModeSpec> key,
-                                  final DisplayModeSpec value, final @Nullable DisplayModeSpec existingValue) {
+    private void onAddDisplayMode(final IForgeRegistryInternal<DisplayModeSpec> registry,
+                                  final RegistryManager manager,
+                                  final int reserved,
+                                  final ResourceKey<DisplayModeSpec> key,
+                                  final DisplayModeSpec value,
+                                  final @Nullable DisplayModeSpec existingValue) {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             Minecraft.getInstance().execute(() -> DefaultDisplayRenderer.INSTANCE.createDisplayMode(value));
         });

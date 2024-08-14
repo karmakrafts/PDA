@@ -36,7 +36,8 @@ public final class PlayerUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <E extends BlockEntity & Container> void openMenu(final Player player, final BlockPos pos,
+    public static <E extends BlockEntity & Container> void openMenu(final Player player,
+                                                                    final BlockPos pos,
                                                                     final Class<E> entityType,
                                                                     final BlockMenuSupplier<?, E> supplier) {
         if (!(player instanceof ServerPlayer serverPlayer)) {

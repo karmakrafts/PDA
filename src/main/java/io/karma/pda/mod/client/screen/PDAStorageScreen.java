@@ -25,7 +25,9 @@ public final class PDAStorageScreen extends BasicContainerScreen<PDAStorageMenu>
     }
 
     @Override
-    protected void renderBg(final @NotNull GuiGraphics graphics, float partialTicks, final int mouseX,
+    protected void renderBg(final @NotNull GuiGraphics graphics,
+                            float partialTicks,
+                            final int mouseX,
                             final int mouseY) {
         final var x = (width >> 1) - (imageWidth >> 1);
         final var y = (height >> 1) - (imageHeight >> 1);

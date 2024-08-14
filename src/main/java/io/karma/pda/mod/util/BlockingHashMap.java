@@ -34,8 +34,10 @@ public final class BlockingHashMap<K, V> implements Map<K, V> {
         });
     }
 
-    public CompletableFuture<@Nullable V> removeLater(final @Nullable K key, final long timeout,
-                                                      final TimeUnit timeUnit, final Executor executor) {
+    public CompletableFuture<@Nullable V> removeLater(final @Nullable K key,
+                                                      final long timeout,
+                                                      final TimeUnit timeUnit,
+                                                      final Executor executor) {
         return CompletableFuture.supplyAsync(() -> remove(key, timeout, timeUnit), executor).exceptionally(error -> {
             PDAMod.LOGGER.error("Could not remove entry {}", key, error);
             return null;
@@ -49,7 +51,8 @@ public final class BlockingHashMap<K, V> implements Map<K, V> {
         });
     }
 
-    public CompletableFuture<@Nullable V> removeLater(final @Nullable K key, final long timeout,
+    public CompletableFuture<@Nullable V> removeLater(final @Nullable K key,
+                                                      final long timeout,
                                                       final TimeUnit timeUnit) {
         return CompletableFuture.supplyAsync(() -> remove(key, timeout, timeUnit)).exceptionally(error -> {
             PDAMod.LOGGER.error("Could not remove entry {}", key, error);

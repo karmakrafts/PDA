@@ -25,10 +25,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ItemRenderer.class)
 public final class ItemRendererMixin {
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
-    private void onRenderByItemPre(final ItemStack stack, final ItemDisplayContext displayContext,
-                                   final boolean isLeftHand, final PoseStack poseStack,
-                                   final MultiBufferSource bufferSource, final int packedLight, final int packedOverlay,
-                                   final BakedModel model, final CallbackInfo cbi) {
+    private void onRenderByItemPre(final ItemStack stack,
+                                   final ItemDisplayContext displayContext,
+                                   final boolean isLeftHand,
+                                   final PoseStack poseStack,
+                                   final MultiBufferSource bufferSource,
+                                   final int packedLight,
+                                   final int packedOverlay,
+                                   final BakedModel model,
+                                   final CallbackInfo cbi) {
         // @formatter:off
         final var event = new ItemRenderEvent.Pre(stack, displayContext, isLeftHand, poseStack, bufferSource,
             packedLight, packedOverlay, ClientEventHandler.INSTANCE.getFrameTime());
@@ -40,10 +45,15 @@ public final class ItemRendererMixin {
     }
 
     @Inject(method = "render", at = @At("TAIL"))
-    private void onRenderByItemPost(final ItemStack stack, final ItemDisplayContext displayContext,
-                                    final boolean isLeftHand, final PoseStack poseStack,
-                                    final MultiBufferSource bufferSource, final int packedLight,
-                                    final int packedOverlay, final BakedModel model, final CallbackInfo cbi) {
+    private void onRenderByItemPost(final ItemStack stack,
+                                    final ItemDisplayContext displayContext,
+                                    final boolean isLeftHand,
+                                    final PoseStack poseStack,
+                                    final MultiBufferSource bufferSource,
+                                    final int packedLight,
+                                    final int packedOverlay,
+                                    final BakedModel model,
+                                    final CallbackInfo cbi) {
         // @formatter:off
         MinecraftForge.EVENT_BUS.post(new ItemRenderEvent.Post(stack, displayContext, isLeftHand, poseStack,
             bufferSource, packedLight, packedOverlay, ClientEventHandler.INSTANCE.getFrameTime()));

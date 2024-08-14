@@ -36,8 +36,8 @@ public class DefaultSessionHandler extends AbstractSessionHandler {
     }
 
     @Override
-    public <S> CompletableFuture<MuxedSession<S>> createSession(
-        Collection<? extends SelectiveSessionContext<S>> selectiveSessionContexts, S initial) {
+    public <S> CompletableFuture<MuxedSession<S>> createSession(Collection<? extends SelectiveSessionContext<S>> selectiveSessionContexts,
+                                                                S initial) {
         throw new UnsupportedOperationException();
     }
 

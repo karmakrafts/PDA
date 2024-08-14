@@ -156,9 +156,12 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
 
     @SuppressWarnings("deprecation")
     @Override
-    public @NotNull InteractionResult use(final @NotNull BlockState state, final @NotNull Level world,
-                                          final @NotNull BlockPos pos, final @NotNull Player player,
-                                          final @NotNull InteractionHand hand, final @NotNull BlockHitResult hit) {
+    public @NotNull InteractionResult use(final @NotNull BlockState state,
+                                          final @NotNull Level world,
+                                          final @NotNull BlockPos pos,
+                                          final @NotNull Player player,
+                                          final @NotNull InteractionHand hand,
+                                          final @NotNull BlockHitResult hit) {
         // Open the storage menu if the player is sneaking
         if (player.isShiftKeyDown()) {
             PlayerUtils.openMenu(player, pos, DockBlockEntity.class, DockStorageMenu::new);
@@ -217,8 +220,10 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
 
     @SuppressWarnings("deprecation")
     @Override
-    public @NotNull VoxelShape getShape(final @NotNull BlockState state, final @NotNull BlockGetter world,
-                                        final @NotNull BlockPos pos, final @NotNull CollisionContext context) {
+    public @NotNull VoxelShape getShape(final @NotNull BlockState state,
+                                        final @NotNull BlockGetter world,
+                                        final @NotNull BlockPos pos,
+                                        final @NotNull CollisionContext context) {
         final var dir = state.getOptionalValue(ORIENTATION).orElse(HorizontalDirection.NORTH);
         if (state.getValue(HAS_ITEM)) {
             return SHAPES.get(dir);
@@ -228,8 +233,10 @@ public final class DockBlock extends BasicEntityBlock<DockBlockEntity> {
 
     @SuppressWarnings("deprecation")
     @Override
-    public boolean isPathfindable(final @NotNull BlockState state, final @NotNull BlockGetter world,
-                                  final @NotNull BlockPos pos, final @NotNull PathComputationType type) {
+    public boolean isPathfindable(final @NotNull BlockState state,
+                                  final @NotNull BlockGetter world,
+                                  final @NotNull BlockPos pos,
+                                  final @NotNull PathComputationType type) {
         return false;
     }
 }

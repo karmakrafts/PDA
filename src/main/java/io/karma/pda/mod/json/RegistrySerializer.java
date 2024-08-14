@@ -27,7 +27,8 @@ public final class RegistrySerializer<T> extends StdSerializer<T> {
     }
 
     @Override
-    public void serialize(final T value, final JsonGenerator generator,
+    public void serialize(final T value,
+                          final JsonGenerator generator,
                           final SerializerProvider serializerProvider) throws IOException {
         generator.writeString(Objects.requireNonNull(registrySupplier.get().getKey(value)).toString());
     }

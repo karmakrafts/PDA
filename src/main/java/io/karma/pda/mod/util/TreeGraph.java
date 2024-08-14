@@ -23,7 +23,8 @@ public final class TreeGraph<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public static <X, T extends X, R> TreeGraph<R> from(final X value, final Class<T> subType,
+    public static <X, T extends X, R> TreeGraph<R> from(final X value,
+                                                        final Class<T> subType,
                                                         final Function<T, ? extends Collection<? extends X>> selector,
                                                         final Function<X, R> mapper) {
         final var result = new TreeGraph<>(mapper.apply(value));
@@ -36,7 +37,8 @@ public final class TreeGraph<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public static <X, T extends X> TreeGraph<X> from(final X value, final Class<T> subType,
+    public static <X, T extends X> TreeGraph<X> from(final X value,
+                                                     final Class<T> subType,
                                                      final Function<T, ? extends Collection<? extends X>> selector) {
         final var result = new TreeGraph<>(value);
         if (subType.isAssignableFrom(value.getClass())) {

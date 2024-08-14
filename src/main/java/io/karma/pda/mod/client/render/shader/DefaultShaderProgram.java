@@ -25,7 +25,11 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceProvider;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterShadersEvent;
@@ -38,6 +42,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
@@ -47,7 +52,8 @@ import java.util.function.IntSupplier;
  * @since 02/06/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShard implements ShaderProgram {
+public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShard
+    implements ShaderProgram, PreparableReloadListener {
     private final int id;
     private final VertexFormat vertexFormat;
     private final ArrayList<DefaultShaderObject> objects;
@@ -65,10 +71,14 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     private final ExtendedShaderAdaptor extendedShaderAdaptor = new ExtendedShaderAdaptor();
     private boolean isBound;
 
-    DefaultShaderProgram(final VertexFormat vertexFormat, final ArrayList<DefaultShaderObject> objects,
-                         final HashMap<String, Uniform> uniforms, Consumer<ShaderProgram> bindCallback,
-                         final Consumer<ShaderProgram> unbindCallback, final Object2IntOpenHashMap<String> samplerIds,
-                         final HashMap<String, Object> constants, final Object2IntLinkedOpenHashMap<String> defines,
+    DefaultShaderProgram(final VertexFormat vertexFormat,
+                         final ArrayList<DefaultShaderObject> objects,
+                         final HashMap<String, Uniform> uniforms,
+                         final Consumer<ShaderProgram> bindCallback,
+                         final Consumer<ShaderProgram> unbindCallback,
+                         final Object2IntOpenHashMap<String> samplerIds,
+                         final HashMap<String, Object> constants,
+                         final Object2IntLinkedOpenHashMap<String> defines,
                          final Int2ObjectArrayMap<IntSupplier> staticSamplers) {
         this.vertexFormat = vertexFormat;
         this.objects = objects;
@@ -82,7 +92,8 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         uniformCache = new DefaultUniformCache(this, uniforms);
         setupAttributes();
         PDAMod.DISPOSITION_HANDLER.addObject(this);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::reload);
+        ((ReloadableResourceManager) Minecraft.getInstance().getResourceManager()).registerReloadListener(this);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onRegisterShaders);
 
         // Attach shader objects to program
         for (final var object : objects) {
@@ -118,8 +129,26 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Created {} sampler objects for program {}", samplers.size(), id);
     }
 
-    private void reload(final RegisterShadersEvent event) {
-        relink(Minecraft.getInstance().getResourceManager());
+    @Override
+    public @NotNull CompletableFuture<Void> reload(final @NotNull PreparationBarrier barrier,
+                                                   final @NotNull ResourceManager manager,
+                                                   final @NotNull ProfilerFiller prepProfiler,
+                                                   final @NotNull ProfilerFiller reloadProfiler,
+                                                   final @NotNull Executor backgroundExecutor,
+                                                   final @NotNull Executor gameExecutor) {
+        // @formatter:off
+        return CompletableFuture.runAsync(this::prepare, gameExecutor)
+            .thenCompose(barrier::wait);
+        // @formatter:on
+    }
+
+    @Override
+    public @NotNull String getName() {
+        return toString();
+    }
+
+    private void onRegisterShaders(final RegisterShadersEvent event) {
+        relink(event.getResourceProvider());
     }
 
     private void setupAttributes() {
@@ -133,6 +162,13 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
                 attrib,
                 i,
                 id);
+        }
+    }
+
+    private void prepare() {
+        PDAMod.LOGGER.debug("Preparing shader program {}", id);
+        for (final var sampler : samplers.values()) {
+            sampler.invalidate(); // Invalidate all existing samplers so texture IDs are mutable during reload
         }
     }
 
@@ -280,6 +316,7 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     }
 
     private void relink(final ResourceProvider provider) {
+        PDAMod.LOGGER.debug("Relinking program {}", id);
         unbind();
         isLinked.set(false);
         // @formatter:off

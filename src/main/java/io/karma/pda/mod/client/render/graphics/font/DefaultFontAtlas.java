@@ -19,6 +19,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.msdfgen.MSDFGen;
@@ -54,7 +56,10 @@ public final class DefaultFontAtlas implements FontAtlas {
     private float maxGlyphBearingY;
     private float lineHeight;
 
-    public DefaultFontAtlas(final FontVariant font, final int spriteSize, final int spriteBorder, final float sdfRange,
+    public DefaultFontAtlas(final FontVariant font,
+                            final int spriteSize,
+                            final int spriteBorder,
+                            final float sdfRange,
                             final int renderType) {
         this.font = font;
         this.spriteSize = spriteSize;
@@ -98,21 +103,22 @@ public final class DefaultFontAtlas implements FontAtlas {
     private void uploadTexture(final BufferedImage image) {
         bind();
         final var data = TextureUtils.toArray(image);
-        // TODO: FIXME
-        //PDAMod.LOGGER.debug("Uploading {} bytes of texture data", data.length << 2);
-        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_R, GL11.GL_BLUE);
-        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_G, GL11.GL_GREEN);
-        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_B, GL11.GL_RED);
-        //GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_A, GL11.GL_ALPHA);
-        //GL11.glTexImage2D(GL11.GL_TEXTURE_2D,
-        //    0,
-        //    GL30.GL_RGBA8,
-        //    image.getWidth(),
-        //    image.getHeight(),
-        //    0,
-        //    GL30.GL_BGRA,
-        //    GL30.GL_UNSIGNED_INT_8_8_8_8,
-        //    data);
+        PDAMod.LOGGER.debug("Uploading {} bytes of texture data", data.length << 2);
+        TextureUtils.setUnpackAlignment(1);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D,
+            0,
+            GL30.GL_RGBA8,
+            image.getWidth(),
+            image.getHeight(),
+            0,
+            GL30.GL_BGRA,
+            GL30.GL_UNSIGNED_INT_8_8_8_8_REV,
+            data);
+        TextureUtils.restoreUnpackAlignment();
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_R, GL11.GL_BLUE);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_G, GL11.GL_GREEN);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_B, GL11.GL_RED);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_A, GL11.GL_ALPHA);
         unbind();
     }
 

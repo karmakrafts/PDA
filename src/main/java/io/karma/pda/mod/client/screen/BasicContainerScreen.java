@@ -22,7 +22,8 @@ import org.jetbrains.annotations.NotNull;
  */
 @OnlyIn(Dist.CLIENT)
 public abstract class BasicContainerScreen<M extends AbstractContainerMenu> extends AbstractContainerScreen<M> {
-    public BasicContainerScreen(final @NotNull M menu, final @NotNull Inventory playerInventory,
+    public BasicContainerScreen(final @NotNull M menu,
+                                final @NotNull Inventory playerInventory,
                                 final @NotNull Component title) {
         super(menu, playerInventory, title);
     }
@@ -52,7 +53,9 @@ public abstract class BasicContainerScreen<M extends AbstractContainerMenu> exte
     }
 
     @Override
-    public void render(final @NotNull GuiGraphics graphics, final int mouseX, final int mouseY,
+    public void render(final @NotNull GuiGraphics graphics,
+                       final int mouseX,
+                       final int mouseY,
                        final float partialTick) {
         renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);

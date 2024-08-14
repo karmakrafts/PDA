@@ -22,9 +22,32 @@ import java.nio.file.Files;
  */
 @OnlyIn(Dist.CLIENT)
 public final class TextureUtils {
+    private static int previousUnpackAlignment;
+    private static int previousUnpackRowLength;
+    private static int previousUnpackSkipPixels;
+    private static int previousUnpackSkipRows;
+
     // @formatter:off
     private TextureUtils() {}
     // @formatter:on
+
+    public static void setUnpackAlignment(final int alignment) {
+        previousUnpackAlignment = GL11.glGetInteger(GL11.GL_UNPACK_ALIGNMENT);
+        previousUnpackRowLength = GL11.glGetInteger(GL11.GL_UNPACK_ROW_LENGTH);
+        previousUnpackSkipPixels = GL11.glGetInteger(GL11.GL_UNPACK_SKIP_PIXELS);
+        previousUnpackSkipRows = GL11.glGetInteger(GL11.GL_UNPACK_SKIP_ROWS);
+        GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, alignment);
+        GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, 0);
+        GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, 0);
+        GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_ROWS, 0);
+    }
+
+    public static void restoreUnpackAlignment() {
+        GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, previousUnpackAlignment);
+        GL11.glPixelStorei(GL11.GL_UNPACK_ROW_LENGTH, previousUnpackRowLength);
+        GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_PIXELS, previousUnpackSkipPixels);
+        GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_ROWS, previousUnpackSkipRows);
+    }
 
     public static int createTexture() {
         final var id = GL11.glGenTextures();

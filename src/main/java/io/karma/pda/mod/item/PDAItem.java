@@ -93,8 +93,10 @@ public final class PDAItem extends Item implements TabItemProvider {
     }
 
     @Override
-    public void appendHoverText(final @NotNull ItemStack stack, @Nullable Level world,
-                                final @NotNull List<Component> components, final @NotNull TooltipFlag isAdvanced) {
+    public void appendHoverText(final @NotNull ItemStack stack,
+                                @Nullable Level world,
+                                final @NotNull List<Component> components,
+                                final @NotNull TooltipFlag isAdvanced) {
         final var tag = stack.getTag();
         if (tag == null) {
             super.appendHoverText(stack, world, components, isAdvanced);
@@ -113,7 +115,8 @@ public final class PDAItem extends Item implements TabItemProvider {
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(final @NotNull Level world, final @NotNull Player player,
+    public @NotNull InteractionResultHolder<ItemStack> use(final @NotNull Level world,
+                                                           final @NotNull Player player,
                                                            final @NotNull InteractionHand hand) {
         final var stack = player.getItemInHand(hand);
         if (player.isShiftKeyDown()) {
@@ -135,7 +138,8 @@ public final class PDAItem extends Item implements TabItemProvider {
     }
 
     @OnlyIn(Dist.CLIENT)
-    private void openScreen(final Player player, final InteractionHand defaultHand,
+    private void openScreen(final Player player,
+                            final InteractionHand defaultHand,
                             final EnumSet<InteractionHand> hands) {
         final var game = Minecraft.getInstance();
         final var interactionHandler = PDAInteractionHandler.INSTANCE;

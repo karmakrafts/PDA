@@ -26,7 +26,8 @@ public final class DefaultBrush implements Brush {
     private final ColorProvider color;
     private final ResourceLocation texture;
 
-    public DefaultBrush(final Function<DisplayMode, RenderType> renderType, final ColorProvider color,
+    public DefaultBrush(final Function<DisplayMode, RenderType> renderType,
+                        final ColorProvider color,
                         final ResourceLocation texture) {
         this.renderType = renderType;
         this.color = color;

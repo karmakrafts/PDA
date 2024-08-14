@@ -91,8 +91,8 @@ public final class ClientSessionHandler extends AbstractSessionHandler {
     }
 
     @Override
-    public <S> CompletableFuture<MuxedSession<S>> createSession(
-        final Collection<? extends SelectiveSessionContext<S>> contexts, final S initial) {
+    public <S> CompletableFuture<MuxedSession<S>> createSession(final Collection<? extends SelectiveSessionContext<S>> contexts,
+                                                                final S initial) {
         PDAMod.LOGGER.debug("Requesting muxed session with {} contexts", contexts.size());
         return CompletableFuture.supplyAsync(() -> {
             final var mux = new MuxedSession<>(initial, ConcurrentHashMap::new);

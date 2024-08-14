@@ -39,7 +39,8 @@ public final class DefaultShaderObject extends Program implements ShaderObject {
     private final AtomicBoolean isCompiled = new AtomicBoolean(false);
     private final AtomicBoolean isAttached = new AtomicBoolean(false);
 
-    DefaultShaderObject(final ShaderType type, final ResourceLocation location,
+    DefaultShaderObject(final ShaderType type,
+                        final ResourceLocation location,
                         final Supplier<ShaderPreProcessor> shaderPreProcessorSupplier) {
         super(getType(type), GL20.glCreateShader(type.getGlType()), location.toString());
         this.type = type;

@@ -43,7 +43,8 @@ public final class MemoryCardItem extends Item {
     }
 
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(final @NotNull Level world, final @NotNull Player player,
+    public @NotNull InteractionResultHolder<ItemStack> use(final @NotNull Level world,
+                                                           final @NotNull Player player,
                                                            final @NotNull InteractionHand hand) {
         final var stack = player.getItemInHand(hand);
         final var tag = stack.getOrCreateTag();
@@ -71,8 +72,10 @@ public final class MemoryCardItem extends Item {
     }
 
     @Override
-    public void appendHoverText(final @NotNull ItemStack stack, final @Nullable Level world,
-                                final @NotNull List<Component> components, final @NotNull TooltipFlag isAdvanced) {
+    public void appendHoverText(final @NotNull ItemStack stack,
+                                final @Nullable Level world,
+                                final @NotNull List<Component> components,
+                                final @NotNull TooltipFlag isAdvanced) {
         final var tag = stack.getTag();
         if (tag == null) {
             super.appendHoverText(stack, world, components, isAdvanced);

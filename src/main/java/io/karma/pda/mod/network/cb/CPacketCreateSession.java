@@ -24,8 +24,11 @@ public final class CPacketCreateSession {
     private final UUID playerId;
     private final Object context;
 
-    public CPacketCreateSession(final SessionType type, final @Nullable UUID requestId, final UUID sessionId,
-                                final UUID playerId, final Object context) {
+    public CPacketCreateSession(final SessionType type,
+                                final @Nullable UUID requestId,
+                                final UUID sessionId,
+                                final UUID playerId,
+                                final Object context) {
         this.requestId = requestId;
         this.sessionId = sessionId;
         this.playerId = playerId;

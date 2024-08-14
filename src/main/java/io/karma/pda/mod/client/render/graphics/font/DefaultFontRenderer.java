@@ -101,8 +101,14 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
         );
     } // @formatter:on
 
-    private float renderGlyph(final float x, final float y, final int zIndex, final char c, final FontVariant font,
-                              final Matrix4f matrix, final VertexConsumer buffer, final ColorProvider colorProvider) {
+    private float renderGlyph(final float x,
+                              final float y,
+                              final int zIndex,
+                              final char c,
+                              final FontVariant font,
+                              final Matrix4f matrix,
+                              final VertexConsumer buffer,
+                              final ColorProvider colorProvider) {
         final var atlas = getFontAtlas(font);
         if (!atlas.isReady()) {
             return 0; // Don't render anything until the atlas is rebuilt
@@ -268,14 +274,25 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     }
 
     @Override
-    public int render(int x, int y, int maxWidth, CharSequence text, CharSequence cutoffSuffix, Font font,
+    public int render(int x,
+                      int y,
+                      int maxWidth,
+                      CharSequence text,
+                      CharSequence cutoffSuffix,
+                      Font font,
                       ColorProvider color) {
         return 0;
     }
 
     @Override
-    public int render(int x, int y, int maxWidth, int maxHeight, CharSequence text, CharSequence cutoffSuffix,
-                      Font font, ColorProvider color) {
+    public int render(int x,
+                      int y,
+                      int maxWidth,
+                      int maxHeight,
+                      CharSequence text,
+                      CharSequence cutoffSuffix,
+                      Font font,
+                      ColorProvider color) {
         return 0;
     }
 
@@ -292,20 +309,36 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
     }
 
     @Override
-    public int render(int x, int y, int maxWidth, int maxHeight, CharSequence text, Font font,
+    public int render(int x,
+                      int y,
+                      int maxWidth,
+                      int maxHeight,
+                      CharSequence text,
+                      Font font,
                       IntFunction<ColorProvider> color) {
         return 0;
     }
 
     @Override
-    public int render(int x, int y, int maxWidth, CharSequence text, CharSequence cutoffSuffix, Font font,
+    public int render(int x,
+                      int y,
+                      int maxWidth,
+                      CharSequence text,
+                      CharSequence cutoffSuffix,
+                      Font font,
                       IntFunction<ColorProvider> color) {
         return 0;
     }
 
     @Override
-    public int render(int x, int y, int maxWidth, int maxHeight, CharSequence text, CharSequence cutoffSuffix,
-                      Font font, IntFunction<ColorProvider> color) {
+    public int render(int x,
+                      int y,
+                      int maxWidth,
+                      int maxHeight,
+                      CharSequence text,
+                      CharSequence cutoffSuffix,
+                      Font font,
+                      IntFunction<ColorProvider> color) {
         return 0;
     }
 

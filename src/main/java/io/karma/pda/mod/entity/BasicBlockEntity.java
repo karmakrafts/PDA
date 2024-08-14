@@ -22,7 +22,8 @@ import java.util.Objects;
  * @since 06/02/2024
  */
 public abstract class BasicBlockEntity extends BlockEntity {
-    public BasicBlockEntity(final @NotNull BlockEntityType<?> type, final @NotNull BlockPos pos,
+    public BasicBlockEntity(final @NotNull BlockEntityType<?> type,
+                            final @NotNull BlockPos pos,
                             final @NotNull BlockState state) {
         super(type, pos, state);
     }

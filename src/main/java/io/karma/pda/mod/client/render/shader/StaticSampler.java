@@ -71,6 +71,11 @@ public final class StaticSampler implements Sampler, Disposable {
     }
 
     @Override
+    public void invalidate() {
+        dispose(); // Disposition is the same thing as invalidation for static samplers
+    }
+
+    @Override
     public void setup(final ShaderProgram program) {
         PDAMod.LOGGER.debug(LogMarkers.RENDERER,
             "Creating static sampler '{}'/{} for program {}",
@@ -87,9 +92,6 @@ public final class StaticSampler implements Sampler, Disposable {
             return;
         }
 
-        if (textureHandle != -1) {
-            ARBBindlessTexture.glMakeTextureHandleNonResidentARB(textureHandle);
-        }
         textureHandle = ARBBindlessTexture.glGetTextureHandleARB(textureId);
         if (!ARBBindlessTexture.glIsTextureHandleResidentARB(textureHandle)) {
             ARBBindlessTexture.glMakeTextureHandleResidentARB(textureHandle);

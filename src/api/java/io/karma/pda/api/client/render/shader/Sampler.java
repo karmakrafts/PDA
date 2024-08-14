@@ -22,4 +22,6 @@ public interface Sampler {
     void bind(final ShaderProgram program);
 
     void unbind(final ShaderProgram program);
+
+    default void invalidate() {}
 }

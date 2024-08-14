@@ -29,7 +29,8 @@ public final class BakedQuadUtils {
     private BakedQuadUtils() {}
     // @formatter:on
 
-    public static void transformQuads(final List<BakedQuad> source, final List<BakedQuad> destination,
+    public static void transformQuads(final List<BakedQuad> source,
+                                      final List<BakedQuad> destination,
                                       final Function<BakedQuad, BakedQuad> transform) {
         for (final var quad : source) {
             destination.add(transform.apply(quad));

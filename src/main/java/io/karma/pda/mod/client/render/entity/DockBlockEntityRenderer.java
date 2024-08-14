@@ -29,9 +29,12 @@ public final class DockBlockEntityRenderer implements BlockEntityRenderer<DockBl
     }
 
     @Override
-    public void render(final @NotNull DockBlockEntity entity, final float partialTick,
-                       final @NotNull PoseStack poseStack, final @NotNull MultiBufferSource bufferSource,
-                       final int packedLight, final int packedOverlay) {
+    public void render(final @NotNull DockBlockEntity entity,
+                       final float partialTick,
+                       final @NotNull PoseStack poseStack,
+                       final @NotNull MultiBufferSource bufferSource,
+                       final int packedLight,
+                       final int packedOverlay) {
         if (entity.getItem(0).isEmpty()) {
             return;
         }

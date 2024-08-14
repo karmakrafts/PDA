@@ -21,7 +21,8 @@ public final class ItemStackSerializer extends StdSerializer<ItemStack> {
     }
 
     @Override
-    public void serialize(final ItemStack stack, final JsonGenerator generator,
+    public void serialize(final ItemStack stack,
+                          final JsonGenerator generator,
                           final SerializerProvider serializerProvider) throws IOException {
         generator.writeStartObject();
         if (stack.isEmpty()) {

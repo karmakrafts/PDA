@@ -76,7 +76,9 @@ public final class FreeTypeUtils {
         }
     }
 
-    public static boolean setFontVariationAxis(final long library, final FT_Face face, final String name,
+    public static boolean setFontVariationAxis(final long library,
+                                               final FT_Face face,
+                                               final String name,
                                                final float coord) {
         try (final var stack = MemoryStack.stackPush()) {
             final var faceFlags = face.face_flags();

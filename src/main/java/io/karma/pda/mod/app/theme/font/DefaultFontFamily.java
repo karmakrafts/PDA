@@ -111,7 +111,8 @@ public final class DefaultFontFamily implements FontFamily {
     }
 
     @Override
-    public synchronized FontVariant getFont(final FontStyle style, final float size,
+    public synchronized FontVariant getFont(final FontStyle style,
+                                            final float size,
                                             final Object2FloatMap<String> variationAxes) {
         if (size < 0F) {
             throw new IllegalArgumentException("Size must be greater than or equal to zero");

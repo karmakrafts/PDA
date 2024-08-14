@@ -35,7 +35,8 @@ public final class DefaultDisplayMode implements DisplayMode {
     private final DefaultDisplayBlitter blitter;
     private final RenderStateShard.OutputStateShard outputState;
 
-    public DefaultDisplayMode(final DisplayModeSpec spec, final Framebuffer framebuffer,
+    public DefaultDisplayMode(final DisplayModeSpec spec,
+                              final Framebuffer framebuffer,
                               final FloatSupplier glitchFactorSupplier) {
         this.spec = spec;
         this.framebuffer = framebuffer;

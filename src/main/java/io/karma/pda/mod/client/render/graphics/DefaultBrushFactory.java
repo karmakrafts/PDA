@@ -71,7 +71,8 @@ public final class DefaultBrushFactory implements BrushFactory {
     }
 
     @Override
-    public Brush create(final Function<DisplayMode, RenderType> renderType, final ColorProvider color,
+    public Brush create(final Function<DisplayMode, RenderType> renderType,
+                        final ColorProvider color,
                         final ResourceLocation texture) {
         if (color == Color.NONE) {
             return InvisibleBrush.INSTANCE;

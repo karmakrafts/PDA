@@ -46,7 +46,8 @@ public final class CompositeBakedModel implements BakedModel {
 
     @SuppressWarnings("deprecation")
     @Override
-    public @NotNull List<BakedQuad> getQuads(final @Nullable BlockState state, final @Nullable Direction side,
+    public @NotNull List<BakedQuad> getQuads(final @Nullable BlockState state,
+                                             final @Nullable Direction side,
                                              final @NotNull RandomSource rand) {
         final var quads = new ArrayList<BakedQuad>();
         for (final var model : models) {
@@ -102,8 +103,10 @@ public final class CompositeBakedModel implements BakedModel {
     }
 
     @Override
-    public @NotNull ModelData getModelData(final @NotNull BlockAndTintGetter level, final @NotNull BlockPos pos,
-                                           final @NotNull BlockState state, final @NotNull ModelData modelData) {
+    public @NotNull ModelData getModelData(final @NotNull BlockAndTintGetter level,
+                                           final @NotNull BlockPos pos,
+                                           final @NotNull BlockState state,
+                                           final @NotNull ModelData modelData) {
         return delegate.getModelData(level, pos, state, modelData);
     }
 
@@ -113,7 +116,8 @@ public final class CompositeBakedModel implements BakedModel {
     }
 
     @Override
-    public @NotNull ChunkRenderTypeSet getRenderTypes(final @NotNull BlockState state, final @NotNull RandomSource rand,
+    public @NotNull ChunkRenderTypeSet getRenderTypes(final @NotNull BlockState state,
+                                                      final @NotNull RandomSource rand,
                                                       final @NotNull ModelData data) {
         return delegate.getRenderTypes(state, rand, data);
     }

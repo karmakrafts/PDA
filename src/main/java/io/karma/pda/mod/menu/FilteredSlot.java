@@ -19,13 +19,20 @@ import java.util.function.Predicate;
 public final class FilteredSlot extends BasicSlot {
     private final Predicate<ItemStack> filter;
 
-    public FilteredSlot(final @NotNull Container container, final int id, final int x, final int y,
-                        final Predicate<ItemStack> filter, final ItemStack icon) {
+    public FilteredSlot(final @NotNull Container container,
+                        final int id,
+                        final int x,
+                        final int y,
+                        final Predicate<ItemStack> filter,
+                        final ItemStack icon) {
         super(container, id, x, y, icon);
         this.filter = filter;
     }
 
-    public FilteredSlot(final @NotNull Container container, final int id, final int x, final int y,
+    public FilteredSlot(final @NotNull Container container,
+                        final int id,
+                        final int x,
+                        final int y,
                         final Predicate<ItemStack> filter) {
         this(container, id, x, y, filter, ItemStack.EMPTY);
     }

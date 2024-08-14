@@ -25,7 +25,9 @@ public final class DockStorageScreen extends BasicContainerScreen<DockStorageMen
     }
 
     @Override
-    protected void renderBg(final @NotNull GuiGraphics graphics, final float partialTick, final int mouseX,
+    protected void renderBg(final @NotNull GuiGraphics graphics,
+                            final float partialTick,
+                            final int mouseX,
                             final int mouseY) {
         final var x = (width >> 1) - (imageWidth >> 1);
         final var y = (height >> 1) - (imageHeight >> 1);

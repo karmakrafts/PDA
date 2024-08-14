@@ -114,7 +114,9 @@ public final class MSDFUtils {
         }
     }
 
-    public static void blitBitmapToImage(final MSDFGenBitmap bitmap, final BufferedImage image, final int dstX,
+    public static void blitBitmapToImage(final MSDFGenBitmap bitmap,
+                                         final BufferedImage image,
+                                         final int dstX,
                                          final int dstY) {
         if (image.getType() != BufferedImage.TYPE_INT_ARGB) {
             throw new IllegalArgumentException("Invalid target image format");
@@ -152,10 +154,18 @@ public final class MSDFUtils {
         }
     }
 
-    public static void renderShapeToImage(final int type, final int width, final int height, final long shape,
-                                          final double xScale, final double yScale, final double xOffset,
-                                          final double yOffset, final double range, final BufferedImage dst,
-                                          final int dstX, final int dstY) {
+    public static void renderShapeToImage(final int type,
+                                          final int width,
+                                          final int height,
+                                          final long shape,
+                                          final double xScale,
+                                          final double yScale,
+                                          final double xOffset,
+                                          final double yOffset,
+                                          final double range,
+                                          final BufferedImage dst,
+                                          final int dstX,
+                                          final int dstY) {
         try (final var stack = MemoryStack.stackPush()) {
             final var bitmap = MSDFGenBitmap.malloc(stack);
             throwIfError(MSDFGen.msdf_bitmap_alloc(type, width, height, bitmap));

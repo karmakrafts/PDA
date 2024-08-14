@@ -29,9 +29,14 @@ public class ItemRenderEvent extends Event {
     private final int packedOverlay;
     private final float frameTime;
 
-    protected ItemRenderEvent(final ItemStack stack, final ItemDisplayContext displayContext, final boolean isLeftHand,
-                              final PoseStack poseStack, final MultiBufferSource bufferSource, final int packedLight,
-                              final int packedOverlay, final float frameTime) {
+    protected ItemRenderEvent(final ItemStack stack,
+                              final ItemDisplayContext displayContext,
+                              final boolean isLeftHand,
+                              final PoseStack poseStack,
+                              final MultiBufferSource bufferSource,
+                              final int packedLight,
+                              final int packedOverlay,
+                              final float frameTime) {
         this.stack = stack;
         this.displayContext = displayContext;
         this.isLeftHand = isLeftHand;
@@ -80,17 +85,27 @@ public class ItemRenderEvent extends Event {
 
     @Cancelable
     public static final class Pre extends ItemRenderEvent {
-        public Pre(final ItemStack stack, final ItemDisplayContext displayContext, final boolean isLeftHand,
-                   final PoseStack poseStack, final MultiBufferSource bufferSource, final int packedLight,
-                   final int packedOverlay, final float partialTick) {
+        public Pre(final ItemStack stack,
+                   final ItemDisplayContext displayContext,
+                   final boolean isLeftHand,
+                   final PoseStack poseStack,
+                   final MultiBufferSource bufferSource,
+                   final int packedLight,
+                   final int packedOverlay,
+                   final float partialTick) {
             super(stack, displayContext, isLeftHand, poseStack, bufferSource, packedLight, packedOverlay, partialTick);
         }
     }
 
     public static final class Post extends ItemRenderEvent {
-        public Post(final ItemStack stack, final ItemDisplayContext displayContext, final boolean isLeftHand,
-                    final PoseStack poseStack, final MultiBufferSource bufferSource, final int packedLight,
-                    final int packedOverlay, final float partialTick) {
+        public Post(final ItemStack stack,
+                    final ItemDisplayContext displayContext,
+                    final boolean isLeftHand,
+                    final PoseStack poseStack,
+                    final MultiBufferSource bufferSource,
+                    final int packedLight,
+                    final int packedOverlay,
+                    final float partialTick) {
             super(stack, displayContext, isLeftHand, poseStack, bufferSource, packedLight, packedOverlay, partialTick);
         }
     }

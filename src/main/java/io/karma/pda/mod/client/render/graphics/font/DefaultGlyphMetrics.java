@@ -23,8 +23,14 @@ public final class DefaultGlyphMetrics implements GlyphMetrics {
     private final float bearingX;
     private final float bearingY;
 
-    public DefaultGlyphMetrics(final float width, final float height, final float ascent, final float descent,
-                               final float advanceX, final float advanceY, final float bearingX, final float bearingY) {
+    public DefaultGlyphMetrics(final float width,
+                               final float height,
+                               final float ascent,
+                               final float descent,
+                               final float advanceX,
+                               final float advanceY,
+                               final float bearingX,
+                               final float bearingY) {
         this.width = width;
         this.height = height;
         this.ascent = ascent;

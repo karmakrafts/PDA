@@ -40,7 +40,8 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
     private DefaultShaderPreProcessor() {}
     // @formatter:on
 
-    private static void processGreedy(final StringBuffer buffer, final Pattern pattern,
+    private static void processGreedy(final StringBuffer buffer,
+                                      final Pattern pattern,
                                       final ToBooleanBiFunction<Matcher, StringBuffer> callback) {
         var matcher = pattern.matcher(buffer);
         while (matcher.find()) {
@@ -121,7 +122,8 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         }
     }
 
-    private String expandIncludesRecursively(final ResourceLocation location, final String source,
+    private String expandIncludesRecursively(final ResourceLocation location,
+                                             final String source,
                                              final Function<ResourceLocation, String> loader,
                                              final HashSet<ResourceLocation> includedLocations) {
         final var buffer = new StringBuffer(source);
@@ -159,14 +161,16 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         return buffer.toString();
     }
 
-    private void processIncludes(final ResourceLocation location, final StringBuffer buffer,
+    private void processIncludes(final ResourceLocation location,
+                                 final StringBuffer buffer,
                                  final Function<ResourceLocation, String> loader) {
         final var source = buffer.toString();
         buffer.delete(0, buffer.length());
         buffer.append(expandIncludesRecursively(location, source, loader, new HashSet<>()));
     }
 
-    private void processSpecializationConstants(final ResourceLocation location, final Map<String, Object> constants,
+    private void processSpecializationConstants(final ResourceLocation location,
+                                                final Map<String, Object> constants,
                                                 final StringBuffer buffer) {
         processGreedy(buffer, SPECIAL_CONST_PATTERN, (matcher, currentBuffer) -> {
             final var replacement = new StringBuilder();
@@ -203,7 +207,9 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
     }
 
     @Override
-    public String process(final String source, final ShaderProgram program, final ShaderObject object,
+    public String process(final String source,
+                          final ShaderProgram program,
+                          final ShaderObject object,
                           final Function<ResourceLocation, String> loader) {
         final var buffer = new StringBuffer(source);
         final var location = object.getLocation();

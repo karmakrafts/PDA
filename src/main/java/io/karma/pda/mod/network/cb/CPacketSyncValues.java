@@ -24,7 +24,8 @@ public final class CPacketSyncValues {
     private final UUID playerId;
     private final Map<String, ? extends Map<String, ? extends State<?>>> values;
 
-    public CPacketSyncValues(final UUID sessionId, final @Nullable UUID playerId,
+    public CPacketSyncValues(final UUID sessionId,
+                             final @Nullable UUID playerId,
                              final Map<String, ? extends Map<String, ? extends State<?>>> values) {
         this.sessionId = sessionId;
         this.playerId = playerId;
