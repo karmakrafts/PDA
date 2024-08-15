@@ -74,7 +74,6 @@ import org.apache.logging.log4j.Logger;
 import java.util.ServiceLoader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Alexander Hinze
@@ -204,10 +203,7 @@ public class PDAMod {
     private void onGameShutdown(final GameShuttingDownEvent event) {
         DISPOSITION_HANDLER.disposeAll();
         try {
-            EXECUTOR_SERVICE.shutdown();
-            if (!EXECUTOR_SERVICE.awaitTermination(500, TimeUnit.MILLISECONDS)) {
-                EXECUTOR_SERVICE.shutdownNow().forEach(Runnable::run); // Call all remaining tasks immediatly
-            }
+            EXECUTOR_SERVICE.shutdownNow().forEach(Runnable::run);
         }
         catch (Throwable error) {
             LOGGER.error("Could not shutdown executor service", error);
