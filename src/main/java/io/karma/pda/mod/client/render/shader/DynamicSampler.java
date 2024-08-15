@@ -64,10 +64,8 @@ public final class DynamicSampler implements Sampler {
         if (textureId <= 0) {
             return;
         }
-        final var previousUnit = GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE);
         GL13.glActiveTexture(GL13.GL_TEXTURE0 + id);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
-        GL13.glActiveTexture(previousUnit);
     }
 
     @Override
@@ -76,10 +74,8 @@ public final class DynamicSampler implements Sampler {
         if (textureId <= 0) {
             return;
         }
-        final var previousUnit = GL11.glGetInteger(GL13.GL_ACTIVE_TEXTURE);
-        GL13.glActiveTexture(GL13.GL_TEXTURE0 + id);
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-        GL13.glActiveTexture(previousUnit);
     }
 
     @Override
