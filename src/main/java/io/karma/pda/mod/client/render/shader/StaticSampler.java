@@ -26,8 +26,12 @@ public final class StaticSampler implements Sampler, Disposable {
     private static final boolean IS_SUPPORTED;
 
     static {
-        if (IS_SUPPORTED = GL.getCapabilities().GL_ARB_bindless_texture) {
+        IS_SUPPORTED = GL.getCapabilities().GL_ARB_bindless_texture;
+        if (IS_SUPPORTED) {
             PDAMod.LOGGER.info("Detected GL_ARB_bindless_texture support, enabling static samplers");
+        }
+        else {
+            PDAMod.LOGGER.info("Detected no GL_ARB_bindless_texture support, disabling static samplers");
         }
     }
 

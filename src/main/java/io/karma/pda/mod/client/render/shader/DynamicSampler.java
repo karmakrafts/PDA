@@ -52,6 +52,9 @@ public final class DynamicSampler implements Sampler {
             name,
             id,
             program.getId());
+        GL20.glUseProgram(program.getId());
+        GL20.glUniform1i(program.getUniformCache().getLocation(name), id);
+        GL20.glUseProgram(0);
     }
 
     @Override
@@ -62,16 +65,11 @@ public final class DynamicSampler implements Sampler {
         }
         GL13.glActiveTexture(GL13.GL_TEXTURE0 + id);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
-        GL20.glUniform1i(program.getUniformCache().getLocation(name), id);
     }
 
     @Override
     public void unbind(final ShaderProgram program) {
-        final var textureId = this.textureId.getAsInt();
-        if (textureId <= 0) {
-            return;
-        }
-        GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        GL13.glActiveTexture(GL13.GL_TEXTURE0 + id);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
     }
 
