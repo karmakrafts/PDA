@@ -160,9 +160,9 @@ public final class PDAItem extends Item implements TabItemProvider {
                     game.setScreen(new PDAScreen(hands,
                         sessionHandler.getActiveSession()));
                     player.playSound(SoundEvents.WOODEN_PRESSURE_PLATE_CLICK_OFF, 0.3F, 1.75F);
-                    interactionHandler.setIsScreenOpen(true);
                 });
             });
         // @formatter:on
+        interactionHandler.setIsScreenOpen(true);
     }
 }

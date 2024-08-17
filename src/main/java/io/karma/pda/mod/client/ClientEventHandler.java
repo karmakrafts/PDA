@@ -29,11 +29,13 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.ModelEvent.ModifyBakingResult;
 import net.minecraftforge.client.model.QuadTransformers;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -67,8 +69,11 @@ public final class ClientEventHandler {
 
     private static BakedQuad transformDockButtonQuad(final BakedQuad quad, final Direction orientation) {
         // @formatter:off
+        final var rotation = orientation.getAxis() == Axis.Z
+            ? orientation.getOpposite()
+            : orientation;
         return QuadTransformers.applyingLightmap(LightTexture.FULL_BRIGHT)
-            .andThen(BakedQuadUtils.applyRotation(orientation))
+            .andThen(BakedQuadUtils.applyRotation(rotation))
             // Stolen from item models to save space, need to offset by 3 pixels up
             .andThen(BakedQuadUtils.applyTranslation(new Vector3f(0F, 3F / 16F, 0F)))
             .process(quad);
@@ -160,7 +165,7 @@ public final class ClientEventHandler {
     }
 
     // Splice together multipart models after baking
-    private void onModifyBakingResult(final ModelEvent.ModifyBakingResult event) {
+    private void onModifyBakingResult(final ModifyBakingResult event) {
         PDAMod.LOGGER.debug("Splicing baked multipart models");
         final var models = event.getModels();
         spliceDockModels(models);
@@ -179,17 +184,17 @@ public final class ClientEventHandler {
                     "dock",
                     String.format("has_item=false,orientation=%s", orientationName)),
                 (k, model) -> new CompositeBakedModel(List.of(
-                    Pair.of(model, (q, s) -> q),
-                    Pair.of(models.get(DOCK_FULLBRIGHT), (q, s) -> BakedQuadUtils.applyRotation(orientation).process(q))
+                    Pair.of(model, q -> q),
+                    Pair.of(models.get(DOCK_FULLBRIGHT), q -> BakedQuadUtils.applyRotation(orientation).process(q))
                 )));
             // Compute populated models
             models.compute(new ModelResourceLocation(Constants.MODID,
                     "dock",
                     String.format("has_item=true,orientation=%s", orientationName)),
                 (k, model) -> new CompositeBakedModel(List.of(
-                    Pair.of(model, (q, s) -> q),
-                    Pair.of(models.get(DOCK_FULLBRIGHT), (q, s) -> transformDockQuad(q, orientation)),
-                    Pair.of(pdaFullBright, (q, s) -> transformDockButtonQuad(q, orientation))
+                    Pair.of(model, q -> q),
+                    Pair.of(pdaFullBright, q -> transformDockButtonQuad(q, orientation)),
+                    Pair.of(models.get(DOCK_FULLBRIGHT), q -> transformDockQuad(q, orientation))
                 )));
             // @formatter:on
         }

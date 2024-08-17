@@ -9,7 +9,6 @@ import io.karma.pda.api.app.component.Container;
 import io.karma.pda.api.client.flex.FlexNodeHandler;
 import io.karma.pda.api.dispose.Disposable;
 import io.karma.pda.api.flex.FlexNode;
-import io.karma.pda.mod.PDAMod;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
@@ -47,7 +46,6 @@ public final class ClientFlexNodeHandler implements FlexNodeHandler {
         if (!nodes.containsKey(id)) {
             return;
         }
-        PDAMod.LOGGER.debug("Removing flex node {}", id);
         if (nodes.remove(id) instanceof Disposable disposable) {
             disposable.dispose();
         }
@@ -61,7 +59,6 @@ public final class ClientFlexNodeHandler implements FlexNodeHandler {
     @Override
     public FlexNode getOrCreateNode(final UUID id) {
         return nodes.computeIfAbsent(id, i -> {
-            PDAMod.LOGGER.debug("Creating flex node {}", i);
             return new ClientFlexNode();
         });
     }

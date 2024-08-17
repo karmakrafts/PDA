@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * @author Alexander Hinze
@@ -36,10 +36,10 @@ import java.util.function.BiFunction;
  */
 @OnlyIn(Dist.CLIENT)
 public final class CompositeBakedModel implements BakedModel {
-    private final List<Pair<BakedModel, BiFunction<BakedQuad, Direction, BakedQuad>>> models;
+    private final List<Pair<BakedModel, Function<BakedQuad, BakedQuad>>> models;
     private final BakedModel delegate;
 
-    public CompositeBakedModel(final List<Pair<BakedModel, BiFunction<BakedQuad, Direction, BakedQuad>>> models) {
+    public CompositeBakedModel(final List<Pair<BakedModel, Function<BakedQuad, BakedQuad>>> models) {
         this.models = models;
         delegate = models.get(0).getLeft();
     }
@@ -53,7 +53,7 @@ public final class CompositeBakedModel implements BakedModel {
         for (final var model : models) {
             // @formatter:off
             BakedQuadUtils.transformQuads(model.getLeft().getQuads(state, side, rand), quads,
-                q -> model.getRight().apply(q, q.getDirection()));
+                model.getRight());
             // @formatter:on
         }
         return quads;

@@ -42,7 +42,6 @@ public abstract class AbstractComponent implements Component {
     protected AbstractComponent(final ComponentType<?> type, final UUID id) {
         this.type = type;
         this.id.set(id);
-        API.getLogger().debug("Creating component {} of type {}", id, type.getName());
     }
 
     @Override

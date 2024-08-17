@@ -27,6 +27,7 @@ import io.karma.pda.mod.client.interaction.PDAInteractionHandler;
 import io.karma.pda.mod.client.render.display.DefaultDisplayRenderer;
 import io.karma.pda.mod.client.render.graphics.GraphicsRenderTypes;
 import io.karma.pda.mod.client.render.graphics.font.DefaultFontRenderer;
+import io.karma.pda.mod.client.render.item.DockItemRenderer;
 import io.karma.pda.mod.client.render.item.PDAItemRenderer;
 import io.karma.pda.mod.client.render.shader.DefaultShaderFactory;
 import io.karma.pda.mod.client.render.shader.DefaultShaderPreProcessor;
@@ -238,6 +239,7 @@ public class PDAMod {
         DockInteractionHandler.INSTANCE.setup();
         PDAInteractionHandler.INSTANCE.setup();
         PDAItemRenderer.INSTANCE.setup();
+        DockItemRenderer.INSTANCE.setup();
         initClientAPI();
     }
 

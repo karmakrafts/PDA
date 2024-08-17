@@ -40,7 +40,6 @@ public final class DefaultStateReflector implements StateReflector {
     private static MutableState<?> getState(final Object instance, final Field field) {
         try {
             final var name = field.getName();
-            PDAMod.LOGGER.debug("Reflecting synced property '{}' in {}", name, field.getDeclaringClass().getName());
             final var isNonPublic = !Modifier.isPublic(field.getModifiers());
             if (isNonPublic) {
                 field.setAccessible(true);

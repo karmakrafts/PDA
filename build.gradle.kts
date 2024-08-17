@@ -78,6 +78,7 @@ val composableSourceSet = sourceSets.create("composable") {
 }
 
 // Configs
+val debugLibraryConfig = configurations.create("debugLibrary")
 val coreLibraryConfig = configurations.create("coreLibrary")
 val libraryConfig = configurations.create("library") {
     extendsFrom(coreLibraryConfig)
@@ -111,7 +112,8 @@ repositories {
     mavenCentral()
     maven("https://thedarkcolour.github.io/KotlinForForge")
     maven("https://maven.blamejared.com")
-    maven("https://git.karmakrafts.dev/api/v4/projects/267/packages/maven")
+    maven("https://git.karmakrafts.dev/api/v4/projects/267/packages/maven") // Material Color Utils
+    maven("https://git.karmakrafts.dev/api/v4/projects/286/packages/maven") // RenderDoc Injector
     maven("https://cursemaven.com")
 }
 
@@ -126,6 +128,8 @@ fun DependencyHandlerScope.localLwjglModule(name: String) {
 
 dependencies {
     minecraft(libs.minecraftForge)
+    debugLibraryConfig(libs.rdi)
+
     implementation(libs.kotlinForForge)
     //implementation(fg.deobf(libs.embeddium.get().toString()))
     //implementation(fg.deobf(libs.oculus.get().toString()))
@@ -207,7 +211,8 @@ minecraft {
                 }
             }
             lazyToken("minecraft_classpath") {
-                libraryConfig.copyRecursive().resolve().joinToString(File.pathSeparator) { it.absolutePath }
+                libraryConfig.copyRecursive().resolve().joinToString(File.pathSeparator) { it.absolutePath } + ':' +
+                    debugLibraryConfig.copyRecursive().resolve().joinToString(File.pathSeparator) { it.absolutePath }
             }
         }
     }

@@ -67,8 +67,8 @@ public final class ClientPacketHandler extends CommonPacketHandler {
             final var oldId = comp.getId();
             final var newId = ids.get(i);
             comp.setId(newId);
-            PDAMod.LOGGER.debug("Remapped component ID {} -> {}", oldId, newId);
         }
+        PDAMod.LOGGER.debug("Remapped component IDs");
     }
 
     @Internal
