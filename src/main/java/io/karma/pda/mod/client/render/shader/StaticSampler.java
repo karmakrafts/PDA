@@ -65,6 +65,11 @@ public final class StaticSampler implements Sampler, Disposable {
     }
 
     @Override
+    public boolean isDynamic() {
+        return false;
+    }
+
+    @Override
     public int getId() {
         return id;
     }

@@ -65,12 +65,14 @@ public final class DynamicSampler implements Sampler {
         }
         GL13.glActiveTexture(GL13.GL_TEXTURE0 + id);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureId);
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
     }
 
     @Override
     public void unbind(final ShaderProgram program) {
         GL13.glActiveTexture(GL13.GL_TEXTURE0 + id);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
     }
 
     @Override

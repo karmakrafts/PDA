@@ -112,7 +112,12 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
                 .map(Map.Entry::getKey)
                 .orElseThrow();
             // @formatter:on
-            samplers.put(samplerId, StaticSampler.create(samplerId, name, textureId));
+            final var samplerInstance = StaticSampler.create(samplerId, name, textureId);
+            samplers.put(samplerId, samplerInstance);
+            if (samplerInstance.isDynamic()) {
+                // If ARB_bindless_texture is not available, these will be created as dynamic samplers
+                dynamicSamplers.add(samplerInstance);
+            }
         }
 
         // Set up dynamic samplers

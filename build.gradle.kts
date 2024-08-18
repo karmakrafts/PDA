@@ -15,6 +15,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.io.path.inputStream
 import kotlin.io.path.pathString
+import org.gradle.internal.os.OperatingSystem;
 
 plugins {
     eclipse
@@ -38,7 +39,7 @@ java {
 
 val projectPath: Path = project.projectDir.toPath()
 val buildConfig: Properties = Properties().apply {
-    Path("build.properties").inputStream(StandardOpenOption.READ).use(::load)
+    (projectPath / "build.properties").inputStream(StandardOpenOption.READ).use(::load)
 }
 val modId: String = buildConfig["mod_id"] as String
 val license: String = buildConfig["license"] as String
@@ -78,7 +79,6 @@ val composableSourceSet = sourceSets.create("composable") {
 }
 
 // Configs
-val debugLibraryConfig = configurations.create("debugLibrary")
 val coreLibraryConfig = configurations.create("coreLibrary")
 val libraryConfig = configurations.create("library") {
     extendsFrom(coreLibraryConfig)
@@ -128,7 +128,6 @@ fun DependencyHandlerScope.localLwjglModule(name: String) {
 
 dependencies {
     minecraft(libs.minecraftForge)
-    debugLibraryConfig(libs.rdi)
 
     implementation(libs.kotlinForForge)
     //implementation(fg.deobf(libs.embeddium.get().toString()))
@@ -190,7 +189,7 @@ minecraft {
             workingDirectory(project.file("run"))
             properties(
                 mapOf(
-                    "forge.logging.markers" to "SCAN,LOADING,CORE",
+                    "forge.logging.markers" to "LOADING,CORE",
                     "forge.logging.console.level" to "debug",
                     "mixin.debug" to "true",
                     "mixin.debug.dumpTargetOnFailure" to "true",
@@ -211,8 +210,7 @@ minecraft {
                 }
             }
             lazyToken("minecraft_classpath") {
-                libraryConfig.copyRecursive().resolve().joinToString(File.pathSeparator) { it.absolutePath } + ':' +
-                    debugLibraryConfig.copyRecursive().resolve().joinToString(File.pathSeparator) { it.absolutePath }
+                libraryConfig.copyRecursive().resolve().joinToString(File.pathSeparator) { it.absolutePath }
             }
         }
     }

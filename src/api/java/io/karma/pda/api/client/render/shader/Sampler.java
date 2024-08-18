@@ -23,5 +23,9 @@ public interface Sampler {
 
     void unbind(final ShaderProgram program);
 
+    default boolean isDynamic() {
+        return true;
+    }
+
     default void invalidate() {}
 }
