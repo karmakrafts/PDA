@@ -22,7 +22,9 @@ public class DefaultTheme implements Theme {
     private DynamicScheme scheme;
     private FontSet fontSet;
 
-    public DefaultTheme(final ResourceLocation name, final SchemeFactory<?> schemeFactory, final Color accentColor,
+    public DefaultTheme(final ResourceLocation name,
+                        final SchemeFactory<?> schemeFactory,
+                        final Color accentColor,
                         final boolean isDark) {
         this.name = name;
         this.schemeFactory = schemeFactory;

@@ -26,7 +26,9 @@ public enum DefaultDisplayType implements DisplayType {
     private final float glitchRate;
     private final float pixelationFactor;
 
-    DefaultDisplayType(final float glitchFactor, final int glitchBlocks, final float glitchRate,
+    DefaultDisplayType(final float glitchFactor,
+                       final int glitchBlocks,
+                       final float glitchRate,
                        final float pixelationFactor) {
         translationSupplier = () -> I18n.get(String.format("display_type.%s.%s", Constants.MODID, this));
         this.glitchFactor = glitchFactor;

@@ -26,6 +26,4 @@ public interface Sampler {
     default boolean isDynamic() {
         return true;
     }
-
-    default void invalidate() {}
 }

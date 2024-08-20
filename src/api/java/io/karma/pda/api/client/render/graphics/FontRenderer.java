@@ -27,32 +27,75 @@ public interface FontRenderer {
 
     int render(final int x, final int y, final CharSequence text, final Font font, final ColorProvider color);
 
-    int render(final int x, final int y, final int maxWidth, final CharSequence text, final Font font,
+    int render(final int x,
+               final int y,
+               final int maxWidth,
+               final CharSequence text,
+               final Font font,
                final ColorProvider color);
 
-    int render(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
-               final Font font, final ColorProvider color);
+    int render(final int x,
+               final int y,
+               final int maxWidth,
+               final int maxHeight,
+               final CharSequence text,
+               final Font font,
+               final ColorProvider color);
 
-    int render(final int x, final int y, final int maxWidth, final CharSequence text, final CharSequence cutoffSuffix,
-               final Font font, final ColorProvider color);
+    int render(final int x,
+               final int y,
+               final int maxWidth,
+               final CharSequence text,
+               final CharSequence cutoffSuffix,
+               final Font font,
+               final ColorProvider color);
 
-    int render(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
-               final CharSequence cutoffSuffix, final Font font, final ColorProvider color);
+    int render(final int x,
+               final int y,
+               final int maxWidth,
+               final int maxHeight,
+               final CharSequence text,
+               final CharSequence cutoffSuffix,
+               final Font font,
+               final ColorProvider color);
 
     // Versions that allow per-glyph colors
 
-    int render(final int x, final int y, final CharSequence text, final Font font,
+    int render(final int x,
+               final int y,
+               final CharSequence text,
+               final Font font,
                final IntFunction<ColorProvider> color);
 
-    int render(final int x, final int y, final int maxWidth, final CharSequence text, final Font font,
+    int render(final int x,
+               final int y,
+               final int maxWidth,
+               final CharSequence text,
+               final Font font,
                final IntFunction<ColorProvider> color);
 
-    int render(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
-               final Font font, final IntFunction<ColorProvider> color);
+    int render(final int x,
+               final int y,
+               final int maxWidth,
+               final int maxHeight,
+               final CharSequence text,
+               final Font font,
+               final IntFunction<ColorProvider> color);
 
-    int render(final int x, final int y, final int maxWidth, final CharSequence text, final CharSequence cutoffSuffix,
-               final Font font, final IntFunction<ColorProvider> color);
+    int render(final int x,
+               final int y,
+               final int maxWidth,
+               final CharSequence text,
+               final CharSequence cutoffSuffix,
+               final Font font,
+               final IntFunction<ColorProvider> color);
 
-    int render(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
-               final CharSequence cutoffSuffix, final Font font, final IntFunction<ColorProvider> color);
+    int render(final int x,
+               final int y,
+               final int maxWidth,
+               final int maxHeight,
+               final CharSequence text,
+               final CharSequence cutoffSuffix,
+               final Font font,
+               final IntFunction<ColorProvider> color);
 }

@@ -30,6 +30,7 @@ public interface BrushFactory {
 
     Brush create(final RenderType renderType, final ColorProvider color, final ResourceLocation texture);
 
-    Brush create(final Function<DisplayMode, RenderType> renderType, final ColorProvider color,
+    Brush create(final Function<DisplayMode, RenderType> renderType,
+                 final ColorProvider color,
                  final ResourceLocation texture);
 }

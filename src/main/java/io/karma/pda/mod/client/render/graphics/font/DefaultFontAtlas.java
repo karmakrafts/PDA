@@ -8,16 +8,20 @@ import io.karma.pda.api.app.theme.font.Font;
 import io.karma.pda.api.app.theme.font.FontVariant;
 import io.karma.pda.api.client.render.graphics.FontAtlas;
 import io.karma.pda.api.client.render.graphics.GlyphSprite;
+import io.karma.pda.api.reload.Reloadable;
 import io.karma.pda.api.util.Exceptions;
 import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.util.FreeTypeUtils;
 import io.karma.pda.mod.client.util.MSDFUtils;
 import io.karma.pda.mod.client.util.TextureUtils;
+import io.karma.pda.mod.reload.DefaultReloadHandler;
 import it.unimi.dsi.fastutil.chars.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL33;
@@ -35,7 +39,7 @@ import java.util.Objects;
  * @since 04/05/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class DefaultFontAtlas implements FontAtlas {
+public final class DefaultFontAtlas implements FontAtlas, Reloadable<Void> {
     private final FontVariant font;
     private final int spriteSize;
     private final int sizeInSlots;
@@ -96,8 +100,11 @@ public final class DefaultFontAtlas implements FontAtlas {
             spriteSize, 0F, 0F);
         // @formatter:on
         textureId = TextureUtils.createTexture();
-        rebuild();
-        PDAMod.DISPOSITION_HANDLER.addObject(this);
+
+        PDAMod.DISPOSITION_HANDLER.register(this);
+        DefaultReloadHandler.INSTANCE.register(this);
+        // Initial reload must be done manually as the object is initialized too late
+        reload(null, Minecraft.getInstance().getResourceManager());
     }
 
     private void uploadTexture(final BufferedImage image) {
@@ -253,7 +260,8 @@ public final class DefaultFontAtlas implements FontAtlas {
         }
     }
 
-    void rebuild() {
+    @Override
+    public void reload(final @Nullable Void value, final ResourceManager manager) {
         isReady = false;
 
         final var fontLocation = font.getLocation();
@@ -263,10 +271,9 @@ public final class DefaultFontAtlas implements FontAtlas {
             sizeInSlots);
         clear();
 
-        final var resourceManager = Minecraft.getInstance().getResourceManager();
         final var context = new StitchContext();
 
-        try (final var fontResource = new MSDFFont(resourceManager.getResourceOrThrow(fontLocation).open())) {
+        try (final var fontResource = new MSDFFont(manager.getResourceOrThrow(fontLocation).open())) {
             applyVariationAxes(fontResource);
             buildAndMeasureShapes(fontResource, context);
             renderShapes(fontResource, context);

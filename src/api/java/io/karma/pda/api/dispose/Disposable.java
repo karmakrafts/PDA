@@ -4,22 +4,24 @@
 
 package io.karma.pda.api.dispose;
 
-import org.jetbrains.annotations.NotNull;
+import java.util.Comparator;
 
 /**
  * @author Alexander Hinze
  * @since 17/02/2024
  */
 @FunctionalInterface
-public interface Disposable extends Comparable<Disposable> {
+public interface Disposable {
+    Comparator<Disposable> COMPARATOR = (a, b) -> Integer.compare(b.getDispositionPriority(),
+        a.getDispositionPriority());
+
     void dispose();
 
     default int getDispositionPriority() {
-        return 0;
-    }
-
-    @Override
-    default int compareTo(@NotNull Disposable o) {
-        return Integer.compare(o.getDispositionPriority(), getDispositionPriority());
+        final var type = getClass();
+        if (!type.isAnnotationPresent(DispositionPriority.class)) {
+            return 0;
+        }
+        return type.getAnnotation(DispositionPriority.class).value();
     }
 }

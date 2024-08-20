@@ -14,8 +14,6 @@ import io.karma.pda.api.app.theme.font.FontFamily;
 import io.karma.pda.api.client.ClientAPI;
 import io.karma.pda.api.color.GradientFunction;
 import io.karma.pda.api.display.DisplayModeSpec;
-import io.karma.pda.api.dispose.Disposable;
-import io.karma.pda.api.dispose.DispositionHandler;
 import io.karma.pda.api.state.StateReflector;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.api.util.RegistryUtils;
@@ -31,23 +29,19 @@ import io.karma.pda.mod.client.render.item.DockItemRenderer;
 import io.karma.pda.mod.client.render.item.PDAItemRenderer;
 import io.karma.pda.mod.client.render.shader.DefaultShaderFactory;
 import io.karma.pda.mod.client.render.shader.DefaultShaderPreProcessor;
-import io.karma.pda.mod.client.screen.DockStorageScreen;
-import io.karma.pda.mod.client.screen.PDAStorageScreen;
 import io.karma.pda.mod.client.session.ClientSessionHandler;
+import io.karma.pda.mod.dispose.DefaultDispositionHandler;
 import io.karma.pda.mod.init.*;
 import io.karma.pda.mod.json.JSONCodecs;
-import io.karma.pda.mod.menu.DockStorageMenu;
-import io.karma.pda.mod.menu.PDAStorageMenu;
 import io.karma.pda.mod.network.ClientPacketHandler;
 import io.karma.pda.mod.network.CommonPacketHandler;
+import io.karma.pda.mod.reload.DefaultReloadHandler;
 import io.karma.pda.mod.session.DefaultSessionHandler;
 import io.karma.pda.mod.util.TabItemProvider;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -75,6 +69,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.ServiceLoader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Alexander Hinze
@@ -84,11 +79,24 @@ import java.util.concurrent.Executors;
 public class PDAMod {
     public static final Logger LOGGER = LogManager.getLogger();
     public static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
-    public static final DispositionHandler DISPOSITION_HANDLER = new DispositionHandler(PDAMod::handleDisposition);
+
+    public static final DefaultDispositionHandler DISPOSITION_HANDLER = new DefaultDispositionHandler(disposable -> DistExecutor.unsafeRunForDist(
+        () -> () -> {
+            // Make sure client-side resources always get disposed on the main thread to allow GL calls
+            RenderSystem.recordRenderCall(() -> {
+                LOGGER.info("Disposing resource {}", disposable);
+                disposable.dispose();
+            });
+            return null;
+        },
+        () -> () -> {
+            LOGGER.info("Disposing resource {}", disposable);
+            disposable.dispose();
+            return null;
+        }));
 
     // @formatter:off
-    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(Constants.MODID,
-            "play"),
+    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(Constants.MODID, "play"),
         () -> Constants.PROTOCOL_VERSION,
         Constants.PROTOCOL_VERSION::equals,
         Constants.PROTOCOL_VERSION::equals);
@@ -186,25 +194,13 @@ public class PDAMod {
         });
     }
 
-    private static void handleDisposition(final Disposable object) {
-        DistExecutor.unsafeRunForDist(() -> () -> {
-            // Make sure client-side resources always get disposed on the main thread to allow GL calls
-            RenderSystem.recordRenderCall(() -> {
-                LOGGER.info("Disposing resource {}", object);
-                object.dispose();
-            });
-            return null;
-        }, () -> () -> {
-            LOGGER.info("Disposing resource {}", object);
-            object.dispose();
-            return null;
-        });
-    }
-
     private void onGameShutdown(final GameShuttingDownEvent event) {
         DISPOSITION_HANDLER.disposeAll();
         try {
-            EXECUTOR_SERVICE.shutdownNow().forEach(Runnable::run);
+            EXECUTOR_SERVICE.shutdown();
+            if (EXECUTOR_SERVICE.awaitTermination(5, TimeUnit.SECONDS)) {
+                EXECUTOR_SERVICE.shutdownNow().forEach(Runnable::run);
+            }
         }
         catch (Throwable error) {
             LOGGER.error("Could not shutdown executor service", error);
@@ -213,14 +209,17 @@ public class PDAMod {
 
     private void onCommonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            LOGGER.info("Starting common setup");
             STATE_REFLECTORS.forEach(StateReflector::init);
+            DefaultReloadHandler.INSTANCE.setup();
             CommonPacketHandler.INSTANCE.registerPackets();
             ClientPacketHandler.INSTANCE.registerPackets();
         });
     }
 
     private void initAPI() {
-        API.setLogger(LOGGER);
+        LOGGER.info("Initializing API, PING!");
+        API.setLogger(LogManager.getLogger("PDA API"));
         API.setObjectMapper(new ObjectMapper());
         API.setExecutorService(EXECUTOR_SERVICE);
         API.setSessionHandler(DefaultSessionHandler.INSTANCE);
@@ -230,6 +229,7 @@ public class PDAMod {
         API.setFontFamilyRegistry(() -> RegistryUtils.getRegistry(Constants.FONT_FAMILY_REGISTRY_NAME));
         API.setGradientFunctionRegistry(() -> RegistryUtils.getRegistry(Constants.GRADIENT_FUNCTION_REGISTRY_NAME));
         API.setDisplayModeRegistry(() -> RegistryUtils.getRegistry(Constants.DISPLAY_MODE_REGISTRY_NAME));
+        API.setReloadHandler(DefaultReloadHandler.INSTANCE);
         API.init();
     }
 
@@ -245,6 +245,7 @@ public class PDAMod {
 
     @OnlyIn(Dist.CLIENT)
     private void initClientAPI() {
+        LOGGER.info("Initializing client API, PING!");
         ClientAPI.setSessionHandler(ClientSessionHandler.INSTANCE);
         ClientAPI.setFlexNodeHandler(ClientFlexNodeHandler.INSTANCE);
         ClientAPI.setDisplayRenderer(DefaultDisplayRenderer.INSTANCE);
@@ -257,15 +258,11 @@ public class PDAMod {
     @OnlyIn(Dist.CLIENT)
     private void onClientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
+            LOGGER.info("Starting client setup");
             GraphicsRenderTypes.createShaders();
             ComponentRenderTypes.createShaders();
             DefaultFontRenderer.createShaders();
-            LOGGER.info("Registering screens");
-            MenuScreens.register(ModMenus.pdaStorage.get(),
-                (PDAStorageMenu menu, Inventory inventory, Component title) -> new PDAStorageScreen(menu, inventory));
-            MenuScreens.register(ModMenus.dockStorage.get(),
-                (DockStorageMenu menu, Inventory inventory, Component title) -> new DockStorageScreen(menu, inventory));
-            ClientEventHandler.INSTANCE.fireRegisterEvents();
+            ModScreens.register();
         });
     }
 }

@@ -11,6 +11,8 @@ import io.karma.pda.api.app.theme.Theme;
 import io.karma.pda.api.app.theme.font.FontFamily;
 import io.karma.pda.api.color.GradientFunction;
 import io.karma.pda.api.display.DisplayModeSpec;
+import io.karma.pda.api.dispose.DispositionHandler;
+import io.karma.pda.api.reload.ReloadHandler;
 import io.karma.pda.api.session.SessionHandler;
 import io.karma.pda.api.util.Constants;
 import net.minecraft.client.Minecraft;
@@ -19,6 +21,7 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.server.ServerLifecycleHooks;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
@@ -31,6 +34,8 @@ import java.util.function.Supplier;
  * @since 13/02/2024
  */
 public class API {
+    private static final Logger INTERNAL_LOGGER = LogManager.getLogger("PDA API");
+
     private static Logger logger;
     private static ExecutorService executorService;
     private static SessionHandler sessionHandler;
@@ -41,6 +46,8 @@ public class API {
     private static Supplier<IForgeRegistry<FontFamily>> fontFamilyRegistry;
     private static Supplier<IForgeRegistry<GradientFunction>> gradientFunctionRegistry;
     private static Supplier<IForgeRegistry<DisplayModeSpec>> displayModeRegistry;
+    private static ReloadHandler reloadHandler;
+    private static DispositionHandler dispositionHandler;
     private static boolean isInitialized;
 
     // @formatter:off
@@ -53,7 +60,7 @@ public class API {
         if (isInitialized) {
             throw new IllegalStateException("Already initialized");
         }
-        logger.info("Initializing API");
+        INTERNAL_LOGGER.info("PONG! API is initialized");
         isInitialized = true;
     }
 
@@ -65,6 +72,26 @@ public class API {
         if (!isInitialized) {
             throw new IllegalStateException("Not initialized");
         }
+    }
+
+    public static DispositionHandler getDispositionHandler() {
+        assertInitialized();
+        return dispositionHandler;
+    }
+
+    @Internal
+    public static void setDispositionHandler(final DispositionHandler dispositionHandler) {
+        API.dispositionHandler = dispositionHandler;
+    }
+
+    public static ReloadHandler getReloadHandler() {
+        assertInitialized();
+        return reloadHandler;
+    }
+
+    @Internal
+    public static void setReloadHandler(final ReloadHandler reloadHandler) {
+        API.reloadHandler = reloadHandler;
     }
 
     @Internal
@@ -144,8 +171,7 @@ public class API {
     }
 
     @Internal
-    public static void setComponentTypeRegistry(
-        final Supplier<IForgeRegistry<ComponentType<?>>> componentTypeRegistry) {
+    public static void setComponentTypeRegistry(final Supplier<IForgeRegistry<ComponentType<?>>> componentTypeRegistry) {
         API.componentTypeRegistry = componentTypeRegistry;
     }
 
@@ -185,8 +211,7 @@ public class API {
     }
 
     @Internal
-    public static void setGradientFunctionRegistry(
-        final Supplier<IForgeRegistry<GradientFunction>> gradientFunctionRegistry) {
+    public static void setGradientFunctionRegistry(final Supplier<IForgeRegistry<GradientFunction>> gradientFunctionRegistry) {
         API.gradientFunctionRegistry = gradientFunctionRegistry;
     }
 

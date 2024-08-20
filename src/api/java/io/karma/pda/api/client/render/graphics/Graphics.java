@@ -65,24 +65,44 @@ public interface Graphics {
 
     int text(final int x, final int y, final int maxWidth, final CharSequence text, final CharSequence cutoffSuffix);
 
-    int text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
-              final CharSequence cutoffSuffix);
+    int text(final int x,
+             final int y,
+             final int maxWidth,
+             final int maxHeight,
+             final CharSequence text,
+             final CharSequence cutoffSuffix);
 
     // Extended text rendering with per-glyph colors
 
     int text(final int x, final int y, final CharSequence text, final IntFunction<ColorProvider> color);
 
-    int text(final int x, final int y, final int maxWidth, final CharSequence text,
-              final IntFunction<ColorProvider> color);
+    int text(final int x,
+             final int y,
+             final int maxWidth,
+             final CharSequence text,
+             final IntFunction<ColorProvider> color);
 
-    int text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
-              final IntFunction<ColorProvider> color);
+    int text(final int x,
+             final int y,
+             final int maxWidth,
+             final int maxHeight,
+             final CharSequence text,
+             final IntFunction<ColorProvider> color);
 
-    int text(final int x, final int y, final int maxWidth, final CharSequence text, final CharSequence cutoffSuffix,
-              final IntFunction<ColorProvider> color);
+    int text(final int x,
+             final int y,
+             final int maxWidth,
+             final CharSequence text,
+             final CharSequence cutoffSuffix,
+             final IntFunction<ColorProvider> color);
 
-    int text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text,
-              final CharSequence cutoffSuffix, final IntFunction<ColorProvider> color);
+    int text(final int x,
+             final int y,
+             final int maxWidth,
+             final int maxHeight,
+             final CharSequence text,
+             final CharSequence cutoffSuffix,
+             final IntFunction<ColorProvider> color);
 
     default VertexConsumer getBuffer() {
         return getContext().getBufferSource().getBuffer(getState().getBrush().getRenderType(getContext().getDisplayMode()));

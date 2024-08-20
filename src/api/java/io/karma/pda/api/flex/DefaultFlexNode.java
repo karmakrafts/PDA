@@ -39,13 +39,25 @@ public final class DefaultFlexNode implements FlexNode {
     private FlexValue basis;
     private FlexNodeType type;
 
-    private DefaultFlexNode(final FlexDirection direction, final FlexOverflow overflow,
-                            final FlexPositionType positionType, final FlexAlignment selfAlignment,
-                            final FlexAlignment itemAlignment, final FlexAlignment contentAlignment,
-                            final FlexJustify contentJustification, final FlexWrap wrap, final FlexValue x,
-                            final FlexValue y, final FlexValue width, final FlexValue height, final FlexBorder border,
-                            final FlexBorder margin, final FlexBorder padding, final float growWeight,
-                            final float shrinkWeight, final FlexValue basis, final FlexNodeType type) {
+    private DefaultFlexNode(final FlexDirection direction,
+                            final FlexOverflow overflow,
+                            final FlexPositionType positionType,
+                            final FlexAlignment selfAlignment,
+                            final FlexAlignment itemAlignment,
+                            final FlexAlignment contentAlignment,
+                            final FlexJustify contentJustification,
+                            final FlexWrap wrap,
+                            final FlexValue x,
+                            final FlexValue y,
+                            final FlexValue width,
+                            final FlexValue height,
+                            final FlexBorder border,
+                            final FlexBorder margin,
+                            final FlexBorder padding,
+                            final float growWeight,
+                            final float shrinkWeight,
+                            final FlexValue basis,
+                            final FlexNodeType type) {
         this.direction = direction;
         this.overflow = overflow;
         this.positionType = positionType;
@@ -489,7 +501,9 @@ public final class DefaultFlexNode implements FlexNode {
             return this;
         }
 
-        public Builder border(final FlexValue left, final FlexValue right, final FlexValue top,
+        public Builder border(final FlexValue left,
+                              final FlexValue right,
+                              final FlexValue top,
                               final FlexValue bottom) {
             border = FlexBorder.of(left, right, top, bottom);
             return this;
@@ -565,7 +579,9 @@ public final class DefaultFlexNode implements FlexNode {
             return this;
         }
 
-        public Builder margin(final FlexValue left, final FlexValue right, final FlexValue top,
+        public Builder margin(final FlexValue left,
+                              final FlexValue right,
+                              final FlexValue top,
                               final FlexValue bottom) {
             margin = FlexBorder.of(left, right, top, bottom);
             return this;
@@ -581,7 +597,9 @@ public final class DefaultFlexNode implements FlexNode {
             return this;
         }
 
-        public Builder padding(final FlexValue left, final FlexValue right, final FlexValue top,
+        public Builder padding(final FlexValue left,
+                               final FlexValue right,
+                               final FlexValue top,
                                final FlexValue bottom) {
             padding = FlexBorder.of(left, right, top, bottom);
             return this;

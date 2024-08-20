@@ -37,7 +37,7 @@ public final class DefaultFramebuffer implements Framebuffer, Disposable {
         depthTextureId = TextureUtils.createTexture();
         id = GL30.glGenFramebuffers();
         resize(resolution.getWidth(), resolution.getHeight());
-        PDAMod.DISPOSITION_HANDLER.addObject(this);
+        PDAMod.DISPOSITION_HANDLER.register(this);
         PDAMod.LOGGER.debug(LogMarkers.RENDERER,
             "Created display framebuffer {}, color={}, depth={}",
             id,

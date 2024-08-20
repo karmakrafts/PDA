@@ -7,10 +7,16 @@ package io.karma.pda.mod.client.render.shader;
 import io.karma.pda.api.client.render.shader.Sampler;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.dispose.Disposable;
+import io.karma.pda.api.dispose.DispositionPriority;
+import io.karma.pda.api.reload.ReloadPriority;
+import io.karma.pda.api.reload.Reloadable;
 import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
+import io.karma.pda.mod.reload.DefaultReloadHandler;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.ARBBindlessTexture;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL20;
@@ -22,7 +28,9 @@ import java.util.function.IntSupplier;
  * @since 13/08/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class StaticSampler implements Sampler, Disposable {
+@DispositionPriority(100)
+@ReloadPriority(100)
+public final class StaticSampler implements Sampler, Disposable, Reloadable<Void> {
     private static final boolean IS_SUPPORTED;
 
     static {
@@ -44,7 +52,8 @@ public final class StaticSampler implements Sampler, Disposable {
         this.id = id;
         this.name = name;
         this.textureId = textureId;
-        PDAMod.DISPOSITION_HANDLER.addObject(this);
+        PDAMod.DISPOSITION_HANDLER.register(this);
+        DefaultReloadHandler.INSTANCE.register(this);
     }
 
     /**
@@ -77,11 +86,6 @@ public final class StaticSampler implements Sampler, Disposable {
     @Override
     public String getName() {
         return name;
-    }
-
-    @Override
-    public void invalidate() {
-        dispose(); // Disposition is the same thing as invalidation for static samplers
     }
 
     @Override
@@ -132,8 +136,13 @@ public final class StaticSampler implements Sampler, Disposable {
     }
 
     @Override
-    public int getDispositionPriority() {
-        return 1; // Samplers need to be freed before everything else
+    public void reload(final @Nullable Void value, final ResourceManager manager) {
+    }
+
+    @Override
+    public @Nullable Void prepareReload(final ResourceManager manager) {
+        dispose();
+        return null;
     }
 
     @Override

@@ -27,7 +27,8 @@ public final class NBTUtils {
         tag.putInt(key, value.ordinal());
     }
 
-    public static <E extends Enum<E>> @Nullable E get(final @Nullable CompoundTag tag, final String key,
+    public static <E extends Enum<E>> @Nullable E get(final @Nullable CompoundTag tag,
+                                                      final String key,
                                                       final Class<E> type) {
         if (tag == null || !tag.contains(key)) {
             return null;
@@ -35,8 +36,10 @@ public final class NBTUtils {
         return type.getEnumConstants()[tag.getInt(key)];
     }
 
-    public static <E extends Enum<E>> E getOrDefault(final @Nullable CompoundTag tag, final String key,
-                                                     final Class<E> type, final E defaultValue) {
+    public static <E extends Enum<E>> E getOrDefault(final @Nullable CompoundTag tag,
+                                                     final String key,
+                                                     final Class<E> type,
+                                                     final E defaultValue) {
         if (tag == null || !tag.contains(key)) {
             return defaultValue;
         }
@@ -57,7 +60,8 @@ public final class NBTUtils {
         return tag.getInt(key);
     }
 
-    public static @Nullable String getOrDefault(final @Nullable CompoundTag tag, final String key,
+    public static @Nullable String getOrDefault(final @Nullable CompoundTag tag,
+                                                final String key,
                                                 final @Nullable String defaultValue) {
         if (tag == null || !tag.contains(key)) {
             return defaultValue;

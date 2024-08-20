@@ -20,8 +20,8 @@ import java.util.concurrent.CompletableFuture;
 public interface SessionHandler {
     CompletableFuture<Session> createSession(final SessionContext context);
 
-    <S> CompletableFuture<MuxedSession<S>> createSession(
-        final Collection<? extends SelectiveSessionContext<S>> contexts, final S initial);
+    <S> CompletableFuture<MuxedSession<S>> createSession(final Collection<? extends SelectiveSessionContext<S>> contexts,
+                                                         final S initial);
 
     CompletableFuture<Void> terminateSession(final Session session);
 

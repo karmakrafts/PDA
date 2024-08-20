@@ -33,8 +33,10 @@ public enum DefaultUniformType implements UniformType {
     private final int componentCount;
     private final Object defaultValue;
 
-    DefaultUniformType(final BiFunction<String, Object, Uniform> factory, final int componentSize,
-                       final int componentCount, final Object defaultValue) {
+    DefaultUniformType(final BiFunction<String, Object, Uniform> factory,
+                       final int componentSize,
+                       final int componentCount,
+                       final Object defaultValue) {
         this.factory = factory;
         this.componentSize = componentSize;
         this.componentCount = componentCount;

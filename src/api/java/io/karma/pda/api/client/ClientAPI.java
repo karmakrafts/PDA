@@ -12,6 +12,8 @@ import io.karma.pda.api.session.SessionHandler;
 import io.karma.pda.api.util.FloatSupplier;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.util.function.Supplier;
@@ -22,6 +24,8 @@ import java.util.function.Supplier;
  */
 @OnlyIn(Dist.CLIENT)
 public final class ClientAPI {
+    private static final Logger INTERNAL_LOGGER = LogManager.getLogger("PDA Client API");
+
     private static SessionHandler sessionHandler;
     private static FlexNodeHandler flexNodeHandler;
     private static DisplayRenderer displayRenderer;
@@ -39,6 +43,7 @@ public final class ClientAPI {
         if (isInitialized) {
             throw new IllegalStateException("Already initialized");
         }
+        INTERNAL_LOGGER.info("PONG! Client API is initialized");
         isInitialized = true;
     }
 

@@ -22,7 +22,8 @@ public final class ComponentType<C extends Component> {
     private final Class<C> type;
     private final BiFunction<ComponentType<C>, UUID, C> factory;
 
-    public ComponentType(final ResourceLocation name, final Class<C> type,
+    public ComponentType(final ResourceLocation name,
+                         final Class<C> type,
                          final BiFunction<ComponentType<C>, UUID, C> factory) {
         this.name = name;
         this.type = type;

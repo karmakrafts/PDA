@@ -25,11 +25,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceProvider;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterShadersEvent;
@@ -42,7 +38,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
@@ -52,8 +47,7 @@ import java.util.function.IntSupplier;
  * @since 02/06/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShard
-    implements ShaderProgram, PreparableReloadListener {
+public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShard implements ShaderProgram {
     private final int id;
     private final VertexFormat vertexFormat;
     private final ArrayList<DefaultShaderObject> objects;
@@ -91,8 +85,8 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         id = GL20.glCreateProgram();
         uniformCache = new DefaultUniformCache(this, uniforms);
         setupAttributes();
-        PDAMod.DISPOSITION_HANDLER.addObject(this);
-        ((ReloadableResourceManager) Minecraft.getInstance().getResourceManager()).registerReloadListener(this);
+
+        PDAMod.DISPOSITION_HANDLER.register(this);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onRegisterShaders);
 
         // Attach shader objects to program
@@ -130,26 +124,6 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
             samplers.put(samplerId, samplerInstance);
             dynamicSamplers.add(samplerInstance);
         }
-
-        PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Created {} sampler objects for program {}", samplers.size(), id);
-    }
-
-    @Override
-    public @NotNull CompletableFuture<Void> reload(final @NotNull PreparationBarrier barrier,
-                                                   final @NotNull ResourceManager manager,
-                                                   final @NotNull ProfilerFiller prepProfiler,
-                                                   final @NotNull ProfilerFiller reloadProfiler,
-                                                   final @NotNull Executor backgroundExecutor,
-                                                   final @NotNull Executor gameExecutor) {
-        // @formatter:off
-        return CompletableFuture.runAsync(this::prepare, gameExecutor)
-            .thenCompose(barrier::wait);
-        // @formatter:on
-    }
-
-    @Override
-    public @NotNull String getName() {
-        return toString();
     }
 
     private void onRegisterShaders(final RegisterShadersEvent event) {
@@ -170,11 +144,32 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         }
     }
 
-    private void prepare() {
-        PDAMod.LOGGER.debug("Preparing shader program {}", id);
-        for (final var sampler : samplers.values()) {
-            sampler.invalidate(); // Invalidate all existing samplers so texture IDs are mutable during reload
-        }
+    private void relink(final ResourceProvider provider) {
+        PDAMod.LOGGER.debug("Relinking program {}", id);
+        unbind();
+        isLinked.set(false);
+        // @formatter:off
+        CompletableFuture.allOf(objects.stream()
+            .map(object -> object.recompile(this, provider))
+            .toArray(CompletableFuture[]::new))
+            .exceptionally(error -> {
+                PDAMod.LOGGER.error("Could not recompile shader program {}: {}", id, Exceptions.toFancyString(error));
+                return null;
+            })
+            .thenAccept(result -> Minecraft.getInstance().execute(() -> {
+                GL20.glLinkProgram(id);
+                if (GL20.glGetProgrami(id, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
+                    PDAMod.LOGGER.error("Could not link shader program {}: {}", id, GL20.glGetProgramInfoLog(id));
+                    return;
+                }
+                uniformCache.clear();
+                uniformCache.updateAll(); // Flag all uniforms to be re-applied statically
+                for (final var sampler : samplers.values()) {
+                    sampler.setup(this);
+                }
+                isLinked.set(true);
+            }));
+        // @formatter:on
     }
 
     @Override
@@ -247,13 +242,7 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public void bind() {
-        if (isBound) {
-            return;
-        }
-        if (!isLinked.get()) {
-            if (isRelinkRequested.compareAndSet(true, false)) {
-                relink(Minecraft.getInstance().getResourceManager());
-            }
+        if (isBound || !isLinked.get()) {
             return;
         }
         for (final var object : objects) {
@@ -318,34 +307,6 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     @Override
     public @NotNull String toString() {
         return String.format("DefaultShaderProgram[id=%d,objects=%s]", id, objects);
-    }
-
-    private void relink(final ResourceProvider provider) {
-        PDAMod.LOGGER.debug("Relinking program {}", id);
-        unbind();
-        isLinked.set(false);
-        // @formatter:off
-        CompletableFuture.allOf(objects.stream()
-            .map(object -> object.recompile(this, provider))
-            .toArray(CompletableFuture[]::new))
-            .exceptionally(error -> {
-                PDAMod.LOGGER.error("Could not recompile shader program {}: {}", id, Exceptions.toFancyString(error));
-                return null;
-            })
-            .thenAccept(result -> Minecraft.getInstance().execute(() -> {
-                GL20.glLinkProgram(id);
-                if (GL20.glGetProgrami(id, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
-                    PDAMod.LOGGER.error("Could not link shader program {}: {}", id, GL20.glGetProgramInfoLog(id));
-                    return;
-                }
-                uniformCache.clear();
-                uniformCache.updateAll(); // Flag all uniforms to be re-applied statically
-                for (final var sampler : samplers.values()) {
-                    sampler.setup(this);
-                }
-                isLinked.set(true);
-            }));
-        // @formatter:on
     }
 
     private static final class ProgramAdaptor extends Program {

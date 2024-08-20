@@ -16,6 +16,8 @@ import java.util.function.Function;
  */
 @OnlyIn(Dist.CLIENT)
 public interface ShaderPreProcessor {
-    String process(final String source, final ShaderProgram program, final ShaderObject object,
+    String process(final String source,
+                   final ShaderProgram program,
+                   final ShaderObject object,
                    final Function<ResourceLocation, String> loader);
 }

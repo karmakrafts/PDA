@@ -22,18 +22,13 @@ import io.karma.pda.api.util.RectangleCorner;
 import io.karma.pda.mod.client.render.shader.DefaultShaderFactory;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderStateShard.EmptyTextureStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.lwjgl.util.msdfgen.MSDFGen;
 
@@ -46,7 +41,7 @@ import java.util.function.IntFunction;
  * @since 04/05/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class DefaultFontRenderer implements FontRenderer, ResourceManagerReloadListener {
+public final class DefaultFontRenderer implements FontRenderer {
     // @formatter:off
     private static ShaderProgram shader;
     private static final Function<FontAtlasContext, RenderType> RENDER_TYPE = Util.memoize(ctx -> {
@@ -79,7 +74,6 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
 
     public DefaultFontRenderer(final Graphics graphics) {
         this.graphics = graphics;
-        ((ReloadableResourceManager) Minecraft.getInstance().getResourceManager()).registerReloadListener(this);
     }
 
     @Internal
@@ -340,13 +334,6 @@ public final class DefaultFontRenderer implements FontRenderer, ResourceManagerR
                       Font font,
                       IntFunction<ColorProvider> color) {
         return 0;
-    }
-
-    @Override
-    public void onResourceManagerReload(final @NotNull ResourceManager manager) {
-        for (final var fontAtlas : fontAtlasCache.values()) {
-            Minecraft.getInstance().execute(fontAtlas::rebuild);
-        }
     }
 
     /*
