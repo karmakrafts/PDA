@@ -8,6 +8,7 @@ import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.uniform.Uniform;
 import io.karma.pda.api.client.render.shader.uniform.UniformBuffer;
 import io.karma.pda.api.client.render.shader.uniform.UniformCache;
+import io.karma.pda.api.util.HashUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.ApiStatus.Internal;
@@ -82,5 +83,10 @@ public final class DefaultUniformCache implements UniformCache {
     @Override
     public Uniform get(final String name) {
         return Objects.requireNonNull(uniforms.get(name));
+    }
+
+    @Override
+    public int hashCode() {
+        return HashUtils.hash(uniforms);
     }
 }

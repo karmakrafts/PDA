@@ -81,4 +81,14 @@ public enum DefaultUniformType implements UniformType {
     public boolean isSupported() {
         return isSupported.getAsBoolean();
     }
+
+    @Override
+    public String toString() {
+        return name().toLowerCase();
+    }
+
+    @Override
+    public int getHash() {
+        return toString().hashCode();
+    }
 }

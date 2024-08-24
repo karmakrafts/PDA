@@ -16,6 +16,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public interface UniformType {
     int DEFAULT_ALIGNMENT = 16;
 
+    int getHash();
+
     Uniform create(final String name, final Object defaultValue);
 
     default Uniform create(final String name) {

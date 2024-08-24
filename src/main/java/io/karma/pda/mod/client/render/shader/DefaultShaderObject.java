@@ -11,6 +11,7 @@ import io.karma.pda.api.client.render.shader.ShaderPreProcessor;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.ShaderType;
 import io.karma.pda.api.util.Exceptions;
+import io.karma.pda.api.util.HashUtils;
 import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import net.minecraft.resources.ResourceLocation;
@@ -138,5 +139,10 @@ public final class DefaultShaderObject extends Program implements ShaderObject {
     @Override
     public String toString() {
         return String.format("DefaultShaderObject[id=%d,location=%s]", id, location);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashUtils.combine(type.ordinal(), location.hashCode());
     }
 }

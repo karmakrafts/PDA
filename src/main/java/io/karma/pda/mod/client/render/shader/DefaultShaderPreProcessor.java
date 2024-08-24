@@ -7,20 +7,24 @@ package io.karma.pda.mod.client.render.shader;
 import io.karma.pda.api.client.render.shader.ShaderObject;
 import io.karma.pda.api.client.render.shader.ShaderPreProcessor;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
+import io.karma.pda.api.util.HashUtils;
 import io.karma.pda.api.util.ToBooleanBiFunction;
 import io.karma.pda.mod.PDAMod;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.versions.forge.ForgeVersion;
 import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 
+import java.nio.file.Files;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author Alexander Hinze
@@ -265,7 +269,7 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
 
     private static Map<String, Object> insertBuiltinDefines(final Map<String, Object> defines) {
         final var allDefines = new LinkedHashMap<>(defines);
-        allDefines.put("__debug", PDAMod.IS_DEV_ENV);
+        allDefines.put("__debug", PDAMod.IS_DEV_ENV ? 1 : 0);
 
         final var caps = GL.getCapabilities();
         allDefines.put("__bindless_texture_support", caps.GL_ARB_bindless_texture ? 1 : 0);
@@ -290,6 +294,46 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         return allDefines;
     }
 
+    private static void save(final String fileName, final StringBuffer buffer) {
+        try {
+            final var directory = FMLLoader.getGamePath().resolve("pda").resolve("shaders");
+            if (!Files.exists(directory)) {
+                Files.createDirectories(directory);
+            }
+            final var path = directory.resolve(fileName);
+            PDAMod.LOGGER.debug("Saving processed shader to cache at {}", path);
+            try (final var writer = Files.newBufferedWriter(path)) {
+                writer.append(buffer);
+            }
+        }
+        catch (Throwable error) {
+            PDAMod.LOGGER.error("Could not save processed shader source", error);
+        }
+    }
+
+    private static boolean load(final String fileName, final StringBuffer buffer) {
+        try {
+            final var directory = FMLLoader.getGamePath().resolve("pda").resolve("shaders");
+            if (!Files.exists(directory)) {
+                return false;
+            }
+            final var path = directory.resolve(fileName);
+            if (!Files.exists(path)) {
+                return false;
+            }
+            PDAMod.LOGGER.debug("Loading processed shader source from cache at {}", path);
+            buffer.delete(0, buffer.length());
+            try (final var reader = Files.newBufferedReader(path)) {
+                buffer.append(reader.lines().collect(Collectors.joining("\n")));
+            }
+            return true;
+        }
+        catch (Throwable error) {
+            PDAMod.LOGGER.error("Could not load processed shader source", error);
+            return false;
+        }
+    }
+
     @Override
     public String process(final String source,
                           final ShaderProgram program,
@@ -297,13 +341,19 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
                           final Function<ResourceLocation, String> loader) {
         final var buffer = new StringBuffer(source);
         final var location = object.getLocation();
+        final var fileName = String.format("%s.glsl", HashUtils.toFingerprint(program.hashCode(), object.hashCode()));
+
+        if (load(fileName, buffer)) {
+            return buffer.toString();
+        }
+
         processIncludes(location, buffer, loader);
         processSpecializationConstants(location, program.getConstants(), buffer);
         processDefines(insertBuiltinDefines(program.getDefines()), buffer);
         stripCommentsAndWhitespace(buffer);
         transformStrings(buffer);
-        final var processedSource = buffer.toString();
-        PDAMod.LOGGER.debug("============ Processed shader source:\n\n{}\n", processedSource);
-        return processedSource;
+        save(fileName, buffer);
+
+        return buffer.toString();
     }
 }

@@ -13,6 +13,7 @@
     "RenderSystemMixin",
     "ShaderInstanceMixin",
     "VertexBufferMixin",
-    "BufferUploaderMixin"
+    "BufferUploaderMixin",
+    "VertexFormatElementMixin"
   ]
 }

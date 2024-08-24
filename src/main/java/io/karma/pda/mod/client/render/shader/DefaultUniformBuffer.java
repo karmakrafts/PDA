@@ -9,6 +9,7 @@ import io.karma.pda.api.client.render.shader.uniform.Uniform;
 import io.karma.pda.api.client.render.shader.uniform.UniformBuffer;
 import io.karma.pda.api.client.render.shader.uniform.UniformCache;
 import io.karma.pda.api.dispose.Disposable;
+import io.karma.pda.api.util.HashUtils;
 import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import net.minecraftforge.api.distmarker.Dist;
@@ -28,13 +29,16 @@ public final class DefaultUniformBuffer implements UniformBuffer, Disposable {
     private final BiConsumer<ShaderProgram, UniformBuffer> bindCallback;
     private final BiConsumer<ShaderProgram, UniformBuffer> unbindCallback;
     private final int size;
+    private final int bindingPoint;
     private int id = -1;
 
     public DefaultUniformBuffer(final LinkedHashMap<String, Uniform> uniforms,
                                 final BiConsumer<ShaderProgram, UniformBuffer> bindCallback,
-                                final BiConsumer<ShaderProgram, UniformBuffer> unbindCallback) {
+                                final BiConsumer<ShaderProgram, UniformBuffer> unbindCallback,
+                                final int bindingPoint) {
         this.bindCallback = bindCallback;
         this.unbindCallback = unbindCallback;
+        this.bindingPoint = bindingPoint;
         cache = new DefaultUniformCache(uniforms);
         size = cache.getAll().values().stream().mapToInt(u -> u.getType().getAlignedSize()).sum();
         PDAMod.DISPOSITION_HANDLER.register(this);
@@ -46,7 +50,12 @@ public final class DefaultUniformBuffer implements UniformBuffer, Disposable {
     }
 
     @Override
-    public void setup(final String name, final ShaderProgram program, final int bindingPoint) {
+    public int getBindingPoint() {
+        return bindingPoint;
+    }
+
+    @Override
+    public void setup(final String name, final ShaderProgram program) {
         if (id == -1) {
             id = GL15.glGenBuffers();
             GL30.glBindBuffer(GL33.GL_UNIFORM_BUFFER, id);
@@ -65,13 +74,13 @@ public final class DefaultUniformBuffer implements UniformBuffer, Disposable {
     }
 
     @Override
-    public void bind(final String name, final ShaderProgram program, final int bindingPoint) {
+    public void bind(final String name, final ShaderProgram program) {
         bindCallback.accept(program, this);
         cache.uploadAll(this);
     }
 
     @Override
-    public void unbind(final String name, final ShaderProgram program, final int bindingPoint) {
+    public void unbind(final String name, final ShaderProgram program) {
         unbindCallback.accept(program, this);
     }
 
@@ -100,5 +109,10 @@ public final class DefaultUniformBuffer implements UniformBuffer, Disposable {
     @Override
     public void dispose() {
         GL15.glDeleteBuffers(id);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashUtils.combine(bindingPoint, cache.hashCode());
     }
 }

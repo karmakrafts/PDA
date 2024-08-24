@@ -67,7 +67,7 @@ public final class TextureUtils {
 
     public static void dump(final BufferedImage image, final ResourceLocation location) {
         try {
-            final var directory = FMLLoader.getGamePath().resolve("pda");
+            final var directory = FMLLoader.getGamePath().resolve("pda").resolve("textures");
             if (!Files.exists(directory)) {
                 Files.createDirectories(directory);
             }

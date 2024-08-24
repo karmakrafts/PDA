@@ -15,6 +15,7 @@ import io.karma.pda.api.client.render.shader.uniform.Uniform;
 import io.karma.pda.api.client.render.shader.uniform.UniformBuffer;
 import io.karma.pda.api.client.render.shader.uniform.UniformCache;
 import io.karma.pda.api.reload.Reloadable;
+import io.karma.pda.api.util.HashUtils;
 import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.hook.ExtendedRenderSystem;
@@ -134,9 +135,8 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     private void setupUniformBuffers() {
         // Set up uniform buffers
-        var bindingPoint = 0;
         for (final var buffer : uniformBuffers.entrySet()) {
-            buffer.getValue().setup(buffer.getKey(), this, bindingPoint++);
+            buffer.getValue().setup(buffer.getKey(), this);
         }
     }
 
@@ -261,9 +261,8 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
             sampler.unbind(this);
         }
         // Undbind/disable UBOs
-        var bindingPoint = 0;
         for (final var buffer : uniformBuffers.entrySet()) {
-            buffer.getValue().unbind(buffer.getKey(), this, bindingPoint++);
+            buffer.getValue().unbind(buffer.getKey(), this);
         }
         GL20.glUseProgram(0);
         isBound = false;
@@ -276,9 +275,8 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         }
         GL20.glUseProgram(id);
         // Bind/enable UBOs
-        var bindingPoint = 0;
         for (final var buffer : uniformBuffers.entrySet()) {
-            buffer.getValue().bind(buffer.getKey(), this, bindingPoint++);
+            buffer.getValue().bind(buffer.getKey(), this);
         }
         // Bind/enable samplers
         for (final var sampler : dynamicSamplers) {
@@ -338,6 +336,17 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     @Override
     public @NotNull String toString() {
         return String.format("DefaultShaderProgram[id=%d,objects=%s]", id, objects);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashUtils.combine(vertexFormat.hashCode(),
+            objects.hashCode(),
+            uniformCache.hashCode(),
+            HashUtils.hash(uniformBuffers),
+            samplerIds.hashCode(),
+            HashUtils.hashValuesAsStrings(constants),
+            HashUtils.hashValuesAsStrings(defines));
     }
 
     private static final class ProgramAdaptor extends Program {

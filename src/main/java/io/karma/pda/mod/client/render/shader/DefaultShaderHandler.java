@@ -35,7 +35,7 @@ public final class DefaultShaderHandler implements ShaderHandler {
 
     @Internal
     public void setup() { // @formatter:off
-        globalUniforms = createUniformBlock(builder -> builder
+        globalUniforms = createUniformBuffer(builder -> builder
             .uniform("ProjMat", DefaultUniformType.FLOAT_MAT4.derive(new Matrix4f().identity()))
             .uniform("ModelViewMat", DefaultUniformType.FLOAT_MAT4.derive(new Matrix4f().identity()))
             .uniform("ColorModulator", DefaultUniformType.FLOAT_VEC4.derive(new Vector4f(1F)))
@@ -58,7 +58,7 @@ public final class DefaultShaderHandler implements ShaderHandler {
     }
 
     @Override
-    public UniformBuffer createUniformBlock(final Consumer<UniformBufferBuilder> callback) {
+    public UniformBuffer createUniformBuffer(final Consumer<UniformBufferBuilder> callback) {
         final var builder = new DefaultUniformBufferBuilder();
         callback.accept(builder);
         return builder.build();

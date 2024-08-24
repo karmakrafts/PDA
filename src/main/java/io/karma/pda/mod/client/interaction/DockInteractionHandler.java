@@ -6,6 +6,7 @@ package io.karma.pda.mod.client.interaction;
 
 import com.mojang.blaze3d.vertex.Tesselator;
 import io.karma.pda.mod.block.DockBlock;
+import io.karma.pda.mod.client.ClientEventHandler;
 import io.karma.pda.mod.client.screen.DockScreen;
 import io.karma.pda.mod.client.session.ClientSessionHandler;
 import io.karma.pda.mod.hook.MutableClipContext;
@@ -361,7 +362,7 @@ public final class DockInteractionHandler {
 
     private void onComputeCameraAngles(final ViewportEvent.ComputeCameraAngles event) {
         if (isSequenceActive()) {
-            final var frameTime = (float) event.getPartialTick();
+            final var frameTime = ClientEventHandler.INSTANCE.getFrameTime();
             event.getCamera().setPosition(new Vec3(getCameraPos(frameTime)));
             final var rot = getCameraRotation(frameTime).getEulerAnglesYXZ(new Vector3f());
             event.setYaw((float) Math.toDegrees(rot.y));

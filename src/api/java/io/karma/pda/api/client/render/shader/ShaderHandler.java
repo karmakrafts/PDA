@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 public interface ShaderHandler {
     ShaderProgram create(final Consumer<ShaderProgramBuilder> callback);
 
-    UniformBuffer createUniformBlock(final Consumer<UniformBufferBuilder> callback);
+    UniformBuffer createUniformBuffer(final Consumer<UniformBufferBuilder> callback);
 
     UniformBuffer getGlobalUniforms();
 }

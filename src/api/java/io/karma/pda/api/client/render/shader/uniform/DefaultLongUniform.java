@@ -5,11 +5,14 @@
 package io.karma.pda.api.client.render.shader.uniform;
 
 import io.karma.pda.api.client.render.shader.ShaderProgram;
+import io.karma.pda.api.util.HashUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.ARBGPUShaderInt64;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
+
+import java.util.Objects;
 
 /**
  * @author Alexander Hinze
@@ -76,5 +79,10 @@ public final class DefaultLongUniform implements Uniform {
     @Override
     public void notifyUpdate() {
         hasChanged = true;
+    }
+
+    @Override
+    public int hashCode() {
+        return HashUtils.combine(name.hashCode(), getType().getHash());
     }
 }

@@ -5,6 +5,7 @@
 package io.karma.pda.api.client.render.shader.uniform;
 
 import io.karma.pda.api.client.render.shader.ShaderProgram;
+import io.karma.pda.api.util.HashUtils;
 import io.karma.pda.api.util.MathUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -13,6 +14,8 @@ import org.joml.Matrix4fc;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
+
+import java.util.Objects;
 
 /**
  * @author Alexander Hinze
@@ -89,5 +92,10 @@ public final class Matrix4fUniform implements GenericUniform<Matrix4f> {
                 getType().getSize());
         }
         hasChanged = false;
+    }
+
+    @Override
+    public int hashCode() {
+        return HashUtils.combine(name.hashCode(), getType().getHash());
     }
 }

@@ -45,4 +45,24 @@ final class DerivedUniformType implements UniformType {
     public Object getDefaultValue() {
         return defaultValue;
     }
+
+    @Override
+    public UniformType derive(final Object defaultValue) {
+        return new DerivedUniformType(delegate, defaultValue);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s(%s)", delegate, defaultValue);
+    }
+
+    @Override
+    public int hashCode() {
+        return delegate.getHash();
+    }
+
+    @Override
+    public int getHash() {
+        return delegate.getHash();
+    }
 }

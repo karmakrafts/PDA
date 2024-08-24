@@ -16,15 +16,17 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public interface UniformBuffer {
     int getId();
 
+    int getBindingPoint();
+
     UniformCache getCache();
 
     int getFieldOffset(final String name);
 
     int getSize();
 
-    void setup(final String name, final ShaderProgram program, final int bindingPoint);
+    void setup(final String name, final ShaderProgram program);
 
-    void bind(final String name, final ShaderProgram program, final int bindingPoint);
+    void bind(final String name, final ShaderProgram program);
 
-    void unbind(final String name, final ShaderProgram program, final int bindingPoint);
+    void unbind(final String name, final ShaderProgram program);
 }
