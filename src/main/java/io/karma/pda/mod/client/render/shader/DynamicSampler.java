@@ -53,7 +53,7 @@ public final class DynamicSampler implements Sampler {
             id,
             program.getId());
         GL20.glUseProgram(program.getId());
-        GL20.glUniform1i(program.getUniformCache().getLocation(name), id);
+        GL20.glUniform1i(program.getUniformLocation(name), id);
         GL20.glUseProgram(0);
     }
 

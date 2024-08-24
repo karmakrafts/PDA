@@ -27,7 +27,7 @@ import io.karma.pda.mod.client.render.graphics.GraphicsRenderTypes;
 import io.karma.pda.mod.client.render.graphics.font.DefaultFontRenderer;
 import io.karma.pda.mod.client.render.item.DockItemRenderer;
 import io.karma.pda.mod.client.render.item.PDAItemRenderer;
-import io.karma.pda.mod.client.render.shader.DefaultShaderFactory;
+import io.karma.pda.mod.client.render.shader.DefaultShaderHandler;
 import io.karma.pda.mod.client.render.shader.DefaultShaderPreProcessor;
 import io.karma.pda.mod.client.session.ClientSessionHandler;
 import io.karma.pda.mod.dispose.DefaultDispositionHandler;
@@ -168,6 +168,7 @@ public class PDAMod {
         CommonEventHandler.INSTANCE.setup();
         CommandHandler.INSTANCE.setup();
         DefaultSessionHandler.INSTANCE.setup();
+        DefaultReloadHandler.INSTANCE.setup();
 
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(this::onCommonSetup);
@@ -211,7 +212,6 @@ public class PDAMod {
         event.enqueueWork(() -> {
             LOGGER.info("Starting common setup");
             STATE_REFLECTORS.forEach(StateReflector::init);
-            DefaultReloadHandler.INSTANCE.setup();
             CommonPacketHandler.INSTANCE.registerPackets();
             ClientPacketHandler.INSTANCE.registerPackets();
         });
@@ -240,6 +240,7 @@ public class PDAMod {
         PDAInteractionHandler.INSTANCE.setup();
         PDAItemRenderer.INSTANCE.setup();
         DockItemRenderer.INSTANCE.setup();
+        DefaultShaderHandler.INSTANCE.setup();
         initClientAPI();
     }
 
@@ -249,7 +250,7 @@ public class PDAMod {
         ClientAPI.setSessionHandler(ClientSessionHandler.INSTANCE);
         ClientAPI.setFlexNodeHandler(ClientFlexNodeHandler.INSTANCE);
         ClientAPI.setDisplayRenderer(DefaultDisplayRenderer.INSTANCE);
-        ClientAPI.setShaderFactory(DefaultShaderFactory.INSTANCE);
+        ClientAPI.setShaderHandler(DefaultShaderHandler.INSTANCE);
         ClientAPI.setShaderPreProcessorSupplier(DefaultShaderPreProcessor::getInstance);
         ClientAPI.setShaderTimeProvider(ClientEventHandler.INSTANCE::getShaderTime);
         ClientAPI.init();

@@ -12,9 +12,9 @@ import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.ShaderProgramBuilder;
 import io.karma.pda.api.client.render.shader.uniform.DefaultUniformType;
 import io.karma.pda.api.client.render.shader.uniform.Uniform;
+import io.karma.pda.api.client.render.shader.uniform.UniformBuffer;
 import io.karma.pda.api.client.render.shader.uniform.UniformType;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -25,6 +25,7 @@ import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 
@@ -38,11 +39,12 @@ public final class DefaultShaderProgramBuilder implements ShaderProgramBuilder {
     };
 
     private final ArrayList<DefaultShaderObject> objects = new ArrayList<>();
-    private final HashMap<String, Uniform> uniforms = new HashMap<>();
-    private final HashMap<String, Object> constants = new HashMap<>(); // Don't care about (un)boxing here
+    private final LinkedHashMap<String, Uniform> uniforms = new LinkedHashMap<>();
+    private final HashMap<String, UniformBuffer> uniformBuffers = new HashMap<>();
+    private final LinkedHashMap<String, Object> constants = new LinkedHashMap<>(); // Don't care about (un)boxing here
     private final Object2IntOpenHashMap<String> samplers = new Object2IntOpenHashMap<>();
     private final Int2ObjectArrayMap<IntSupplier> staticSamplers = new Int2ObjectArrayMap<>();
-    private final Object2IntLinkedOpenHashMap<String> defines = new Object2IntLinkedOpenHashMap<>();
+    private final LinkedHashMap<String, Object> defines = new LinkedHashMap<>();
     private VertexFormat format = DefaultVertexFormat.POSITION;
     private Consumer<ShaderProgram> bindCallback = IDENTITY_CALLBACK;
     private Consumer<ShaderProgram> unbindCallback = IDENTITY_CALLBACK;
@@ -56,6 +58,7 @@ public final class DefaultShaderProgramBuilder implements ShaderProgramBuilder {
         return new DefaultShaderProgram(format,
             objects,
             uniforms,
+            uniformBuffers,
             bindCallback,
             unbindCallback,
             samplers,
@@ -66,18 +69,36 @@ public final class DefaultShaderProgramBuilder implements ShaderProgramBuilder {
 
     @Override
     public ShaderProgramBuilder define(final String name) {
+        if (defines.containsKey(name)) {
+            throw new IllegalArgumentException(String.format("Define '%s' already exists", name));
+        }
         defines.put(name, 1);
         return this;
     }
 
     @Override
     public ShaderProgramBuilder define(final String name, final boolean value) {
+        if (defines.containsKey(name)) {
+            throw new IllegalArgumentException(String.format("Define '%s' already exists", name));
+        }
         defines.put(name, value ? 1 : 0);
         return this;
     }
 
     @Override
     public ShaderProgramBuilder define(final String name, final int value) {
+        if (defines.containsKey(name)) {
+            throw new IllegalArgumentException(String.format("Define '%s' already exists", name));
+        }
+        defines.put(name, value);
+        return this;
+    }
+
+    @Override
+    public ShaderProgramBuilder define(final String name, final float value) {
+        if (defines.containsKey(name)) {
+            throw new IllegalArgumentException(String.format("Define '%s' already exists", name));
+        }
         defines.put(name, value);
         return this;
     }
@@ -164,7 +185,22 @@ public final class DefaultShaderProgramBuilder implements ShaderProgramBuilder {
 
     @Override
     public ShaderProgramBuilder uniform(final String name, final UniformType type) {
+        if (uniforms.containsKey(name)) {
+            throw new IllegalArgumentException(String.format("Uniform '%s' is already defined", name));
+        }
+        if (!type.isSupported()) {
+            throw new IllegalArgumentException("Unsupported uniform type");
+        }
         uniforms.put(name, type.create(name));
+        return this;
+    }
+
+    @Override
+    public ShaderProgramBuilder uniforms(final String name, final UniformBuffer buffer) {
+        if (uniformBuffers.containsKey(name)) {
+            throw new IllegalArgumentException(String.format("Uniform block '%s' is already defined", name));
+        }
+        uniformBuffers.put(name, buffer);
         return this;
     }
 

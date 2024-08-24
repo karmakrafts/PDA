@@ -11,6 +11,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 
 /**
  * @author Alexander Hinze
@@ -50,6 +52,11 @@ public final class Vector3fUniform implements GenericUniform<Vector3f> {
     }
 
     @Override
+    public boolean requiresUpdate() {
+        return hasChanged;
+    }
+
+    @Override
     public DefaultUniformType getType() {
         return DefaultUniformType.FLOAT_VEC3;
     }
@@ -64,7 +71,21 @@ public final class Vector3fUniform implements GenericUniform<Vector3f> {
         if (!hasChanged) {
             return;
         }
-        GL20.glUniform3f(program.getUniformCache().getLocation(name), value.x, value.y, value.z);
+        GL20.glUniform3f(program.getUniformLocation(name), value.x, value.y, value.z);
+        hasChanged = false;
+    }
+
+    @Override
+    public void upload(final UniformBuffer buffer, final long address) {
+        if (!hasChanged) {
+            return;
+        }
+        try (final var stack = MemoryStack.stackPush()) {
+            final var offset = buffer.getFieldOffset(name);
+            MemoryUtil.memCopy(MemoryUtil.memAddress(stack.floats(value.x, value.y, value.z)),
+                address + offset,
+                getType().getSize());
+        }
         hasChanged = false;
     }
 }

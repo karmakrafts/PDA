@@ -28,7 +28,7 @@ import java.util.function.Function;
 @OnlyIn(Dist.CLIENT)
 public final class ComponentRenderTypes {
     // @formatter:off
-    private static final ShaderProgram SPINNER_SHADER = ClientAPI.getShaderFactory().create(builder -> builder
+    private static final ShaderProgram SPINNER_SHADER = ClientAPI.getShaderHandler().create(builder -> builder
         .shader(object -> object
             .type(ShaderType.VERTEX)
             .location(Constants.MODID, "shaders/spinner.vert.glsl")

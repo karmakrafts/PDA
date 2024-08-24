@@ -7,6 +7,7 @@ package io.karma.pda.api.client.render.shader;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import io.karma.pda.api.client.ClientAPI;
 import io.karma.pda.api.client.render.shader.uniform.DefaultUniformType;
+import io.karma.pda.api.client.render.shader.uniform.UniformBuffer;
 import io.karma.pda.api.client.render.shader.uniform.UniformType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,6 +27,8 @@ public interface ShaderProgramBuilder {
     ShaderProgramBuilder shader(final Consumer<ShaderObjectBuilder> callback);
 
     ShaderProgramBuilder uniform(final String name, final UniformType type);
+
+    ShaderProgramBuilder uniforms(final String name, final UniformBuffer block);
 
     ShaderProgramBuilder defaultUniforms();
 
@@ -47,6 +50,8 @@ public interface ShaderProgramBuilder {
 
     ShaderProgramBuilder define(final String name, final int value);
 
+    ShaderProgramBuilder define(final String name, final float value);
+
     ShaderProgramBuilder onBind(final Consumer<ShaderProgram> bindCallback);
 
     ShaderProgramBuilder onUnbind(final Consumer<ShaderProgram> unbindCallback);
@@ -55,4 +60,8 @@ public interface ShaderProgramBuilder {
         return uniform("Time", DefaultUniformType.FLOAT)
             .onBind(program -> program.getUniformCache().getFloat("Time").setFloat(ClientAPI.getShaderTime()));
     } // @formatter:on
+
+    default ShaderProgramBuilder globalUniforms() {
+        return uniforms("Globals", ClientAPI.getShaderHandler().getGlobalUniforms());
+    }
 }

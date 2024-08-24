@@ -11,9 +11,9 @@ import java.util.List;
  * @since 21/08/2024
  */
 public interface ReloadHandler {
-    void register(final Reloadable<?> reloadable);
+    void register(final Reloadable reloadable);
 
-    void unregister(final Reloadable<?> reloadable);
+    void unregister(final Reloadable reloadable);
 
-    List<Reloadable<?>> getObjects();
+    List<Reloadable> getObjects();
 }

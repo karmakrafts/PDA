@@ -14,9 +14,9 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -28,7 +28,7 @@ import java.util.concurrent.Executor;
  */
 public final class DefaultReloadHandler implements ReloadHandler, PreparableReloadListener {
     public static final DefaultReloadHandler INSTANCE = new DefaultReloadHandler();
-    private final ConcurrentLinkedQueue<Reloadable<?>> objects = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<Reloadable> objects = new ConcurrentLinkedQueue<>();
 
     // @formatter:off
     private DefaultReloadHandler() {}
@@ -36,11 +36,12 @@ public final class DefaultReloadHandler implements ReloadHandler, PreparableRelo
 
     @Internal
     public void setup() {
+        PDAMod.LOGGER.debug("Initializing reload handler");
         ((ReloadableResourceManager) API.getResourceManager()).registerReloadListener(this);
     }
 
     @Override
-    public void register(final Reloadable<?> reloadable) {
+    public void register(final Reloadable reloadable) {
         if (objects.contains(reloadable)) {
             return;
         }
@@ -48,14 +49,20 @@ public final class DefaultReloadHandler implements ReloadHandler, PreparableRelo
     }
 
     @Override
-    public void unregister(final Reloadable<?> reloadable) {
+    public void unregister(final Reloadable reloadable) {
         objects.remove(reloadable);
     }
 
     @Override
-    public List<Reloadable<?>> getObjects() {
+    public List<Reloadable> getObjects() {
         final var sorted = new ArrayList<>(objects);
         sorted.sort(Reloadable.COMPARATOR);
+        return sorted;
+    }
+
+    private List<Reloadable> getPrepSortedObjects() {
+        final var sorted = new ArrayList<>(objects);
+        sorted.sort(Reloadable.PREP_COMPARATOR);
         return sorted;
     }
 
@@ -67,35 +74,27 @@ public final class DefaultReloadHandler implements ReloadHandler, PreparableRelo
                                                    final @NotNull ProfilerFiller reloadProfiler,
                                                    final @NotNull Executor backgroundExecutor,
                                                    final @NotNull Executor gameExecutor) {
-        final var objects = getObjects();
         // @formatter:off
-        return CompletableFuture.supplyAsync(() -> prepareAll(manager, objects), gameExecutor)
+        return CompletableFuture.supplyAsync(() -> prepareAll(manager, getPrepSortedObjects()), gameExecutor)
             .thenCompose(barrier::wait)
-            .thenAcceptAsync(results -> reloadAll(manager, objects, results), gameExecutor);
+            .thenAcceptAsync(results -> reloadAll(manager, getObjects()), gameExecutor);
         // @formatter:on
     }
 
-    private HashMap<Reloadable<?>, Object> prepareAll(final ResourceManager manager,
-                                                      final List<Reloadable<?>> objects) {
+    private @Nullable Void prepareAll(final ResourceManager manager, final List<Reloadable> objects) {
         PDAMod.LOGGER.debug("Preparing all resources");
-        final var results = new HashMap<Reloadable<?>, Object>();
         for (final var object : objects) {
-            final var result = object.prepareReload(manager);
-            if (result == null) {
-                continue;
-            }
-            results.put(object, result);
+            PDAMod.LOGGER.debug("Preparing resource {}", object);
+            object.prepareReload(manager);
         }
-        return results;
+        return null;
     }
 
-    @SuppressWarnings("unchecked")
-    private void reloadAll(final ResourceManager manager,
-                           final List<Reloadable<?>> objects,
-                           final HashMap<Reloadable<?>, Object> results) {
+    private void reloadAll(final ResourceManager manager, final List<Reloadable> objects) {
         PDAMod.LOGGER.debug("Reloading all resources");
         for (final var object : objects) {
-            ((Reloadable<Object>) object).reload(results.get(object), manager);
+            PDAMod.LOGGER.debug("Reloading resource {}", object);
+            object.reload(manager);
         }
     }
 }

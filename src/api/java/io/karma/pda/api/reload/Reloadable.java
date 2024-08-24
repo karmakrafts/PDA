@@ -5,7 +5,6 @@
 package io.karma.pda.api.reload;
 
 import net.minecraft.server.packs.resources.ResourceManager;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 
@@ -14,20 +13,30 @@ import java.util.Comparator;
  * @since 21/08/2024
  */
 @FunctionalInterface
-public interface Reloadable<T> {
-    Comparator<Reloadable<?>> COMPARATOR = (a, b) -> Integer.compare(b.getReloadPriority(), a.getReloadPriority());
+public interface Reloadable {
+    int DEFAULT_PRIORITY = 0;
+    Comparator<Reloadable> PREP_COMPARATOR = (a, b) -> Integer.compare(b.getPrepareReloadPriority(),
+        a.getPrepareReloadPriority());
+    Comparator<Reloadable> COMPARATOR = (a, b) -> Integer.compare(b.getReloadPriority(), a.getReloadPriority());
 
     default int getReloadPriority() {
         final var type = getClass();
         if (!type.isAnnotationPresent(ReloadPriority.class)) {
-            return 0;
+            return DEFAULT_PRIORITY;
         }
         return type.getAnnotation(ReloadPriority.class).value();
     }
 
-    default @Nullable T prepareReload(final ResourceManager manager) {
-        return null;
+    default int getPrepareReloadPriority() {
+        final var type = getClass();
+        if (!type.isAnnotationPresent(PrepareReloadPriority.class)) {
+            return getReloadPriority(); // If no annotation is present, prep priority is same as reload priority
+        }
+        return type.getAnnotation(PrepareReloadPriority.class).value();
     }
 
-    void reload(final @Nullable T value, final ResourceManager manager);
+    default void prepareReload(final ResourceManager manager) {
+    }
+
+    void reload(final ResourceManager manager);
 }

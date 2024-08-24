@@ -7,8 +7,6 @@ package io.karma.pda.mod;
 import io.karma.pda.api.app.component.Component;
 import io.karma.pda.api.app.component.Container;
 import io.karma.pda.api.app.theme.font.FontFamily;
-import io.karma.pda.api.app.theme.font.FontStyle;
-import io.karma.pda.api.app.theme.font.FontVariant;
 import io.karma.pda.api.display.DisplayModeSpec;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.mod.client.render.display.DefaultDisplayRenderer;
@@ -43,7 +41,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
@@ -147,21 +144,6 @@ public final class CommonEventHandler {
         }
     }
 
-    private void onBakeFontFamilies(final IForgeRegistryInternal<FontFamily> registry, final RegistryManager manager) {
-        // Preload fonts on client when baking font family registry
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            Minecraft.getInstance().execute(() -> {
-                PDAMod.LOGGER.info("Pre-generating font atlases for all registered families");
-                // @formatter:off
-                registry.getValues().stream()
-                    .flatMap(family -> Arrays.stream(FontStyle.values())
-                        .map(style -> family.getFont(style, FontVariant.DEFAULT_SIZE)))
-                    .forEach(DefaultDisplayRenderer.INSTANCE.getGraphics().getFontRenderer()::getFontAtlas);
-                // @formatter:on
-            });
-        });
-    }
-
     private void onAddDisplayMode(final IForgeRegistryInternal<DisplayModeSpec> registry,
                                   final RegistryManager manager,
                                   final int reserved,
@@ -178,7 +160,7 @@ public final class CommonEventHandler {
         event.create(RegistryBuilder.of(Constants.COMPONENT_REGISTRY_NAME));
         event.create(RegistryBuilder.of(Constants.APP_REGISTRY_NAME));
         event.create(RegistryBuilder.of(Constants.THEME_REGISTRY_NAME));
-        event.create(RegistryBuilder.<FontFamily>of(Constants.FONT_FAMILY_REGISTRY_NAME).onBake(this::onBakeFontFamilies));
+        event.create(RegistryBuilder.<FontFamily>of(Constants.FONT_FAMILY_REGISTRY_NAME));
         event.create(RegistryBuilder.of(Constants.GRADIENT_FUNCTION_REGISTRY_NAME));
         event.create(RegistryBuilder.<DisplayModeSpec>of(Constants.DISPLAY_MODE_REGISTRY_NAME).onAdd(this::onAddDisplayMode));
     }

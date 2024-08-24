@@ -33,4 +33,4 @@ ordering = "AFTER"
 side = "BOTH"
 
 [features.${ mod_id }]
-openGLVersion = "[3.3,)"
+openGLVersion = "[4.1,)"

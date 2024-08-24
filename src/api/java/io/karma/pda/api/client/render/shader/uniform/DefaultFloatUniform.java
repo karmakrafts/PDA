@@ -9,6 +9,8 @@ import io.karma.pda.api.util.MathUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 
 /**
  * @author Alexander Hinze
@@ -22,10 +24,10 @@ public final class DefaultFloatUniform implements FloatUniform {
 
     DefaultFloatUniform(final String name, final Object defaultValue) {
         this.name = name;
-        if (!(defaultValue instanceof Float)) {
+        if (!(defaultValue instanceof Number number)) {
             throw new IllegalArgumentException("Default value is not a float");
         }
-        value = (Float) defaultValue;
+        value = number.floatValue();
     }
 
     @Override
@@ -62,7 +64,24 @@ public final class DefaultFloatUniform implements FloatUniform {
         if (!hasChanged) {
             return;
         }
-        GL20.glUniform1f(program.getUniformCache().getLocation(name), value);
+        GL20.glUniform1f(program.getUniformLocation(name), value);
+        hasChanged = false;
+    }
+
+    @Override
+    public boolean requiresUpdate() {
+        return hasChanged;
+    }
+
+    @Override
+    public void upload(final UniformBuffer buffer, final long address) {
+        if (!hasChanged) {
+            return;
+        }
+        try (final var stack = MemoryStack.stackPush()) {
+            final var offset = buffer.getFieldOffset(name);
+            MemoryUtil.memCopy(MemoryUtil.memAddress(stack.floats(value)), address + offset, getType().getSize());
+        }
         hasChanged = false;
     }
 }

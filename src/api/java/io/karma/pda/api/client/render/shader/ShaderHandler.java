@@ -4,6 +4,8 @@
 
 package io.karma.pda.api.client.render.shader;
 
+import io.karma.pda.api.client.render.shader.uniform.UniformBuffer;
+import io.karma.pda.api.client.render.shader.uniform.UniformBufferBuilder;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -13,8 +15,11 @@ import java.util.function.Consumer;
  * @author Alexander Hinze
  * @since 13/06/2024
  */
-@FunctionalInterface
 @OnlyIn(Dist.CLIENT)
-public interface ShaderFactory {
+public interface ShaderHandler {
     ShaderProgram create(final Consumer<ShaderProgramBuilder> callback);
+
+    UniformBuffer createUniformBlock(final Consumer<UniformBufferBuilder> callback);
+
+    UniformBuffer getGlobalUniforms();
 }

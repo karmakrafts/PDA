@@ -4,6 +4,8 @@
 
 package io.karma.pda.api.client.render.display;
 
+import io.karma.pda.api.client.render.graphics.BrushFactory;
+import io.karma.pda.api.client.render.graphics.FontRenderer;
 import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.display.DisplayModeSpec;
 import io.karma.pda.api.display.DisplayResolution;
@@ -28,4 +30,8 @@ public interface DisplayRenderer {
     Optional<DisplayMode> getDisplayMode(final ItemStack stack);
 
     Framebuffer getFramebuffer(final DisplayResolution resolution);
+
+    FontRenderer getFontRenderer();
+
+    BrushFactory getBrushFactory();
 }

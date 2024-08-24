@@ -18,6 +18,8 @@ import org.joml.Matrix4f;
 // TODO: document this
 @OnlyIn(Dist.CLIENT)
 public interface GraphicsContext {
+    FontRenderer getFontRenderer();
+
     Graphics getGraphics();
 
     int getDefaultZIndex();

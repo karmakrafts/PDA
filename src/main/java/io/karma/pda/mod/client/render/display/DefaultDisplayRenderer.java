@@ -11,13 +11,14 @@ import io.karma.pda.api.app.AppType;
 import io.karma.pda.api.client.render.app.AppRenderers;
 import io.karma.pda.api.client.render.display.DisplayMode;
 import io.karma.pda.api.client.render.display.DisplayRenderer;
-import io.karma.pda.api.client.render.display.Framebuffer;
 import io.karma.pda.api.display.DisplayModeSpec;
 import io.karma.pda.api.display.DisplayResolution;
 import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
+import io.karma.pda.mod.client.render.graphics.DefaultBrushFactory;
 import io.karma.pda.mod.client.render.graphics.DefaultGraphics;
 import io.karma.pda.mod.client.render.graphics.DefaultGraphicsContext;
+import io.karma.pda.mod.client.render.graphics.font.DefaultFontRenderer;
 import io.karma.pda.mod.client.session.ClientSessionHandler;
 import io.karma.pda.mod.item.PDAItem;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -52,6 +53,8 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
     private final HashMap<DisplayModeSpec, DefaultDisplayMode> displayModes = new HashMap<>();
     private final DefaultGraphicsContext graphicsContext = new DefaultGraphicsContext();
     private final DefaultGraphics graphics = new DefaultGraphics();
+    private final DefaultBrushFactory brushFactory = new DefaultBrushFactory(graphicsContext);
+    private final DefaultFontRenderer fontRenderer = new DefaultFontRenderer(graphicsContext);
     private float glitchFactor;
 
     private DefaultDisplayRenderer() {
@@ -74,6 +77,16 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
     }
 
     @Override
+    public DefaultFontRenderer getFontRenderer() {
+        return fontRenderer;
+    }
+
+    @Override
+    public DefaultBrushFactory getBrushFactory() {
+        return brushFactory;
+    }
+
+    @Override
     public float getGlitchFactor() {
         return glitchFactor;
     }
@@ -83,7 +96,7 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
     }
 
     @Override
-    public DisplayMode getDisplayMode(final DisplayModeSpec modeSpec) {
+    public DefaultDisplayMode getDisplayMode(final DisplayModeSpec modeSpec) {
         return displayModes.get(modeSpec);
     }
 
@@ -93,7 +106,7 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
     }
 
     @Override
-    public Framebuffer getFramebuffer(final DisplayResolution resolution) {
+    public DefaultFramebuffer getFramebuffer(final DisplayResolution resolution) {
         return framebuffers.computeIfAbsent(resolution, DefaultFramebuffer::new);
     }
 
@@ -111,7 +124,9 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
             framebuffer.getWidth(),
             framebuffer.getHeight(),
             0,
-            displayMode);
+            displayMode,
+            brushFactory,
+            fontRenderer);
         graphics.setContext(graphicsContext);
 
         final var session = ClientSessionHandler.INSTANCE.findByDevice(stack);

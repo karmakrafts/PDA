@@ -4,6 +4,7 @@
 
 package io.karma.pda.api.client.render.shader.uniform;
 
+import io.karma.pda.api.client.render.shader.ShaderProgram;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -15,17 +16,15 @@ import java.util.Map;
  */
 @OnlyIn(Dist.CLIENT)
 public interface UniformCache {
-    void clear();
+    void applyAll(final ShaderProgram program);
 
-    void applyAll();
+    void uploadAll(final UniformBuffer block);
 
     void updateAll();
 
     Map<String, Uniform> getAll();
 
     Uniform get(final String name);
-
-    int getLocation(final String name);
 
     default DefaultFloatUniform getFloat(final String name) {
         final var uniform = get(name);

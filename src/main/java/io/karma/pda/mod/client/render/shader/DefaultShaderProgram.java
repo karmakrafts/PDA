@@ -12,33 +12,31 @@ import io.karma.pda.api.client.render.shader.ShaderObject;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.ShaderType;
 import io.karma.pda.api.client.render.shader.uniform.Uniform;
+import io.karma.pda.api.client.render.shader.uniform.UniformBuffer;
 import io.karma.pda.api.client.render.shader.uniform.UniformCache;
-import io.karma.pda.api.util.Exceptions;
+import io.karma.pda.api.reload.Reloadable;
 import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.hook.ExtendedRenderSystem;
 import io.karma.pda.mod.client.hook.ExtendedShader;
+import io.karma.pda.mod.reload.DefaultReloadHandler;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceProvider;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RegisterShadersEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL31;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 
@@ -47,32 +45,38 @@ import java.util.function.IntSupplier;
  * @since 02/06/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShard implements ShaderProgram {
+public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShard implements ShaderProgram, Reloadable {
     private final int id;
     private final VertexFormat vertexFormat;
     private final ArrayList<DefaultShaderObject> objects;
     private final Consumer<ShaderProgram> bindCallback;
     private final Consumer<ShaderProgram> unbindCallback;
+    private final Object2IntOpenHashMap<String> uniformLocations = new Object2IntOpenHashMap<>();
+    private final Object2IntOpenHashMap<String> uniformBlockIndices = new Object2IntOpenHashMap<>();
     private final DefaultUniformCache uniformCache;
+    private final HashMap<String, UniformBuffer> uniformBuffers;
     private final Object2IntOpenHashMap<String> samplerIds;
     private final Int2ObjectArrayMap<Sampler> samplers;
+    private final LinkedHashMap<String, Object> constants;
+    private final LinkedHashMap<String, Object> defines;
+
     private final ArrayList<Sampler> dynamicSamplers = new ArrayList<>();
-    private final HashMap<String, Object> constants;
-    private final Object2IntLinkedOpenHashMap<String> defines;
     private final HashMap<ShaderObject, ProgramAdaptor> adaptorCache = new HashMap<>();
-    private final AtomicBoolean isLinked = new AtomicBoolean(false);
-    private final AtomicBoolean isRelinkRequested = new AtomicBoolean(false);
     private final ExtendedShaderAdaptor extendedShaderAdaptor = new ExtendedShaderAdaptor();
+
+    private boolean isLinked;
+    private boolean isRelinkRequested;
     private boolean isBound;
 
     DefaultShaderProgram(final VertexFormat vertexFormat,
                          final ArrayList<DefaultShaderObject> objects,
-                         final HashMap<String, Uniform> uniforms,
+                         final LinkedHashMap<String, Uniform> uniforms,
+                         final HashMap<String, UniformBuffer> uniformBuffers,
                          final Consumer<ShaderProgram> bindCallback,
                          final Consumer<ShaderProgram> unbindCallback,
                          final Object2IntOpenHashMap<String> samplerIds,
-                         final HashMap<String, Object> constants,
-                         final Object2IntLinkedOpenHashMap<String> defines,
+                         final LinkedHashMap<String, Object> constants,
+                         final LinkedHashMap<String, Object> defines,
                          final Int2ObjectArrayMap<IntSupplier> staticSamplers) {
         this.vertexFormat = vertexFormat;
         this.objects = objects;
@@ -83,11 +87,13 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         this.constants = constants;
         this.defines = defines;
         id = GL20.glCreateProgram();
-        uniformCache = new DefaultUniformCache(this, uniforms);
+        PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Created new shader program {}", id);
+        uniformCache = new DefaultUniformCache(uniforms);
+        this.uniformBuffers = uniformBuffers;
         setupAttributes();
 
         PDAMod.DISPOSITION_HANDLER.register(this);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onRegisterShaders);
+        DefaultReloadHandler.INSTANCE.register(this);
 
         // Attach shader objects to program
         for (final var object : objects) {
@@ -126,8 +132,12 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         }
     }
 
-    private void onRegisterShaders(final RegisterShadersEvent event) {
-        relink(event.getResourceProvider());
+    private void setupUniformBuffers() {
+        // Set up uniform buffers
+        var bindingPoint = 0;
+        for (final var buffer : uniformBuffers.entrySet()) {
+            buffer.getValue().setup(buffer.getKey(), this, bindingPoint++);
+        }
     }
 
     private void setupAttributes() {
@@ -144,36 +154,53 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         }
     }
 
-    private void relink(final ResourceProvider provider) {
-        PDAMod.LOGGER.debug("Relinking program {}", id);
+    @Override
+    public void prepareReload(final ResourceManager manager) {
         unbind();
-        isLinked.set(false);
-        // @formatter:off
-        CompletableFuture.allOf(objects.stream()
-            .map(object -> object.recompile(this, provider))
-            .toArray(CompletableFuture[]::new))
-            .exceptionally(error -> {
-                PDAMod.LOGGER.error("Could not recompile shader program {}: {}", id, Exceptions.toFancyString(error));
-                return null;
-            })
-            .thenAccept(result -> Minecraft.getInstance().execute(() -> {
-                GL20.glLinkProgram(id);
-                if (GL20.glGetProgrami(id, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
-                    PDAMod.LOGGER.error("Could not link shader program {}: {}", id, GL20.glGetProgramInfoLog(id));
-                    return;
-                }
-                uniformCache.clear();
-                uniformCache.updateAll(); // Flag all uniforms to be re-applied statically
-                for (final var sampler : samplers.values()) {
-                    sampler.setup(this);
-                }
-                isLinked.set(true);
-            }));
-        // @formatter:on
+        isLinked = false;
     }
 
     @Override
-    public Object2IntMap<String> getDefines() {
+    public void reload(final ResourceManager manager) {
+        for (final var object : objects) {
+            object.recompile(this, manager);
+        }
+        PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Relinking program {}", id);
+        GL20.glLinkProgram(id);
+        if (GL20.glGetProgrami(id, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
+            PDAMod.LOGGER.error(LogMarkers.RENDERER,
+                "Could not link shader program {}: {}",
+                id,
+                GL20.glGetProgramInfoLog(id));
+            return;
+        }
+        uniformLocations.clear();
+        uniformCache.updateAll(); // Flag all uniforms to be re-applied statically
+        for (final var sampler : samplers.values()) {
+            sampler.setup(this);
+        }
+        uniformBlockIndices.clear();
+        setupUniformBuffers();
+        isLinked = true;
+    }
+
+    @Override
+    public int getUniformLocation(final String name) {
+        return uniformLocations.computeIfAbsent(name, (String n) -> GL20.glGetUniformLocation(id, n));
+    }
+
+    @Override
+    public int getUniformBlockIndex(final String name) {
+        return uniformBlockIndices.computeIfAbsent(name, (String n) -> GL31.glGetUniformBlockIndex(id, n));
+    }
+
+    @Override
+    public Map<String, UniformBuffer> getUniformBuffers() {
+        return uniformBuffers;
+    }
+
+    @Override
+    public Map<String, Object> getDefines() {
         return defines;
     }
 
@@ -225,16 +252,18 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public void unbind() {
-        if (!isBound || !isLinked.get()) {
+        if (!isBound || !isLinked) {
             return;
-        }
-        for (final var object : objects) {
-            object.onUnbindProgram(this);
         }
         unbindCallback.accept(this);
         // Unbind/disable samplers
         for (final var sampler : dynamicSamplers) {
             sampler.unbind(this);
+        }
+        // Undbind/disable UBOs
+        var bindingPoint = 0;
+        for (final var buffer : uniformBuffers.entrySet()) {
+            buffer.getValue().unbind(buffer.getKey(), this, bindingPoint++);
         }
         GL20.glUseProgram(0);
         isBound = false;
@@ -242,26 +271,28 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public void bind() {
-        if (isBound || !isLinked.get()) {
+        if (isBound || !isLinked) {
             return;
         }
-        for (final var object : objects) {
-            object.onBindProgram(this);
-        }
         GL20.glUseProgram(id);
+        // Bind/enable UBOs
+        var bindingPoint = 0;
+        for (final var buffer : uniformBuffers.entrySet()) {
+            buffer.getValue().bind(buffer.getKey(), this, bindingPoint++);
+        }
         // Bind/enable samplers
         for (final var sampler : dynamicSamplers) {
             sampler.bind(this);
         }
         bindCallback.accept(this);
         // Update uniforms
-        uniformCache.applyAll();
+        uniformCache.applyAll(this);
         isBound = true;
     }
 
     @Override
     public void dispose() {
-        isLinked.set(false);
+        isLinked = false;
         // Detach and free all shader objects
         for (final var object : objects) {
             final var objectId = object.getId();
@@ -273,7 +304,7 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public boolean isLinked() {
-        return isLinked.get();
+        return isLinked;
     }
 
     @Override
@@ -288,12 +319,12 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
 
     @Override
     public void requestRelink() {
-        isRelinkRequested.set(true);
+        isRelinkRequested = true;
     }
 
     @Override
     public boolean isRelinkRequested() {
-        return isRelinkRequested.get();
+        return isRelinkRequested;
     }
 
     @Override

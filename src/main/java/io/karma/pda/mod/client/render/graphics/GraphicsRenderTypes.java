@@ -10,7 +10,7 @@ import io.karma.pda.api.client.render.display.DisplayMode;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.ShaderType;
 import io.karma.pda.api.util.Constants;
-import io.karma.pda.mod.client.render.shader.DefaultShaderFactory;
+import io.karma.pda.mod.client.render.shader.DefaultShaderHandler;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
@@ -66,7 +66,7 @@ public final class GraphicsRenderTypes {
 
     @Internal
     public static void createShaders() { // @formatter:off
-        colorShader = DefaultShaderFactory.INSTANCE.create(builder -> builder
+        colorShader = DefaultShaderHandler.INSTANCE.create(builder -> builder
             .shader(object -> object
                 .type(ShaderType.VERTEX)
                 .location(Constants.MODID, "shaders/display_color.vert.glsl")
@@ -79,7 +79,7 @@ public final class GraphicsRenderTypes {
             )
             .defaultUniforms()
         );
-        colorTexShader = DefaultShaderFactory.INSTANCE.create(builder -> builder
+        colorTexShader = DefaultShaderHandler.INSTANCE.create(builder -> builder
             .shader(object -> object
                 .type(ShaderType.VERTEX)
                 .location(Constants.MODID, "shaders/display_color_tex.vert.glsl")

@@ -164,9 +164,12 @@ public final class ClientLauncher implements Launcher {
         final var name = type.getName();
         // @formatter:off
         final var future = terminatedApps.removeLater(name, 30, TimeUnit.SECONDS, PDAMod.EXECUTOR_SERVICE)
+            .exceptionally(exception -> {
+                PDAMod.LOGGER.error("Didn't get server response in time", exception);
+                return null;
+            })
             .thenApply(app -> {
                 if(app == null) {
-                    PDAMod.LOGGER.warn("Server didn't respond in time to close app {}, ignoring", name);
                     return null;
                 }
                 unregisterSyncedFields(app);
@@ -198,15 +201,18 @@ public final class ClientLauncher implements Launcher {
         }
         // @formatter:off
         final var future = pendingApps.removeLater(name, 30, TimeUnit.SECONDS, PDAMod.EXECUTOR_SERVICE)
+            .exceptionally(exception -> {
+                synchronized (appStackLock) {
+                    appStack.remove(appStack.stream()
+                        .filter(a -> a.getType() == type)
+                        .findFirst()
+                        .orElseThrow());
+                }
+                PDAMod.LOGGER.error("Server didn't respond in time to open app", exception);
+                return null;
+            })
             .thenApply(theApp -> {
                 if(theApp == null) {
-                    synchronized (appStackLock) {
-                        appStack.remove(appStack.stream()
-                            .filter(a -> a.getType() == type)
-                            .findFirst()
-                            .orElseThrow());
-                    }
-                    PDAMod.LOGGER.error("Server didn't respond in time to open app {}, ignoring", name);
                     return null;
                 }
                 registerSyncedFields(theApp);

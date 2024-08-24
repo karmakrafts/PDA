@@ -10,6 +10,7 @@ import io.karma.pda.api.API;
 import io.karma.pda.api.app.theme.font.FontFamily;
 import io.karma.pda.api.app.theme.font.FontStyle;
 import io.karma.pda.api.app.theme.font.FontVariant;
+import io.karma.pda.api.reload.ReloadPriority;
 import io.karma.pda.api.reload.Reloadable;
 import io.karma.pda.api.util.Exceptions;
 import io.karma.pda.api.util.JSONUtils;
@@ -18,7 +19,6 @@ import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -26,7 +26,8 @@ import java.util.*;
  * @author Alexander Hinze
  * @since 28/04/2024
  */
-public final class DefaultFontFamily implements FontFamily, Reloadable<Void> {
+@ReloadPriority(49) // Right before FontRenderer
+public final class DefaultFontFamily implements FontFamily, Reloadable {
     private final ResourceLocation name;
     private final Set<FontStyle> styles = Collections.synchronizedSet(EnumSet.noneOf(FontStyle.class));
     private final Map<FontStyle, DefaultFont> fonts = Collections.synchronizedMap(new EnumMap<>(FontStyle.class));
@@ -38,7 +39,7 @@ public final class DefaultFontFamily implements FontFamily, Reloadable<Void> {
     }
 
     @Override
-    public synchronized @Nullable Void prepareReload(final ResourceManager manager) {
+    public synchronized void prepareReload(final ResourceManager manager) {
         try {
             final var configPath = String.format("fonts/%s.json", name.getPath());
             final var configLocation = new ResourceLocation(name.getNamespace(), configPath);
@@ -51,19 +52,17 @@ public final class DefaultFontFamily implements FontFamily, Reloadable<Void> {
             }
             styles.clear();
             styles.addAll(config.variants.keySet());
+            for (final var style : styles) {
+                getFont(style, FontVariant.DEFAULT_SIZE);
+            }
         }
         catch (Throwable error) {
             API.getLogger().error("Could not read font config {}: {}", name, Exceptions.toFancyString(error));
         }
-        return null;
     }
 
     @Override
-    public synchronized void reload(final @Nullable Void value, final ResourceManager manager) {
-        API.getLogger().debug("Preloading font families for {}", name);
-        for (final var style : styles) {
-            getFont(style, FontVariant.DEFAULT_SIZE);
-        }
+    public void reload(final ResourceManager manager) {
     }
 
     @Override

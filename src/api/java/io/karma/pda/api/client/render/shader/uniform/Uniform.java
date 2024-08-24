@@ -20,5 +20,9 @@ public interface Uniform {
 
     void apply(final ShaderProgram program);
 
+    void upload(final UniformBuffer buffer, final long address);
+
     void notifyUpdate();
+
+    boolean requiresUpdate();
 }

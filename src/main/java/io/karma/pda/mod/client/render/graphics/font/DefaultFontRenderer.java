@@ -7,31 +7,39 @@ package io.karma.pda.mod.client.render.graphics.font;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import io.karma.pda.api.API;
 import io.karma.pda.api.app.theme.font.Font;
+import io.karma.pda.api.app.theme.font.FontStyle;
 import io.karma.pda.api.app.theme.font.FontVariant;
 import io.karma.pda.api.client.render.display.DisplayMode;
 import io.karma.pda.api.client.render.graphics.FontAtlas;
 import io.karma.pda.api.client.render.graphics.FontRenderer;
-import io.karma.pda.api.client.render.graphics.Graphics;
+import io.karma.pda.api.client.render.graphics.GraphicsContext;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.ShaderType;
 import io.karma.pda.api.client.render.shader.uniform.DefaultUniformType;
 import io.karma.pda.api.color.ColorProvider;
+import io.karma.pda.api.dispose.Disposable;
+import io.karma.pda.api.reload.Reloadable;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.api.util.RectangleCorner;
-import io.karma.pda.mod.client.render.shader.DefaultShaderFactory;
+import io.karma.pda.mod.PDAMod;
+import io.karma.pda.mod.client.render.shader.DefaultShaderHandler;
+import io.karma.pda.mod.reload.DefaultReloadHandler;
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderStateShard.EmptyTextureStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.joml.Matrix4f;
 import org.lwjgl.util.msdfgen.MSDFGen;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -41,7 +49,7 @@ import java.util.function.IntFunction;
  * @since 04/05/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class DefaultFontRenderer implements FontRenderer {
+public final class DefaultFontRenderer implements FontRenderer, Disposable, Reloadable {
     // @formatter:off
     private static ShaderProgram shader;
     private static final Function<FontAtlasContext, RenderType> RENDER_TYPE = Util.memoize(ctx -> {
@@ -68,17 +76,20 @@ public final class DefaultFontRenderer implements FontRenderer {
                 ))
                 .createCompositeState(false));
     });
-    private final Graphics graphics;
     // @formatter:on
-    private final HashMap<FontAtlasKey, DefaultFontAtlas> fontAtlasCache = new HashMap<>();
 
-    public DefaultFontRenderer(final Graphics graphics) {
-        this.graphics = graphics;
+    private final HashMap<FontAtlasKey, DefaultFontAtlas> fontAtlasCache = new HashMap<>();
+    private final GraphicsContext context;
+
+    public DefaultFontRenderer(final GraphicsContext context) {
+        this.context = context;
+        PDAMod.DISPOSITION_HANDLER.register(this);
+        DefaultReloadHandler.INSTANCE.register(this);
     }
 
     @Internal
     public static void createShaders() { // @formatter:off
-        shader = DefaultShaderFactory.INSTANCE.create(builder -> builder
+        shader = DefaultShaderHandler.INSTANCE.create(builder -> builder
             .shader(object -> object
                 .type(ShaderType.VERTEX)
                 .location(Constants.MODID, "shaders/font.vert.glsl")
@@ -165,7 +176,28 @@ public final class DefaultFontRenderer implements FontRenderer {
         final var variant = font.asVariant();
         return RENDER_TYPE.apply(new FontAtlasContext(getFontAtlas(variant),
             variant.getSize(),
-            graphics.getContext().getDisplayMode()));
+            context.getDisplayMode()));
+    }
+
+    @Override
+    public void dispose() {
+        for (final var atlas : fontAtlasCache.values()) {
+            atlas.dispose();
+        }
+    }
+
+    @Override
+    public void reload(final ResourceManager manager) {
+        fontAtlasCache.clear();
+        // @formatter:off
+        API.getFontFamilies().stream()
+            .flatMap(family -> Arrays.stream(FontStyle.values())
+                .map(style -> family.getFont(style, FontVariant.DEFAULT_SIZE)))
+            .forEach(this::getFontAtlas);
+        // @formatter:on
+        for (final var atlas : fontAtlasCache.values()) {
+            atlas.reload(manager);
+        }
     }
 
     @Override
@@ -245,8 +277,7 @@ public final class DefaultFontRenderer implements FontRenderer {
 
     @Override
     public int render(int x, int y, char c, Font font, ColorProvider color) {
-        final var context = graphics.getContext();
-        final var state = graphics.getState();
+        final var state = context.getGraphics().getState();
         final var buffer = context.getBufferSource().getBuffer(getRenderType(font));
         final var matrix = context.getTransform();
         return (int) renderGlyph(x, y, state.getZIndex(), c, font.asVariant(), matrix, buffer, color);

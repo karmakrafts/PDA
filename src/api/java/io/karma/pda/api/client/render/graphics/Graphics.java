@@ -31,8 +31,6 @@ public interface Graphics {
 
     GraphicsState pushState();
 
-    FontRenderer getFontRenderer();
-
     void popState();
 
     void point(final int x, final int y);

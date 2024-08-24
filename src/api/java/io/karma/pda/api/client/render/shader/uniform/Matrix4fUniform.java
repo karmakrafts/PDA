@@ -11,6 +11,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 
 /**
  * @author Alexander Hinze
@@ -60,11 +62,32 @@ public final class Matrix4fUniform implements GenericUniform<Matrix4f> {
     }
 
     @Override
+    public boolean requiresUpdate() {
+        return hasChanged;
+    }
+
+    @Override
     public void apply(final ShaderProgram program) {
         if (!hasChanged) {
             return;
         }
-        GL20.glUniformMatrix4fv(program.getUniformCache().getLocation(name), false, value.get(new float[16]));
+        try (final var stack = MemoryStack.stackPush()) {
+            GL20.glUniformMatrix4fv(program.getUniformLocation(name), false, value.get(stack.mallocFloat(16)));
+        }
+        hasChanged = false;
+    }
+
+    @Override
+    public void upload(final UniformBuffer buffer, final long address) {
+        if (!hasChanged) {
+            return;
+        }
+        try (final var stack = MemoryStack.stackPush()) {
+            final var offset = buffer.getFieldOffset(name);
+            MemoryUtil.memCopy(MemoryUtil.memAddress(value.get(stack.mallocFloat(16))),
+                address + offset,
+                getType().getSize());
+        }
         hasChanged = false;
     }
 }

@@ -71,6 +71,10 @@ public final class ClientSessionHandler extends AbstractSessionHandler {
         final var requestId = UUID.randomUUID();
         // @formatter:off
         final var future = pendingSessions.removeLater(requestId, 30, TimeUnit.SECONDS, PDAMod.EXECUTOR_SERVICE)
+            .exceptionally(exception -> {
+                PDAMod.LOGGER.error("Could not complete session handshake with server", exception);
+                return null;
+            })
             .thenApply(sessionId -> {
                 if (sessionId == null) {
                     PDAMod.LOGGER.error("Server didn't send session ID back in time for request {}, ignoring", requestId);
@@ -81,9 +85,6 @@ public final class ClientSessionHandler extends AbstractSessionHandler {
                 addActiveSession(sessionId, session);
                 session.onEstablished();
                 return (Session) session;
-            }).exceptionally(error -> {
-                PDAMod.LOGGER.error("Could not complete session handshake", error);
-                return null;
             });
         // @formatter:on
         Minecraft.getInstance().execute(() -> {
@@ -121,9 +122,12 @@ public final class ClientSessionHandler extends AbstractSessionHandler {
         }
         final var sessionId = session.getId();
         final var future = terminatedSessions.removeLater(sessionId, 30, TimeUnit.SECONDS, PDAMod.EXECUTOR_SERVICE)
+            .exceptionally(exception -> {
+                PDAMod.LOGGER.error("Could not terminate session with server", exception);
+                return null;
+            })
             .thenAccept(sess -> {
                 if (sess == null) {
-                    PDAMod.LOGGER.warn("Server didn't send acknowledgement back in time, ignoring");
                     return;
                 }
                 sess.onTerminated();

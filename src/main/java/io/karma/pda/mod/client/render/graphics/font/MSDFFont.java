@@ -4,11 +4,11 @@
 
 package io.karma.pda.mod.client.render.graphics.font;
 
+import io.karma.pda.api.util.MemoryUtils;
 import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.util.FontVariationAxis;
 import io.karma.pda.mod.client.util.FreeTypeUtils;
 import io.karma.pda.mod.client.util.MSDFUtils;
-import io.karma.pda.mod.util.MemoryUtils;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.APIUtil;

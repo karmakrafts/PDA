@@ -2,9 +2,9 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-package io.karma.pda.mod.util;
+package io.karma.pda.api.util;
 
-import io.karma.pda.mod.PDAMod;
+import io.karma.pda.api.API;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
@@ -41,7 +41,7 @@ public final class MemoryUtils {
             field.setAccessible(false);
         }
         catch (Throwable error) {
-            PDAMod.LOGGER.error("Could not retrieve sun.misc.Unsafe instance", error);
+            API.getLogger().error("Could not retrieve sun.misc.Unsafe instance", error);
         }
         ADDRESS = getAddressOffset();
         MARK = getMarkOffset();
@@ -111,5 +111,10 @@ public final class MemoryUtils {
         unsafe.putInt(buffer, LIMIT, capacity);
         unsafe.putInt(buffer, CAPACITY, capacity);
         return buffer;
+    }
+
+    public static int align(final int value, final int alignment) {
+        final var align = alignment - 1;
+        return (value + align) & ~align;
     }
 }

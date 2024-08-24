@@ -7,6 +7,7 @@ package io.karma.pda.mod.client.render.graphics;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.karma.pda.api.client.render.display.DisplayMode;
 import io.karma.pda.api.client.render.graphics.BrushFactory;
+import io.karma.pda.api.client.render.graphics.FontRenderer;
 import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.client.render.graphics.GraphicsContext;
 import io.karma.pda.mod.PDAMod;
@@ -20,7 +21,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  */
 @OnlyIn(Dist.CLIENT)
 public final class DefaultGraphicsContext implements GraphicsContext {
-    private final DefaultBrushFactory brushFactory = new DefaultBrushFactory(this);
     private Graphics graphics;
     private PoseStack poseStack;
     private MultiBufferSource bufferSource;
@@ -28,19 +28,35 @@ public final class DefaultGraphicsContext implements GraphicsContext {
     private int height;
     private int defaultZIndex;
     private DisplayMode displayMode;
+    private BrushFactory brushFactory;
+    private FontRenderer fontRenderer;
 
     public void setup(final PoseStack poseStack,
                       final MultiBufferSource bufferSource,
                       final int width,
                       final int height,
                       final int defaultZIndex,
-                      final DisplayMode displayMode) {
+                      final DisplayMode displayMode,
+                      final BrushFactory brushFactory,
+                      final FontRenderer fontRenderer) {
         this.poseStack = poseStack;
         this.bufferSource = bufferSource;
         this.width = width;
         this.height = height;
         this.defaultZIndex = defaultZIndex;
         this.displayMode = displayMode;
+        this.brushFactory = brushFactory;
+        this.fontRenderer = fontRenderer;
+    }
+
+    @Override
+    public BrushFactory getBrushFactory() {
+        return brushFactory;
+    }
+
+    @Override
+    public FontRenderer getFontRenderer() {
+        return fontRenderer;
     }
 
     @Override
@@ -58,11 +74,6 @@ public final class DefaultGraphicsContext implements GraphicsContext {
     }
 
     @Override
-    public BrushFactory getBrushFactory() {
-        return brushFactory;
-    }
-
-    @Override
     public int getDefaultZIndex() {
         return defaultZIndex;
     }
@@ -70,7 +81,14 @@ public final class DefaultGraphicsContext implements GraphicsContext {
     @Override
     public GraphicsContext derive(final int width, final int height) {
         final var context = new DefaultGraphicsContext();
-        context.setup(poseStack, bufferSource, width, height, defaultZIndex + 1, displayMode);
+        context.setup(poseStack,
+            bufferSource,
+            width,
+            height,
+            defaultZIndex + 1,
+            displayMode,
+            brushFactory,
+            fontRenderer);
         return context;
     }
 

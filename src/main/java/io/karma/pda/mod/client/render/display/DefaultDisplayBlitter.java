@@ -13,8 +13,7 @@ import io.karma.pda.api.client.render.shader.ShaderType;
 import io.karma.pda.api.client.render.shader.uniform.DefaultUniformType;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.api.util.FloatSupplier;
-import io.karma.pda.mod.client.ClientEventHandler;
-import io.karma.pda.mod.client.render.shader.DefaultShaderFactory;
+import io.karma.pda.mod.client.render.shader.DefaultShaderHandler;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -47,7 +46,7 @@ public final class DefaultDisplayBlitter implements DisplayBlitter {
             DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL, VertexFormat.Mode.TRIANGLES, 6, false, false,
             RenderType.CompositeState.builder()
                 .setCullState(RenderStateShard.NO_CULL)
-                .setShaderState(DefaultShaderFactory.INSTANCE.create(builder -> builder
+                .setShaderState(DefaultShaderHandler.INSTANCE.create(builder -> builder
                     .format(DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL)
                     .shader(object -> object
                         .type(ShaderType.VERTEX)
@@ -64,15 +63,12 @@ public final class DefaultDisplayBlitter implements DisplayBlitter {
                     .constant("GLITCH_FACTOR", mode.getSpec().type().getGlitchFactor())
                     .constant("GLITCH_BLOCKS", mode.getSpec().type().getGlitchBlocks())
                     .constant("PIXEL_FACTOR", mode.getSpec().type().getPixelationFactor())
-                    .defaultUniforms() // ProjMat, ModelViewMat, ColorModulator
-                    .uniform("Time", DefaultUniformType.FLOAT)
+                    .globalUniforms()
                     .uniform("GlitchFactor", DefaultUniformType.FLOAT)
                     .sampler("Sampler0", mode.getFramebuffer()::getColorTexture)
                     .sampler("Sampler1", PIXEL_TEXTURE) // Pixel filter texture
                     .onBind(program -> {
-                        final var uniformCache = program.getUniformCache();
-                        uniformCache.getFloat("Time").setFloat(ClientEventHandler.INSTANCE.getShaderTime());
-                        uniformCache.getFloat("GlitchFactor").setFloat(glitchFactorSupplier.get());
+                        program.getUniformCache().getFloat("GlitchFactor").setFloat(glitchFactorSupplier.get());
                     })).asStateShard())
                 .createCompositeState(false));
         // @formatter:on

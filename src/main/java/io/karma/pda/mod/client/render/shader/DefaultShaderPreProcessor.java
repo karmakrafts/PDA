@@ -7,18 +7,17 @@ package io.karma.pda.mod.client.render.shader;
 import io.karma.pda.api.client.render.shader.ShaderObject;
 import io.karma.pda.api.client.render.shader.ShaderPreProcessor;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
-import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.api.util.ToBooleanBiFunction;
 import io.karma.pda.mod.PDAMod;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.versions.forge.ForgeVersion;
+import org.apache.commons.lang3.ArrayUtils;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Stack;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,6 +34,8 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         "\\b(special)\\s+(const)\\s+(\\w+)\\s+(\\w+)(\\s*?=\\s*?([\\w.\"'+\\-*/%]+))?\\s*?;");
     private static final Pattern INCLUDE_PATTERN = Pattern.compile(
         "(#include)\\s*?((\\s*?<((\\w+(:))?[\\w/._\\-]+)\\s*?>)|(\"\\s*?([\\w/._\\-]+)\\s*?\"))");
+    private static final Pattern GL_VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
+    private static final char[] ESCAPABLE_CHARS = "\\\"nt".toCharArray();
 
     // @formatter:off
     private DefaultShaderPreProcessor() {}
@@ -73,21 +74,85 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         return path.substring(0, path.lastIndexOf('/'));
     }
 
-    private void minify(final StringBuffer buffer) {
-        final var unstripped = buffer.toString();
+    private static char transformEscapedChar(final char c) {
+        return switch (c) {
+            case 'n' -> '\n';
+            case 't' -> '\t';
+            case '\\', '"' -> c;
+            default -> throw new IllegalStateException("Unknown escape code");
+        };
+    }
+
+    private static CharSequence generateStringData(final CharSequence sequence) {
+        final var builder = new StringBuilder();
+        builder.append("uint[]{");
+        final var literalLength = sequence.length();
+        for (var j = 0; j < literalLength; j++) {
+            builder.append((int) sequence.charAt(j));
+            if (j < literalLength - 1) {
+                builder.append(',');
+            }
+        }
+        builder.append('}');
+        return builder;
+    }
+
+    private static void transformStrings(final StringBuffer buffer) {
+        final var source = buffer.toString();
+        var isString = false;
+        var isEscaped = false;
+        final var literalBuffer = new StringBuilder();
+        buffer.delete(0, buffer.length());
+        for (var i = 0; i < source.length(); i++) {
+            final var c = source.charAt(i);
+            final var hasNext = i < source.length() - 1;
+            final var next = hasNext ? source.charAt(i + 1) : ' ';
+            if (isString) {
+                // Handle escaped characters inside of string literals
+                if (isEscaped) {
+                    literalBuffer.append(transformEscapedChar(c));
+                    isEscaped = false; // Escapes can only be a single char, disable mode automatically
+                    continue;
+                }
+                // If current is backslash, and next is some valid escapable char, skip slash and enable escape mode
+                if (c == '\\' && hasNext && ArrayUtils.contains(ESCAPABLE_CHARS, next)) {
+                    isEscaped = true;
+                    continue;
+                }
+                // If current is a quote, end string
+                if (c == '"') {
+                    PDAMod.LOGGER.debug(generateStringData(literalBuffer)); // TODO: debug
+                    literalBuffer.delete(0, literalBuffer.length());
+                    isString = false;
+                    continue;
+                }
+                // Otherwise, we accumulate this as a part of the current string literal
+                literalBuffer.append(c);
+            }
+            // If current char is a quote, we enter string mode and eat the "
+            if (c == '"') {
+                isString = true;
+                continue;
+            }
+            buffer.append(c);
+        }
+    }
+
+    private static void stripCommentsAndWhitespace(final StringBuffer buffer) {
+        final var source = buffer.toString();
         buffer.delete(0, buffer.length());
         var isBlockComment = false;
         var isLineComment = false;
         var skipNext = false;
-        for (var i = 0; i < unstripped.length(); i++) {
-            final var c = unstripped.charAt(i);
+        for (var i = 0; i < source.length(); i++) {
+            final var c = source.charAt(i);
             // Pop/skip logic
             if (skipNext) {
                 skipNext = false;
                 continue;
             }
-            final var hasNext = i < unstripped.length() - 1;
-            final var next = hasNext ? unstripped.charAt(i + 1) : ' ';
+            final var hasNext = i < source.length() - 1;
+            final var next = hasNext ? source.charAt(i + 1) : ' ';
             if (isBlockComment) {
                 if (c == '*' && hasNext && next == '/') {
                     isBlockComment = false;
@@ -122,36 +187,29 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         }
     }
 
-    private String expandIncludesRecursively(final ResourceLocation location,
-                                             final String source,
-                                             final Function<ResourceLocation, String> loader,
-                                             final HashSet<ResourceLocation> includedLocations) {
+    private static String expandIncludesRecursively(final ResourceLocation location,
+                                                    final String source,
+                                                    final Function<ResourceLocation, String> loader,
+                                                    final HashSet<ResourceLocation> includedLocations) {
         final var buffer = new StringBuffer(source);
         processGreedy(buffer, INCLUDE_PATTERN, (matcher, currentBuffer) -> {
             ResourceLocation targetLocation;
             final var relativePath = matcher.group(8);
             if (relativePath != null) { // We have a relative include path
-                PDAMod.LOGGER.debug(LogMarkers.RENDERER,
-                    "Processing relative include '{}' in {}",
-                    relativePath,
-                    location);
                 final var parentPath = getParentPath(location.getPath());
                 final var joinedPath = String.format("%s/%s", parentPath, relativePath);
                 targetLocation = new ResourceLocation(location.getNamespace(), resolveRelativePath(joinedPath));
             }
             else {
                 final var path = matcher.group(4); // Otherwise grab the absolute one
-                PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Processing absolute include '{}' in {}", path, location);
                 targetLocation = ResourceLocation.tryParse(path);
                 if (targetLocation == null) {
                     throw new IllegalStateException(String.format("Malformed include location '%s'", path));
                 }
             }
             if (includedLocations.contains(targetLocation)) {
-                PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Include from {} already expanded, skipping", targetLocation);
                 return true;
             }
-            PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Loading include from {}", targetLocation);
             currentBuffer.replace(matcher.start(),
                 matcher.end(),
                 expandIncludesRecursively(targetLocation, loader.apply(targetLocation), loader, includedLocations));
@@ -161,22 +219,21 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         return buffer.toString();
     }
 
-    private void processIncludes(final ResourceLocation location,
-                                 final StringBuffer buffer,
-                                 final Function<ResourceLocation, String> loader) {
+    private static void processIncludes(final ResourceLocation location,
+                                        final StringBuffer buffer,
+                                        final Function<ResourceLocation, String> loader) {
         final var source = buffer.toString();
         buffer.delete(0, buffer.length());
         buffer.append(expandIncludesRecursively(location, source, loader, new HashSet<>()));
     }
 
-    private void processSpecializationConstants(final ResourceLocation location,
-                                                final Map<String, Object> constants,
-                                                final StringBuffer buffer) {
+    private static void processSpecializationConstants(final ResourceLocation location,
+                                                       final Map<String, Object> constants,
+                                                       final StringBuffer buffer) {
         processGreedy(buffer, SPECIAL_CONST_PATTERN, (matcher, currentBuffer) -> {
             final var replacement = new StringBuilder();
             final var type = matcher.group(3);
             final var name = matcher.group(4);
-            PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Processing constant '{}' in {}", name, location);
             replacement.append(String.format("const %s %s", type, name));
             final var defaultValue = matcher.group(6);
             final var value = constants.get(name);
@@ -197,13 +254,40 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         });
     }
 
-    private void processDefines(final Object2IntMap<String> defines, final StringBuffer buffer) {
+    private static void processDefines(final Map<String, Object> defines, final StringBuffer buffer) {
         final var defineBlock = new StringBuilder();
-        for (final var define : defines.object2IntEntrySet()) {
-            defineBlock.append(String.format("#define %s %d\n", define.getKey(), define.getIntValue()));
+        for (final var define : defines.entrySet()) {
+            defineBlock.append(String.format("#define %s %s\n", define.getKey(), define.getValue()));
         }
         buffer.insert(buffer.indexOf("\n", buffer.indexOf("#version")) + 1,
             defineBlock); // Always skip the first line for the version
+    }
+
+    private static Map<String, Object> insertBuiltinDefines(final Map<String, Object> defines) {
+        final var allDefines = new LinkedHashMap<>(defines);
+        allDefines.put("__debug", PDAMod.IS_DEV_ENV);
+
+        final var caps = GL.getCapabilities();
+        allDefines.put("__bindless_texture_support", caps.GL_ARB_bindless_texture ? 1 : 0);
+        allDefines.put("__ssbo_support", caps.GL_ARB_shader_storage_buffer_object ? 1 : 0);
+        allDefines.put("__long_support", caps.GL_ARB_gpu_shader_int64 ? 1 : 0);
+        allDefines.put("__double_support", caps.GL_ARB_gpu_shader_fp64 ? 1 : 0);
+
+        final var glVersion = Objects.requireNonNull(GL11.glGetString(GL11.GL_VERSION));
+        final var glVersionMatcher = GL_VERSION_PATTERN.matcher(glVersion);
+        if (!glVersionMatcher.find()) {
+            throw new IllegalStateException("Could not parse OpenGL version");
+        }
+        allDefines.put("__gl_major", glVersionMatcher.group(1));
+        allDefines.put("__gl_minor", glVersionMatcher.group(2));
+        allDefines.put("__gl_patch", glVersionMatcher.group(3));
+
+        final var forgeVersion = ForgeVersion.getVersion().split("\\.");
+        allDefines.put("__forge_major", forgeVersion[0]);
+        allDefines.put("__forge_minor", forgeVersion[1]);
+        allDefines.put("__forge_patch", forgeVersion[2]);
+
+        return allDefines;
     }
 
     @Override
@@ -215,8 +299,11 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         final var location = object.getLocation();
         processIncludes(location, buffer, loader);
         processSpecializationConstants(location, program.getConstants(), buffer);
-        processDefines(program.getDefines(), buffer);
-        minify(buffer);
-        return buffer.toString();
+        processDefines(insertBuiltinDefines(program.getDefines()), buffer);
+        stripCommentsAndWhitespace(buffer);
+        transformStrings(buffer);
+        final var processedSource = buffer.toString();
+        PDAMod.LOGGER.debug("============ Processed shader source:\n\n{}\n", processedSource);
+        return processedSource;
     }
 }

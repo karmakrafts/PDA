@@ -1,4 +1,4 @@
-#version 330 core
+#version 410 core
 
 /*
  * Copyright (C) 2024 Karma Krafts & associates
@@ -6,16 +6,11 @@
 
 #include "include/utils.glsl"
 #include "include/dither.glsl"
-
-#define DISPLAY_TYPE_BW_LCD 0
-#define DISPLAY_TYPE_SRGB_LCD 1
-#define DISPLAY_TYPE_OLED 2
+#include "include/display_type.glsl"
+#include "include/global_uniforms.glsl"
 
 uniform sampler2D Sampler0;
 uniform sampler2D Sampler1;
-
-uniform vec4 ColorModulator;
-uniform float Time;
 uniform float GlitchFactor;
 
 in vec2 texCoord0;

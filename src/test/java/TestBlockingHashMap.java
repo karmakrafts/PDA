@@ -49,7 +49,11 @@ public final class TestBlockingHashMap {
         final var map = new BlockingHashMap<String, String>();
 
         final var resultValue = new AtomicReference<String>(null);
-        final var future = map.removeLater("foo", TestHarness.executor).thenAccept(resultValue::set);
+        // @formatter:off
+        final var future = map.removeLater("foo", TestHarness.executor)
+            .thenAccept(resultValue::set)
+            .exceptionally(Assertions::fail);
+        // @formatter:on
 
         Assertions.assertTrue(map.isEmpty());
         Assertions.assertEquals(0, map.size());

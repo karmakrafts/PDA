@@ -17,7 +17,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.lwjgl.opengl.GL;
 
 /**
  * @author Alexander Hinze

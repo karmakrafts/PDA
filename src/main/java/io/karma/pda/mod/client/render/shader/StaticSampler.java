@@ -8,6 +8,7 @@ import io.karma.pda.api.client.render.shader.Sampler;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.dispose.Disposable;
 import io.karma.pda.api.dispose.DispositionPriority;
+import io.karma.pda.api.reload.PrepareReloadPriority;
 import io.karma.pda.api.reload.ReloadPriority;
 import io.karma.pda.api.reload.Reloadable;
 import io.karma.pda.api.util.LogMarkers;
@@ -16,7 +17,6 @@ import io.karma.pda.mod.reload.DefaultReloadHandler;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.ARBBindlessTexture;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL20;
@@ -29,9 +29,10 @@ import java.util.function.IntSupplier;
  */
 @OnlyIn(Dist.CLIENT)
 @DispositionPriority(100)
-@ReloadPriority(100)
-public final class StaticSampler implements Sampler, Disposable, Reloadable<Void> {
-    private static final boolean IS_SUPPORTED;
+@ReloadPriority(-100) // Reload after everything else
+@PrepareReloadPriority(100) // Prepare before everything else
+public final class StaticSampler implements Sampler, Disposable, Reloadable {
+    public static final boolean IS_SUPPORTED;
 
     static {
         IS_SUPPORTED = GL.getCapabilities().GL_ARB_bindless_texture;
@@ -110,7 +111,7 @@ public final class StaticSampler implements Sampler, Disposable, Reloadable<Void
             ARBBindlessTexture.glMakeTextureHandleResidentARB(textureHandle);
         }
 
-        final var location = program.getUniformCache().getLocation(name);
+        final var location = program.getUniformLocation(name);
         GL20.glUseProgram(program.getId());
         ARBBindlessTexture.glUniformHandleui64ARB(location, textureHandle);
         GL20.glUseProgram(0);
@@ -136,13 +137,12 @@ public final class StaticSampler implements Sampler, Disposable, Reloadable<Void
     }
 
     @Override
-    public void reload(final @Nullable Void value, final ResourceManager manager) {
+    public void reload(final ResourceManager manager) {
     }
 
     @Override
-    public @Nullable Void prepareReload(final ResourceManager manager) {
+    public void prepareReload(final ResourceManager manager) {
         dispose();
-        return null;
     }
 
     @Override

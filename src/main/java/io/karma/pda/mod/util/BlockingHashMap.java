@@ -28,36 +28,24 @@ public final class BlockingHashMap<K, V> implements Map<K, V> {
     }
 
     public CompletableFuture<@Nullable V> removeLater(final @Nullable K key, final Executor executor) {
-        return CompletableFuture.supplyAsync(() -> remove(key), executor).exceptionally(error -> {
-            PDAMod.LOGGER.error("Could not remove entry {}", key, error);
-            return null;
-        });
+        return CompletableFuture.supplyAsync(() -> remove(key), executor);
     }
 
     public CompletableFuture<@Nullable V> removeLater(final @Nullable K key,
                                                       final long timeout,
                                                       final TimeUnit timeUnit,
                                                       final Executor executor) {
-        return CompletableFuture.supplyAsync(() -> remove(key, timeout, timeUnit), executor).exceptionally(error -> {
-            PDAMod.LOGGER.error("Could not remove entry {}", key, error);
-            return null;
-        });
+        return CompletableFuture.supplyAsync(() -> remove(key, timeout, timeUnit), executor);
     }
 
     public CompletableFuture<@Nullable V> removeLater(final @Nullable K key) {
-        return CompletableFuture.supplyAsync(() -> remove(key)).exceptionally(error -> {
-            PDAMod.LOGGER.error("Could not remove entry {}", key, error);
-            return null;
-        });
+        return CompletableFuture.supplyAsync(() -> remove(key));
     }
 
     public CompletableFuture<@Nullable V> removeLater(final @Nullable K key,
                                                       final long timeout,
                                                       final TimeUnit timeUnit) {
-        return CompletableFuture.supplyAsync(() -> remove(key, timeout, timeUnit)).exceptionally(error -> {
-            PDAMod.LOGGER.error("Could not remove entry {}", key, error);
-            return null;
-        });
+        return CompletableFuture.supplyAsync(() -> remove(key, timeout, timeUnit));
     }
 
     public @Nullable V remove(final @Nullable K key, final long timeout, final TimeUnit timeUnit) {

@@ -7,35 +7,29 @@ package io.karma.pda.api.client.render.shader.uniform;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.ARBGPUShaderInt64;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
 /**
  * @author Alexander Hinze
- * @since 11/08/2024
+ * @since 24/08/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class DefaultIntUniform implements IntUniform {
+public final class DefaultLongUniform implements Uniform {
     private final String name;
-    private int value;
+    private long value;
     private boolean hasChanged = true;
 
-    DefaultIntUniform(final String name, final Object defaultValue) {
+    DefaultLongUniform(final String name, final Object defaultValue) {
         this.name = name;
         if (!(defaultValue instanceof Number number)) {
-            throw new IllegalArgumentException("Default value is not an integer");
+            throw new IllegalArgumentException("Default value is not a number");
         }
-        value = number.intValue();
+        value = number.longValue();
     }
 
-    @Override
-    public int getInt() {
-        return value;
-    }
-
-    @Override
-    public void setInt(final int value) {
+    public void setLong(final long value) {
         if (this.value == value) {
             return;
         }
@@ -44,13 +38,8 @@ public final class DefaultIntUniform implements IntUniform {
     }
 
     @Override
-    public void notifyUpdate() {
-        hasChanged = true;
-    }
-
-    @Override
     public UniformType getType() {
-        return DefaultUniformType.INT;
+        return DefaultUniformType.LONG;
     }
 
     @Override
@@ -68,7 +57,7 @@ public final class DefaultIntUniform implements IntUniform {
         if (!hasChanged) {
             return;
         }
-        GL20.glUniform1i(program.getUniformLocation(name), value);
+        ARBGPUShaderInt64.glUniform1i64ARB(program.getUniformLocation(name), value);
         hasChanged = false;
     }
 
@@ -79,8 +68,13 @@ public final class DefaultIntUniform implements IntUniform {
         }
         try (final var stack = MemoryStack.stackPush()) {
             final var offset = buffer.getFieldOffset(name);
-            MemoryUtil.memCopy(MemoryUtil.memAddress(stack.ints(value)), address + offset, getType().getSize());
+            MemoryUtil.memCopy(MemoryUtil.memAddress(stack.longs(value)), address + offset, getType().getSize());
         }
         hasChanged = false;
+    }
+
+    @Override
+    public void notifyUpdate() {
+        hasChanged = true;
     }
 }

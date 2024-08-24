@@ -25,6 +25,7 @@ import java.util.function.Supplier;
  */
 @Mixin(RenderSystem.class)
 public abstract class RenderSystemMixin implements ExtendedRenderSystem {
+    @Unique
     private static RenderSystem pda$instance; // This is non-unique on purpose since we reflect this
     @Unique
     private ExtendedShader pda$extendedShader;

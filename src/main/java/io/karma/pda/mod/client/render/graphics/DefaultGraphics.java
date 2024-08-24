@@ -10,7 +10,6 @@ import io.karma.pda.api.client.render.graphics.GraphicsContext;
 import io.karma.pda.api.client.render.graphics.GraphicsState;
 import io.karma.pda.api.color.ColorProvider;
 import io.karma.pda.api.util.RectangleCorner;
-import io.karma.pda.mod.client.render.graphics.font.DefaultFontRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -26,16 +25,11 @@ import java.util.function.IntFunction;
 @OnlyIn(Dist.CLIENT)
 public final class DefaultGraphics implements Graphics {
     private final Stack<GraphicsState> stateStack = new Stack<>();
-    private final DefaultFontRenderer fontRenderer = new DefaultFontRenderer(this);
     private GraphicsContext context;
+    private FontRenderer fontRenderer;
 
     public DefaultGraphics() {
         stateStack.push(new DefaultGraphicsState(this));
-    }
-
-    @Override
-    public FontRenderer getFontRenderer() {
-        return fontRenderer;
     }
 
     @Override
@@ -66,6 +60,7 @@ public final class DefaultGraphics implements Graphics {
 
     public void setContext(final GraphicsContext context) {
         this.context = context;
+        fontRenderer = context.getFontRenderer();
         Objects.requireNonNull(stateStack.peek()).setZIndex(context.getDefaultZIndex());
     }
 

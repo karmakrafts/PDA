@@ -5,9 +5,9 @@
 package io.karma.pda.api.client.render.shader;
 
 import com.mojang.blaze3d.vertex.VertexFormat;
+import io.karma.pda.api.client.render.shader.uniform.UniformBuffer;
 import io.karma.pda.api.client.render.shader.uniform.UniformCache;
 import io.karma.pda.api.dispose.Disposable;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,6 +26,10 @@ public interface ShaderProgram extends Disposable {
     void unbind();
 
     int getId();
+
+    int getUniformLocation(final String name);
+
+    int getUniformBlockIndex(final String name);
 
     UniformCache getUniformCache();
 
@@ -47,7 +51,9 @@ public interface ShaderProgram extends Disposable {
 
     Map<String, Object> getConstants();
 
-    Object2IntMap<String> getDefines();
+    Map<String, Object> getDefines();
 
     ShaderObject getObject(final ShaderType type);
+
+    Map<String, UniformBuffer> getUniformBuffers();
 }

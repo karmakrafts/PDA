@@ -6,7 +6,7 @@ package io.karma.pda.api.client;
 
 import io.karma.pda.api.client.flex.FlexNodeHandler;
 import io.karma.pda.api.client.render.display.DisplayRenderer;
-import io.karma.pda.api.client.render.shader.ShaderFactory;
+import io.karma.pda.api.client.render.shader.ShaderHandler;
 import io.karma.pda.api.client.render.shader.ShaderPreProcessor;
 import io.karma.pda.api.session.SessionHandler;
 import io.karma.pda.api.util.FloatSupplier;
@@ -30,7 +30,7 @@ public final class ClientAPI {
     private static FlexNodeHandler flexNodeHandler;
     private static DisplayRenderer displayRenderer;
     private static FloatSupplier shaderTimeProvider;
-    private static ShaderFactory shaderFactory;
+    private static ShaderHandler shaderHandler;
     private static Supplier<ShaderPreProcessor> shaderPreProcessorSupplier;
     private static boolean isInitialized;
 
@@ -92,13 +92,13 @@ public final class ClientAPI {
         ClientAPI.shaderTimeProvider = shaderTimeProvider;
     }
 
-    public static ShaderFactory getShaderFactory() {
-        return shaderFactory;
+    public static ShaderHandler getShaderHandler() {
+        return shaderHandler;
     }
 
     @Internal
-    public static void setShaderFactory(final ShaderFactory shaderFactory) {
-        ClientAPI.shaderFactory = shaderFactory;
+    public static void setShaderHandler(final ShaderHandler shaderHandler) {
+        ClientAPI.shaderHandler = shaderHandler;
     }
 
     public static ShaderPreProcessor getShaderPreProcessor() {
