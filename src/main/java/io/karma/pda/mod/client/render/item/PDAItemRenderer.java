@@ -9,6 +9,7 @@ import io.karma.pda.mod.client.ClientEventHandler;
 import io.karma.pda.mod.client.event.ItemRenderEvent;
 import io.karma.pda.mod.client.interaction.PDAInteractionHandler;
 import io.karma.pda.mod.client.render.display.DefaultDisplayRenderer;
+import io.karma.pda.mod.client.session.ClientSessionHandler;
 import io.karma.pda.mod.init.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -66,7 +67,13 @@ public final class PDAItemRenderer {
             poseStack.translate(-0.5, -0.5, -0.5);
         }
 
-        itemRenderer.renderModelLists(buttonModel, stack, LightTexture.FULL_BRIGHT, packedOverlay, poseStack, buffer);
+        final var hasSession = ClientSessionHandler.INSTANCE.findByDevice(stack) != null;
+        itemRenderer.renderModelLists(buttonModel,
+            stack,
+            hasSession ? LightTexture.FULL_BRIGHT : packedLight,
+            packedOverlay,
+            poseStack,
+            buffer);
         itemRenderer.renderModelLists(baseModel, stack, packedLight, packedOverlay, poseStack, buffer);
 
         //Render out display on top of the baked model dynamically

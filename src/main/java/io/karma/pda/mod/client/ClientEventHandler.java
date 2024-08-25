@@ -21,7 +21,7 @@ import io.karma.pda.foundation.component.DefaultComponents;
 import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.render.app.DefaultAppRenderer;
 import io.karma.pda.mod.client.render.entity.DockBlockEntityRenderer;
-import io.karma.pda.mod.client.render.model.CompositeBakedModel;
+import io.karma.pda.mod.client.render.model.BakedDockModel;
 import io.karma.pda.mod.client.util.BakedQuadUtils;
 import io.karma.pda.mod.init.ModBlockEntities;
 import net.minecraft.client.renderer.LightTexture;
@@ -183,7 +183,7 @@ public final class ClientEventHandler {
             models.compute(new ModelResourceLocation(Constants.MODID,
                     "dock",
                     String.format("has_item=false,orientation=%s", orientationName)),
-                (k, model) -> new CompositeBakedModel(List.of(
+                (k, model) -> new BakedDockModel(List.of(
                     Pair.of(model, q -> q),
                     Pair.of(models.get(DOCK_FULLBRIGHT), q -> BakedQuadUtils.applyRotation(orientation).process(q))
                 )));
@@ -191,7 +191,7 @@ public final class ClientEventHandler {
             models.compute(new ModelResourceLocation(Constants.MODID,
                     "dock",
                     String.format("has_item=true,orientation=%s", orientationName)),
-                (k, model) -> new CompositeBakedModel(List.of(
+                (k, model) -> new BakedDockModel(List.of(
                     Pair.of(model, q -> q),
                     Pair.of(pdaFullBright, q -> transformDockButtonQuad(q, orientation)),
                     Pair.of(models.get(DOCK_FULLBRIGHT), q -> transformDockQuad(q, orientation))

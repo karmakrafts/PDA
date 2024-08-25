@@ -46,7 +46,6 @@ import java.util.Optional;
  */
 public final class PDAItem extends Item implements TabItemProvider {
     public static final String TAG_HAS_CARD = "has_card";
-    public static final String TAG_IS_ON = "is_on";
     public static final String TAG_DISPLAY_MODE = "display_mode";
 
     public PDAItem() {
@@ -127,11 +126,9 @@ public final class PDAItem extends Item implements TabItemProvider {
         if (hand == InteractionHand.MAIN_HAND) {
             final var offhandStack = player.getItemInHand(InteractionHand.OFF_HAND);
             if (!offhandStack.isEmpty() && offhandStack.getItem() == ModItems.pda.get()) {
-                offhandStack.getOrCreateTag().putBoolean(TAG_IS_ON, true);
                 hands.add(InteractionHand.OFF_HAND); // Open off-hand at the same time
             }
         }
-        stack.getOrCreateTag().putBoolean(TAG_IS_ON, true);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
             () -> () -> openScreen(player, hands.size() == 1 ? hand : InteractionHand.MAIN_HAND, hands));
         return InteractionResultHolder.pass(stack);

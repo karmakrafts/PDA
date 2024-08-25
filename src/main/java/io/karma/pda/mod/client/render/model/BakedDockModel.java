@@ -35,11 +35,11 @@ import java.util.function.Function;
  * @since 12/08/2024
  */
 @OnlyIn(Dist.CLIENT)
-public final class CompositeBakedModel implements BakedModel {
+public final class BakedDockModel implements BakedModel {
     private final List<Pair<BakedModel, Function<BakedQuad, BakedQuad>>> models;
     private final BakedModel delegate;
 
-    public CompositeBakedModel(final List<Pair<BakedModel, Function<BakedQuad, BakedQuad>>> models) {
+    public BakedDockModel(final List<Pair<BakedModel, Function<BakedQuad, BakedQuad>>> models) {
         this.models = models;
         delegate = models.get(0).getLeft();
     }
