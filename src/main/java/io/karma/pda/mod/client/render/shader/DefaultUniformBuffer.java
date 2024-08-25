@@ -115,4 +115,9 @@ public final class DefaultUniformBuffer implements UniformBuffer, Disposable {
     public int hashCode() {
         return HashUtils.combine(bindingPoint, cache.hashCode());
     }
+
+    @Override
+    public String toString() {
+        return String.format("DefaultUniformBuffer[id=%d,size=%d]", id, size);
+    }
 }

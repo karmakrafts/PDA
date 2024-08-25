@@ -26,7 +26,7 @@ import java.util.*;
  * @author Alexander Hinze
  * @since 28/04/2024
  */
-@ReloadPriority(49) // Right before FontRenderer
+@ReloadPriority(-50) // Right before FontRenderer
 public final class DefaultFontFamily implements FontFamily, Reloadable {
     private final ResourceLocation name;
     private final Set<FontStyle> styles = Collections.synchronizedSet(EnumSet.noneOf(FontStyle.class));

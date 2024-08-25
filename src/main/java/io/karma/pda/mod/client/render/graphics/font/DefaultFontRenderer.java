@@ -43,6 +43,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.stream.Collectors;
 
 /**
  * @author Alexander Hinze
@@ -101,7 +102,7 @@ public final class DefaultFontRenderer implements FontRenderer, Disposable, Relo
                 .defaultPreProcessor()
             )
             .sampler("Sampler0")
-            .defaultUniforms()
+            .globalUniforms()
             .uniform("PxRange", DefaultUniformType.FLOAT)
         );
     } // @formatter:on
@@ -187,21 +188,29 @@ public final class DefaultFontRenderer implements FontRenderer, Disposable, Relo
     }
 
     @Override
-    public void reload(final ResourceManager manager) {
+    public void prepareReload(ResourceManager manager) {
+        for (final var atlas : fontAtlasCache.values()) {
+            atlas.dispose();
+        }
         fontAtlasCache.clear();
         // @formatter:off
         API.getFontFamilies().stream()
             .flatMap(family -> Arrays.stream(FontStyle.values())
                 .map(style -> family.getFont(style, FontVariant.DEFAULT_SIZE)))
-            .forEach(this::getFontAtlas);
+            .map(this::getFontAtlas)
+            .forEach(DefaultFontAtlas::prepareReload);
         // @formatter:on
+    }
+
+    @Override
+    public void reload(final ResourceManager manager) {
         for (final var atlas : fontAtlasCache.values()) {
             atlas.reload(manager);
         }
     }
 
     @Override
-    public FontAtlas getFontAtlas(final Font font) {
+    public DefaultFontAtlas getFontAtlas(final Font font) {
         return fontAtlasCache.computeIfAbsent(new FontAtlasKey(font.getLocation(), font.getVariationAxes()),
             location -> {
                 final var family = font.getFamily();
@@ -416,6 +425,12 @@ public final class DefaultFontRenderer implements FontRenderer, Disposable, Relo
     }
 
      */
+
+    @Override
+    public String toString() {
+        return String.format("DefaultFontRenderer[atlases=%s]",
+            fontAtlasCache.values().stream().map(DefaultFontAtlas::toString).collect(Collectors.joining(", ")));
+    }
 
     private record FontAtlasKey(ResourceLocation location, Object2FloatMap<String> variationAxes) {
     }

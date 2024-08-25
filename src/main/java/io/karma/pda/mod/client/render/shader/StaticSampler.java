@@ -28,9 +28,9 @@ import java.util.function.IntSupplier;
  * @since 13/08/2024
  */
 @OnlyIn(Dist.CLIENT)
-@DispositionPriority(100)
-@ReloadPriority(-100) // Reload after everything else
-@PrepareReloadPriority(100) // Prepare before everything else
+@ReloadPriority(-100)        // Reload after everything else
+@PrepareReloadPriority(-100) // Prepare before everything else
+@DispositionPriority(100)    // Dispose before everythig else
 public final class StaticSampler implements Sampler, Disposable, Reloadable {
     public static final boolean IS_SUPPORTED;
 
@@ -47,7 +47,6 @@ public final class StaticSampler implements Sampler, Disposable, Reloadable {
     private final int id;
     private final String name;
     private final IntSupplier textureId;
-    private long textureHandle = -1;
 
     private StaticSampler(final int id, final String name, final IntSupplier textureId) {
         this.id = id;
@@ -89,6 +88,14 @@ public final class StaticSampler implements Sampler, Disposable, Reloadable {
         return name;
     }
 
+    private long getHandle() {
+        final var id = textureId.getAsInt();
+        if (id == -1) {
+            return 0;
+        }
+        return ARBBindlessTexture.glGetTextureHandleARB(id);
+    }
+
     @Override
     public void setup(final ShaderProgram program) {
         PDAMod.LOGGER.debug(LogMarkers.RENDERER,
@@ -97,23 +104,17 @@ public final class StaticSampler implements Sampler, Disposable, Reloadable {
             id,
             program.getId());
 
-        final var textureId = this.textureId.getAsInt();
-        if (textureId <= 0) {
-            PDAMod.LOGGER.warn("Could not create static sampler '{}'/{} for program {}: invalid texture ID",
-                name,
-                id,
-                program.getId());
+        final var handle = getHandle();
+        if (handle == 0) {
             return;
         }
-
-        textureHandle = ARBBindlessTexture.glGetTextureHandleARB(textureId);
-        if (!ARBBindlessTexture.glIsTextureHandleResidentARB(textureHandle)) {
-            ARBBindlessTexture.glMakeTextureHandleResidentARB(textureHandle);
+        if (!ARBBindlessTexture.glIsTextureHandleResidentARB(handle)) {
+            ARBBindlessTexture.glMakeTextureHandleResidentARB(handle);
         }
 
         final var location = program.getUniformLocation(name);
         GL20.glUseProgram(program.getId());
-        ARBBindlessTexture.glUniformHandleui64ARB(location, textureHandle);
+        ARBBindlessTexture.glUniformHandleui64ARB(location, handle);
         GL20.glUseProgram(0);
     }
 
@@ -127,13 +128,13 @@ public final class StaticSampler implements Sampler, Disposable, Reloadable {
 
     @Override
     public void dispose() {
-        if (textureHandle == -1) {
+        final var handle = getHandle();
+        if (handle == 0) {
             return;
         }
-        if (ARBBindlessTexture.glIsTextureHandleResidentARB(textureHandle)) {
-            ARBBindlessTexture.glMakeTextureHandleNonResidentARB(textureHandle);
+        if (ARBBindlessTexture.glIsTextureHandleResidentARB(handle)) {
+            ARBBindlessTexture.glMakeTextureHandleNonResidentARB(handle);
         }
-        textureHandle = -1;
     }
 
     @Override
@@ -147,6 +148,6 @@ public final class StaticSampler implements Sampler, Disposable, Reloadable {
 
     @Override
     public String toString() {
-        return String.format("StaticSampler[textureId=%d,handle=%d]", textureId.getAsInt(), textureHandle);
+        return String.format("StaticSampler[textureId=%d,handle=%d]", textureId.getAsInt(), getHandle());
     }
 }

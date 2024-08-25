@@ -8,6 +8,7 @@ import io.karma.pda.api.client.render.shader.ShaderObject;
 import io.karma.pda.api.client.render.shader.ShaderPreProcessor;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.util.HashUtils;
+import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.api.util.ToBooleanBiFunction;
 import io.karma.pda.mod.PDAMod;
 import net.minecraft.resources.ResourceLocation;
@@ -15,11 +16,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.versions.forge.ForgeVersion;
-import org.apache.commons.lang3.ArrayUtils;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -40,6 +42,7 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         "(#include)\\s*?((\\s*?<((\\w+(:))?[\\w/._\\-]+)\\s*?>)|(\"\\s*?([\\w/._\\-]+)\\s*?\"))");
     private static final Pattern GL_VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
     private static final char[] ESCAPABLE_CHARS = "\\\"nt".toCharArray();
+    private static final int PRINT_BUFFER_SIZE = 4096;
 
     // @formatter:off
     private DefaultShaderPreProcessor() {}
@@ -78,68 +81,18 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         return path.substring(0, path.lastIndexOf('/'));
     }
 
-    private static char transformEscapedChar(final char c) {
-        return switch (c) {
-            case 'n' -> '\n';
-            case 't' -> '\t';
-            case '\\', '"' -> c;
-            default -> throw new IllegalStateException("Unknown escape code");
-        };
-    }
-
     private static CharSequence generateStringData(final CharSequence sequence) {
         final var builder = new StringBuilder();
         builder.append("uint[]{");
         final var literalLength = sequence.length();
         for (var j = 0; j < literalLength; j++) {
-            builder.append((int) sequence.charAt(j));
+            builder.append("0x").append(Integer.toHexString(sequence.charAt(j)));
             if (j < literalLength - 1) {
                 builder.append(',');
             }
         }
         builder.append('}');
         return builder;
-    }
-
-    private static void transformStrings(final StringBuffer buffer) {
-        final var source = buffer.toString();
-        var isString = false;
-        var isEscaped = false;
-        final var literalBuffer = new StringBuilder();
-        buffer.delete(0, buffer.length());
-        for (var i = 0; i < source.length(); i++) {
-            final var c = source.charAt(i);
-            final var hasNext = i < source.length() - 1;
-            final var next = hasNext ? source.charAt(i + 1) : ' ';
-            if (isString) {
-                // Handle escaped characters inside of string literals
-                if (isEscaped) {
-                    literalBuffer.append(transformEscapedChar(c));
-                    isEscaped = false; // Escapes can only be a single char, disable mode automatically
-                    continue;
-                }
-                // If current is backslash, and next is some valid escapable char, skip slash and enable escape mode
-                if (c == '\\' && hasNext && ArrayUtils.contains(ESCAPABLE_CHARS, next)) {
-                    isEscaped = true;
-                    continue;
-                }
-                // If current is a quote, end string
-                if (c == '"') {
-                    PDAMod.LOGGER.debug(generateStringData(literalBuffer)); // TODO: debug
-                    literalBuffer.delete(0, literalBuffer.length());
-                    isString = false;
-                    continue;
-                }
-                // Otherwise, we accumulate this as a part of the current string literal
-                literalBuffer.append(c);
-            }
-            // If current char is a quote, we enter string mode and eat the "
-            if (c == '"') {
-                isString = true;
-                continue;
-            }
-            buffer.append(c);
-        }
     }
 
     private static void stripCommentsAndWhitespace(final StringBuffer buffer) {
@@ -270,6 +223,7 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
     private static Map<String, Object> insertBuiltinDefines(final Map<String, Object> defines) {
         final var allDefines = new LinkedHashMap<>(defines);
         allDefines.put("__debug", PDAMod.IS_DEV_ENV ? 1 : 0);
+        allDefines.put("__print_buffer_size", PRINT_BUFFER_SIZE);
 
         final var caps = GL.getCapabilities();
         allDefines.put("__bindless_texture_support", caps.GL_ARB_bindless_texture ? 1 : 0);
@@ -294,34 +248,39 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         return allDefines;
     }
 
-    private static void save(final String fileName, final StringBuffer buffer) {
+    private static Map<String, Object> insertBuiltinConstants(final Map<String, Object> constants) {
+        final var allConstants = new LinkedHashMap<>(constants);
+        allConstants.put("PRINT_BUFFER_SIZE", PRINT_BUFFER_SIZE);
+        return allConstants;
+    }
+
+    private static void save(final Path directory, final String fingerprint, final StringBuffer buffer) {
         try {
-            final var directory = FMLLoader.getGamePath().resolve("pda").resolve("shaders");
             if (!Files.exists(directory)) {
                 Files.createDirectories(directory);
             }
-            final var path = directory.resolve(fileName);
-            PDAMod.LOGGER.debug("Saving processed shader to cache at {}", path);
+            final var path = directory.resolve(String.format("%s.glsl", fingerprint));
+            Files.deleteIfExists(path);
+            PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Saving processed shader to cache at {}", path);
             try (final var writer = Files.newBufferedWriter(path)) {
                 writer.append(buffer);
             }
         }
         catch (Throwable error) {
-            PDAMod.LOGGER.error("Could not save processed shader source", error);
+            PDAMod.LOGGER.error(LogMarkers.RENDERER, "Could not save processed shader source", error);
         }
     }
 
-    private static boolean load(final String fileName, final StringBuffer buffer) {
+    private static boolean load(final Path directory, final String fingerprint, final StringBuffer buffer) {
         try {
-            final var directory = FMLLoader.getGamePath().resolve("pda").resolve("shaders");
             if (!Files.exists(directory)) {
                 return false;
             }
-            final var path = directory.resolve(fileName);
+            final var path = directory.resolve(String.format("%s.glsl", fingerprint));
             if (!Files.exists(path)) {
                 return false;
             }
-            PDAMod.LOGGER.debug("Loading processed shader source from cache at {}", path);
+            PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Loading processed shader source from cache at {}", path);
             buffer.delete(0, buffer.length());
             try (final var reader = Files.newBufferedReader(path)) {
                 buffer.append(reader.lines().collect(Collectors.joining("\n")));
@@ -329,8 +288,37 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
             return true;
         }
         catch (Throwable error) {
-            PDAMod.LOGGER.error("Could not load processed shader source", error);
+            PDAMod.LOGGER.error(LogMarkers.RENDERER, "Could not load processed shader source", error);
             return false;
+        }
+    }
+
+    private static @Nullable String loadSourceFingerprint(final Path directory, final String fingerprint) {
+        final var path = directory.resolve(String.format("%s.md5", fingerprint));
+        if (!Files.exists(path)) {
+            return null;
+        }
+        try (final var reader = Files.newBufferedReader(path)) {
+            return reader.lines().collect(Collectors.joining("\n"));
+        }
+        catch (Throwable error) {
+            PDAMod.LOGGER.error(LogMarkers.RENDERER, "Could not load shader source fingerprint", error);
+            return null;
+        }
+    }
+
+    private static void saveSourceFingerprint(final Path directory,
+                                              final String fingerprint,
+                                              final String sourceFingerprint) {
+        try {
+            final var path = directory.resolve(String.format("%s.md5", fingerprint));
+            Files.deleteIfExists(path);
+            try (final var writer = Files.newBufferedWriter(path)) {
+                writer.write(sourceFingerprint);
+            }
+        }
+        catch (Throwable error) {
+            PDAMod.LOGGER.error(LogMarkers.RENDERER, "Could not save shader source fingerprint", error);
         }
     }
 
@@ -341,18 +329,24 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
                           final Function<ResourceLocation, String> loader) {
         final var buffer = new StringBuffer(source);
         final var location = object.getLocation();
-        final var fileName = String.format("%s.glsl", HashUtils.toFingerprint(program.hashCode(), object.hashCode()));
+        final var fingerprint = HashUtils.toFingerprint(program.hashCode(), object.hashCode());
+        final var directory = FMLLoader.getGamePath().resolve("pda").resolve("shaders");
 
-        if (load(fileName, buffer)) {
+        final var sourceFingerprint = loadSourceFingerprint(directory, fingerprint);
+        final var currentSourceFingerprint = HashUtils.toFingerprint(source);
+
+        if (sourceFingerprint != null && sourceFingerprint.equals(currentSourceFingerprint) && load(directory,
+            fingerprint,
+            buffer)) {
             return buffer.toString();
         }
 
         processIncludes(location, buffer, loader);
-        processSpecializationConstants(location, program.getConstants(), buffer);
+        processSpecializationConstants(location, insertBuiltinConstants(program.getConstants()), buffer);
         processDefines(insertBuiltinDefines(program.getDefines()), buffer);
         stripCommentsAndWhitespace(buffer);
-        transformStrings(buffer);
-        save(fileName, buffer);
+        save(directory, fingerprint, buffer);
+        saveSourceFingerprint(directory, fingerprint, currentSourceFingerprint);
 
         return buffer.toString();
     }

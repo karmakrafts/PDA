@@ -11,8 +11,11 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.loading.FMLLoader;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 
@@ -60,12 +63,44 @@ public final class TextureUtils {
         return id;
     }
 
+    public static void uploadTexture(final Image image) {
+        final var bufferedImage = buffer(image);
+        setUnpackAlignment(1);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D,
+            0,
+            GL30.GL_RGBA8,
+            bufferedImage.getWidth(),
+            bufferedImage.getHeight(),
+            0,
+            GL30.GL_BGRA,
+            GL30.GL_UNSIGNED_INT_8_8_8_8_REV,
+            TextureUtils.toArray(bufferedImage));
+        restoreUnpackAlignment();
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_R, GL11.GL_BLUE);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_G, GL11.GL_GREEN);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_B, GL11.GL_RED);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_A, GL11.GL_ALPHA);
+    }
+
     public static int[] toArray(final BufferedImage image) {
         final var width = image.getWidth();
         return image.getRGB(0, 0, width, image.getHeight(), null, 0, width);
     }
 
-    public static void dump(final BufferedImage image, final ResourceLocation location) {
+    public static BufferedImage buffer(final Image image) {
+        if (image instanceof BufferedImage bufferedImage) {
+            return bufferedImage;
+        }
+        final var width = image.getWidth(null);
+        final var height = image.getHeight(null);
+        final var bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        final var graphics = bufferedImage.createGraphics();
+        graphics.drawImage(image, 0, 0, width, height, null);
+        graphics.dispose();
+        return bufferedImage;
+    }
+
+    public static void save(final Image image, final ResourceLocation location) {
         try {
             final var directory = FMLLoader.getGamePath().resolve("pda").resolve("textures");
             if (!Files.exists(directory)) {
@@ -75,7 +110,7 @@ public final class TextureUtils {
             final var filePath = directory.resolve(fileName);
             Files.deleteIfExists(filePath);
             try (final var outStream = Files.newOutputStream(filePath)) {
-                ImageIO.write(image, "PNG", outStream);
+                ImageIO.write(buffer(image), "PNG", outStream);
             }
             PDAMod.LOGGER.debug("Dumped image for {} to {}", location, filePath);
         }

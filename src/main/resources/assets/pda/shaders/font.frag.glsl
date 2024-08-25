@@ -4,9 +4,10 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
+#include "include/global_uniforms.glsl"
+
 uniform sampler2D Sampler0;
 
-uniform vec4 ColorModulator;
 uniform float PxRange;
 
 in vec4 vertexColor;

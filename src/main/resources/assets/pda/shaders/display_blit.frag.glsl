@@ -8,6 +8,7 @@
 #include "include/dither.glsl"
 #include "include/display_type.glsl"
 #include "include/global_uniforms.glsl"
+#include "include/print.glsl"
 
 uniform sampler2D Sampler0;
 uniform sampler2D Sampler1;

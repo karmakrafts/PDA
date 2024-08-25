@@ -15,8 +15,7 @@ import java.util.Comparator;
 @FunctionalInterface
 public interface Reloadable {
     int DEFAULT_PRIORITY = 0;
-    Comparator<Reloadable> PREP_COMPARATOR = (a, b) -> Integer.compare(b.getPrepareReloadPriority(),
-        a.getPrepareReloadPriority());
+    Comparator<Reloadable> PREP_COMPARATOR = Comparator.comparingInt(Reloadable::getPrepareReloadPriority);
     Comparator<Reloadable> COMPARATOR = (a, b) -> Integer.compare(b.getReloadPriority(), a.getReloadPriority());
 
     default int getReloadPriority() {

@@ -9,11 +9,11 @@
     "maxShiftBy": 100
   },
   "client": [
+    "BufferUploaderMixin",
     "ItemRendererMixin",
     "RenderSystemMixin",
     "ShaderInstanceMixin",
     "VertexBufferMixin",
-    "BufferUploaderMixin",
     "VertexFormatElementMixin"
   ]
 }

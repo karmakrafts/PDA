@@ -14,9 +14,9 @@ import io.karma.pda.api.client.render.shader.uniform.DefaultUniformType;
 import io.karma.pda.api.client.render.shader.uniform.Uniform;
 import io.karma.pda.api.client.render.shader.uniform.UniformBuffer;
 import io.karma.pda.api.client.render.shader.uniform.UniformType;
+import io.karma.pda.mod.client.render.texture.StaticTexture;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -152,7 +152,7 @@ public final class DefaultShaderProgramBuilder implements ShaderProgramBuilder {
 
     @Override
     public ShaderProgramBuilder sampler(final String name, final ResourceLocation location) {
-        return sampler(name, () -> Minecraft.getInstance().getTextureManager().getTexture(location).getId());
+        return sampler(name, StaticTexture.get(location)::getId);
     }
 
     @Override
