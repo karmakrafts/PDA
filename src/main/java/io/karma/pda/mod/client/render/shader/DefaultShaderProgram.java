@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
+import org.lwjgl.system.MemoryStack;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -152,6 +153,22 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
                 i,
                 id);
         }
+    }
+
+    @Override
+    public boolean isAttached(final ShaderObject object) {
+        try (final var stack = MemoryStack.stackPush()) {
+            final var attachedShaderCount = GL20.glGetProgrami(id, GL20.GL_ATTACHED_SHADERS);
+            final var attachedShaders = stack.mallocInt(attachedShaderCount);
+            GL20.glGetAttachedShaders(id, null, attachedShaders);
+            for (var i = 0; i < attachedShaderCount; i++) {
+                if (attachedShaders.get(i) != object.getId()) {
+                    continue;
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

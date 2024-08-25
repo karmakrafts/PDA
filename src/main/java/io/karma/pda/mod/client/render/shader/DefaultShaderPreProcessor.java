@@ -7,6 +7,7 @@ package io.karma.pda.mod.client.render.shader;
 import io.karma.pda.api.client.render.shader.ShaderObject;
 import io.karma.pda.api.client.render.shader.ShaderPreProcessor;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
+import io.karma.pda.api.client.render.shader.ShaderType;
 import io.karma.pda.api.util.HashUtils;
 import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.api.util.ToBooleanBiFunction;
@@ -120,6 +121,7 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
             else if (isLineComment) {
                 if (c == '\n') {
                     isLineComment = false;
+                    buffer.append(c);
                 }
                 continue;
             }
@@ -220,30 +222,31 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
             defineBlock); // Always skip the first line for the version
     }
 
-    private static Map<String, Object> insertBuiltinDefines(final Map<String, Object> defines) {
+    private static Map<String, Object> insertBuiltinDefines(final ShaderType type, final Map<String, Object> defines) {
         final var allDefines = new LinkedHashMap<>(defines);
-        allDefines.put("__debug", PDAMod.IS_DEV_ENV ? 1 : 0);
-        allDefines.put("__print_buffer_size", PRINT_BUFFER_SIZE);
+        allDefines.put("BUILTIN_DEBUG", PDAMod.IS_DEV_ENV ? 1 : 0);
+        allDefines.put("BUILTIN_PRINT_BUFFER_SIZE", PRINT_BUFFER_SIZE);
+        allDefines.put("BUILTIN_SHADER_TYPE", type.ordinal());
 
         final var caps = GL.getCapabilities();
-        allDefines.put("__bindless_texture_support", caps.GL_ARB_bindless_texture ? 1 : 0);
-        allDefines.put("__ssbo_support", caps.GL_ARB_shader_storage_buffer_object ? 1 : 0);
-        allDefines.put("__long_support", caps.GL_ARB_gpu_shader_int64 ? 1 : 0);
-        allDefines.put("__double_support", caps.GL_ARB_gpu_shader_fp64 ? 1 : 0);
+        allDefines.put("BUILTIN_BINDLESS_SUPPORT", caps.GL_ARB_bindless_texture ? 1 : 0);
+        allDefines.put("BUILTIN_SSBO_SUPPORT", caps.GL_ARB_shader_storage_buffer_object ? 1 : 0);
+        allDefines.put("BUILTIN_LONG_SUPPORT", caps.GL_ARB_gpu_shader_int64 ? 1 : 0);
+        allDefines.put("BUILTIN_DOUBLE_SUPPORT", caps.GL_ARB_gpu_shader_fp64 ? 1 : 0);
 
         final var glVersion = Objects.requireNonNull(GL11.glGetString(GL11.GL_VERSION));
         final var glVersionMatcher = GL_VERSION_PATTERN.matcher(glVersion);
         if (!glVersionMatcher.find()) {
             throw new IllegalStateException("Could not parse OpenGL version");
         }
-        allDefines.put("__gl_major", glVersionMatcher.group(1));
-        allDefines.put("__gl_minor", glVersionMatcher.group(2));
-        allDefines.put("__gl_patch", glVersionMatcher.group(3));
+        allDefines.put("BUILTIN_GL_MAJOR", glVersionMatcher.group(1));
+        allDefines.put("BUILTIN_GL_MINOR", glVersionMatcher.group(2));
+        allDefines.put("BUILTIN_GL_PATCH", glVersionMatcher.group(3));
 
         final var forgeVersion = ForgeVersion.getVersion().split("\\.");
-        allDefines.put("__forge_major", forgeVersion[0]);
-        allDefines.put("__forge_minor", forgeVersion[1]);
-        allDefines.put("__forge_patch", forgeVersion[2]);
+        allDefines.put("BUILTIN_FORGE_MAJOR", forgeVersion[0]);
+        allDefines.put("BUILTIN_FORGE_MINOR", forgeVersion[1]);
+        allDefines.put("BUILTIN_FORGE_PATCH", forgeVersion[2]);
 
         return allDefines;
     }
@@ -343,7 +346,7 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
 
         processIncludes(location, buffer, loader);
         processSpecializationConstants(location, insertBuiltinConstants(program.getConstants()), buffer);
-        processDefines(insertBuiltinDefines(program.getDefines()), buffer);
+        processDefines(insertBuiltinDefines(object.getType(), program.getDefines()), buffer);
         stripCommentsAndWhitespace(buffer);
         save(directory, fingerprint, buffer);
         saveSourceFingerprint(directory, fingerprint, currentSourceFingerprint);

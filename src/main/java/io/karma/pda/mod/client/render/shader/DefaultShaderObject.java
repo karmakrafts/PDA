@@ -35,7 +35,6 @@ public final class DefaultShaderObject extends Program implements ShaderObject {
     private final ResourceLocation location;
     private final Supplier<ShaderPreProcessor> shaderPreProcessorSupplier;
     private boolean isCompiled;
-    private boolean isAttached;
 
     DefaultShaderObject(final ShaderType type,
                         final ResourceLocation location,
@@ -100,20 +99,18 @@ public final class DefaultShaderObject extends Program implements ShaderObject {
 
     @Override
     public void attach(final ShaderProgram program) {
-        if (isAttached) {
+        if (program.isAttached(this)) {
             return;
         }
         GL20.glAttachShader(program.getId(), id);
-        isAttached = true;
     }
 
     @Override
     public void detach(final ShaderProgram program) {
-        if (!isAttached) {
+        if (!program.isAttached(this)) {
             return;
         }
         GL20.glDetachShader(program.getId(), id);
-        isAttached = false;
     }
 
     @Override

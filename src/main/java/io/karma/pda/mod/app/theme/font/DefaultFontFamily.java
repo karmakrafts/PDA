@@ -133,6 +133,11 @@ public final class DefaultFontFamily implements FontFamily, Reloadable {
         }), style, size); // TODO: finish implementing this
     }
 
+    @Override
+    public String toString() {
+        return String.format("DefaultFontFamily[name=%s,styles=%s]", name, styles);
+    }
+
     public static final class Config {
         @JsonIgnore
         public static final int VERSION = 1;

@@ -55,5 +55,7 @@ public interface ShaderProgram extends Disposable {
 
     ShaderObject getObject(final ShaderType type);
 
+    boolean isAttached(final ShaderObject object);
+
     Map<String, UniformBuffer> getUniformBuffers();
 }

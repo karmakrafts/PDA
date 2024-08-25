@@ -12,8 +12,6 @@ import org.lwjgl.opengl.ARBGPUShaderInt64;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
-import java.util.Objects;
-
 /**
  * @author Alexander Hinze
  * @since 24/08/2024
