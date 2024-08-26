@@ -110,9 +110,10 @@ val composableCompileOnlyConfig = configurations.getByName("composableCompileOnl
 
 repositories {
     mavenCentral()
+    google()
+    maven("https://maven.covers1624.net")
     maven("https://thedarkcolour.github.io/KotlinForForge")
     maven("https://maven.blamejared.com")
-    maven("https://maven.covers1624.net")
     maven("https://git.karmakrafts.dev/api/v4/projects/267/packages/maven") // Material Color Utils
     maven("https://git.karmakrafts.dev/api/v4/projects/286/packages/maven") // RenderDoc Injector
     maven("https://cursemaven.com")
