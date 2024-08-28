@@ -34,10 +34,7 @@ import org.lwjgl.opengl.GL31;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
@@ -384,6 +381,11 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
             .findFirst()
             .orElseThrow();
     } // @formatter:on
+
+    @Override
+    public List<? extends ShaderObject> getObjects() {
+        return objects;
+    }
 
     @Override
     public @NotNull String toString() {

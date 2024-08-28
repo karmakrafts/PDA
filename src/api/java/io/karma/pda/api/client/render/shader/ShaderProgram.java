@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -56,6 +57,8 @@ public interface ShaderProgram extends Disposable {
     Map<String, Object> getDefines();
 
     ShaderObject getObject(final ShaderType type);
+
+    List<? extends ShaderObject> getObjects();
 
     boolean isAttached(final ShaderObject object);
 

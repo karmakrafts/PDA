@@ -7,6 +7,7 @@ package io.karma.pda.mod.client.render.shader;
 import io.karma.pda.api.client.render.shader.ShaderObject;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.util.HashUtils;
+import io.karma.pda.api.util.IOUtils;
 import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -30,11 +31,11 @@ import java.nio.file.Path;
  */
 @OnlyIn(Dist.CLIENT)
 public final class ShaderBinaryCache extends AbstractShaderCache {
-    public static final boolean IS_SUPPORTED = isSupported();
+    public static final boolean IS_SUPPORTED;
     private static int binaryFormat;
 
     static {
-        if (IS_SUPPORTED) {
+        if (isSupported()) {
             PDAMod.LOGGER.info(LogMarkers.RENDERER,
                 "Detected GL_ARB_get_program_binary support, enabling shader binary caching");
             try (final var stack = MemoryStack.stackPush()) {
@@ -46,10 +47,12 @@ public final class ShaderBinaryCache extends AbstractShaderCache {
                     "Using shader binary format 0x{}",
                     Integer.toHexString(binaryFormat));
             }
+            IS_SUPPORTED = true;
         }
         else {
             PDAMod.LOGGER.info(LogMarkers.RENDERER,
                 "Detected no GL_ARB_get_program_binary support, disabling shader binary caching");
+            IS_SUPPORTED = false;
         }
     }
 
@@ -71,12 +74,24 @@ public final class ShaderBinaryCache extends AbstractShaderCache {
             GL11.GL_TRUE);
     }
 
+    private static int getProgramSourceHash(final ResourceManager manager, final ShaderProgram program) {
+        var hash = 0;
+        for (final var object : program.getObjects()) {
+            final var source = loadSource(manager, object.getLocation());
+            hash = HashUtils.combine(source.hashCode(), hash);
+        }
+        return hash;
+    }
+
     @Override
     public void saveProgram(final Path directory, final ResourceManager manager, final ShaderProgram program) {
         try {
             final var fingerprint = HashUtils.toFingerprint(program.hashCode());
             final var file = directory.resolve(String.format("%s.bin", fingerprint));
-            Files.deleteIfExists(file);
+            final var fingerprintFile = directory.resolve(String.format("%s.md5", fingerprint));
+            IOUtils.deleteIfExists(file);
+            IOUtils.deleteIfExists(fingerprintFile);
+            saveText(fingerprintFile, HashUtils.toFingerprint(getProgramSourceHash(manager, program)));
 
             final var id = program.getId();
             if (GL20.glGetProgrami(id, ARBGetProgramBinary.GL_PROGRAM_BINARY_RETRIEVABLE_HINT) == GL11.GL_FALSE) {
@@ -107,22 +122,33 @@ public final class ShaderBinaryCache extends AbstractShaderCache {
 
     @Override
     public boolean loadProgram(final Path directory, final ResourceManager manager, final ShaderProgram program) {
-        final var fingerprint = HashUtils.toFingerprint(program.hashCode());
-        final var file = directory.resolve(String.format("%s.bin", fingerprint));
-        if (!Files.exists(file)) {
-            PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Shader binary cache miss for program {}", program);
+        try {
+            final var fingerprint = HashUtils.toFingerprint(program.hashCode());
+            final var file = directory.resolve(String.format("%s.bin", fingerprint));
+            final var fingerprintFile = directory.resolve(String.format("%s.md5", fingerprint));
+            if (!Files.exists(file) || !Files.exists(fingerprintFile)) {
+                PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Shader binary cache miss for program {}", program);
+                return false;
+            }
+            if (loadText(fingerprintFile).equals(HashUtils.toFingerprint(getProgramSourceHash(manager, program)))) {
+                try (final var stream = new BufferedInputStream(Files.newInputStream(file)); final var channel = Channels.newChannel(
+                    stream)) {
+                    final var size = stream.available();
+                    final var data = MemoryUtil.memAlloc(size);
+                    channel.read(data);
+                    data.flip();
+                    ARBGetProgramBinary.glProgramBinary(program.getId(), binaryFormat, data);
+                    MemoryUtil.memFree(data);
+                    PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Shader binary cache hit for program {}", program);
+                    return true;
+                }
+            }
+            PDAMod.LOGGER.debug("Invalidating shader binary cache entry {} for program {}",
+                fingerprint,
+                program.getId());
+            IOUtils.deleteIfExists(file);
+            IOUtils.deleteIfExists(fingerprintFile);
             return false;
-        }
-        try (final var stream = new BufferedInputStream(Files.newInputStream(file)); final var channel = Channels.newChannel(
-            stream)) {
-            final var size = stream.available();
-            final var data = MemoryUtil.memAlloc(size);
-            channel.read(data);
-            data.flip();
-            ARBGetProgramBinary.glProgramBinary(program.getId(), binaryFormat, data);
-            MemoryUtil.memFree(data);
-            PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Shader binary cache hit for program {}", program);
-            return true;
         }
         catch (Throwable error) {
             PDAMod.LOGGER.error(LogMarkers.RENDERER, "Could not load shader program binary", error);
