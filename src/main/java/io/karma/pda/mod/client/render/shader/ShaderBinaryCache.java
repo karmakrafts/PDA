@@ -31,40 +31,39 @@ import java.nio.file.Path;
  */
 @OnlyIn(Dist.CLIENT)
 public final class ShaderBinaryCache extends AbstractShaderCache {
-    public static final boolean IS_SUPPORTED;
+    public static boolean isSupported;
     private static int binaryFormat;
 
     static {
-        if (isSupported()) {
-            PDAMod.LOGGER.info(LogMarkers.RENDERER,
-                "Detected GL_ARB_get_program_binary support, enabling shader binary caching");
-            try (final var stack = MemoryStack.stackPush()) {
-                final var formatCount = GL11.glGetInteger(ARBGetProgramBinary.GL_NUM_PROGRAM_BINARY_FORMATS);
-                final var formats = stack.mallocInt(formatCount);
-                GL11.glGetIntegerv(ARBGetProgramBinary.GL_PROGRAM_BINARY_FORMATS, formats);
-                binaryFormat = formats.get(0);
-                PDAMod.LOGGER.debug(LogMarkers.RENDERER,
-                    "Using shader binary format 0x{}",
-                    Integer.toHexString(binaryFormat));
-            }
-            IS_SUPPORTED = true;
-        }
-        else {
-            PDAMod.LOGGER.info(LogMarkers.RENDERER,
-                "Detected no GL_ARB_get_program_binary support, disabling shader binary caching");
-            IS_SUPPORTED = false;
-        }
+        detectSupport();
     }
 
     ShaderBinaryCache() {
         PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Creating binary shader cache");
     }
 
-    private static boolean isSupported() {
+    private static void detectSupport() {
         if (GL.getCapabilities().GL_ARB_get_program_binary) {
-            return GL11.glGetInteger(ARBGetProgramBinary.GL_NUM_PROGRAM_BINARY_FORMATS) > 0;
+            try (final var stack = MemoryStack.stackPush()) {
+                final var formatCount = GL11.glGetInteger(ARBGetProgramBinary.GL_NUM_PROGRAM_BINARY_FORMATS);
+                if (formatCount == 0) {
+                    return;
+                }
+                PDAMod.LOGGER.info(LogMarkers.RENDERER,
+                    "Detected GL_ARB_get_program_binary support, enabling shader binary caching");
+                final var formats = stack.mallocInt(formatCount);
+                GL11.glGetIntegerv(ARBGetProgramBinary.GL_PROGRAM_BINARY_FORMATS, formats);
+                binaryFormat = formats.get(0);
+                PDAMod.LOGGER.debug(LogMarkers.RENDERER,
+                    "Using shader binary format 0x{}",
+                    Integer.toHexString(binaryFormat));
+                isSupported = true;
+            }
         }
-        return false;
+        else {
+            PDAMod.LOGGER.info(LogMarkers.RENDERER,
+                "Detected no GL_ARB_get_program_binary support, disabling shader binary caching");
+        }
     }
 
     @Override

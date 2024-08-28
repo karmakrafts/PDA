@@ -35,7 +35,7 @@ public final class DefaultShaderHandler implements ShaderHandler {
     // @formatter:on
 
     private ShaderCache createCache() {
-        if (ShaderBinaryCache.IS_SUPPORTED) {
+        if (ShaderBinaryCache.isSupported) {
             return new ShaderBinaryCache();
         }
         return new ShaderSourceCache();
