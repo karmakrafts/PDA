@@ -32,15 +32,16 @@ import java.util.function.IntSupplier;
 @PrepareReloadPriority(-100) // Prepare before everything else
 @DispositionPriority(100)    // Dispose before everythig else
 public final class StaticSampler implements Sampler, Disposable, Reloadable {
-    public static final boolean IS_SUPPORTED;
+    public static final boolean IS_SUPPORTED = GL.getCapabilities().GL_ARB_bindless_texture;
 
     static {
-        IS_SUPPORTED = GL.getCapabilities().GL_ARB_bindless_texture;
         if (IS_SUPPORTED) {
-            PDAMod.LOGGER.info("Detected GL_ARB_bindless_texture support, enabling static samplers");
+            PDAMod.LOGGER.info(LogMarkers.RENDERER,
+                "Detected GL_ARB_bindless_texture support, enabling static samplers");
         }
         else {
-            PDAMod.LOGGER.info("Detected no GL_ARB_bindless_texture support, disabling static samplers");
+            PDAMod.LOGGER.info(LogMarkers.RENDERER,
+                "Detected no GL_ARB_bindless_texture support, disabling static samplers");
         }
     }
 

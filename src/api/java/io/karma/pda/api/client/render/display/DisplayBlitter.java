@@ -20,5 +20,5 @@ public interface DisplayBlitter {
 
     RenderType getRenderType();
 
-    void blit(final Matrix4f matrix, final VertexConsumer consumer);
+    void blit(final Matrix4f matrix, final VertexConsumer consumer, final int packedLight, final int packedOverlay);
 }

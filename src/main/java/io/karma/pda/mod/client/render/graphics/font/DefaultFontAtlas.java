@@ -230,7 +230,7 @@ public final class DefaultFontAtlas implements FontAtlas {
         if (textureId != -1) {
             GL11.glDeleteTextures(textureId);
         }
-        textureId = TextureUtils.createTexture();
+        textureId = TextureUtils.createDefaultTexture();
     }
 
     void reload(final ResourceManager manager) {
@@ -262,15 +262,12 @@ public final class DefaultFontAtlas implements FontAtlas {
 
         fillEmptySlots(context);
         context.graphics.dispose();
-        if (PDAMod.IS_DEV_ENV) {
+        if (PDAMod.isDevEnvironment()) {
             TextureUtils.save(context.image,
                 new ResourceLocation(fontLocation.getNamespace(), String.format("%s.png", font.getVariantString())));
         }
 
-        bind();
-        TextureUtils.uploadTexture(context.image);
-        unbind();
-
+        TextureUtils.uploadTexture(textureId, context.image);
         isReady = true;
     }
 

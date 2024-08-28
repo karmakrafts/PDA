@@ -58,9 +58,9 @@ public final class DefaultUniformBuffer implements UniformBuffer, Disposable {
     public void setup(final String name, final ShaderProgram program) {
         if (id == -1) {
             id = GL15.glGenBuffers();
-            GL30.glBindBuffer(GL33.GL_UNIFORM_BUFFER, id);
+            GL15.glBindBuffer(GL33.GL_UNIFORM_BUFFER, id);
             GL15.glBufferData(GL33.GL_UNIFORM_BUFFER, size, GL20.GL_STATIC_DRAW);
-            GL30.glBindBuffer(GL33.GL_UNIFORM_BUFFER, 0);
+            GL15.glBindBuffer(GL33.GL_UNIFORM_BUFFER, 0);
             PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Created new uniform buffer object {} with {} bytes", id, size);
         }
         final var blockIndex = program.getUniformBlockIndex(name);
@@ -69,7 +69,6 @@ public final class DefaultUniformBuffer implements UniformBuffer, Disposable {
             "Associated uniform block index {} with binding point {}",
             blockIndex,
             bindingPoint);
-
         GL30.glBindBufferBase(GL33.GL_UNIFORM_BUFFER, bindingPoint, id);
     }
 

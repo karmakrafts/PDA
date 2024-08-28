@@ -8,8 +8,10 @@
 #include "include/global_uniforms.glsl"
 
 in vec3 Position;// position
-in vec2 UV0;// uv
 in vec4 Color;// color
+in vec2 UV0;// uv
+in vec2 UV1;// overlay
+in vec2 UV2;// lightmap
 in vec3 Normal;// normal
 
 out vec2 texCoord0;// out_uv

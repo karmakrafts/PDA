@@ -33,8 +33,8 @@ public final class DefaultFramebuffer implements Framebuffer, Disposable {
     private int height;
 
     public DefaultFramebuffer(final DisplayResolution resolution) {
-        textureId = TextureUtils.createTexture();
-        depthTextureId = TextureUtils.createTexture();
+        textureId = TextureUtils.createDefaultTexture();
+        depthTextureId = TextureUtils.createDefaultTexture();
         id = GL30.glGenFramebuffers();
         resize(resolution.getWidth(), resolution.getHeight());
         PDAMod.DISPOSITION_HANDLER.register(this);

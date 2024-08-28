@@ -15,6 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 /**
  * @author Alexander Hinze
@@ -58,10 +59,16 @@ public interface ShaderProgramBuilder {
 
     default ShaderProgramBuilder uniformTime() { // @formatter:off
         return uniform("Time", DefaultUniformType.FLOAT)
-            .onBind(program -> program.getUniformCache().getFloat("Time").setFloat(ClientAPI.getShaderTime()));
+            .onBind(program -> program.getUniformCache().getFloat("Time").setFloat(ClientAPI.getShaderHandler().getTimeSupplier().get()));
     } // @formatter:on
 
     default ShaderProgramBuilder globalUniforms() {
         return uniforms("Globals", ClientAPI.getShaderHandler().getGlobalUniforms());
+    }
+
+    ShaderProgramBuilder cache(final Supplier<ShaderCache> shaderCacheSupplier);
+
+    default ShaderProgramBuilder defaultCache() {
+        return cache(ClientAPI.getShaderHandler()::getCache);
     }
 }

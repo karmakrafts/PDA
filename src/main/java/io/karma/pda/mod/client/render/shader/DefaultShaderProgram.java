@@ -7,10 +7,7 @@ package io.karma.pda.mod.client.render.shader;
 import com.mojang.blaze3d.shaders.Program;
 import com.mojang.blaze3d.shaders.Shader;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import io.karma.pda.api.client.render.shader.Sampler;
-import io.karma.pda.api.client.render.shader.ShaderObject;
-import io.karma.pda.api.client.render.shader.ShaderProgram;
-import io.karma.pda.api.client.render.shader.ShaderType;
+import io.karma.pda.api.client.render.shader.*;
 import io.karma.pda.api.client.render.shader.uniform.Uniform;
 import io.karma.pda.api.client.render.shader.uniform.UniformBuffer;
 import io.karma.pda.api.client.render.shader.uniform.UniformCache;
@@ -29,18 +26,21 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
 import org.lwjgl.system.MemoryStack;
 
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 /**
  * @author Alexander Hinze
@@ -61,6 +61,7 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
     private final Int2ObjectArrayMap<Sampler> samplers;
     private final LinkedHashMap<String, Object> constants;
     private final LinkedHashMap<String, Object> defines;
+    private final Supplier<ShaderCache> cacheSupplier;
 
     private final ArrayList<Sampler> dynamicSamplers = new ArrayList<>();
     private final HashMap<ShaderObject, ProgramAdaptor> adaptorCache = new HashMap<>();
@@ -79,7 +80,8 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
                          final Object2IntOpenHashMap<String> samplerIds,
                          final LinkedHashMap<String, Object> constants,
                          final LinkedHashMap<String, Object> defines,
-                         final Int2ObjectArrayMap<IntSupplier> staticSamplers) {
+                         final Int2ObjectArrayMap<IntSupplier> staticSamplers,
+                         final Supplier<ShaderCache> cacheSupplier) {
         this.vertexFormat = vertexFormat;
         this.objects = objects;
         this.bindCallback = bindCallback;
@@ -88,19 +90,15 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         samplers = new Int2ObjectArrayMap<>(samplerIds.size()); // Pre-allocate sampler texture buffer
         this.constants = constants;
         this.defines = defines;
+        this.cacheSupplier = cacheSupplier;
+
         id = GL20.glCreateProgram();
         PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Created new shader program {}", id);
         uniformCache = new DefaultUniformCache(uniforms);
         this.uniformBuffers = uniformBuffers;
-        setupAttributes();
 
         PDAMod.DISPOSITION_HANDLER.register(this);
         DefaultReloadHandler.INSTANCE.register(this);
-
-        // Attach shader objects to program
-        for (final var object : objects) {
-            object.attach(this);
-        }
 
         // Set up static samplers
         for (final var sampler : staticSamplers.int2ObjectEntrySet()) {
@@ -177,20 +175,49 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         isLinked = false;
     }
 
-    @Override
-    public void reload(final ResourceManager manager) {
-        for (final var object : objects) {
-            object.recompile(this, manager);
-        }
-        PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Relinking program {}", id);
-        GL20.glLinkProgram(id);
+    private void checkLinkStatus() {
         if (GL20.glGetProgrami(id, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
             PDAMod.LOGGER.error(LogMarkers.RENDERER,
                 "Could not link shader program {}: {}",
                 id,
                 GL20.glGetProgramInfoLog(id));
-            return;
         }
+    }
+
+    @Override
+    public void reload(final ResourceManager manager) {
+        final var cacheDir = FMLLoader.getGamePath().resolve("pda").resolve("shaders");
+        if (!Files.exists(cacheDir)) {
+            try {
+                Files.createDirectories(cacheDir);
+            }
+            catch (Throwable error) {
+                PDAMod.LOGGER.error(LogMarkers.RENDERER, "Could not create shader cache directories", error);
+            }
+        }
+
+        GL20.glUseProgram(0);
+        final var cache = cacheSupplier.get();
+        cache.prepareProgram(this);
+
+        if (!cache.loadProgram(cacheDir, manager, this)) {
+            setupAttributes();
+            var shouldLink = true;
+            for (final var object : objects) {
+                object.attach(this);
+                shouldLink &= object.reload(cacheDir, this, manager);
+            }
+            if (shouldLink) {
+                PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Relinking program {}", id);
+                GL20.glLinkProgram(id);
+                checkLinkStatus();
+                cache.saveProgram(cacheDir, manager, this);
+            }
+        }
+        else {
+            checkLinkStatus();
+        }
+
         uniformLocations.clear();
         uniformCache.updateAll(); // Flag all uniforms to be re-applied statically
         for (final var sampler : samplers.values()) {
@@ -198,7 +225,13 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         }
         uniformBlockIndices.clear();
         setupUniformBuffers();
+
         isLinked = true;
+    }
+
+    @Override
+    public ShaderCache getCache() {
+        return cacheSupplier.get();
     }
 
     @Override
@@ -311,7 +344,9 @@ public final class DefaultShaderProgram extends RenderStateShard.ShaderStateShar
         // Detach and free all shader objects
         for (final var object : objects) {
             final var objectId = object.getId();
-            GL20.glDetachShader(id, objectId);
+            if (isAttached(object)) {
+                GL20.glDetachShader(id, objectId);
+            }
             GL20.glDeleteShader(objectId);
         }
         GL20.glDeleteProgram(id);

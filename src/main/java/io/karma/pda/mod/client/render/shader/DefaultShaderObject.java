@@ -10,20 +10,19 @@ import io.karma.pda.api.client.render.shader.ShaderObject;
 import io.karma.pda.api.client.render.shader.ShaderPreProcessor;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.ShaderType;
-import io.karma.pda.api.util.Exceptions;
 import io.karma.pda.api.util.HashUtils;
 import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceProvider;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
+import java.nio.file.Path;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * @author Alexander Hinze
@@ -53,40 +52,37 @@ public final class DefaultShaderObject extends Program implements ShaderObject {
         };
     }
 
-    private static String loadSource(final ResourceProvider provider, final ResourceLocation location) {
-        try (final var reader = provider.openAsReader(location)) {
-            return reader.lines().collect(Collectors.joining("\n"));
-        }
-        catch (Throwable error) {
-            PDAMod.LOGGER.error(LogMarkers.RENDERER,
-                "Could not load shader source {}: {}",
-                location,
-                Exceptions.toFancyString(error));
-            return "";
-        }
-    }
+    boolean reload(final Path directory, final ShaderProgram program, final ResourceManager manager) {
+        final var shaderCache = program.getCache();
 
-    void recompile(final ShaderProgram program, final ResourceProvider provider) {
-        PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Processing shader source for {}", location);
-        final var unprocessedSource = loadSource(provider, location);
-        final var source = shaderPreProcessorSupplier.get().process(unprocessedSource,
-            program,
-            this,
-            subLocation -> loadSource(provider, subLocation));
-        PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Processed shader source for {}", location);
+        final var cacheResult = shaderCache.load(directory, manager, program, this);
+        if (cacheResult.cancelCompile()) {
+            isCompiled = true;
+            return !cacheResult.cancelLink();
+        }
+
+        PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Compiling shader {}", location);
+
         detach(program);
-        GL20.glShaderSource(id, source);
         GL20.glCompileShader(id);
         if (GL20.glGetShaderi(id, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
             PDAMod.LOGGER.error(LogMarkers.RENDERER,
                 "Could not recompile shader {}: {}",
                 location,
                 GL20.glGetShaderInfoLog(id));
-            return;
+            return false; // Link is always cancelled in this case
         }
         isCompiled = true;
         attach(program);
-        PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Compiled shader object {} for program {}", location, program.getId());
+        shaderCache.save(directory, manager, program, this);
+
+        PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Compiled shader {} for program {}", location, program.getId());
+        return true; // Link may occur
+    }
+
+    @Override
+    public ShaderPreProcessor getPreProcessor() {
+        return shaderPreProcessorSupplier.get();
     }
 
     @Override

@@ -7,6 +7,8 @@ package io.karma.pda.mod.client.render.shader;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import io.karma.pda.api.client.ClientAPI;
+import io.karma.pda.api.client.render.shader.ShaderCache;
 import io.karma.pda.api.client.render.shader.ShaderObjectBuilder;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.ShaderProgramBuilder;
@@ -28,6 +30,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 /**
  * @author Alexander Hinze
@@ -45,6 +48,7 @@ public final class DefaultShaderProgramBuilder implements ShaderProgramBuilder {
     private final Object2IntOpenHashMap<String> samplers = new Object2IntOpenHashMap<>();
     private final Int2ObjectArrayMap<IntSupplier> staticSamplers = new Int2ObjectArrayMap<>();
     private final LinkedHashMap<String, Object> defines = new LinkedHashMap<>();
+    private Supplier<ShaderCache> shaderCacheSupplier = ClientAPI.getShaderHandler()::getCache;
     private VertexFormat format = DefaultVertexFormat.POSITION;
     private Consumer<ShaderProgram> bindCallback = IDENTITY_CALLBACK;
     private Consumer<ShaderProgram> unbindCallback = IDENTITY_CALLBACK;
@@ -64,7 +68,14 @@ public final class DefaultShaderProgramBuilder implements ShaderProgramBuilder {
             samplers,
             constants,
             defines,
-            staticSamplers);
+            staticSamplers,
+            shaderCacheSupplier);
+    }
+
+    @Override
+    public ShaderProgramBuilder cache(final Supplier<ShaderCache> shaderCacheSupplier) {
+        this.shaderCacheSupplier = shaderCacheSupplier;
+        return this;
     }
 
     @Override

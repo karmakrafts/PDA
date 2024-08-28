@@ -33,6 +33,8 @@ public interface ShaderProgram extends Disposable {
 
     UniformCache getUniformCache();
 
+    ShaderCache getCache();
+
     void setSampler(final String name, final int textureId);
 
     void setSampler(final String name, final ResourceLocation location);

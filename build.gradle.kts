@@ -132,8 +132,8 @@ dependencies {
     minecraft(libs.minecraftForge)
 
     implementation(libs.kotlinForForge)
-    implementation(fg.deobf(libs.embeddium.get().toString()))
-    implementation(fg.deobf(libs.oculus.get().toString()))
+    //implementation(fg.deobf(libs.embeddium.get().toString()))
+    //implementation(fg.deobf(libs.oculus.get().toString()))
 
     coreLibraryConfig(libs.annotations)
     coreLibraryConfig(libs.jacksonCore)

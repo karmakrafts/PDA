@@ -6,6 +6,7 @@ package io.karma.pda.mod.client.util;
 
 import io.karma.pda.api.util.Exceptions;
 import io.karma.pda.mod.PDAMod;
+import io.karma.pda.mod.client.render.DSA;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -52,34 +53,36 @@ public final class TextureUtils {
         GL11.glPixelStorei(GL11.GL_UNPACK_SKIP_ROWS, previousUnpackSkipRows);
     }
 
-    public static int createTexture() {
-        final var id = GL11.glGenTextures();
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+    public static int createDefaultTexture() {
+        final var id = DSA.createTexture();
+        DSA.texParameteri(id, setter -> {
+            setter.accept(GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+            setter.accept(GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+            setter.accept(GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
+            setter.accept(GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+        });
         return id;
     }
 
-    public static void uploadTexture(final Image image) {
+    public static void uploadTexture(final int texture, final Image image) {
         final var bufferedImage = buffer(image);
         setUnpackAlignment(1);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D,
+        DSA.texImage2D(texture,
             0,
-            GL30.GL_RGBA8,
+            0,
             bufferedImage.getWidth(),
             bufferedImage.getHeight(),
-            0,
+            GL30.GL_RGBA8,
             GL30.GL_BGRA,
             GL30.GL_UNSIGNED_INT_8_8_8_8_REV,
             TextureUtils.toArray(bufferedImage));
         restoreUnpackAlignment();
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_R, GL11.GL_BLUE);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_G, GL11.GL_GREEN);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_B, GL11.GL_RED);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL33.GL_TEXTURE_SWIZZLE_A, GL11.GL_ALPHA);
+        DSA.texParameteri(texture, setter -> {
+            setter.accept(GL33.GL_TEXTURE_SWIZZLE_R, GL11.GL_BLUE);
+            setter.accept(GL33.GL_TEXTURE_SWIZZLE_G, GL11.GL_GREEN);
+            setter.accept(GL33.GL_TEXTURE_SWIZZLE_B, GL11.GL_RED);
+            setter.accept(GL33.GL_TEXTURE_SWIZZLE_A, GL11.GL_ALPHA);
+        });
     }
 
     public static int[] toArray(final BufferedImage image) {

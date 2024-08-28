@@ -86,7 +86,7 @@ public final class PDAItemRenderer {
                 displayRenderer.setGlitchFactor((float) glitchTick / CommonEventHandler.GLITCH_TICKS);
             }
         }
-        displayRenderer.renderDisplay(stack, bufferSource, poseStack);
+        displayRenderer.renderDisplay(stack, bufferSource, poseStack, packedLight, packedOverlay);
         poseStack.popPose();
 
         event.setCanceled(true); // Cancel event for PDA item

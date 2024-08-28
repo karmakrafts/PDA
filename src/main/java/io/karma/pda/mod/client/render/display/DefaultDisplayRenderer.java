@@ -145,12 +145,19 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
     }
 
     @SuppressWarnings("all")
-    public void renderDisplay(final ItemStack stack, final MultiBufferSource bufferSource, final PoseStack poseStack) {
+    public void renderDisplay(final ItemStack stack,
+                              final MultiBufferSource bufferSource,
+                              final PoseStack poseStack,
+                              final int packedLight,
+                              final int packedOverlay) {
         getDisplayMode(stack).ifPresent(displayMode -> {
             renderIntoDisplayBuffer(stack, displayMode);
             final var blitter = displayMode.getBlitter();
-            blitter.blit(poseStack.last().pose(), blitBufferSource.getBuffer(blitter.getRenderType()));
-            blitBufferSource.endBatch();
+            blitter.blit(poseStack.last().pose(),
+                bufferSource.getBuffer(blitter.getRenderType()),
+                packedLight,
+                packedOverlay);
+            //blitBufferSource.endBatch();
         });
     }
 }

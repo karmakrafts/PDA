@@ -28,7 +28,6 @@ import io.karma.pda.mod.client.render.graphics.font.DefaultFontRenderer;
 import io.karma.pda.mod.client.render.item.DockItemRenderer;
 import io.karma.pda.mod.client.render.item.PDAItemRenderer;
 import io.karma.pda.mod.client.render.shader.DefaultShaderHandler;
-import io.karma.pda.mod.client.render.shader.DefaultShaderPreProcessor;
 import io.karma.pda.mod.client.session.ClientSessionHandler;
 import io.karma.pda.mod.dispose.DefaultDispositionHandler;
 import io.karma.pda.mod.init.*;
@@ -58,6 +57,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 import net.minecraftforge.registries.DeferredRegister;
@@ -142,15 +142,27 @@ public class PDAMod {
     // @formatter:on
 
     public static final ServiceLoader<StateReflector> STATE_REFLECTORS = ServiceLoader.load(StateReflector.class);
-    public static boolean IS_DEV_ENV;
+    private static boolean isDevEnvironment;
+    private static final boolean isOculusInstalled;
+    private static final boolean isEmbeddiumInstalled;
 
     static {
         try {
             Class.forName("net.minecraft.world.level.Level");
-            IS_DEV_ENV = true;
+            isDevEnvironment = true;
             LOGGER.info("Detected development environment, enabling debug mode");
         }
         catch (Throwable error) { /* IGNORE */ }
+
+        isOculusInstalled = FMLLoader.getLoadingModList().getModFileById("oculus") != null;
+        if (isOculusInstalled) {
+            LOGGER.info("Detected Oculus, enabling compatibility");
+        }
+
+        isEmbeddiumInstalled = FMLLoader.getLoadingModList().getModFileById("embeddium") != null;
+        if (isEmbeddiumInstalled) {
+            LOGGER.info("Detected Embeddium, enabling compatibility");
+        }
 
         ModBlockEntities.register();
         ModBlocks.register();
@@ -193,6 +205,18 @@ public class PDAMod {
             onClientEarlySetup();
             modBus.addListener(this::onClientSetup);
         });
+    }
+
+    public static boolean isDevEnvironment() {
+        return isDevEnvironment;
+    }
+
+    public static boolean isOculusInstalled() {
+        return isOculusInstalled;
+    }
+
+    public static boolean isEmbeddiumInstalled() {
+        return isEmbeddiumInstalled;
     }
 
     private void onGameShutdown(final GameShuttingDownEvent event) {
@@ -241,6 +265,7 @@ public class PDAMod {
         PDAItemRenderer.INSTANCE.setup();
         DockItemRenderer.INSTANCE.setup();
         DefaultShaderHandler.INSTANCE.setup();
+
         initClientAPI();
     }
 
@@ -251,8 +276,6 @@ public class PDAMod {
         ClientAPI.setFlexNodeHandler(ClientFlexNodeHandler.INSTANCE);
         ClientAPI.setDisplayRenderer(DefaultDisplayRenderer.INSTANCE);
         ClientAPI.setShaderHandler(DefaultShaderHandler.INSTANCE);
-        ClientAPI.setShaderPreProcessorSupplier(DefaultShaderPreProcessor::getInstance);
-        ClientAPI.setShaderTimeProvider(ClientEventHandler.INSTANCE::getShaderTime);
         ClientAPI.init();
     }
 

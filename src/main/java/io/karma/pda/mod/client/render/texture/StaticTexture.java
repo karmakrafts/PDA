@@ -43,17 +43,6 @@ public final class StaticTexture implements Disposable, Reloadable {
         return id;
     }
 
-    public void unbind() {
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-    }
-
-    public void bind() {
-        if (id == -1) {
-            return;
-        }
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
-    }
-
     @Override
     public void dispose() {
         GL11.glDeleteTextures(id);
@@ -64,20 +53,18 @@ public final class StaticTexture implements Disposable, Reloadable {
         if (id != -1) {
             GL11.glDeleteTextures(id);
         }
-        id = TextureUtils.createTexture();
+        id = TextureUtils.createDefaultTexture();
     }
 
     @Override
     public void reload(final ResourceManager manager) {
-        bind();
         try (final var stream = manager.open(location)) {
-            TextureUtils.uploadTexture(ImageIO.read(stream));
+            TextureUtils.uploadTexture(id, ImageIO.read(stream));
             PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Uploaded image {} to texture {}", location, id);
         }
         catch (Throwable error) {
             PDAMod.LOGGER.error(LogMarkers.RENDERER, "Could not read static texture", error);
         }
-        unbind();
     }
 
     @Override

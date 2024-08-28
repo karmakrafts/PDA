@@ -25,4 +25,6 @@ public interface ShaderObject {
     void attach(final ShaderProgram program);
 
     void detach(final ShaderProgram program);
+
+    ShaderPreProcessor getPreProcessor();
 }

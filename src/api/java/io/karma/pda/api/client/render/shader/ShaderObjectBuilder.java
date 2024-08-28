@@ -28,6 +28,6 @@ public interface ShaderObjectBuilder {
     ShaderObjectBuilder preProcessor(final Supplier<ShaderPreProcessor> shaderPreProcessorSupplier);
 
     default ShaderObjectBuilder defaultPreProcessor() {
-        return preProcessor(ClientAPI::getShaderPreProcessor);
+        return preProcessor(ClientAPI.getShaderHandler()::getPreProcessor);
     }
 }

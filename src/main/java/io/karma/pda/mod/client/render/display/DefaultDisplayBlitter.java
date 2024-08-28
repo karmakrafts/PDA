@@ -14,6 +14,7 @@ import io.karma.pda.api.client.render.shader.uniform.DefaultUniformType;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.api.util.FloatSupplier;
 import io.karma.pda.mod.client.render.shader.DefaultShaderHandler;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -43,11 +44,11 @@ public final class DefaultDisplayBlitter implements DisplayBlitter {
         this.mode = mode;
         // @formatter:off
         renderType = RenderType.create(String.format("%s:display_blit_%s", Constants.MODID, mode.getSpec().name()),
-            DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL, VertexFormat.Mode.TRIANGLES, 6, false, false,
+            DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.TRIANGLES, 6, false, false,
             RenderType.CompositeState.builder()
                 .setCullState(RenderStateShard.NO_CULL)
                 .setShaderState(DefaultShaderHandler.INSTANCE.create(builder -> builder
-                    .format(DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL)
+                    .format(DefaultVertexFormat.NEW_ENTITY)
                     .shader(object -> object
                         .type(ShaderType.VERTEX)
                         .location(Constants.MODID, "shaders/display_blit.vert.glsl")
@@ -75,13 +76,54 @@ public final class DefaultDisplayBlitter implements DisplayBlitter {
     }
 
     @Override
-    public void blit(final Matrix4f matrix, final VertexConsumer consumer) {
-        consumer.vertex(matrix, MIN_X, MIN_Y, OFFSET_Z).uv(0F, 0F).color(-1).normal(0F, 0F, -1F).endVertex();
-        consumer.vertex(matrix, MAX_X, MIN_Y, OFFSET_Z).uv(1F, 0F).color(-1).normal(0F, 0F, -1F).endVertex();
-        consumer.vertex(matrix, MIN_X, MAX_Y, OFFSET_Z).uv(0F, 1F).color(-1).normal(0F, 0F, -1F).endVertex();
-        consumer.vertex(matrix, MAX_X, MIN_Y, OFFSET_Z).uv(1F, 0F).color(-1).normal(0F, 0F, -1F).endVertex();
-        consumer.vertex(matrix, MAX_X, MAX_Y, OFFSET_Z).uv(1F, 1F).color(-1).normal(0F, 0F, -1F).endVertex();
-        consumer.vertex(matrix, MIN_X, MAX_Y, OFFSET_Z).uv(0F, 1F).color(-1).normal(0F, 0F, -1F).endVertex();
+    public void blit(final Matrix4f matrix,
+                     final VertexConsumer consumer,
+                     final int packedLight,
+                     final int packedOverlay) {
+        // @formatter:off
+        consumer.vertex(matrix, MIN_X, MIN_Y, OFFSET_Z)
+            .color(-1)
+            .uv(0F, 0F)
+            .overlayCoords(packedOverlay)
+            .uv2(LightTexture.FULL_BRIGHT)
+            .normal(0F, 0F, -1F)
+            .endVertex();
+        consumer.vertex(matrix, MAX_X, MIN_Y, OFFSET_Z)
+            .color(-1)
+            .uv(1F, 0F)
+            .overlayCoords(packedOverlay)
+            .uv2(LightTexture.FULL_BRIGHT)
+            .normal(0F, 0F, -1F)
+            .endVertex();
+        consumer.vertex(matrix, MIN_X, MAX_Y, OFFSET_Z)
+            .color(-1)
+            .uv(0F, 1F)
+            .overlayCoords(packedOverlay)
+            .uv2(LightTexture.FULL_BRIGHT)
+            .normal(0F, 0F, -1F)
+            .endVertex();
+        consumer.vertex(matrix, MAX_X, MIN_Y, OFFSET_Z)
+            .color(-1)
+            .uv(1F, 0F)
+            .overlayCoords(packedOverlay)
+            .uv2(LightTexture.FULL_BRIGHT)
+            .normal(0F, 0F, -1F)
+            .endVertex();
+        consumer.vertex(matrix, MAX_X, MAX_Y, OFFSET_Z)
+            .color(-1)
+            .uv(1F, 1F)
+            .overlayCoords(packedOverlay)
+            .uv2(LightTexture.FULL_BRIGHT)
+            .normal(0F, 0F, -1F)
+            .endVertex();
+        consumer.vertex(matrix, MIN_X, MAX_Y, OFFSET_Z)
+            .color(-1)
+            .uv(0F, 1F)
+            .overlayCoords(packedOverlay)
+            .uv2(LightTexture.FULL_BRIGHT)
+            .normal(0F, 0F, -1F)
+            .endVertex();
+        // @formatter:on
     }
 
     @Override

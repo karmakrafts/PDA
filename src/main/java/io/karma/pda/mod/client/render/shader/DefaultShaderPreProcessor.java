@@ -8,26 +8,19 @@ import io.karma.pda.api.client.render.shader.ShaderObject;
 import io.karma.pda.api.client.render.shader.ShaderPreProcessor;
 import io.karma.pda.api.client.render.shader.ShaderProgram;
 import io.karma.pda.api.client.render.shader.ShaderType;
-import io.karma.pda.api.util.HashUtils;
-import io.karma.pda.api.util.LogMarkers;
+import io.karma.pda.api.client.render.shader.uniform.DefaultUniformType;
 import io.karma.pda.api.util.ToBooleanBiFunction;
 import io.karma.pda.mod.PDAMod;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.versions.forge.ForgeVersion;
-import org.jetbrains.annotations.Nullable;
-import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * @author Alexander Hinze
@@ -224,15 +217,16 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
 
     private static Map<String, Object> insertBuiltinDefines(final ShaderType type, final Map<String, Object> defines) {
         final var allDefines = new LinkedHashMap<>(defines);
-        allDefines.put("BUILTIN_DEBUG", PDAMod.IS_DEV_ENV ? 1 : 0);
+        allDefines.put("BUILTIN_DEBUG", PDAMod.isDevEnvironment() ? 1 : 0);
         allDefines.put("BUILTIN_PRINT_BUFFER_SIZE", PRINT_BUFFER_SIZE);
         allDefines.put("BUILTIN_SHADER_TYPE", type.ordinal());
+        allDefines.put("BUILTIN_HAS_OCULUS", PDAMod.isOculusInstalled() ? 1 : 0);
+        allDefines.put("BUILTIN_HAS_EMBEDDIUM", PDAMod.isEmbeddiumInstalled() ? 1 : 0);
 
-        final var caps = GL.getCapabilities();
-        allDefines.put("BUILTIN_BINDLESS_SUPPORT", caps.GL_ARB_bindless_texture ? 1 : 0);
-        allDefines.put("BUILTIN_SSBO_SUPPORT", caps.GL_ARB_shader_storage_buffer_object ? 1 : 0);
-        allDefines.put("BUILTIN_LONG_SUPPORT", caps.GL_ARB_gpu_shader_int64 ? 1 : 0);
-        allDefines.put("BUILTIN_DOUBLE_SUPPORT", caps.GL_ARB_gpu_shader_fp64 ? 1 : 0);
+        allDefines.put("BUILTIN_BINDLESS_SUPPORT", StaticSampler.IS_SUPPORTED ? 1 : 0);
+        allDefines.put("BUILTIN_SSBO_SUPPORT", SSBO.IS_SUPPORTED ? 1 : 0);
+        allDefines.put("BUILTIN_LONG_SUPPORT", DefaultUniformType.LONG.isSupported() ? 1 : 0);
+        allDefines.put("BUILTIN_DOUBLE_SUPPORT", 0); // TODO: implement this
 
         final var glVersion = Objects.requireNonNull(GL11.glGetString(GL11.GL_VERSION));
         final var glVersionMatcher = GL_VERSION_PATTERN.matcher(glVersion);
@@ -257,74 +251,6 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
         return allConstants;
     }
 
-    private static void save(final Path directory, final String fingerprint, final StringBuffer buffer) {
-        try {
-            if (!Files.exists(directory)) {
-                Files.createDirectories(directory);
-            }
-            final var path = directory.resolve(String.format("%s.glsl", fingerprint));
-            Files.deleteIfExists(path);
-            PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Saving processed shader to cache at {}", path);
-            try (final var writer = Files.newBufferedWriter(path)) {
-                writer.append(buffer);
-            }
-        }
-        catch (Throwable error) {
-            PDAMod.LOGGER.error(LogMarkers.RENDERER, "Could not save processed shader source", error);
-        }
-    }
-
-    private static boolean load(final Path directory, final String fingerprint, final StringBuffer buffer) {
-        try {
-            if (!Files.exists(directory)) {
-                return false;
-            }
-            final var path = directory.resolve(String.format("%s.glsl", fingerprint));
-            if (!Files.exists(path)) {
-                return false;
-            }
-            PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Loading processed shader source from cache at {}", path);
-            buffer.delete(0, buffer.length());
-            try (final var reader = Files.newBufferedReader(path)) {
-                buffer.append(reader.lines().collect(Collectors.joining("\n")));
-            }
-            return true;
-        }
-        catch (Throwable error) {
-            PDAMod.LOGGER.error(LogMarkers.RENDERER, "Could not load processed shader source", error);
-            return false;
-        }
-    }
-
-    private static @Nullable String loadSourceFingerprint(final Path directory, final String fingerprint) {
-        final var path = directory.resolve(String.format("%s.md5", fingerprint));
-        if (!Files.exists(path)) {
-            return null;
-        }
-        try (final var reader = Files.newBufferedReader(path)) {
-            return reader.lines().collect(Collectors.joining("\n"));
-        }
-        catch (Throwable error) {
-            PDAMod.LOGGER.error(LogMarkers.RENDERER, "Could not load shader source fingerprint", error);
-            return null;
-        }
-    }
-
-    private static void saveSourceFingerprint(final Path directory,
-                                              final String fingerprint,
-                                              final String sourceFingerprint) {
-        try {
-            final var path = directory.resolve(String.format("%s.md5", fingerprint));
-            Files.deleteIfExists(path);
-            try (final var writer = Files.newBufferedWriter(path)) {
-                writer.write(sourceFingerprint);
-            }
-        }
-        catch (Throwable error) {
-            PDAMod.LOGGER.error(LogMarkers.RENDERER, "Could not save shader source fingerprint", error);
-        }
-    }
-
     @Override
     public String process(final String source,
                           final ShaderProgram program,
@@ -332,24 +258,11 @@ public final class DefaultShaderPreProcessor implements ShaderPreProcessor {
                           final Function<ResourceLocation, String> loader) {
         final var buffer = new StringBuffer(source);
         final var location = object.getLocation();
-        final var fingerprint = HashUtils.toFingerprint(program.hashCode(), object.hashCode());
-        final var directory = FMLLoader.getGamePath().resolve("pda").resolve("shaders");
-
-        final var sourceFingerprint = loadSourceFingerprint(directory, fingerprint);
-        final var currentSourceFingerprint = HashUtils.toFingerprint(source);
-
-        if (sourceFingerprint != null && sourceFingerprint.equals(currentSourceFingerprint) && load(directory,
-            fingerprint,
-            buffer)) {
-            return buffer.toString();
-        }
 
         processIncludes(location, buffer, loader);
         processSpecializationConstants(location, insertBuiltinConstants(program.getConstants()), buffer);
         processDefines(insertBuiltinDefines(object.getType(), program.getDefines()), buffer);
         stripCommentsAndWhitespace(buffer);
-        save(directory, fingerprint, buffer);
-        saveSourceFingerprint(directory, fingerprint, currentSourceFingerprint);
 
         return buffer.toString();
     }

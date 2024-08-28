@@ -7,16 +7,12 @@ package io.karma.pda.api.client;
 import io.karma.pda.api.client.flex.FlexNodeHandler;
 import io.karma.pda.api.client.render.display.DisplayRenderer;
 import io.karma.pda.api.client.render.shader.ShaderHandler;
-import io.karma.pda.api.client.render.shader.ShaderPreProcessor;
 import io.karma.pda.api.session.SessionHandler;
-import io.karma.pda.api.util.FloatSupplier;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus.Internal;
-
-import java.util.function.Supplier;
 
 /**
  * @author Alexander Hinze
@@ -29,9 +25,7 @@ public final class ClientAPI {
     private static SessionHandler sessionHandler;
     private static FlexNodeHandler flexNodeHandler;
     private static DisplayRenderer displayRenderer;
-    private static FloatSupplier shaderTimeProvider;
     private static ShaderHandler shaderHandler;
-    private static Supplier<ShaderPreProcessor> shaderPreProcessorSupplier;
     private static boolean isInitialized;
 
     // @formatter:off
@@ -83,15 +77,6 @@ public final class ClientAPI {
         ClientAPI.flexNodeHandler = flexNodeHandler;
     }
 
-    public static float getShaderTime() {
-        return shaderTimeProvider.get();
-    }
-
-    @Internal
-    public static void setShaderTimeProvider(final FloatSupplier shaderTimeProvider) {
-        ClientAPI.shaderTimeProvider = shaderTimeProvider;
-    }
-
     public static ShaderHandler getShaderHandler() {
         return shaderHandler;
     }
@@ -99,14 +84,5 @@ public final class ClientAPI {
     @Internal
     public static void setShaderHandler(final ShaderHandler shaderHandler) {
         ClientAPI.shaderHandler = shaderHandler;
-    }
-
-    public static ShaderPreProcessor getShaderPreProcessor() {
-        return shaderPreProcessorSupplier.get();
-    }
-
-    @Internal
-    public static void setShaderPreProcessorSupplier(final Supplier<ShaderPreProcessor> shaderPreProcessorSupplier) {
-        ClientAPI.shaderPreProcessorSupplier = shaderPreProcessorSupplier;
     }
 }
