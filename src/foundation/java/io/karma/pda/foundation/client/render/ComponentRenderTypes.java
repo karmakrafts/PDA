@@ -28,26 +28,13 @@ import java.util.function.Function;
 @OnlyIn(Dist.CLIENT)
 public final class ComponentRenderTypes {
     // @formatter:off
-    private static final ShaderProgram SPINNER_SHADER = ClientAPI.getShaderHandler().create(builder -> builder
-        .shader(object -> object
-            .type(ShaderType.VERTEX)
-            .location(Constants.MODID, "shaders/spinner.vert.glsl")
-            .defaultPreProcessor()
-        )
-        .shader(object -> object
-            .type(ShaderType.FRAGMENT)
-            .location(Constants.MODID, "shaders/spinner.frag.glsl")
-            .defaultPreProcessor()
-        )
-        .defaultUniforms()
-        .uniformTime()
-    );
+    private static ShaderProgram spinnerShader;
     public static final Function<DisplayMode, RenderType> SPINNER = Util.memoize(displayMode ->
         RenderType.create(String.format("pda_display_spinner__%s", displayMode),
             DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
             RenderType.CompositeState.builder()
                 .setCullState(RenderStateShard.NO_CULL)
-                .setShaderState(SPINNER_SHADER.asStateShard())
+                .setShaderState(spinnerShader.asStateShard())
                 .setOutputState(displayMode.getOutputState())
                 .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
                 .setLayeringState(RenderStateShard.POLYGON_OFFSET_LAYERING)
@@ -60,5 +47,20 @@ public final class ComponentRenderTypes {
 
     @Internal
     public static void createShaders() {
+        // @formatter:off
+        spinnerShader = ClientAPI.getShaderHandler().create(builder -> builder
+            .shader(object -> object
+                .type(ShaderType.VERTEX)
+                .location(Constants.MODID, "shaders/spinner.vert.glsl")
+                .defaultPreProcessor()
+            )
+            .shader(object -> object
+                .type(ShaderType.FRAGMENT)
+                .location(Constants.MODID, "shaders/spinner.frag.glsl")
+                .defaultPreProcessor()
+            )
+            .globalUniforms()
+        );
+        // @formatter:on
     }
 }

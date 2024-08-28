@@ -5,10 +5,10 @@
  * Source: https://www.shadertoy.com/view/Mc3Xzf
  */
 
+#include "include/global_uniforms.glsl"
+
 in vec4 vertexColor;
 in vec2 texCoord0;
-
-uniform float Time;
 
 out vec4 fragColor;
 

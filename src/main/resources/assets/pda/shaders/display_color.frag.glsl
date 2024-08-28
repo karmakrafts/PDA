@@ -4,9 +4,9 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-in vec4 vertexColor;
+#include "include/global_uniforms.glsl"
 
-uniform vec4 ColorModulator;
+in vec4 vertexColor;
 
 out vec4 fragColor;
 

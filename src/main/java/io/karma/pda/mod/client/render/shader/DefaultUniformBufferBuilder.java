@@ -23,7 +23,7 @@ import java.util.function.BiConsumer;
 public final class DefaultUniformBufferBuilder implements UniformBufferBuilder {
     private static final BiConsumer<ShaderProgram, UniformBuffer> IDENTITY_CALLBACK = (s, b) -> {
     };
-    private static int nextBindingPoint;
+    private static int nextGlobalIndex;
 
     private final LinkedHashMap<String, Uniform> uniforms = new LinkedHashMap<>();
     private BiConsumer<ShaderProgram, UniformBuffer> bindCallback = IDENTITY_CALLBACK;
@@ -59,6 +59,6 @@ public final class DefaultUniformBufferBuilder implements UniformBufferBuilder {
     }
 
     public DefaultUniformBuffer build() {
-        return new DefaultUniformBuffer(uniforms, bindCallback, unbindCallback, nextBindingPoint++);
+        return new DefaultUniformBuffer(uniforms, bindCallback, unbindCallback, nextGlobalIndex++);
     }
 }

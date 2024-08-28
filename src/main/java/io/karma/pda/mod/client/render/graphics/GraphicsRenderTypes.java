@@ -77,7 +77,7 @@ public final class GraphicsRenderTypes {
                 .location(Constants.MODID, "shaders/display_color.frag.glsl")
                 .defaultPreProcessor()
             )
-            .defaultUniforms()
+            .globalUniforms()
         );
         colorTexShader = DefaultShaderHandler.INSTANCE.create(builder -> builder
             .shader(object -> object
@@ -91,7 +91,7 @@ public final class GraphicsRenderTypes {
                 .defaultPreProcessor()
             )
             .sampler("Sampler0")
-            .defaultUniforms()
+            .globalUniforms()
         );
     } // @formatter:on
 

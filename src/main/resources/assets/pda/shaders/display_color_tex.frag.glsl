@@ -4,9 +4,9 @@
  * Copyright (C) 2024 Karma Krafts & associates
  */
 
-uniform sampler2D Sampler0;
+#include "include/global_uniforms.glsl"
 
-uniform vec4 ColorModulator;
+uniform sampler2D Sampler0;
 
 in vec4 vertexColor;
 in vec2 texCoord0;

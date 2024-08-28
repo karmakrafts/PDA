@@ -9,7 +9,6 @@ import io.karma.pda.api.client.render.shader.uniform.Uniform;
 import io.karma.pda.api.client.render.shader.uniform.UniformBuffer;
 import io.karma.pda.api.client.render.shader.uniform.UniformCache;
 import io.karma.pda.api.dispose.Disposable;
-import io.karma.pda.api.util.HashUtils;
 import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -30,18 +29,17 @@ public final class DefaultUniformBuffer implements UniformBuffer, Disposable {
     private final BiConsumer<ShaderProgram, UniformBuffer> bindCallback;
     private final BiConsumer<ShaderProgram, UniformBuffer> unbindCallback;
     private final int size;
-    private final int bindingPoint;
     private final Object2IntOpenHashMap<String> fieldOffsets = new Object2IntOpenHashMap<>();
-    private int id = -1;
+    private final int id;
+    private int bufferId = -1;
 
     public DefaultUniformBuffer(final LinkedHashMap<String, Uniform> uniforms,
                                 final BiConsumer<ShaderProgram, UniformBuffer> bindCallback,
                                 final BiConsumer<ShaderProgram, UniformBuffer> unbindCallback,
-                                final int bindingPoint) {
+                                final int id) {
         this.bindCallback = bindCallback;
         this.unbindCallback = unbindCallback;
-        this.bindingPoint = bindingPoint;
-
+        this.id = id;
         cache = new DefaultUniformCache(uniforms);
         size = cache.getAll().values().stream().mapToInt(u -> u.getType().getAlignedSize()).sum();
 
@@ -61,26 +59,29 @@ public final class DefaultUniformBuffer implements UniformBuffer, Disposable {
     }
 
     @Override
-    public int getBindingPoint() {
-        return bindingPoint;
+    public int getBufferId() {
+        return bufferId;
     }
 
     @Override
     public void setup(final String name, final ShaderProgram program) {
-        if (id == -1) {
-            id = GL15.glGenBuffers();
-            GL15.glBindBuffer(GL33.GL_UNIFORM_BUFFER, id);
+        if (bufferId == -1) {
+            bufferId = GL15.glGenBuffers();
+            GL15.glBindBuffer(GL33.GL_UNIFORM_BUFFER, bufferId);
             GL15.glBufferData(GL33.GL_UNIFORM_BUFFER, size, GL20.GL_STATIC_DRAW);
             GL15.glBindBuffer(GL33.GL_UNIFORM_BUFFER, 0);
-            PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Created new uniform buffer object {} with {} bytes", id, size);
+            PDAMod.LOGGER.debug(LogMarkers.RENDERER,
+                "Created new uniform buffer object {} with {} bytes",
+                bufferId,
+                size);
         }
         final var blockIndex = program.getUniformBlockIndex(name);
-        GL31.glUniformBlockBinding(program.getId(), blockIndex, bindingPoint);
+        GL31.glUniformBlockBinding(program.getId(), blockIndex, id);
         PDAMod.LOGGER.debug(LogMarkers.RENDERER,
             "Associated uniform block index {} with binding point {}",
             blockIndex,
-            bindingPoint);
-        GL30.glBindBufferBase(GL33.GL_UNIFORM_BUFFER, bindingPoint, id);
+            id);
+        GL30.glBindBufferBase(GL33.GL_UNIFORM_BUFFER, id, bufferId);
     }
 
     @Override
@@ -111,16 +112,16 @@ public final class DefaultUniformBuffer implements UniformBuffer, Disposable {
 
     @Override
     public void dispose() {
-        GL15.glDeleteBuffers(id);
+        GL15.glDeleteBuffers(bufferId);
     }
 
     @Override
     public int hashCode() {
-        return HashUtils.combine(bindingPoint, cache.hashCode());
+        return cache.hashCode();
     }
 
     @Override
     public String toString() {
-        return String.format("DefaultUniformBuffer[id=%d,size=%d]", id, size);
+        return String.format("DefaultUniformBuffer[id=%d,size=%d]", bufferId, size);
     }
 }

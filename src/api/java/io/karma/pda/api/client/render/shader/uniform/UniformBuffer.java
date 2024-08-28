@@ -16,7 +16,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public interface UniformBuffer {
     int getId();
 
-    int getBindingPoint();
+    int getBufferId();
 
     UniformCache getCache();
 
