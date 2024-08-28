@@ -12,6 +12,7 @@ import io.karma.pda.api.dispose.Disposable;
 import io.karma.pda.api.util.HashUtils;
 import io.karma.pda.api.util.LogMarkers;
 import io.karma.pda.mod.PDAMod;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.*;
@@ -30,6 +31,7 @@ public final class DefaultUniformBuffer implements UniformBuffer, Disposable {
     private final BiConsumer<ShaderProgram, UniformBuffer> unbindCallback;
     private final int size;
     private final int bindingPoint;
+    private final Object2IntOpenHashMap<String> fieldOffsets = new Object2IntOpenHashMap<>();
     private int id = -1;
 
     public DefaultUniformBuffer(final LinkedHashMap<String, Uniform> uniforms,
@@ -39,8 +41,17 @@ public final class DefaultUniformBuffer implements UniformBuffer, Disposable {
         this.bindCallback = bindCallback;
         this.unbindCallback = unbindCallback;
         this.bindingPoint = bindingPoint;
+
         cache = new DefaultUniformCache(uniforms);
         size = cache.getAll().values().stream().mapToInt(u -> u.getType().getAlignedSize()).sum();
+
+        // Compute all field offsets ahead of time
+        var offset = 0;
+        for (final var uniform : uniforms.entrySet()) {
+            fieldOffsets.put(uniform.getKey(), offset);
+            offset += uniform.getValue().getType().getAlignedSize();
+        }
+
         PDAMod.DISPOSITION_HANDLER.register(this);
     }
 
@@ -95,14 +106,7 @@ public final class DefaultUniformBuffer implements UniformBuffer, Disposable {
 
     @Override
     public int getFieldOffset(final String name) {
-        var offset = 0;
-        for (final var uniform : cache.getAll().values()) {
-            if (uniform.getName().equals(name)) {
-                break;
-            }
-            offset += uniform.getType().getAlignedSize();
-        }
-        return offset;
+        return fieldOffsets.getOrDefault(name, 0);
     }
 
     @Override

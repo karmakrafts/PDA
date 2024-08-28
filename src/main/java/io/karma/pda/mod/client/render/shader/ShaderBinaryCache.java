@@ -31,7 +31,7 @@ import java.nio.file.Path;
  */
 @OnlyIn(Dist.CLIENT)
 public final class ShaderBinaryCache extends AbstractShaderCache {
-    public static boolean isSupported;
+    private static boolean isSupported;
     private static int binaryFormat;
 
     static {
@@ -40,6 +40,10 @@ public final class ShaderBinaryCache extends AbstractShaderCache {
 
     ShaderBinaryCache() {
         PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Creating binary shader cache");
+    }
+
+    public static boolean isSupported() {
+        return isSupported;
     }
 
     private static void detectSupport() {
