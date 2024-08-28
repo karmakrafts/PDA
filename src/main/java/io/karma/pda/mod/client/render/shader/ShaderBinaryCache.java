@@ -30,7 +30,7 @@ import java.nio.file.Path;
  */
 @OnlyIn(Dist.CLIENT)
 public final class ShaderBinaryCache extends AbstractShaderCache {
-    public static final boolean IS_SUPPORTED = GL.getCapabilities().GL_ARB_get_program_binary;
+    public static final boolean IS_SUPPORTED = isSupported();
     private static int binaryFormat;
 
     static {
@@ -55,6 +55,13 @@ public final class ShaderBinaryCache extends AbstractShaderCache {
 
     ShaderBinaryCache() {
         PDAMod.LOGGER.debug(LogMarkers.RENDERER, "Creating binary shader cache");
+    }
+
+    private static boolean isSupported() {
+        if (GL.getCapabilities().GL_ARB_get_program_binary) {
+            return GL11.glGetInteger(ARBGetProgramBinary.GL_NUM_PROGRAM_BINARY_FORMATS) > 0;
+        }
+        return false;
     }
 
     @Override
