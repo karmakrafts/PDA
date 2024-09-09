@@ -6,8 +6,8 @@ package io.karma.pda.mod.client.render.item;
 
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.mod.client.ClientEventHandler;
-import io.karma.pda.mod.client.event.ItemRenderEvent;
 import io.karma.pda.mod.init.ModBlocks;
+import io.karma.peregrine.api.event.ItemRenderEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;

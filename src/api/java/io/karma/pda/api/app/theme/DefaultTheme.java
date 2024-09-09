@@ -6,8 +6,7 @@ package io.karma.pda.api.app.theme;
 
 import io.karma.material.dynamiccolor.DynamicScheme;
 import io.karma.material.hct.Hct;
-import io.karma.pda.api.app.theme.font.FontSet;
-import io.karma.pda.api.color.Color;
+import io.karma.peregrine.api.color.Color;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -20,7 +19,6 @@ public class DefaultTheme implements Theme {
     private Color lastColor;
     private boolean lastDarkMode;
     private DynamicScheme scheme;
-    private FontSet fontSet;
 
     public DefaultTheme(final ResourceLocation name,
                         final SchemeFactory<?> schemeFactory,
@@ -40,11 +38,6 @@ public class DefaultTheme implements Theme {
             lastDarkMode = scheme.isDark;
         }
         scheme = schemeFactory.create(Hct.fromInt(color.packARGB()), isDark, 1.0D);
-    }
-
-    @Override
-    public FontSet getFontSet() {
-        return fontSet;
     }
 
     @Override

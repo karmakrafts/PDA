@@ -4,12 +4,12 @@
 
 package io.karma.pda.mod.client.render.graphics;
 
-import io.karma.pda.api.client.render.graphics.FontRenderer;
 import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.client.render.graphics.GraphicsContext;
 import io.karma.pda.api.client.render.graphics.GraphicsState;
-import io.karma.pda.api.color.ColorProvider;
-import io.karma.pda.api.util.RectangleCorner;
+import io.karma.peregrine.api.color.ColorProvider;
+import io.karma.peregrine.api.font.FontRenderer;
+import io.karma.peregrine.api.util.RectangleCorner;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -254,13 +254,13 @@ public final class DefaultGraphics implements Graphics {
     @Override
     public int text(final int x, final int y, final int maxWidth, final CharSequence text) {
         final var state = getState();
-        return fontRenderer.render(x, y, maxWidth, text, state.getFont(), state.getBrush());
+        return 0;
     }
 
     @Override
     public int text(final int x, final int y, final int maxWidth, final int maxHeight, final CharSequence text) {
         final var state = getState();
-        return fontRenderer.render(x, y, maxWidth, maxHeight, text, state.getFont(), state.getBrush());
+        return 0;
     }
 
     @Override
@@ -270,7 +270,7 @@ public final class DefaultGraphics implements Graphics {
                     final CharSequence text,
                     final CharSequence cutoffSuffix) {
         final var state = getState();
-        return fontRenderer.render(x, y, maxWidth, text, cutoffSuffix, state.getFont(), state.getBrush());
+        return 0;
     }
 
     @Override
@@ -281,13 +281,13 @@ public final class DefaultGraphics implements Graphics {
                     final CharSequence text,
                     final CharSequence cutoffSuffix) {
         final var state = getState();
-        return fontRenderer.render(x, y, maxWidth, maxHeight, text, cutoffSuffix, state.getFont(), state.getBrush());
+        return 0;
     }
 
     @Override
     public int text(final int x, final int y, final CharSequence text, final IntFunction<ColorProvider> color) {
         final var state = getState();
-        return fontRenderer.render(x, y, text, state.getFont(), color);
+        return 0;
     }
 
     @Override
@@ -297,7 +297,7 @@ public final class DefaultGraphics implements Graphics {
                     final CharSequence text,
                     final IntFunction<ColorProvider> color) {
         final var state = getState();
-        return fontRenderer.render(x, y, maxWidth, text, state.getFont(), color);
+        return 0;
     }
 
     @Override
@@ -308,7 +308,7 @@ public final class DefaultGraphics implements Graphics {
                     final CharSequence text,
                     final IntFunction<ColorProvider> color) {
         final var state = getState();
-        return fontRenderer.render(x, y, maxWidth, maxHeight, text, state.getFont(), color);
+        return 0;
     }
 
     @Override
@@ -319,7 +319,7 @@ public final class DefaultGraphics implements Graphics {
                     final CharSequence cutoffSuffix,
                     final IntFunction<ColorProvider> color) {
         final var state = getState();
-        return fontRenderer.render(x, y, maxWidth, text, cutoffSuffix, state.getFont(), color);
+        return 0;
     }
 
     @Override
@@ -331,6 +331,6 @@ public final class DefaultGraphics implements Graphics {
                     final CharSequence cutoffSuffix,
                     final IntFunction<ColorProvider> color) {
         final var state = getState();
-        return fontRenderer.render(x, y, maxWidth, maxHeight, text, cutoffSuffix, state.getFont(), color);
+        return 0;
     }
 }

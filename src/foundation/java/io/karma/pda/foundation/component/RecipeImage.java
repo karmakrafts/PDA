@@ -6,9 +6,10 @@ package io.karma.pda.foundation.component;
 
 import io.karma.pda.api.app.component.AbstractComponent;
 import io.karma.pda.api.app.component.ComponentType;
-import io.karma.pda.api.color.Color;
 import io.karma.pda.api.state.MutableState;
 import io.karma.pda.api.state.Synchronize;
+import io.karma.peregrine.api.color.Color;
+import io.karma.peregrine.api.color.ColorProvider;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
@@ -21,9 +22,9 @@ public class RecipeImage extends AbstractComponent {
     @Synchronize
     public final MutableState<ResourceLocation> recipe = MutableState.of(new ResourceLocation("bucket"));
     @Synchronize
-    public final MutableState<Color> background = MutableState.of(Color.NONE);
+    public final MutableState<ColorProvider> background = MutableState.of(Color.NONE);
     @Synchronize
-    public final MutableState<Color> foreground = MutableState.of(Color.NONE);
+    public final MutableState<ColorProvider> foreground = MutableState.of(Color.NONE);
 
     public RecipeImage(final ComponentType<?> type, final UUID id) {
         super(type, id);

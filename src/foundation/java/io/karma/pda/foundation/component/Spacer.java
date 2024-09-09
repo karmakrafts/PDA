@@ -6,10 +6,10 @@ package io.karma.pda.foundation.component;
 
 import io.karma.pda.api.app.component.AbstractComponent;
 import io.karma.pda.api.app.component.ComponentType;
-import io.karma.pda.api.color.Color;
-import io.karma.pda.api.color.ColorProvider;
 import io.karma.pda.api.state.MutableState;
 import io.karma.pda.api.state.Synchronize;
+import io.karma.peregrine.api.color.Color;
+import io.karma.peregrine.api.color.ColorProvider;
 
 import java.util.UUID;
 

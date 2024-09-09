@@ -21,31 +21,16 @@ import io.karma.pda.foundation.component.DefaultComponents;
 import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.render.app.DefaultAppRenderer;
 import io.karma.pda.mod.client.render.entity.DockBlockEntityRenderer;
-import io.karma.pda.mod.client.render.model.BakedDockModel;
-import io.karma.pda.mod.client.util.BakedQuadUtils;
 import io.karma.pda.mod.init.ModBlockEntities;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Direction.Axis;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.event.ModelEvent.ModifyBakingResult;
-import net.minecraftforge.client.model.QuadTransformers;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.joml.Vector3f;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Alexander Hinze
@@ -67,34 +52,12 @@ public final class ClientEventHandler {
     private ClientEventHandler() {}
     // @formatter:on
 
-    private static BakedQuad transformDockButtonQuad(final BakedQuad quad, final Direction orientation) {
-        // @formatter:off
-        final var rotation = orientation.getAxis() == Axis.Z
-            ? orientation.getOpposite()
-            : orientation;
-        return QuadTransformers.applyingLightmap(LightTexture.FULL_BRIGHT)
-            .andThen(BakedQuadUtils.applyRotation(rotation))
-            // Stolen from item models to save space, need to offset by 3 pixels up
-            .andThen(BakedQuadUtils.applyTranslation(new Vector3f(0F, 3F / 16F, 0F)))
-            .process(quad);
-        // @formatter:on
-    }
-
-    private static BakedQuad transformDockQuad(final BakedQuad quad, final Direction orientation) {
-        // @formatter:off
-        return QuadTransformers.applyingLightmap(LightTexture.FULL_BRIGHT)
-            .andThen(BakedQuadUtils.applyRotation(orientation))
-            .process(quad);
-        // @formatter:on
-    }
-
     @Internal
     public void setup() {
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         final var forgeBus = MinecraftForge.EVENT_BUS;
         modBus.addListener(this::onRegisterEntityRenderers);
         modBus.addListener(this::onRegisterAdditionalModels);
-        modBus.addListener(this::onModifyBakingResult);
         forgeBus.addListener(this::onRenderTick);
         forgeBus.addListener(this::onClientTick);
     }
@@ -162,41 +125,5 @@ public final class ClientEventHandler {
         event.register(PDA_H);
         event.register(PDA_FULLBRIGHT);
         event.register(DOCK_FULLBRIGHT);
-    }
-
-    // Splice together multipart models after baking
-    private void onModifyBakingResult(final ModifyBakingResult event) {
-        PDAMod.LOGGER.debug("Splicing baked multipart models");
-        final var models = event.getModels();
-        spliceDockModels(models);
-    }
-
-    private void spliceDockModels(final Map<ResourceLocation, BakedModel> models) {
-        final var pdaFullBright = models.get(PDA_FULLBRIGHT);
-        for (final var orientation : Direction.values()) {
-            if (orientation.getAxis().isVertical()) {
-                continue;
-            }
-            final var orientationName = orientation.getName();
-            // @formatter:off
-            // Compute empty models
-            models.compute(new ModelResourceLocation(Constants.MODID,
-                    "dock",
-                    String.format("has_item=false,orientation=%s", orientationName)),
-                (k, model) -> new BakedDockModel(List.of(
-                    Pair.of(model, q -> q),
-                    Pair.of(models.get(DOCK_FULLBRIGHT), q -> BakedQuadUtils.applyRotation(orientation).process(q))
-                )));
-            // Compute populated models
-            models.compute(new ModelResourceLocation(Constants.MODID,
-                    "dock",
-                    String.format("has_item=true,orientation=%s", orientationName)),
-                (k, model) -> new BakedDockModel(List.of(
-                    Pair.of(model, q -> q),
-                    Pair.of(pdaFullBright, q -> transformDockButtonQuad(q, orientation)),
-                    Pair.of(models.get(DOCK_FULLBRIGHT), q -> transformDockQuad(q, orientation))
-                )));
-            // @formatter:on
-        }
     }
 }

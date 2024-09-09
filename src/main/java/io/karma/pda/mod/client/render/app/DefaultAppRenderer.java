@@ -7,14 +7,13 @@ package io.karma.pda.mod.client.render.app;
 import io.karma.pda.api.app.App;
 import io.karma.pda.api.app.component.ComponentType;
 import io.karma.pda.api.app.component.Container;
-import io.karma.pda.api.app.theme.font.DefaultFontFamilies;
-import io.karma.pda.api.app.theme.font.FontStyle;
+import io.karma.pda.api.app.theme.DefaultFontFamilies;
 import io.karma.pda.api.client.render.app.AppRenderer;
 import io.karma.pda.api.client.render.component.ComponentRenderers;
 import io.karma.pda.api.client.render.graphics.Graphics;
-import io.karma.pda.api.color.Color;
 import io.karma.pda.api.flex.FlexValue;
 import io.karma.pda.mod.client.flex.ClientFlexNodeHandler;
+import io.karma.peregrine.api.color.Color;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -33,7 +32,7 @@ public final class DefaultAppRenderer<A extends App> implements AppRenderer<A> {
         if (!app.isInitialized()) {
             try (final var state = graphics.pushState()) {
                 final var brushFactory = context.getBrushFactory();
-                state.setFont(DefaultFontFamilies.FIXEDSYS.getFont(FontStyle.REGULAR, 16F));
+                state.setFont(DefaultFontFamilies.FIXEDSYS.getDefaultFont());
                 state.setBrush(brushFactory.create(Color.BLACK));
                 graphics.fillRect(0, 0, width, height);
                 state.setBrush(brushFactory.create(Color.WHITE));

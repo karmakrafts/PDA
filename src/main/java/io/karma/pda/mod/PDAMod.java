@@ -5,14 +5,11 @@
 package io.karma.pda.mod;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mojang.blaze3d.systems.RenderSystem;
 import io.karma.pda.api.API;
 import io.karma.pda.api.app.AppType;
 import io.karma.pda.api.app.component.ComponentType;
 import io.karma.pda.api.app.theme.Theme;
-import io.karma.pda.api.app.theme.font.FontFamily;
 import io.karma.pda.api.client.ClientAPI;
-import io.karma.pda.api.color.GradientFunction;
 import io.karma.pda.api.display.DisplayModeSpec;
 import io.karma.pda.api.state.StateReflector;
 import io.karma.pda.api.util.Constants;
@@ -24,19 +21,17 @@ import io.karma.pda.mod.client.interaction.DockInteractionHandler;
 import io.karma.pda.mod.client.interaction.PDAInteractionHandler;
 import io.karma.pda.mod.client.render.display.DefaultDisplayRenderer;
 import io.karma.pda.mod.client.render.graphics.GraphicsRenderTypes;
-import io.karma.pda.mod.client.render.graphics.font.DefaultFontRenderer;
 import io.karma.pda.mod.client.render.item.DockItemRenderer;
 import io.karma.pda.mod.client.render.item.PDAItemRenderer;
-import io.karma.pda.mod.client.render.shader.DefaultShaderHandler;
 import io.karma.pda.mod.client.session.ClientSessionHandler;
-import io.karma.pda.mod.dispose.DefaultDispositionHandler;
 import io.karma.pda.mod.init.*;
 import io.karma.pda.mod.json.JSONCodecs;
 import io.karma.pda.mod.network.ClientPacketHandler;
 import io.karma.pda.mod.network.CommonPacketHandler;
-import io.karma.pda.mod.reload.DefaultReloadHandler;
 import io.karma.pda.mod.session.DefaultSessionHandler;
 import io.karma.pda.mod.util.TabItemProvider;
+import io.karma.peregrine.api.Peregrine;
+import io.karma.peregrine.api.font.FontFamily;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -57,7 +52,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 import net.minecraftforge.registries.DeferredRegister;
@@ -79,21 +73,6 @@ import java.util.concurrent.TimeUnit;
 public class PDAMod {
     public static final Logger LOGGER = LogManager.getLogger();
     public static final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
-
-    public static final DefaultDispositionHandler DISPOSITION_HANDLER = new DefaultDispositionHandler(disposable -> DistExecutor.unsafeRunForDist(
-        () -> () -> {
-            // Make sure client-side resources always get disposed on the main thread to allow GL calls
-            RenderSystem.recordRenderCall(() -> {
-                LOGGER.info("Disposing resource {}", disposable);
-                disposable.dispose();
-            });
-            return null;
-        },
-        () -> () -> {
-            LOGGER.info("Disposing resource {}", disposable);
-            disposable.dispose();
-            return null;
-        }));
 
     // @formatter:off
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(Constants.MODID, "play"),
@@ -136,34 +115,14 @@ public class PDAMod {
     public static final DeferredRegister<ComponentType<?>> COMPONENTS = API.makeDeferredComponentTypeRegister(Constants.MODID);
     public static final DeferredRegister<AppType<?>> APPS = API.makeDeferredAppTypeRegister(Constants.MODID);
     public static final DeferredRegister<Theme> THEMES = API.makeThemeRegister(Constants.MODID);
-    public static final DeferredRegister<FontFamily> FONT_FAMILIES = API.makeFontFamilyRegister(Constants.MODID);
-    public static final DeferredRegister<GradientFunction> GRADIENT_FUNCTIONS = API.makeGradientFunctionRegister(Constants.MODID);
     public static final DeferredRegister<DisplayModeSpec> DISPLAY_MODES = API.makeDisplayModeRegister(Constants.MODID);
+
+    public static final DeferredRegister<FontFamily> FONT_FAMILIES = Peregrine.createFontFamilyRegister(Constants.MODID);
     // @formatter:on
 
     public static final ServiceLoader<StateReflector> STATE_REFLECTORS = ServiceLoader.load(StateReflector.class);
-    private static boolean isDevEnvironment;
-    private static final boolean isOculusInstalled;
-    private static final boolean isEmbeddiumInstalled;
 
     static {
-        try {
-            Class.forName("net.minecraft.world.level.Level");
-            isDevEnvironment = true;
-            LOGGER.info("Detected development environment, enabling debug mode");
-        }
-        catch (Throwable error) { /* IGNORE */ }
-
-        isOculusInstalled = FMLLoader.getLoadingModList().getModFileById("oculus") != null;
-        if (isOculusInstalled) {
-            LOGGER.info("Detected Oculus, enabling compatibility");
-        }
-
-        isEmbeddiumInstalled = FMLLoader.getLoadingModList().getModFileById("embeddium") != null;
-        if (isEmbeddiumInstalled) {
-            LOGGER.info("Detected Embeddium, enabling compatibility");
-        }
-
         ModBlockEntities.register();
         ModBlocks.register();
         ModItems.register();
@@ -172,7 +131,6 @@ public class PDAMod {
         ModApps.register();
         ModThemes.register();
         ModFontFamilies.register();
-        ModGradientFunctions.register();
         ModDisplayModes.register();
     }
 
@@ -180,7 +138,6 @@ public class PDAMod {
         CommonEventHandler.INSTANCE.setup();
         CommandHandler.INSTANCE.setup();
         DefaultSessionHandler.INSTANCE.setup();
-        DefaultReloadHandler.INSTANCE.setup();
 
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(this::onCommonSetup);
@@ -194,7 +151,6 @@ public class PDAMod {
         APPS.register(modBus);
         THEMES.register(modBus);
         FONT_FAMILIES.register(modBus);
-        GRADIENT_FUNCTIONS.register(modBus);
         DISPLAY_MODES.register(modBus);
 
         MinecraftForge.EVENT_BUS.addListener(this::onGameShutdown);
@@ -207,20 +163,7 @@ public class PDAMod {
         });
     }
 
-    public static boolean isDevEnvironment() {
-        return isDevEnvironment;
-    }
-
-    public static boolean isOculusInstalled() {
-        return isOculusInstalled;
-    }
-
-    public static boolean isEmbeddiumInstalled() {
-        return isEmbeddiumInstalled;
-    }
-
     private void onGameShutdown(final GameShuttingDownEvent event) {
-        DISPOSITION_HANDLER.disposeAll();
         try {
             EXECUTOR_SERVICE.shutdown();
             if (EXECUTOR_SERVICE.awaitTermination(5, TimeUnit.SECONDS)) {
@@ -251,9 +194,7 @@ public class PDAMod {
         API.setAppTypeRegistry(() -> RegistryUtils.getRegistry(Constants.APP_REGISTRY_NAME));
         API.setThemeRegistry(() -> RegistryUtils.getRegistry(Constants.THEME_REGISTRY_NAME));
         API.setFontFamilyRegistry(() -> RegistryUtils.getRegistry(Constants.FONT_FAMILY_REGISTRY_NAME));
-        API.setGradientFunctionRegistry(() -> RegistryUtils.getRegistry(Constants.GRADIENT_FUNCTION_REGISTRY_NAME));
         API.setDisplayModeRegistry(() -> RegistryUtils.getRegistry(Constants.DISPLAY_MODE_REGISTRY_NAME));
-        API.setReloadHandler(DefaultReloadHandler.INSTANCE);
         API.init();
     }
 
@@ -264,7 +205,6 @@ public class PDAMod {
         PDAInteractionHandler.INSTANCE.setup();
         PDAItemRenderer.INSTANCE.setup();
         DockItemRenderer.INSTANCE.setup();
-        DefaultShaderHandler.INSTANCE.setup();
 
         initClientAPI();
     }
@@ -275,7 +215,6 @@ public class PDAMod {
         ClientAPI.setSessionHandler(ClientSessionHandler.INSTANCE);
         ClientAPI.setFlexNodeHandler(ClientFlexNodeHandler.INSTANCE);
         ClientAPI.setDisplayRenderer(DefaultDisplayRenderer.INSTANCE);
-        ClientAPI.setShaderHandler(DefaultShaderHandler.INSTANCE);
         ClientAPI.init();
     }
 
@@ -285,7 +224,6 @@ public class PDAMod {
             LOGGER.info("Starting client setup");
             GraphicsRenderTypes.createShaders();
             ComponentRenderTypes.createShaders();
-            DefaultFontRenderer.createShaders();
             ModScreens.register();
         });
     }

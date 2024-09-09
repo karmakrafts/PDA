@@ -9,11 +9,12 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import io.karma.pda.api.client.render.display.DisplayBlitter;
 import io.karma.pda.api.client.render.display.DisplayMode;
-import io.karma.pda.api.client.render.shader.ShaderType;
-import io.karma.pda.api.client.render.shader.uniform.DefaultUniformType;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.api.util.FloatSupplier;
-import io.karma.pda.mod.client.render.shader.DefaultShaderHandler;
+import io.karma.peregrine.api.framebuffer.AttachmentType;
+import io.karma.peregrine.api.shader.ShaderProgram;
+import io.karma.peregrine.api.shader.ShaderType;
+import io.karma.peregrine.api.uniform.ScalarType;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
@@ -21,6 +22,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
+
+import java.util.Objects;
 
 /**
  * @author Alexander Hinze
@@ -47,16 +50,16 @@ public final class DefaultDisplayBlitter implements DisplayBlitter {
             DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.TRIANGLES, 6, false, false,
             RenderType.CompositeState.builder()
                 .setCullState(RenderStateShard.NO_CULL)
-                .setShaderState(DefaultShaderHandler.INSTANCE.create(builder -> builder
+                .setShaderState(ShaderProgram.create(it -> it
                     .format(DefaultVertexFormat.NEW_ENTITY)
-                    .shader(object -> object
+                    .stage(it2 -> it2
                         .type(ShaderType.VERTEX)
                         .location(Constants.MODID, "shaders/display_blit.vert.glsl")
-                        .defaultPreProcessor())
-                    .shader(object -> object
+                    )
+                    .stage(it2 -> it2
                         .type(ShaderType.FRAGMENT)
                         .location(Constants.MODID, "shaders/display_blit.frag.glsl")
-                        .defaultPreProcessor())
+                    )
                     .define("DISPLAY_TYPE", mode.getSpec().type().getIndex())
                     .constant("DISPLAY_WIDTH", mode.getResolution().getWidth())
                     .constant("DISPLAY_HEIGHT", mode.getResolution().getHeight())
@@ -65,13 +68,14 @@ public final class DefaultDisplayBlitter implements DisplayBlitter {
                     .constant("GLITCH_BLOCKS", mode.getSpec().type().getGlitchBlocks())
                     .constant("PIXEL_FACTOR", mode.getSpec().type().getPixelationFactor())
                     .globalUniforms()
-                    .uniform("GlitchFactor", DefaultUniformType.FLOAT)
-                    .sampler("Sampler0", mode.getFramebuffer()::getColorTexture)
+                    .uniform("GlitchFactor", ScalarType.FLOAT)
+                    .sampler("Sampler0", Objects.requireNonNull(mode.getFramebuffer().getAttachment(AttachmentType.COLOR)).getTexture())
                     .sampler("Sampler1", PIXEL_TEXTURE) // Pixel filter texture
                     .onBind(program -> {
-                        program.getUniformCache().getFloat("GlitchFactor").setFloat(glitchFactorSupplier.get());
-                    })).asStateShard())
-                .createCompositeState(false));
+                        program.getUniforms().getFloat("GlitchFactor").setFloat(glitchFactorSupplier.get());
+                    })).asStateShard()
+                ).createCompositeState(false)
+        );
         // @formatter:on
     }
 

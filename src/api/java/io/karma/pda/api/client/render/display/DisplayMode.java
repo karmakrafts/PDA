@@ -6,6 +6,7 @@ package io.karma.pda.api.client.render.display;
 
 import io.karma.pda.api.display.DisplayModeSpec;
 import io.karma.pda.api.display.DisplayResolution;
+import io.karma.peregrine.api.framebuffer.Framebuffer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

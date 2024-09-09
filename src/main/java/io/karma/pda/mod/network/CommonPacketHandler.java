@@ -86,9 +86,9 @@ public class CommonPacketHandler {
     private void onCreateSession(final SPacketCreateSession packet, final NetworkEvent.Context context) {
         final var player = Objects.requireNonNull(context.getSender());
         final var type = packet.getType();
-        final var session = DefaultSessionHandler.INSTANCE.createSession(type.isHandheld() ? new HandheldSessionContext(
-            player,
-            packet.getHand()) : new DockedSessionContext(player, packet.getPos())).join();
+        final var sessionContext = type.isHandheld() ? new HandheldSessionContext(player,
+            packet.getHand()) : new DockedSessionContext(player, packet.getPos());
+        final var session = DefaultSessionHandler.INSTANCE.createSession(sessionContext).join();
         final var requestId = packet.getRequestId();
         final var sessionId = session.getId();
 

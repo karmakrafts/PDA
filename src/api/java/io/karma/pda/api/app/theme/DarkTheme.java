@@ -5,7 +5,7 @@
 package io.karma.pda.api.app.theme;
 
 import io.karma.material.scheme.SchemeVibrant;
-import io.karma.pda.api.color.Color;
+import io.karma.peregrine.api.color.Color;
 import net.minecraft.resources.ResourceLocation;
 
 /**

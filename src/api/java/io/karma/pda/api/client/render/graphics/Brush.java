@@ -5,7 +5,7 @@
 package io.karma.pda.api.client.render.graphics;
 
 import io.karma.pda.api.client.render.display.DisplayMode;
-import io.karma.pda.api.color.ColorProvider;
+import io.karma.peregrine.api.color.ColorProvider;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;

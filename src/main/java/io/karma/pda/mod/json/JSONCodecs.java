@@ -7,7 +7,6 @@ package io.karma.pda.mod.json;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.karma.pda.api.API;
 import io.karma.pda.api.app.theme.Theme;
-import io.karma.pda.api.color.GradientFunction;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.mod.PDAMod;
 import net.minecraft.resources.ResourceLocation;
@@ -32,7 +31,8 @@ public final class JSONCodecs {
         PDAMod.LOGGER.debug("Registering JSON codecs");
         final var module = new SimpleModule(Constants.MODID);
 
-        module.addSerializer(new RegistrySerializer<>(GradientFunction.class, API::getGradientFunctionRegistry));
+        // TODO: fix this
+        //module.addSerializer(new RegistrySerializer<>(GradientFunction.class, API::getGradientFunctionRegistry));
         module.addSerializer(new RegistrySerializer<>(Theme.class, API::getThemeRegistry));
         module.addSerializer(new RegistrySerializer<>(Item.class, () -> ForgeRegistries.ITEMS));
         module.addSerializer(new RegistrySerializer<>(Block.class, () -> ForgeRegistries.BLOCKS));
@@ -41,8 +41,9 @@ public final class JSONCodecs {
         module.addSerializer(new ResourceLocationSerializer());
         module.addSerializer(new ItemStackSerializer());
 
-        module.addDeserializer(GradientFunction.class,
-            new RegistryDeserializer<>(GradientFunction.class, API::getGradientFunctionRegistry));
+        // TODO: fix this
+        //module.addDeserializer(GradientFunction.class,
+        //    new RegistryDeserializer<>(GradientFunction.class, API::getGradientFunctionRegistry));
         module.addDeserializer(Theme.class, new RegistryDeserializer<>(Theme.class, API::getThemeRegistry));
         module.addDeserializer(Item.class, new RegistryDeserializer<>(Item.class, () -> ForgeRegistries.ITEMS));
         module.addDeserializer(Block.class, new RegistryDeserializer<>(Block.class, () -> ForgeRegistries.BLOCKS));

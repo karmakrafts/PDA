@@ -6,7 +6,6 @@ package io.karma.pda.mod;
 
 import io.karma.pda.api.app.component.Component;
 import io.karma.pda.api.app.component.Container;
-import io.karma.pda.api.app.theme.font.FontFamily;
 import io.karma.pda.api.display.DisplayModeSpec;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.mod.client.render.display.DefaultDisplayRenderer;
@@ -160,7 +159,6 @@ public final class CommonEventHandler {
         event.create(RegistryBuilder.of(Constants.COMPONENT_REGISTRY_NAME));
         event.create(RegistryBuilder.of(Constants.APP_REGISTRY_NAME));
         event.create(RegistryBuilder.of(Constants.THEME_REGISTRY_NAME));
-        event.create(RegistryBuilder.<FontFamily>of(Constants.FONT_FAMILY_REGISTRY_NAME));
         event.create(RegistryBuilder.of(Constants.GRADIENT_FUNCTION_REGISTRY_NAME));
         event.create(RegistryBuilder.<DisplayModeSpec>of(Constants.DISPLAY_MODE_REGISTRY_NAME).onAdd(this::onAddDisplayMode));
     }

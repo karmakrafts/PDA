@@ -5,7 +5,7 @@
 package io.karma.pda.api.client.render.graphics;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import io.karma.pda.api.color.ColorProvider;
+import io.karma.peregrine.api.color.ColorProvider;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 

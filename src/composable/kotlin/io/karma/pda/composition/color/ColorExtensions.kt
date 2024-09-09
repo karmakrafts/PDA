@@ -7,9 +7,9 @@
 
 package io.karma.pda.composition.color
 
-import io.karma.pda.api.color.Color
-import io.karma.pda.api.color.Gradient
-import io.karma.pda.api.color.GradientFunction
+import io.karma.peregrine.api.color.Color
+import io.karma.peregrine.api.color.Gradient
+import io.karma.peregrine.api.color.GradientSampler
 
 /**
  * @author Alexander Hinze
@@ -32,8 +32,8 @@ inline val UInt.argb: Color
 
 typealias ColorRange = Pair<Color, Color>
 
-fun ColorRange.gradient(function: GradientFunction): Gradient =
-    Gradient(first, second, function)
+fun ColorRange.gradient(sampler: GradientSampler): Gradient =
+    Gradient(first, second, sampler)
 
 operator fun Color.rangeTo(other: Color): ColorRange =
     ColorRange(this, other)

@@ -6,11 +6,11 @@ package io.karma.pda.mod.client.render.item;
 
 import io.karma.pda.mod.CommonEventHandler;
 import io.karma.pda.mod.client.ClientEventHandler;
-import io.karma.pda.mod.client.event.ItemRenderEvent;
 import io.karma.pda.mod.client.interaction.PDAInteractionHandler;
 import io.karma.pda.mod.client.render.display.DefaultDisplayRenderer;
 import io.karma.pda.mod.client.session.ClientSessionHandler;
 import io.karma.pda.mod.init.ModItems;
+import io.karma.peregrine.api.event.ItemRenderEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;

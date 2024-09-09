@@ -11,11 +11,9 @@ import java.nio.file.StandardOpenOption
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.*
-import kotlin.io.path.Path
 import kotlin.io.path.div
 import kotlin.io.path.inputStream
 import kotlin.io.path.pathString
-import org.gradle.internal.os.OperatingSystem;
 
 plugins {
     eclipse
@@ -60,23 +58,15 @@ sourceSets.main {
 }
 val mainSourceSet by sourceSets.main
 
-val apiSourceSet = sourceSets.create("api") {
-    java.srcDirs(projectPath / "src" / "api", projectPath / "src" / "api")
+fun SourceSetContainer.createDefault(name: String): SourceSet = create(name) {
+    java.srcDirs(projectPath / "src" / name, projectPath / "src" / name)
     kotlin.srcDirs(java.srcDirs)
-    resources.srcDirs(projectPath / "src" / "api" / "resources")
+    resources.srcDirs(projectPath / "src" / name / "resources")
 }
 
-val foundationSourceSet = sourceSets.create("foundation") {
-    java.srcDirs(projectPath / "src" / "foundation", projectPath / "src" / "foundation")
-    kotlin.srcDirs(java.srcDirs)
-    resources.srcDirs(projectPath / "src" / "foundation" / "resources")
-}
-
-val composableSourceSet = sourceSets.create("composable") {
-    java.srcDirs(projectPath / "src" / "composable", projectPath / "src" / "composable")
-    kotlin.srcDirs(java.srcDirs)
-    resources.srcDirs(projectPath / "src" / "composable" / "resources")
-}
+val apiSourceSet = sourceSets.createDefault("api")
+val foundationSourceSet = sourceSets.createDefault("foundation")
+val composableSourceSet = sourceSets.createDefault("composable")
 
 // Configs
 val coreLibraryConfig = configurations.create("coreLibrary")
@@ -101,6 +91,7 @@ configurations {
     }
 }
 
+val apiCompileOnlyConfig = configurations.getByName("apiCompileOnly")
 val foundationCompileOnlyConfig = configurations.getByName("foundationCompileOnly") {
     extendsFrom(coreLibraryConfig, minecraftConfig)
 }
@@ -115,7 +106,7 @@ repositories {
     maven("https://thedarkcolour.github.io/KotlinForForge")
     maven("https://maven.blamejared.com")
     maven("https://git.karmakrafts.dev/api/v4/projects/267/packages/maven") // Material Color Utils
-    maven("https://git.karmakrafts.dev/api/v4/projects/286/packages/maven") // RenderDoc Injector
+    maven("https://git.karmakrafts.dev/api/v4/projects/293/packages/maven") // Peregrine
     maven("https://cursemaven.com")
 }
 
@@ -132,6 +123,11 @@ dependencies {
     minecraft(libs.minecraftForge)
 
     implementation(libs.kotlinForForge)
+    runtimeOnly(variantOf(libs.peregrine) { classifier("slim") })
+    compileOnly(variantOf(libs.peregrine) { classifier("api") })
+    compileOnly(variantOf(libs.peregrine) { classifier("api-sources") })
+    compileOnly(variantOf(libs.peregrine) { classifier("api-javadoc") })
+
     //implementation(fg.deobf(libs.embeddium.get().toString()))
     //implementation(fg.deobf(libs.oculus.get().toString()))
 
@@ -142,15 +138,16 @@ dependencies {
     coreLibraryConfig(libs.materialColorUtils)
     coreLibraryConfig(libs.lz4j)
 
-    localLwjglModule("freetype")
-    localLwjglModule("msdfgen")
     localLwjglModule("yoga")
 
+    apiCompileOnlyConfig(variantOf(libs.peregrine) { classifier("api") })
     implementation(apiSourceSet.output)
 
+    foundationCompileOnlyConfig(variantOf(libs.peregrine) { classifier("api") })
     foundationCompileOnlyConfig(apiSourceSet.output)
     implementation(foundationSourceSet.output)
 
+    composableCompileOnlyConfig(variantOf(libs.peregrine) { classifier("api") })
     composableCompileOnlyConfig(apiSourceSet.output)
     composableCompileOnlyConfig(foundationSourceSet.output)
     composableCompileOnlyConfig(libs.kotlinForForge)
@@ -165,10 +162,7 @@ dependencies {
 }
 
 minecraft {
-    mappings(
-        buildConfig["mappings_channel"] as String,
-        "${libs.versions.mappings.get()}-$mcVersion"
-    )
+    mappings(buildConfig["mappings_channel"] as String, "${libs.versions.mappings.get()}-$mcVersion")
     accessTransformer(projectPath / "src" / "main" / "resources" / "META-INF" / "accesstransformer.cfg")
     copyIdeResources = true
     runs {
@@ -189,26 +183,17 @@ minecraft {
         }
         configureEach {
             workingDirectory(project.file("run"))
-            properties(
-                mapOf(
-                    "forge.logging.markers" to "LOADING,CORE",
-                    "forge.logging.console.level" to "debug",
-                    "mixin.debug" to "true",
-                    "mixin.debug.dumpTargetOnFailure" to "true",
-                    "mixin.debug.verbose" to "true",
-                    "mixin.env.remapRefFile" to "true",
-                    "mixin.env.refMapRemappingFile" to (projectPath / "build" / "createSrgToMcp" / "output.srg").pathString
-                )
-            )
+            properties(mapOf("forge.logging.markers" to "LOADING,CORE",
+                "forge.logging.console.level" to "debug",
+                "mixin.debug" to "true",
+                "mixin.debug.dumpTargetOnFailure" to "true",
+                "mixin.debug.verbose" to "true",
+                "mixin.env.remapRefFile" to "true",
+                "mixin.env.refMapRemappingFile" to (projectPath / "build" / "createSrgToMcp" / "output.srg").pathString))
             jvmArgs("-Xms512M", "-Xmx4096M")
             mods {
                 create(modId) {
-                    sources(
-                        mainSourceSet,
-                        apiSourceSet,
-                        foundationSourceSet,
-                        composableSourceSet
-                    )
+                    sources(mainSourceSet, apiSourceSet, foundationSourceSet, composableSourceSet)
                 }
             }
             lazyToken("minecraft_classpath") {
@@ -220,13 +205,12 @@ minecraft {
 
 mixin {
     add(mainSourceSet, "mixins.$modId.refmap.json")
-    config("mixins.$modId.client.json")
     config("mixins.$modId.common.json")
 }
 
 fun Manifest.applyCommonManifest() {
     attributes.apply {
-        this["MixinConfigs"] = "mixins.$modId.client.json,mixins.$modId.common.json"
+        this["MixinConfigs"] = "mixins.$modId.common.json"
         this["Specification-Title"] = modId
         this["Specification-Vendor"] = "Karma Krafts"
         this["Specification-Version"] = version
@@ -245,8 +229,7 @@ tasks {
     processResources {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
         val forgeVersion = libs.versions.forge.get()
-        val properties = mapOf(
-            "minecraft_version" to mcVersion,
+        val properties = mapOf("minecraft_version" to mcVersion,
             "minecraft_version_range" to "[$mcVersion]",
             "forge_version" to forgeVersion,
             "forge_version_range" to "[$forgeVersion,)",
@@ -256,8 +239,7 @@ tasks {
             "mod_license" to license,
             "mod_version" to version,
             "mod_authors" to "Karma Krafts",
-            "mod_description" to "Working pocket computers for Minecraft."
-        )
+            "mod_description" to "Working pocket computers for Minecraft.")
         inputs.properties(properties)
         filesMatching(listOf("META-INF/mods.toml", "pack.mcmeta")) {
             expand(properties)
@@ -280,12 +262,7 @@ val dokkaHtmlTask = tasks.getByName<DokkaTask>("dokkaHtml")
 val classesTask = tasks.getByName("classes")
 
 val jarTask = tasks.getByName<Jar>("jar") {
-    from(
-        mainSourceSet.output,
-        apiSourceSet.output,
-        foundationSourceSet.output,
-        composableSourceSet.output
-    )
+    from(mainSourceSet.output, apiSourceSet.output, foundationSourceSet.output, composableSourceSet.output)
     archiveClassifier = "slim"
     manifest.applyCommonManifest()
     finalizedBy("reobfJar") // Lazy forward dependency
@@ -308,32 +285,20 @@ fun DependencyFilter.includeLocalLwjglModule(name: String) {
 }
 
 val shadowJarTask = tasks.getByName<ShadowJar>("shadowJar") {
-    from(
-        mainSourceSet.output,
-        apiSourceSet.output,
-        foundationSourceSet.output,
-        composableSourceSet.output
-    )
+    from(mainSourceSet.output, apiSourceSet.output, foundationSourceSet.output, composableSourceSet.output)
     archiveClassifier = ""
     manifest.applyCommonManifest()
     mergeServiceFiles()
     finalizedBy("reobfShadowJar") // Lazy forward dependency
     dependencies {
         includeCoreLibs()
-        includeLocalLwjglModule("freetype")
-        includeLocalLwjglModule("msdfgen")
         includeLocalLwjglModule("yoga")
     }
 }
 val reobfShadowJarTask = reobf.create("shadowJar")
 
 val sourcesJarTask = tasks.create<Jar>("sourcesJar") {
-    from(
-        mainSourceSet.allSource,
-        apiSourceSet.allSource,
-        foundationSourceSet.allSource,
-        composableSourceSet.allSource
-    )
+    from(mainSourceSet.allSource, apiSourceSet.allSource, foundationSourceSet.allSource, composableSourceSet.allSource)
     dependsOn(classesTask)
     archiveClassifier = "sources"
 }
@@ -390,7 +355,10 @@ tasks {
         publishing {
             repositories {
                 maven {
-                    url = uri("${apiUrl.replace("http://", "https://")}/projects/264/packages/maven")
+                    url = uri("${
+                        apiUrl.replace("http://",
+                            "https://")
+                    }/projects/${System.getenv("CI_PROJECT_ID")}/packages/maven")
                     name = "GitLab"
                     credentials(HttpHeaderCredentials::class) {
                         name = "Job-Token"

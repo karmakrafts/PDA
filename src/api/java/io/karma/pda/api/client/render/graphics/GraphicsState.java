@@ -4,7 +4,7 @@
 
 package io.karma.pda.api.client.render.graphics;
 
-import io.karma.pda.api.app.theme.font.Font;
+import io.karma.peregrine.api.font.Font;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 

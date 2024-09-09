@@ -35,9 +35,6 @@ public final class DockBlockEntityRenderer implements BlockEntityRenderer<DockBl
                        final @NotNull MultiBufferSource bufferSource,
                        final int packedLight,
                        final int packedOverlay) {
-        if (entity.getItem(0).isEmpty()) {
-            return;
-        }
         final var world = entity.getLevel();
         if (world == null) {
             return;
@@ -47,15 +44,18 @@ public final class DockBlockEntityRenderer implements BlockEntityRenderer<DockBl
             return;
         }
         final var stack = entity.getItem(0);
+        if (stack.isEmpty()) {
+            return;
+        }
         final var direction = state.getValue(DockBlock.ORIENTATION).getDirection();
         // @formatter:off
-        final var angle = direction.getAxis() == Direction.Axis.Z
+        final var displayAngle = direction.getAxis() == Direction.Axis.Z
             ? direction.toYRot() + 180F
             : direction.toYRot();
         // @formatter:on
         poseStack.pushPose();
         poseStack.translate(0.5F, 0.5F, 0.5F); // Make sure we rotate at center
-        poseStack.mulPose(TransformationHelper.quatFromXYZ(0F, angle, 0F, true));
+        poseStack.mulPose(TransformationHelper.quatFromXYZ(0F, displayAngle, 0F, true));
         poseStack.translate(-0.5F, -0.5F, -0.5F);
         poseStack.translate(0F, 3F / 16F, 0F);
         DefaultDisplayRenderer.INSTANCE.renderDisplay(stack, bufferSource, poseStack, packedLight, packedOverlay);

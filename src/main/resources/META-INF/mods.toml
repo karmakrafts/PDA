@@ -33,6 +33,13 @@ ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.${ mod_id }]]
+modId = "peregrine"
+mandatory = false
+versionRange = "[1.0.2.13,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.${ mod_id }]]
 modId = "embeddium"
 mandatory = false
 versionRange = "[0.3.30-beta.48+mc1.20.1,)"

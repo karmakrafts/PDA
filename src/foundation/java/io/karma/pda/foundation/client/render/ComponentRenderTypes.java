@@ -5,14 +5,15 @@
 package io.karma.pda.foundation.client.render;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import io.karma.pda.api.client.ClientAPI;
+import com.mojang.blaze3d.vertex.VertexFormat.Mode;
 import io.karma.pda.api.client.render.display.DisplayMode;
-import io.karma.pda.api.client.render.shader.ShaderProgram;
-import io.karma.pda.api.client.render.shader.ShaderType;
 import io.karma.pda.api.util.Constants;
+import io.karma.peregrine.api.Peregrine;
+import io.karma.peregrine.api.shader.ShaderProgram;
+import io.karma.peregrine.api.shader.ShaderType;
+import io.karma.peregrine.api.state.Layering;
+import io.karma.peregrine.api.state.Transparency;
 import net.minecraft.Util;
-import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -29,17 +30,17 @@ import java.util.function.Function;
 public final class ComponentRenderTypes {
     // @formatter:off
     private static ShaderProgram spinnerShader;
-    public static final Function<DisplayMode, RenderType> SPINNER = Util.memoize(displayMode ->
-        RenderType.create(String.format("pda_display_spinner__%s", displayMode),
-            DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
-            RenderType.CompositeState.builder()
-                .setCullState(RenderStateShard.NO_CULL)
-                .setShaderState(spinnerShader.asStateShard())
-                .setOutputState(displayMode.getOutputState())
-                .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-                .setLayeringState(RenderStateShard.POLYGON_OFFSET_LAYERING)
-                .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
-                .createCompositeState(false)));
+
+    public static final Function<DisplayMode, RenderType> SPINNER = Util.memoize(mode -> Peregrine.createRenderType(it -> it
+        .name(String.format("%s:spinner", Constants.MODID))
+        .vertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR)
+        .mode(Mode.TRIANGLES)
+        .culling(false)
+        .blendMode(Transparency.TRANSPARENCY)
+        .layering(Layering.POLYGON_OFFSET)
+        .target(mode.getFramebuffer())
+        .shader(spinnerShader)
+    ));
     // @formatter:on
 
     private ComponentRenderTypes() {
@@ -48,16 +49,14 @@ public final class ComponentRenderTypes {
     @Internal
     public static void createShaders() {
         // @formatter:off
-        spinnerShader = ClientAPI.getShaderHandler().create(builder -> builder
-            .shader(object -> object
+        spinnerShader = ShaderProgram.create(builder -> builder
+            .stage(object -> object
                 .type(ShaderType.VERTEX)
                 .location(Constants.MODID, "shaders/spinner.vert.glsl")
-                .defaultPreProcessor()
             )
-            .shader(object -> object
+            .stage(object -> object
                 .type(ShaderType.FRAGMENT)
                 .location(Constants.MODID, "shaders/spinner.frag.glsl")
-                .defaultPreProcessor()
             )
             .globalUniforms()
         );

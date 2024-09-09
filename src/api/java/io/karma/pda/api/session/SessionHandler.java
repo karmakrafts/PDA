@@ -4,8 +4,10 @@
 
 package io.karma.pda.api.session;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -30,6 +32,9 @@ public interface SessionHandler {
 
     @Nullable
     Session findByDevice(final ItemStack stack);
+
+    @Nullable
+    Session findByPosition(final Level level, final BlockPos pos);
 
     List<Session> findByPlayer(final Player player);
 

@@ -18,9 +18,12 @@ import io.karma.pda.mod.PDAMod;
 import io.karma.pda.mod.client.render.graphics.DefaultBrushFactory;
 import io.karma.pda.mod.client.render.graphics.DefaultGraphics;
 import io.karma.pda.mod.client.render.graphics.DefaultGraphicsContext;
-import io.karma.pda.mod.client.render.graphics.font.DefaultFontRenderer;
 import io.karma.pda.mod.client.session.ClientSessionHandler;
 import io.karma.pda.mod.item.PDAItem;
+import io.karma.peregrine.api.font.FontRenderer;
+import io.karma.peregrine.api.framebuffer.AttachmentType;
+import io.karma.peregrine.api.framebuffer.Framebuffer;
+import io.karma.peregrine.api.texture.DefaultTextureFormat;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.item.ItemStack;
@@ -39,22 +42,18 @@ import java.util.Optional;
 public final class DefaultDisplayRenderer implements DisplayRenderer {
     public static final DefaultDisplayRenderer INSTANCE = new DefaultDisplayRenderer();
 
-    private final BufferBuilder blitBuffer = new BufferBuilder(128);
-    private final HashMap<RenderType, BufferBuilder> blitBuilders = new HashMap<>();
-    private final MultiBufferSource.BufferSource blitBufferSource = MultiBufferSource.immediateWithBuffers(blitBuilders,
-        blitBuffer);
     private final HashMap<RenderType, BufferBuilder> displayBuilders = new HashMap<>();
     private final BufferBuilder displayBuilder = new BufferBuilder(100000);
     private final MultiBufferSource.BufferSource displayBufferSource = MultiBufferSource.immediateWithBuffers(
         displayBuilders,
         displayBuilder);
     private final PoseStack displayPoseStack = new PoseStack();
-    private final HashMap<DisplayResolution, DefaultFramebuffer> framebuffers = new HashMap<>();
+    private final HashMap<DisplayResolution, Framebuffer> framebuffers = new HashMap<>();
     private final HashMap<DisplayModeSpec, DefaultDisplayMode> displayModes = new HashMap<>();
     private final DefaultGraphicsContext graphicsContext = new DefaultGraphicsContext();
     private final DefaultGraphics graphics = new DefaultGraphics();
     private final DefaultBrushFactory brushFactory = new DefaultBrushFactory(graphicsContext);
-    private final DefaultFontRenderer fontRenderer = new DefaultFontRenderer(graphicsContext);
+    private final HashMap<DisplayResolution, FontRenderer> fontRenderers = new HashMap<>();
     private float glitchFactor;
 
     private DefaultDisplayRenderer() {
@@ -77,8 +76,8 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
     }
 
     @Override
-    public DefaultFontRenderer getFontRenderer() {
-        return fontRenderer;
+    public FontRenderer getFontRenderer(final DisplayResolution resolution) {
+        return fontRenderers.computeIfAbsent(resolution, res -> FontRenderer.create(getFramebuffer(res)));
     }
 
     @Override
@@ -106,8 +105,21 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
     }
 
     @Override
-    public DefaultFramebuffer getFramebuffer(final DisplayResolution resolution) {
-        return framebuffers.computeIfAbsent(resolution, DefaultFramebuffer::new);
+    public Framebuffer getFramebuffer(final DisplayResolution resolution) {
+        // @formatter:off
+        return framebuffers.computeIfAbsent(resolution, res -> Framebuffer.create(it -> it
+            .width(res.getWidth())
+            .height(res.getHeight())
+            .attachment(it2 -> it2
+                .type(AttachmentType.COLOR)
+                .format(DefaultTextureFormat.RGBA32F)
+            )
+            .attachment(it2 -> it2
+                .type(AttachmentType.DEPTH)
+                .format(DefaultTextureFormat.DEPTH_32)
+            )
+        ));
+        // @formatter:on
     }
 
     @SuppressWarnings("unchecked")
@@ -126,7 +138,7 @@ public final class DefaultDisplayRenderer implements DisplayRenderer {
             0,
             displayMode,
             brushFactory,
-            fontRenderer);
+            getFontRenderer(displayMode.getResolution()));
         graphics.setContext(graphicsContext);
 
         final var session = ClientSessionHandler.INSTANCE.findByDevice(stack);

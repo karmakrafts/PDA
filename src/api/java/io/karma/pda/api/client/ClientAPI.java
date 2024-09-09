@@ -6,7 +6,6 @@ package io.karma.pda.api.client;
 
 import io.karma.pda.api.client.flex.FlexNodeHandler;
 import io.karma.pda.api.client.render.display.DisplayRenderer;
-import io.karma.pda.api.client.render.shader.ShaderHandler;
 import io.karma.pda.api.session.SessionHandler;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -25,7 +24,6 @@ public final class ClientAPI {
     private static SessionHandler sessionHandler;
     private static FlexNodeHandler flexNodeHandler;
     private static DisplayRenderer displayRenderer;
-    private static ShaderHandler shaderHandler;
     private static boolean isInitialized;
 
     // @formatter:off
@@ -75,14 +73,5 @@ public final class ClientAPI {
     @Internal
     public static void setFlexNodeHandler(final FlexNodeHandler flexNodeHandler) {
         ClientAPI.flexNodeHandler = flexNodeHandler;
-    }
-
-    public static ShaderHandler getShaderHandler() {
-        return shaderHandler;
-    }
-
-    @Internal
-    public static void setShaderHandler(final ShaderHandler shaderHandler) {
-        ClientAPI.shaderHandler = shaderHandler;
     }
 }

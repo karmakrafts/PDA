@@ -7,15 +7,14 @@ package io.karma.pda.mod.session;
 import io.karma.pda.api.session.Session;
 import io.karma.pda.api.session.SessionHandler;
 import io.karma.pda.mod.PDAMod;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -41,10 +40,29 @@ public abstract class AbstractSessionHandler implements SessionHandler {
     }
 
     @Override
+    public @Nullable Session findByPosition(final Level level, final BlockPos pos) {
+        final var sessions = activeSessions.values();
+        final var currentDimension = level.dimension();
+        for (final var session : sessions) {
+            final var context = session.getContext();
+            if (context.getType().isHandheld()) {
+                continue;
+            }
+            final var dimension = context.getLevel().dimension();
+            if (!dimension.equals(currentDimension) || !Objects.requireNonNull(context.getPos()).equals(pos)) {
+                continue;
+            }
+            return session;
+        }
+        return null;
+    }
+
+    @Override
     public @Nullable Session findByDevice(final ItemStack stack) {
         final var sessions = activeSessions.values();
         for (final var session : sessions) {
-            if (session.getContext().getDeviceItem() != stack) {
+            final var context = session.getContext();
+            if (context.getDeviceItem() != stack) {
                 continue;
             }
             return session;

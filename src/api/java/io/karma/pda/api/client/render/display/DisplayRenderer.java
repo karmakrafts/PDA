@@ -5,10 +5,11 @@
 package io.karma.pda.api.client.render.display;
 
 import io.karma.pda.api.client.render.graphics.BrushFactory;
-import io.karma.pda.api.client.render.graphics.FontRenderer;
 import io.karma.pda.api.client.render.graphics.Graphics;
 import io.karma.pda.api.display.DisplayModeSpec;
 import io.karma.pda.api.display.DisplayResolution;
+import io.karma.peregrine.api.font.FontRenderer;
+import io.karma.peregrine.api.framebuffer.Framebuffer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -31,7 +32,7 @@ public interface DisplayRenderer {
 
     Framebuffer getFramebuffer(final DisplayResolution resolution);
 
-    FontRenderer getFontRenderer();
+    FontRenderer getFontRenderer(final DisplayResolution resolution);
 
     BrushFactory getBrushFactory();
 }

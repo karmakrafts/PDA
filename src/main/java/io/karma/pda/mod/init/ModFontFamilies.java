@@ -4,13 +4,10 @@
 
 package io.karma.pda.mod.init;
 
-import io.karma.pda.api.app.theme.font.FontFamily;
 import io.karma.pda.api.util.Constants;
 import io.karma.pda.mod.PDAMod;
-import io.karma.pda.mod.app.theme.font.DefaultFontFamily;
+import io.karma.peregrine.api.Peregrine;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.function.Function;
 
 /**
  * @author Alexander Hinze
@@ -23,11 +20,12 @@ public final class ModFontFamilies {
 
     public static void register() {
         PDAMod.LOGGER.debug("Registering font families");
-        register("fixedsys", DefaultFontFamily::new);
-        register("noto_sans", DefaultFontFamily::new);
+        register("fixedsys");
+        register("noto_sans");
     }
 
-    private static void register(final String name, final Function<ResourceLocation, FontFamily> factory) {
-        PDAMod.FONT_FAMILIES.register(name, () -> factory.apply(new ResourceLocation(Constants.MODID, name)));
+    private static void register(final String name) {
+        PDAMod.FONT_FAMILIES.register(name,
+            () -> Peregrine.getFontFamilyFactory().apply(new ResourceLocation(Constants.MODID, name)));
     }
 }

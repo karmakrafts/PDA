@@ -5,14 +5,15 @@
 package io.karma.pda.mod.client.render.graphics;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat.Mode;
 import io.karma.pda.api.client.render.display.DisplayMode;
-import io.karma.pda.api.client.render.shader.ShaderProgram;
-import io.karma.pda.api.client.render.shader.ShaderType;
 import io.karma.pda.api.util.Constants;
-import io.karma.pda.mod.client.render.shader.DefaultShaderHandler;
+import io.karma.peregrine.api.Peregrine;
+import io.karma.peregrine.api.shader.ShaderProgram;
+import io.karma.peregrine.api.shader.ShaderType;
+import io.karma.peregrine.api.state.Layering;
+import io.karma.peregrine.api.state.Transparency;
 import net.minecraft.Util;
-import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -29,66 +30,55 @@ import java.util.function.Function;
 public final class GraphicsRenderTypes {
     // @formatter:off
     private static ShaderProgram colorShader;
-    public static final Function<DisplayMode, RenderType> COLOR_TRIS = Util.memoize(displayMode ->
-        RenderType.create(String.format("pda_display_color_tris__%s", displayMode.getSpec().name()),
-            DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
-            RenderType.CompositeState.builder()
-                .setCullState(RenderStateShard.NO_CULL)
-                .setShaderState(colorShader.asStateShard())
-                .setOutputState(displayMode.getOutputState())
-                .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-                .setLayeringState(RenderStateShard.POLYGON_OFFSET_LAYERING)
-                .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
-                .createCompositeState(false)));
+
+    public static final Function<DisplayMode, RenderType> COLOR_TRIS = Util.memoize(mode -> Peregrine.createRenderType(it -> it
+        .name(String.format("%s:color_tris_%s", Constants.MODID, mode.getSpec()))
+        .vertexFormat(DefaultVertexFormat.POSITION_COLOR)
+        .mode(Mode.TRIANGLES)
+        .culling(false)
+        .blendMode(Transparency.TRANSPARENCY)
+        .layering(Layering.POLYGON_OFFSET)
+        .target(mode.getFramebuffer())
+        .shader(colorShader)
+    ));
+
     private static ShaderProgram colorTexShader;
-    private static final Function<ModeAndTextureKey, RenderType> COLOR_TEXTURE_TRIS = Util.memoize(key -> {
-        final var texture = key.texture;
-        final var displayMode = key.mode;
-        return RenderType.create(String.format("pda_display_color_tex_tris__%s__%s_%s", displayMode.getSpec().name(), texture.getNamespace(), texture.getPath()),
-            DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.TRIANGLES, 256, false, false,
-            RenderType.CompositeState.builder()
-                .setCullState(RenderStateShard.NO_CULL)
-                .setShaderState(colorTexShader.asStateShard())
-                .setOutputState(displayMode.getOutputState())
-                .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-                .setTexturingState(RenderStateShard.DEFAULT_TEXTURING)
-                .setLayeringState(RenderStateShard.POLYGON_OFFSET_LAYERING)
-                .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
-                .setTextureState(new RenderStateShard.EmptyTextureStateShard(
-                    () -> colorTexShader.setSampler("Sampler0", texture),
-                    () -> {}
-                ))
-                .createCompositeState(false));
-    });
+
+    private static final Function<ModeAndTextureKey, RenderType> COLOR_TEXTURE_TRIS = Util.memoize(key -> Peregrine.createRenderType(it -> it
+        .name(String.format("%s:color_tex_tris_%s", Constants.MODID, key.mode.getSpec()))
+        .vertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR)
+        .mode(Mode.TRIANGLES)
+        .culling(false)
+        .blendMode(Transparency.TRANSPARENCY)
+        .layering(Layering.POLYGON_OFFSET)
+        .target(key.mode.getFramebuffer())
+        .shader(colorTexShader)
+    ));
 
     private GraphicsRenderTypes() {}
     // @formatter:on
 
     @Internal
     public static void createShaders() { // @formatter:off
-        colorShader = DefaultShaderHandler.INSTANCE.create(builder -> builder
-            .shader(object -> object
+        colorShader = ShaderProgram.create(builder -> builder
+            .stage(object -> object
                 .type(ShaderType.VERTEX)
                 .location(Constants.MODID, "shaders/display_color.vert.glsl")
-                .defaultPreProcessor()
             )
-            .shader(object -> object
+            .stage(object -> object
                 .type(ShaderType.FRAGMENT)
                 .location(Constants.MODID, "shaders/display_color.frag.glsl")
-                .defaultPreProcessor()
             )
             .globalUniforms()
         );
-        colorTexShader = DefaultShaderHandler.INSTANCE.create(builder -> builder
-            .shader(object -> object
+        colorTexShader = ShaderProgram.create(builder -> builder
+            .stage(object -> object
                 .type(ShaderType.VERTEX)
                 .location(Constants.MODID, "shaders/display_color_tex.vert.glsl")
-                .defaultPreProcessor()
             )
-            .shader(object -> object
+            .stage(object -> object
                 .type(ShaderType.FRAGMENT)
                 .location(Constants.MODID, "shaders/display_color_tex.frag.glsl")
-                .defaultPreProcessor()
             )
             .sampler("Sampler0")
             .globalUniforms()

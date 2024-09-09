@@ -5,7 +5,6 @@
 package io.karma.pda.api.app.theme;
 
 import io.karma.material.dynamiccolor.DynamicScheme;
-import io.karma.pda.api.app.theme.font.FontSet;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,6 +22,4 @@ public interface Theme {
     ResourceLocation getName();
 
     DynamicScheme getScheme();
-
-    FontSet getFontSet();
 }

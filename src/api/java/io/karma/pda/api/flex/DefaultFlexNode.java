@@ -4,7 +4,7 @@
 
 package io.karma.pda.api.flex;
 
-import io.karma.pda.api.dispose.Disposable;
+import io.karma.peregrine.api.dispose.Disposable;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
